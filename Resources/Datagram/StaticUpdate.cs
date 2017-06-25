@@ -14,38 +14,37 @@ namespace Resources.Datagram {
         public LongVector Position {
             get {
                 return new LongVector() {
-                    x = BitConverter.ToInt64(data, 3),
-                    y = BitConverter.ToInt64(data, 7),
-                    z = BitConverter.ToInt64(data, 11)
+                    x = BitConverter.ToInt64(data, 2),
+                    y = BitConverter.ToInt64(data, 6),
+                    z = BitConverter.ToInt64(data, 10)
                 };
             }
             set {
-                BitConverter.GetBytes(value.x).CopyTo(data, 3);
-                BitConverter.GetBytes(value.y).CopyTo(data, 7);
-                BitConverter.GetBytes(value.z).CopyTo(data, 11);
+                BitConverter.GetBytes(value.x).CopyTo(data, 2);
+                BitConverter.GetBytes(value.y).CopyTo(data, 6);
+                BitConverter.GetBytes(value.z).CopyTo(data, 10);
             }
-        }
-        public Database.StaticUpdateType Type {
-            get { return (Database.StaticUpdateType)data[2]; }
-            set { data[2] = (byte)value; }
-        }
-        public Database.StaticRotation Direction {
-            get { return (Database.StaticRotation)data[15]; }
-            set { data[15] = (byte)value; }
         }
         public FloatVector Size {
             get {
                 return new FloatVector() {
-                    x = BitConverter.ToSingle(data, 16),
-                    y = BitConverter.ToSingle(data, 20),
-                    z = BitConverter.ToSingle(data, 24)
+                    x = BitConverter.ToSingle(data, 14),
+                    y = BitConverter.ToSingle(data, 18),
+                    z = BitConverter.ToSingle(data, 22)
                 };
             }
             set {
-                BitConverter.GetBytes(value.x).CopyTo(data, 16);
-                BitConverter.GetBytes(value.y).CopyTo(data, 20);
-                BitConverter.GetBytes(value.z).CopyTo(data, 24);
+                BitConverter.GetBytes(value.x).CopyTo(data, 14);
+                BitConverter.GetBytes(value.y).CopyTo(data, 18);
+                BitConverter.GetBytes(value.z).CopyTo(data, 22);
             }
+        }
+        /// <summary>
+        /// guid of player who interacts with it
+        /// </summary>
+        public ushort User {
+            get { return BitConverter.ToUInt16(data, 26); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 26);}
         }
         /// <summary>
         /// for closing animation
@@ -54,14 +53,19 @@ namespace Resources.Datagram {
             get { return BitConverter.ToUInt16(data, 28); }
             set { BitConverter.GetBytes(value).CopyTo(data, 28); }
         }
-        /// <summary>
-        /// guid of player who interacts with it
-        /// </summary>
-        public ushort User {
-            get { return BitConverter.ToUInt16(data, 0); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 0);}
+        public Database.StaticUpdateType Type {
+            get { return (Database.StaticUpdateType)data[30]; }
+            set { data[30] = (byte)value; }
         }
-
+        public Database.StaticRotation Direction {
+            get { return (Database.StaticRotation)data[31]; }
+            set { data[31] = (byte)value; }
+        }
+        public bool Closed {
+            get { return data[32].GetBit(0); }
+            set { data[32].SetBit(value, 0); }
+        }
+        
         public byte[] data;
 
         public StaticUpdate() { }

@@ -33,12 +33,12 @@
             staticUpdate,
             block,
             particle,
-            join,
+            connect,
             disconnect,
             players = 255
         }
 
-        public enum DamageType {
+        public enum DamageType : byte {
             _placeholder,
             block,
             normal,
@@ -48,7 +48,7 @@
             invisible2
         }
 
-        public enum Passives : byte{
+        public enum Passives : byte {
             _placeholder,
             bulwalk,
             warFrenzy,
@@ -64,7 +64,7 @@
             swiftness
         }
 
-        public enum Hostility : byte{
+        public enum Hostility : byte {
             player,
             enemy,
             unknown2,
@@ -74,7 +74,7 @@
             neutral
         }
 
-        public enum Equipment : byte{
+        public enum Equipment : byte {
             unknown,
             neck,
             chest,
@@ -90,23 +90,26 @@
             pet
         }
 
-        public enum StaticRotation : byte{
+        public enum StaticRotation : byte {
             south,
             east,
             north,
             west
         }
- 
-        public enum Projectile {
+
+        public enum Projectile : byte {
             arrow = 1,
             boomerang,
             unknown,
             rock
         }
-        public enum ProcType {
+        public enum ProcType : byte {
 
         }
-        public enum StaticUpdateType {
+        public enum StaticUpdateType : byte {
+
+        }
+        public enum ParticleType : byte {
 
         }
     }

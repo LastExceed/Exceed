@@ -1,12 +1,13 @@
 ﻿using Resources.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Resources.Datagram {
-    class Shoot {
+    class Particle {
         public LongVector Position {
             get {
                 var t = new LongVector() {
@@ -37,24 +38,37 @@ namespace Resources.Datagram {
                 BitConverter.GetBytes(value.z).CopyTo(data, 20);
             }
         }
-        public float Scale {
-            get { return BitConverter.ToSingle(data, 24); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 24); }
+        public Color Color {
+            get { return Color.FromArgb(data[24], data[25], data[26],data[27]); }
+            set {
+                data[24] = value.A;
+                data[25] = value.R;
+                data[26] = value.G;
+                data[27] = value.B;
+            }
         }
-        public float Particles {
+        public float Size {
             get { return BitConverter.ToSingle(data, 28); }
             set { BitConverter.GetBytes(value).CopyTo(data, 28); }
         }
-        public Database.Projectile Projectile {
-            get { return (Database.Projectile)data[32]; }
-            set { data[32] = (byte)value; }
+        public ushort Count {
+            get { return BitConverter.ToUInt16(data, 32); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 32); }
+        }
+        public Database.ParticleType Type {
+            get { return (Database.ParticleType)data[34]; }
+            set { data[34] = (byte)value; }
+        }
+        public float Spread {
+            get { return BitConverter.ToSingle(data, 35); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 35); }
         }
 
         public byte[] data;
 
-        public Shoot() { }
+        public Particle() { }
 
-        public Shoot(byte[] data) {
+        public Particle(byte[] data) {
             this.data = data;
         }
     }

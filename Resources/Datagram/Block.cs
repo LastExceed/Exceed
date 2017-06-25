@@ -1,21 +1,22 @@
-﻿using System;
+﻿using Resources.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Resources.Datagram {
-    class InGameTime {
-        public int Time {
-            get { return BitConverter.ToInt32(data, 0); }
+    class Block {
+        public short Length {
+            get { return BitConverter.ToInt16(data, 0); }
             set { BitConverter.GetBytes(value).CopyTo(data, 0); }
         }
+        //public compressed ???
 
         public byte[] data;
+        public Block() { }
 
-        public InGameTime() { }
-
-        public InGameTime(byte[] data) {
+        public Block(byte[] data) {
             this.data = data;
         }
     }

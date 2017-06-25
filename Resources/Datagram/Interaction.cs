@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Resources.Datagram {
     class Interaction {
-
+        
     }
 }

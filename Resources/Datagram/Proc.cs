@@ -12,15 +12,15 @@ namespace Resources.Datagram {
         }
         public Database.ProcType Type {
             get { return (Database.ProcType)(data[2]); }
-            set { data[11] = (byte)value; }
+            set { data[2] = (byte)value; }
         }
         public float Modifier {
             get { return BitConverter.ToSingle(data, 3); }
             set { BitConverter.GetBytes(value).CopyTo(data, 3); }
         }
         public int Duration {
-            get { return BitConverter.ToInt32(data, 0); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 0); }
+            get { return BitConverter.ToInt32(data, 7); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 7); }
         }
 
         public byte[] data;

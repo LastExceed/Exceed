@@ -35,6 +35,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,8 +45,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database.cs" />
+    <Compile Include="Datagram\Block.cs" />
     <Compile Include="Datagram\Chat.cs" />
+    <Compile Include="Datagram\Connect.cs" />
+    <Compile Include="Datagram\Disconnect.cs" />
     <Compile Include="Datagram\Interaction.cs" />
+    <Compile Include="Datagram\Particle.cs" />
+    <Compile Include="Datagram\Players.cs" />
     <Compile Include="Datagram\Proc.cs" />
     <Compile Include="Datagram\Shoot.cs" />
     <Compile Include="Datagram\StaticUpdate.cs" />
