@@ -170,16 +170,16 @@ namespace Server {
                     serverUpdate8.Send(players, player.entityData.guid);
 
                     switch (passiveProc.type) {
-                        case (int)Database.Passives.warFrenzy:
-                        case (int)Database.Passives.camouflage:
-                        case (int)Database.Passives.fireSpark:
-                        case (int)Database.Passives.intuition:
-                        case (int)Database.Passives.elusivenes:
-                        case (int)Database.Passives.swiftness:
+                        case (byte)Database.Passives.warFrenzy:
+                        case (byte)Database.Passives.camouflage:
+                        case (byte)Database.Passives.fireSpark:
+                        case (byte)Database.Passives.intuition:
+                        case (byte)Database.Passives.elusivenes:
+                        case (byte)Database.Passives.swiftness:
                             //nothing particular yet
                             break;
 
-                        case (int)Database.Passives.manashield:
+                        case (byte)Database.Passives.manashield:
                             var chatMessage6 = new ChatMessage() {
                                 message = "manashield: " + passiveProc.modifier,
                                 sender = 0
@@ -187,11 +187,11 @@ namespace Server {
                             chatMessage6.Send(player);
                             break;
 
-                        case (int)Database.Passives.bulwalk:
+                        case (byte)Database.Passives.bulwalk:
                             //client deals with this automatically
                             break;
 
-                        case (int)Database.Passives.poison:
+                        case (byte)Database.Passives.poison:
                             if (players.ContainsKey(passiveProc.target))//in case target is a tomb or sth
                             {
                                 var poisonDmg = new Hit() {
