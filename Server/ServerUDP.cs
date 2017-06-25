@@ -9,9 +9,9 @@ using System.Net;
 namespace Server {
     class ServerUDP {
         UdpClient UDPclient = new UdpClient(new IPEndPoint(IPAddress.Any, 12345));
-        IPEndPoint source;
 
         public void Listen() {
+            IPEndPoint source = null;
             while (true) {
                 byte[] data = UDPclient.Receive(ref source);
                 Process_packet(data);
