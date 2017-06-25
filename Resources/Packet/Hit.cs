@@ -1,10 +1,8 @@
 ﻿using System.IO;
 using Resources.Utilities;
 
-namespace Resources.Packet
-{
-    public class Hit
-    {
+namespace Resources.Packet {
+    public class Hit {
         public const int packetID = 7;
 
         public ulong attacker;
@@ -20,8 +18,7 @@ namespace Resources.Packet
         public byte showlight;
         public byte paddingB;
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             attacker = reader.ReadUInt64();
             target = reader.ReadUInt64();
             damage = reader.ReadSingle();
@@ -36,8 +33,7 @@ namespace Resources.Packet
             paddingB = reader.ReadByte();
         }
 
-        public void write(BinaryWriter writer)
-        {
+        public void write(BinaryWriter writer) {
             writer.Write(attacker);
             writer.Write(target);
             writer.Write(damage);
@@ -48,7 +44,7 @@ namespace Resources.Packet
             direction.write(writer);
             writer.Write(skill);
             writer.Write(type);
-            writer.Write(showlight); 
+            writer.Write(showlight);
             writer.Write(paddingB);
         }
     }

@@ -1,9 +1,7 @@
 ﻿using System.IO;
 
-namespace Resources.Packet.Part
-{
-    public class BlockDelta
-    {
+namespace Resources.Packet.Part {
+    public class BlockDelta {
         public int posX;
         public int posY;
         public int posZ;
@@ -13,8 +11,7 @@ namespace Resources.Packet.Part
         public byte type;
         public int unknown;
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             posX = reader.ReadInt32();
             posY = reader.ReadInt32();
             posZ = reader.ReadInt32();
@@ -25,16 +22,15 @@ namespace Resources.Packet.Part
             unknown = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer)
-        {
-           writer.Write(posX);
-           writer.Write(posY);
-           writer.Write(posZ);
-           writer.Write(red);
-           writer.Write(green);
-           writer.Write(blue);
-           writer.Write(type);
-           writer.Write(unknown);
+        public void write(BinaryWriter writer) {
+            writer.Write(posX);
+            writer.Write(posY);
+            writer.Write(posZ);
+            writer.Write(red);
+            writer.Write(green);
+            writer.Write(blue);
+            writer.Write(type);
+            writer.Write(unknown);
         }
     }
 }

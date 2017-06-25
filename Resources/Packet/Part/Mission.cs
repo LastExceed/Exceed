@@ -1,9 +1,7 @@
 ﻿using System.IO;
 
-namespace Resources.Packet.Part
-{
-    public class Mission
-    {
+namespace Resources.Packet.Part {
+    public class Mission {
         public int sectionX = 4096;
         public int sectionY = 4096;
         public int unknownA = 1;
@@ -21,8 +19,7 @@ namespace Resources.Packet.Part
         public int chunkX = 32768;
         public int chunkY = 32768;
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             sectionX = reader.ReadInt32();
             sectionY = reader.ReadInt32();
             unknownA = reader.ReadInt32();
@@ -41,8 +38,7 @@ namespace Resources.Packet.Part
             chunkY = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer)
-        {
+        public void write(BinaryWriter writer) {
             writer.Write(sectionX);
             writer.Write(sectionY);
             writer.Write(unknownA);

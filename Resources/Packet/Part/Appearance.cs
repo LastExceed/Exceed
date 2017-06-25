@@ -1,10 +1,8 @@
 ﻿using Resources.Utilities;
 using System.IO;
 
-namespace Resources.Packet.Part
-{
-    public class Appearance
-    {
+namespace Resources.Packet.Part {
+    public class Appearance {
         public byte unknownA;
         public byte unknownB;
         public byte hair_red;
@@ -42,8 +40,7 @@ namespace Resources.Packet.Part
         public FloatVector back_offset = new FloatVector();
         public FloatVector wing_offset = new FloatVector();
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             unknownA = reader.ReadByte();
             unknownB = reader.ReadByte();
             hair_red = reader.ReadByte();
@@ -82,8 +79,7 @@ namespace Resources.Packet.Part
             wing_offset.read(reader);
         }
 
-        public void write(BinaryWriter writer)
-        {
+        public void write(BinaryWriter writer) {
             writer.Write(unknownA);
             writer.Write(unknownB);
             writer.Write(hair_red);

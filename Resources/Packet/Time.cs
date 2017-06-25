@@ -2,23 +2,19 @@
 using System.IO;
 using System.Threading;
 
-namespace Resources.Packet
-{
-    public class Time
-    {
+namespace Resources.Packet {
+    public class Time {
         public const int packetID = 5;
 
         public int day;
         public int time;
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             day = reader.ReadInt32();
             time = reader.ReadInt32();
         }
 
-        public void send(Player player)
-        {
+        public void send(Player player) {
             //SpinWait.SpinUntil(() => !player.busy);
             //player.busy = true;
             player.writer.Write(packetID);
@@ -27,18 +23,15 @@ namespace Resources.Packet
             //player.busy = false;
         }
 
-        public void send(Dictionary<ulong, Player> players, ulong toSkip)
-        {
-            foreach (KeyValuePair<ulong, Player> entry in players)
-            {
-                if (entry.Key != toSkip)
-                {
+        public void send(Dictionary<ulong, Player> players, ulong toSkip) {
+            foreach (KeyValuePair<ulong, Player> entry in players) {
+                if (entry.Key != toSkip) {
                     //SpinWait.SpinUntil(() => !entry.Value.busy);
                     //entry.Value.busy = true;
                     entry.Value.writer.Write(packetID);
                     entry.Value.writer.Write(day);
                     entry.Value.writer.Write(time);
-                   // entry.Value.busy = false;
+                    // entry.Value.busy = false;
                 }
             }
         }

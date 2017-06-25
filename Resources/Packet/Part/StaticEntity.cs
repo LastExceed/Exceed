@@ -1,10 +1,8 @@
 ﻿using System.IO;
 using Resources.Utilities;
 
-namespace Resources.Packet.Part
-{
-    public class StaticEntity
-    {
+namespace Resources.Packet.Part {
+    public class StaticEntity {
         public int chunkX;
         public int chunkY;
         public int id;
@@ -20,8 +18,7 @@ namespace Resources.Packet.Part
         public int paddingC;
         public ulong guid; //of player who interacts with it
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
             id = reader.ReadInt32();
@@ -38,8 +35,7 @@ namespace Resources.Packet.Part
             guid = reader.ReadUInt64();
         }
 
-        public void write(BinaryWriter writer)
-        {
+        public void write(BinaryWriter writer) {
             writer.Write(chunkX);
             writer.Write(chunkY);
             writer.Write(id);

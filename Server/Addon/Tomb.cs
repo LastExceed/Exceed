@@ -2,12 +2,9 @@
 using Resources.Packet;
 using Resources.Packet.Part;
 
-namespace Server.Addon
-{
-    class Tomb
-    {
-        public static EntityUpdate show(Player player)
-        {
+namespace Server.Addon {
+    class Tomb {
+        public static EntityUpdate show(Player player) {
             var tomb = new EntityUpdate();
             tomb.guid = player.entityData.guid + 1000;
             tomb.bitfield1 = 0b00001000_00000000_00100001_10000001;
@@ -26,8 +23,7 @@ namespace Server.Addon
             return tomb;
         }
 
-        public static EntityUpdate hide(Player player)
-        {
+        public static EntityUpdate hide(Player player) {
             var tomb = new EntityUpdate();
             tomb.guid = player.entityData.guid + 1000;
             tomb.bitfield1 = 0b00001000_00000000_00000001_10000000;

@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Resources.Packet.Part
-{
-    public class Item
-    {
+namespace Resources.Packet.Part {
+    public class Item {
         public byte type;
         public byte subtype;
         //2 pad
@@ -19,8 +17,7 @@ namespace Resources.Packet.Part
         List<Spirit> spirits = new List<Spirit>();
         public int spiritCounter;
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             type = reader.ReadByte();
             subtype = reader.ReadByte();
             reader.ReadBytes(2);
@@ -33,8 +30,7 @@ namespace Resources.Packet.Part
             level = reader.ReadInt16();
             reader.ReadBytes(2);
 
-            for (int i = 0; i < 32; i++)
-            {
+            for (int i = 0; i < 32; i++) {
                 Spirit spirit = new Spirit();
                 spirit.x = reader.ReadByte();
                 spirit.y = reader.ReadByte();
@@ -47,8 +43,7 @@ namespace Resources.Packet.Part
             spiritCounter = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer)
-        {
+        public void write(BinaryWriter writer) {
             writer.Write(type);
             writer.Write(subtype);
             writer.Write((short)0);
@@ -60,8 +55,7 @@ namespace Resources.Packet.Part
             writer.Write((byte)0);
             writer.Write(level);
             writer.Write((short)0);
-            foreach (Spirit spirit in spirits)
-            {
+            foreach (Spirit spirit in spirits) {
                 writer.Write(spirit.x);
                 writer.Write(spirit.y);
                 writer.Write(spirit.z);
@@ -73,8 +67,7 @@ namespace Resources.Packet.Part
         }
     }
 
-    public class Spirit
-    {
+    public class Spirit {
         public byte x;
         public byte y;
         public byte z;
@@ -82,8 +75,7 @@ namespace Resources.Packet.Part
         public short level;
         //2 pad
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             x = reader.ReadByte();
             y = reader.ReadByte();
             z = reader.ReadByte();
@@ -92,8 +84,7 @@ namespace Resources.Packet.Part
             reader.ReadBytes(2);
         }
 
-        public void write(BinaryWriter writer)
-        {
+        public void write(BinaryWriter writer) {
             writer.Write(x);
             writer.Write(y);
             writer.Write(z);

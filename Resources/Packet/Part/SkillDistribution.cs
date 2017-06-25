@@ -1,9 +1,7 @@
 ﻿using System.IO;
 
-namespace Resources.Packet.Part
-{
-    public class SkillDistribution
-    {
+namespace Resources.Packet.Part {
+    public class SkillDistribution {
         public int petmaster;
         public int petriding;
         public int sailing;
@@ -16,8 +14,7 @@ namespace Resources.Packet.Part
         public int ability4;
         public int ability5;
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             petmaster = reader.ReadInt32();
             petriding = reader.ReadInt32();
             sailing = reader.ReadInt32();
@@ -31,8 +28,7 @@ namespace Resources.Packet.Part
             ability5 = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer)
-        {
+        public void write(BinaryWriter writer) {
             writer.Write(petmaster);
             writer.Write(petriding);
             writer.Write(sailing);

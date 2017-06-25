@@ -5,10 +5,8 @@ using Resources.Utilities;
 using System.Threading;
 using System;
 
-namespace Resources.Packet
-{
-    public class EntityUpdate
-    {
+namespace Resources.Packet {
+    public class EntityUpdate {
         public const int packetID = 0;
 
         public ulong guid;
@@ -66,14 +64,12 @@ namespace Resources.Packet
 
         public EntityUpdate() //constructor
         {
-            for (int i = 0; i < 13; i++)
-            {
+            for (int i = 0; i < 13; i++) {
                 equipment[i] = new Part.Item();
             }
         }
 
-        public void read(BinaryReader r)
-        {
+        public void read(BinaryReader r) {
             int size = r.ReadInt32();
             byte[] compressed = r.ReadBytes(size);
             byte[] uncompressed = Zlib.Uncompress(compressed);
@@ -261,8 +257,7 @@ namespace Resources.Packet
             }
             if (Tools.GetBit(bitfield2, 44 - 32)) //equipment
             {
-                for (int i = 0; i < 13; i++)
-                {
+                for (int i = 0; i < 13; i++) {
                     equipment[i].read(reader);
                 }
             }
@@ -281,8 +276,7 @@ namespace Resources.Packet
             }
         }
 
-        public void merge(EntityUpdate playerEntityData)
-        {
+        public void merge(EntityUpdate playerEntityData) {
             if (Tools.GetBit(bitfield1, 0)) //position
             {
                 playerEntityData.position = position;
@@ -476,15 +470,13 @@ namespace Resources.Packet
                 playerEntityData.manaCubes = manaCubes;
             }
         }
-       
-        public void filter(EntityUpdate previous)
-        {
+
+        public void filter(EntityUpdate previous) {
             if (Tools.GetBit(bitfield1, 0)) //position
             {
                 if (Math.Abs(position.x - previous.position.x) < 32768 &&
                     Math.Abs(position.y - previous.position.y) < 32768 &&
-                    Math.Abs(position.z - previous.position.z) < 32768)
-                {
+                    Math.Abs(position.z - previous.position.z) < 32768) {
                     bitfield1 &= ~(1 << 0);
                 }
             }
@@ -493,8 +485,7 @@ namespace Resources.Packet
             {
                 if (Math.Abs(velocity.x) < 1 &&
                     Math.Abs(velocity.y) < 1 &&
-                    Math.Abs(velocity.z) < 1)
-                {
+                    Math.Abs(velocity.z) < 1) {
                     bitfield1 &= ~(1 << 2);
                 }
             }
@@ -502,52 +493,45 @@ namespace Resources.Packet
             {
                 if (Math.Abs(extraVel.x) < 1 &&
                     Math.Abs(extraVel.y) < 1 &&
-                    Math.Abs(extraVel.z) < 1)
-                {
+                    Math.Abs(extraVel.z) < 1) {
                     bitfield1 &= ~(1 << 4);
                 }
             }
             bitfield1 &= ~(1 << 5);
             if (Tools.GetBit(bitfield1, 10)) //mode start time
             {
-                if (modeTimer != 0)
-                {
+                if (modeTimer != 0) {
                     bitfield1 &= ~(1 << 10);
                 }
             }
             bitfield1 &= ~(1 << 12);
             if (Tools.GetBit(bitfield1, 15)) //roll
             {
-                if (roll != 600)
-                {
+                if (roll != 600) {
                     bitfield1 &= ~(1 << 15);
                 }
             }
             if (Tools.GetBit(bitfield1, 16)) //stun
             {
-                if (stun < previous.stun)
-                {
+                if (stun < previous.stun) {
                     bitfield1 &= ~(1 << 16);
                 }
             }
             if (Tools.GetBit(bitfield1, 17)) //slowed?
             {
-                if (slow < previous.slow)
-                {
+                if (slow < previous.slow) {
                     bitfield1 &= ~(1 << 17);
                 }
             }
             if (Tools.GetBit(bitfield1, 18)) //make blue time (ice)
             {
-                if (ice < previous.ice)
-                {
+                if (ice < previous.ice) {
                     bitfield1 &= ~(1 << 18);
                 }
             }
             if (Tools.GetBit(bitfield1, 19)) //speed up time (wind)
             {
-                if (wind < previous.wind)
-                {
+                if (wind < previous.wind) {
                     bitfield1 &= ~(1 << 19);
                 }
             }
@@ -559,8 +543,7 @@ namespace Resources.Packet
                 if (previous.mode == 0 ||
                     (Math.Abs(rayHit.x - previous.rayHit.x) > 0.5 &&
                      Math.Abs(rayHit.y - previous.rayHit.y) > 0.5 &&
-                     Math.Abs(rayHit.z - previous.rayHit.z) > 0.5))
-                {
+                     Math.Abs(rayHit.z - previous.rayHit.z) > 0.5)) {
                     bitfield1 &= ~(1 << 26);
                 }
             }
@@ -580,9 +563,8 @@ namespace Resources.Packet
             bitfield2 &= ~(1 << 46 - 32);
             bitfield2 &= ~(1 << 47 - 32);
         }
-        
-        public byte[] getBytes()
-        {
+
+        public byte[] getBytes() {
             var stream = new MemoryStream();
             var writer = new BinaryWriter(stream);
             writer.Write(guid);
@@ -767,8 +749,7 @@ namespace Resources.Packet
             }
             if (Tools.GetBit(bitfield2, 44 - 32)) //equipment
             {
-                foreach (Part.Item item in equipment)
-                {
+                foreach (Part.Item item in equipment) {
                     item.write(writer);
                 }
             }
@@ -800,27 +781,20 @@ namespace Resources.Packet
             return data;
         }
 
-        public void send(Player player)
-        {
+        public void send(Player player) {
             byte[] data = this.getBytes();
             //SpinWait.SpinUntil(() => !player.busy);
             //player.busy = true;
             player.writer.Write(data);
             //player.busy = false;
         }
-        public void send(Dictionary<ulong, Player> players, ulong toSkip)
-        {
+        public void send(Dictionary<ulong, Player> players, ulong toSkip) {
             byte[] data = this.getBytes();
-            foreach (Player player in new List<Player>(players.Values))
-            {
-                if (player.entityData.guid != toSkip)
-                {
-                    try
-                    {
+            foreach (Player player in new List<Player>(players.Values)) {
+                if (player.entityData.guid != toSkip) {
+                    try {
                         player.writer.Write(data);
-                    }
-                    catch (IOException)
-                    {
+                    } catch (IOException) {
 
                     }
                 }

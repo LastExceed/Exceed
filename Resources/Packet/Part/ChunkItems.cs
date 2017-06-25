@@ -1,41 +1,34 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Resources.Packet.Part
-{
-    public class ChunkItems
-    {
+namespace Resources.Packet.Part {
+    public class ChunkItems {
         public int chunkX;
         public int chunkY;
         public List<DroppedItem> droppedItems = new List<DroppedItem>();
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
             int m = reader.ReadInt32();
-            for (int i = 0; i < m; i++)
-            {
+            for (int i = 0; i < m; i++) {
                 DroppedItem droppedItem = new DroppedItem();
                 droppedItem.read(reader);
                 droppedItems.Add(droppedItem);
             }
         }
 
-        public void write(BinaryWriter writer)
-        {
+        public void write(BinaryWriter writer) {
             writer.Write(chunkX);
             writer.Write(chunkY);
             writer.Write(droppedItems.Count);
-            foreach (DroppedItem droppedItem in droppedItems)
-            {
+            foreach (DroppedItem droppedItem in droppedItems) {
                 droppedItem.write(writer);
             }
         }
     }
 
-    public class DroppedItem
-    {
+    public class DroppedItem {
         public Item item;
         public long posX;
         public long posY;
@@ -47,8 +40,7 @@ namespace Resources.Packet.Part
         public int unknownB;
         public int unknownC;
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             item = new Item(); item.read(reader);
             posX = reader.ReadInt64();
             posY = reader.ReadInt64();
@@ -61,8 +53,7 @@ namespace Resources.Packet.Part
             unknownC = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer)
-        {
+        public void write(BinaryWriter writer) {
             item.write(writer);
             writer.Write(posX);
             writer.Write(posY);

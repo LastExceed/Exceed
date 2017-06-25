@@ -1,9 +1,7 @@
 ﻿using System.IO;
 
-namespace Resources.Packet.Part
-{
-    public class Sound
-    {
+namespace Resources.Packet.Part {
+    public class Sound {
         public int posX;
         public int posY;
         public int posZ;
@@ -11,8 +9,7 @@ namespace Resources.Packet.Part
         public float pitch;
         public float volume;
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             posX = reader.ReadInt32();
             posY = reader.ReadInt32();
             posZ = reader.ReadInt32();
@@ -21,8 +18,7 @@ namespace Resources.Packet.Part
             volume = reader.ReadSingle();
         }
 
-        public void write(BinaryWriter writer)
-        {
+        public void write(BinaryWriter writer) {
             writer.Write(posX);
             writer.Write(posY);
             writer.Write(posZ);

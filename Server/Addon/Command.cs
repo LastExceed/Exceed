@@ -3,14 +3,10 @@ using Resources;
 using Resources.Packet;
 using Resources.Packet.Part;
 
-namespace Server.Addon
-{
-    class Command
-    {
-        public static void execute(string command, string parameter, Player player)
-        {
-            switch (command)
-            {
+namespace Server.Addon {
+    class Command {
+        public static void execute(string command, string parameter, Player player) {
+            switch (command) {
                 case "spawn":
                     break;
 
@@ -18,8 +14,7 @@ namespace Server.Addon
                     break;
 
                 case "xp":
-                    try
-                    {
+                    try {
                         int amount = Convert.ToInt32(parameter);
 
                         var xpDummy = new EntityUpdate();
@@ -37,15 +32,12 @@ namespace Server.Addon
                         serverUpdate.kills.Add(kill);
                         serverUpdate.send(player);
                         break;
-                    }
-                    catch (Exception)
-                    {
+                    } catch (Exception) {
                         //invalid syntax
                     }
                     break;
                 case "time":
-                    try
-                    {
+                    try {
                         int index = parameter.IndexOf(":");
                         int hour = Convert.ToInt32(parameter.Substring(0, index));
                         int minute = Convert.ToInt32(parameter.Substring(index + 1));
@@ -53,9 +45,7 @@ namespace Server.Addon
                         var time = new Time();
                         time.time = (hour * 60 + minute) * 60000;
                         time.send(player);
-                    }
-                    catch (Exception)
-                    {
+                    } catch (Exception) {
                         //invalid syntax
                     }
                     break;

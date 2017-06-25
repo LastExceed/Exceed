@@ -1,9 +1,6 @@
-﻿namespace Resources
-{
-    static public class Database
-    {
-        public enum DamageTypes
-        {
+﻿namespace Resources {
+    static public class Database {
+        public enum DamageTypes {
             _placeholder,
             block,
             normal,
@@ -13,8 +10,7 @@
             invisible2
         }
 
-        public enum Passives
-        {
+        public enum Passives {
             _placeholder,
             bulwalk,
             warFrenzy,
@@ -30,8 +26,7 @@
             swiftness
         }
 
-        public enum Hostility
-        {
+        public enum Hostility {
             player,
             enemy,
             unknown2,
@@ -41,8 +36,7 @@
             neutral
         }
 
-        public enum Equipment
-        {
+        public enum Equipment {
             unknown,
             neck,
             chest,
@@ -58,8 +52,7 @@
             pet
         }
 
-        public enum StaticRotation
-        {
+        public enum StaticRotation {
             south,
             east,
             north,

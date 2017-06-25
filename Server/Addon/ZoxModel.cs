@@ -2,10 +2,8 @@
 using Resources.Packet;
 using Resources.Packet.Part;
 
-namespace Server.Addon
-{
-    class ZoxModel
-    {
+namespace Server.Addon {
+    class ZoxModel {
         public string creator { get; set; }
         public byte height { get; set; }
         public byte width { get; set; }
@@ -14,10 +12,8 @@ namespace Server.Addon
         public byte frames { get; set; }
         public uint[][] frame1 { get; set; }
 
-        public void parse(ServerUpdate serverUpdate, int offsetX, int offsetY, int offsetZ)
-        {
-            for (uint x = 0; x < frame1.Length; x++)
-            {
+        public void parse(ServerUpdate serverUpdate, int offsetX, int offsetY, int offsetZ) {
+            for (uint x = 0; x < frame1.Length; x++) {
                 byte[] colors = BitConverter.GetBytes(frame1[x][3]); //3=red 2=green 1=blue 0=alpha
                 var blockDelta = new BlockDelta();
                 blockDelta.posX = (int)(frame1[x][0] + offsetX);

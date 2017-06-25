@@ -3,12 +3,9 @@ using Resources;
 using Resources.Packet;
 using Resources.Packet.Part;
 
-namespace Server.Addon
-{
-    class Teleport
-    {
-        public void teleportPlayer(Player player, long x, long y, long z)
-        {
+namespace Server.Addon {
+    class Teleport {
+        public void teleportPlayer(Player player, long x, long y, long z) {
             var staticEntity = new StaticEntity();
             byte[] buffer = BitConverter.GetBytes(x);
             staticEntity.chunkX = BitConverter.ToInt32(buffer, 3);

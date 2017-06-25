@@ -1,10 +1,8 @@
 ﻿using Resources.Utilities;
 using System.IO;
 
-namespace Resources.Packet
-{
-    public class Shoot
-    {
+namespace Resources.Packet {
+    public class Shoot {
         public const int packetID = 9;
 
         public ulong attacker;
@@ -26,8 +24,7 @@ namespace Resources.Packet
         public float unknownC;
         public float unknownD;
 
-        public void read(BinaryReader reader)
-        {
+        public void read(BinaryReader reader) {
             attacker = reader.ReadUInt64();
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
@@ -48,8 +45,7 @@ namespace Resources.Packet
             unknownD = reader.ReadSingle();
         }
 
-        public void write(BinaryWriter writer)
-        {
+        public void write(BinaryWriter writer) {
             writer.Write(attacker);
             writer.Write(chunkX);
             writer.Write(chunkY);

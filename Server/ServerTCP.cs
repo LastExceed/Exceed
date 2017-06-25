@@ -11,16 +11,14 @@ using Resources;
 using Resources.Packet;
 using Resources.Packet.Part;
 
-namespace Server
-{
-    class Server
-    {
+namespace Server {
+    class ServerTCP {
         public TcpListener listener;
         Dictionary<ulong, Player> players;
         ulong guidCounter = 1;
         ServerUpdate worldUpdate;
 
-        public Server() //constructor
+        public ServerTCP() //constructor
         {
             listener = new TcpListener(IPAddress.Any, 12345);
             listener.Start();
@@ -30,37 +28,29 @@ namespace Server
             arena.parse(worldUpdate, 8397006, 8396937, 127); //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
         }
 
-        public void listen()
-        {
+        public void listen() {
             Player player = new Player();
             player.tcp = listener.AcceptTcpClient();
             new Thread(new ThreadStart(listen)).Start(); //for every connection a new thread is created to make sure that packets are received asap
             player.writer = new BinaryWriter(player.tcp.GetStream());
             player.reader = new BinaryReader(player.tcp.GetStream());
             int packetID = -1;
-            while (player.connected)
-            {
-                try
-                {
+            while (player.connected) {
+                try {
                     packetID = player.reader.ReadInt32();
-                }
-                catch (IOException)
-                {
+                } catch (IOException) {
                     player.connected = false;
                     kick(player);
                 }
 
-                if (player.connected)
-                {
+                if (player.connected) {
                     process_packet(packetID, player);
                 }
             }
         }
 
-        public void process_packet(int packetID, Player player)
-        {
-            switch (packetID)
-            {
+        public void process_packet(int packetID, Player player) {
+            switch (packetID) {
                 case 0:
                     #region entity update
                     var entityUpdate = new EntityUpdate();
@@ -68,8 +58,7 @@ namespace Server
                     int bitfield1 = entityUpdate.bitfield1;
                     int bitfield2 = entityUpdate.bitfield2;
                     string ACmessage = AntiCheat.inspect(entityUpdate);
-                    if (ACmessage != "ok")
-                    {
+                    if (ACmessage != "ok") {
                         var kickMessage = new ChatMessage();
                         kickMessage.message = "illegal " + ACmessage;
                         kickMessage.send(player);
@@ -78,23 +67,18 @@ namespace Server
                         player.connected = false;
                         kick(player);
                     }
-                    if (Tools.GetBit(entityUpdate.bitfield2, 45 - 32))
-                    {
+                    if (Tools.GetBit(entityUpdate.bitfield2, 45 - 32)) {
                         Announce.join(entityUpdate.name, player.entityData.name, players);
                     }
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
                     entityUpdate.filter(player.entityData);
-                    if (entityUpdate.bitfield1 != 0 || entityUpdate.bitfield2 != 0)
-                    {
+                    if (entityUpdate.bitfield1 != 0 || entityUpdate.bitfield2 != 0) {
                         entityUpdate.send(players, 0);
                         entityUpdate.bitfield1 = bitfield1; //bitfield reverted to unfiltered for future purposes
                         entityUpdate.bitfield2 = bitfield2;
-                        if (Tools.GetBit(bitfield1, 27) && entityUpdate.HP == 0 && player.entityData.HP > 0)
-                        {
+                        if (Tools.GetBit(bitfield1, 27) && entityUpdate.HP == 0 && player.entityData.HP > 0) {
                             Tomb.show(player).send(players, 0);
-                        }
-                        else if (Tools.GetBit(bitfield1, 27) && player.entityData.HP == 0 && entityUpdate.HP > 0)
-                        {
+                        } else if (Tools.GetBit(bitfield1, 27) && player.entityData.HP == 0 && entityUpdate.HP > 0) {
                             Tomb.hide(player).send(players, 0);
                         }
                         entityUpdate.merge(player.entityData);
@@ -105,9 +89,9 @@ namespace Server
                     #region action
                     EntityAction action = new EntityAction();
                     action.read(player.reader);
-                    switch (action.type)
-                    {
+                    switch (action.type) {
                         case 2: //npc shops/talk WIP
+                            Console.WriteLine("###");
                             break;
 
                         case 3: //static interaction
@@ -150,7 +134,7 @@ namespace Server
                             //pet.bitfield1 = 0b00001000_00000000_00100001_10000001;
                             //pet.bitfield2 = 0b00000000_00000000_00110000_00001000;
                             //pet.position = player.entityData.position;
-                            //pet.hostility = (int)Database.Hostility.pet;
+                            //pet.hostility = (int)Database.Hostility.NPC;
                             //pet.entityType = 28;
                             //pet.appearance = player.entityData.appearance;
                             //pet.HP = 999;
@@ -186,8 +170,7 @@ namespace Server
                     serverUpdate8.passiveProcs.Add(passiveProc);
                     serverUpdate8.send(players, player.entityData.guid);
 
-                    switch (passiveProc.type)
-                    {
+                    switch (passiveProc.type) {
                         case (int)Database.Passives.warFrenzy:
                         case (int)Database.Passives.camouflage:
                         case (int)Database.Passives.fireSpark:
@@ -246,20 +229,16 @@ namespace Server
                     chatMessage.read(player.reader);
                     chatMessage.sender = player.entityData.guid;
 
-                    if (chatMessage.message.StartsWith("/"))
-                    {
+                    if (chatMessage.message.StartsWith("/")) {
                         string parameter = "";
                         string command = chatMessage.message.Substring(1);
-                        if (chatMessage.message.Contains(" "))
-                        {
+                        if (chatMessage.message.Contains(" ")) {
                             int spaceIndex = command.IndexOf(" ");
                             parameter = command.Substring(spaceIndex + 1);
                             command = command.Substring(0, spaceIndex);
                         }
                         Command.execute(command, parameter, player); //wip
-                    }
-                    else
-                    {
+                    } else {
                         chatMessage.send(players, 0);
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.Write("#" + player.entityData.guid + " " + player.entityData.name + ": ");
@@ -284,14 +263,11 @@ namespace Server
                     #region version
                     var version = new ProtocolVersion();
                     version.read(player.reader);
-                    if (version.version != 3)
-                    {
+                    if (version.version != 3) {
                         version.version = 3;
                         version.send(player);
                         player.connected = false;
-                    }
-                    else
-                    {
+                    } else {
                         player.entityData.guid = guidCounter;
                         guidCounter++;
                         players.Add(player.entityData.guid, player);
@@ -305,10 +281,8 @@ namespace Server
                         mapSeed.seed = 8710; //seed is hardcoded for now, dont change
                         mapSeed.send(player);
 
-                        foreach (KeyValuePair<ulong, Player> entry in players)
-                        {
-                            if (entry.Key != player.entityData.guid)
-                            {
+                        foreach (KeyValuePair<ulong, Player> entry in players) {
+                            if (entry.Key != player.entityData.guid) {
                                 entry.Value.entityData.send(player);
                             }
                         }
@@ -322,8 +296,7 @@ namespace Server
             }
         }
 
-        public void kick(Player player)
-        {
+        public void kick(Player player) {
             players.Remove(player.entityData.guid);
             player.tcp.Close();
             Announce.leave(player.entityData.name, players);
@@ -335,22 +308,17 @@ namespace Server
             pdc.send(players, 0);
         }
 
-        public void load_world_delayed(Player player)
-        {
-            if (players.ContainsKey(player.entityData.guid))
-            {
+        public void load_world_delayed(Player player) {
+            if (players.ContainsKey(player.entityData.guid)) {
                 worldUpdate.send(player);
             }
         }
 
-        public void poison(ServerUpdate poisonTick, int duration)
-        {
-            if (players.ContainsKey(poisonTick.hits[0].target))
-            {
+        public void poison(ServerUpdate poisonTick, int duration) {
+            if (players.ContainsKey(poisonTick.hits[0].target)) {
                 poisonTick.hits[0].position = players[poisonTick.hits[0].target].entityData.position;
                 poisonTick.send(players, 0);
-                if (duration > 0)
-                {
+                if (duration > 0) {
                     Task.Delay(500).ContinueWith(t => poison(poisonTick, duration - 500));
                 }
             }
