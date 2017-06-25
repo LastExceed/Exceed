@@ -18,7 +18,7 @@ namespace Resources.Packet {
         public float scale;
         public float mana;
         public float particles;
-        public float skill;
+        public int skill;
         public int projectile;
         public int paddingB;
         public float unknownC;
