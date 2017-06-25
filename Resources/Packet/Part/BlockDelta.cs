@@ -1,34 +1,23 @@
-﻿using System.IO;
+﻿using Resources.Utilities;
+using System.IO;
 
 namespace Resources.Packet.Part {
     public class BlockDelta {
-        public int posX;
-        public int posY;
-        public int posZ;
-        public byte red;
-        public byte green;
-        public byte blue;
+        public IntVector position;
+        public ByteVector color = new ByteVector();
         public byte type;
         public int unknown;
 
         public void Read(BinaryReader reader) {
-            posX = reader.ReadInt32();
-            posY = reader.ReadInt32();
-            posZ = reader.ReadInt32();
-            red = reader.ReadByte();
-            green = reader.ReadByte();
-            blue = reader.ReadByte();
+            position.Read(reader);
+            color.Read(reader);
             type = reader.ReadByte();
             unknown = reader.ReadInt32();
         }
 
         public void Write(BinaryWriter writer) {
-            writer.Write(posX);
-            writer.Write(posY);
-            writer.Write(posZ);
-            writer.Write(red);
-            writer.Write(green);
-            writer.Write(blue);
+            position.Write(writer);
+            color.Write(writer);
             writer.Write(type);
             writer.Write(unknown);
         }

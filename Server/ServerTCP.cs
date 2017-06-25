@@ -49,7 +49,7 @@ namespace Server {
 
         public void Process_packet(int packetID, Player player) {
             switch (packetID) {
-                case 0:
+                case (int)Database.PacketIDtcp.entityUpdate:
                     #region entity update
                     var entityUpdate = new EntityUpdate();
                     entityUpdate.Read(player.reader);
@@ -83,7 +83,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case 6:
+                case (int)Database.PacketIDtcp.entityAction:
                     #region action
                     EntityAction action = new EntityAction();
                     action.Read(player.reader);
@@ -151,7 +151,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case 7:
+                case (int)Database.PacketIDtcp.hit:
                     #region hit
                     var hit = new Hit(player.reader);
 
@@ -160,7 +160,7 @@ namespace Server {
                     serverUpdate7.Send(players, player.entityData.guid);
                     break;
                 #endregion
-                case 8:
+                case (int)Database.PacketIDtcp.passiveProc:
                     #region passiveProc
                     var passiveProc = new PassiveProc();
                     passiveProc.Read(player.reader);
@@ -170,16 +170,16 @@ namespace Server {
                     serverUpdate8.Send(players, player.entityData.guid);
 
                     switch (passiveProc.type) {
-                        case (int)Database.Passives.warFrenzy:
-                        case (int)Database.Passives.camouflage:
-                        case (int)Database.Passives.fireSpark:
-                        case (int)Database.Passives.intuition:
-                        case (int)Database.Passives.elusivenes:
-                        case (int)Database.Passives.swiftness:
+                        case (byte)Database.Passives.warFrenzy:
+                        case (byte)Database.Passives.camouflage:
+                        case (byte)Database.Passives.fireSpark:
+                        case (byte)Database.Passives.intuition:
+                        case (byte)Database.Passives.elusivenes:
+                        case (byte)Database.Passives.swiftness:
                             //nothing particular yet
                             break;
 
-                        case (int)Database.Passives.manashield:
+                        case (byte)Database.Passives.manashield:
                             var chatMessage6 = new ChatMessage() {
                                 message = "manashield: " + passiveProc.modifier,
                                 sender = 0
@@ -187,11 +187,11 @@ namespace Server {
                             chatMessage6.Send(player);
                             break;
 
-                        case (int)Database.Passives.bulwalk:
+                        case (byte)Database.Passives.bulwalk:
                             //client deals with this automatically
                             break;
 
-                        case (int)Database.Passives.poison:
+                        case (byte)Database.Passives.poison:
                             if (players.ContainsKey(passiveProc.target))//in case target is a tomb or sth
                             {
                                 var poisonDmg = new Hit() {
@@ -213,7 +213,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case 9:
+                case (int)Database.PacketIDtcp.shoot:
                     #region shoot
                     var shoot = new Shoot();
                     shoot.Read(player.reader);
@@ -223,7 +223,7 @@ namespace Server {
                     serverUpdate9.Send(players, player.entityData.guid);
                     break;
                 #endregion
-                case 10:
+                case (int)Database.PacketIDtcp.chat:
                     #region chat
                     var chatMessage = new ChatMessage();
                     chatMessage.read(player.reader);
@@ -247,19 +247,19 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case 11:
+                case (int)Database.PacketIDtcp.chunk:
                     #region chunk discovered
                     var chunk = new Chunk();
                     chunk.Read(player.reader); //currently not doing anything with this
                     break;
                 #endregion
-                case 12:
+                case (int)Database.PacketIDtcp.sector:
                     #region sector discovered
                     var sector = new Sector();
                     sector.Read(player.reader); //currently not doing anything with this
                     break;
                 #endregion
-                case 17:
+                case (int)Database.PacketIDtcp.version:
                     #region version
                     var version = new ProtocolVersion();
                     version.Read(player.reader);

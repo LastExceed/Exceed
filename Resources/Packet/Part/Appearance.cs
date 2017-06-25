@@ -5,9 +5,7 @@ namespace Resources.Packet.Part {
     public class Appearance {
         public byte unknownA;
         public byte unknownB;
-        public byte hair_red;
-        public byte hair_green;
-        public byte hair_blue;
+        public ByteVector hair_color = new ByteVector();
         public short flags;
         public byte unknownC; //padding?
         public FloatVector character_size = new FloatVector();
@@ -43,9 +41,7 @@ namespace Resources.Packet.Part {
         public void Read(BinaryReader reader) {
             unknownA = reader.ReadByte();
             unknownB = reader.ReadByte();
-            hair_red = reader.ReadByte();
-            hair_green = reader.ReadByte();
-            hair_blue = reader.ReadByte();
+            hair_color.Read(reader);
             flags = reader.ReadInt16();
             unknownC = reader.ReadByte();
             character_size.Read(reader);
@@ -82,9 +78,7 @@ namespace Resources.Packet.Part {
         public void Write(BinaryWriter writer) {
             writer.Write(unknownA);
             writer.Write(unknownB);
-            writer.Write(hair_red);
-            writer.Write(hair_green);
-            writer.Write(hair_blue);
+            hair_color.Write(writer);
             writer.Write(flags);
             writer.Write(unknownC);
             character_size.Write(writer);

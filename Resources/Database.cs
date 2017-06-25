@@ -1,6 +1,28 @@
 ﻿namespace Resources {
     static public class Database {
-        public enum PacketID {
+        public enum PacketID : int {
+            entityUpdate,
+            multiEntityUpdate,
+            entityUpdatesFinished,
+            unknown3,
+            serverUpdate,
+            time,
+            entityAction,
+            hit,
+            passiveProc,
+            shoot,
+            chat,
+            chunk,
+            sector,
+            unknown13,
+            unknown14,
+            mapseed,
+            joinPacket,
+            version,
+            serverFull
+        }
+
+        public enum DatagramID : byte {
             entityUpdate,
             hit,
             shoot,
@@ -16,7 +38,7 @@
             players = 255
         }
 
-        public enum DamageType {
+        public enum DamageTypes {
             _placeholder,
             block,
             normal,
@@ -26,7 +48,7 @@
             invisible2
         }
 
-        public enum Passives {
+        public enum Passives : byte{
             _placeholder,
             bulwalk,
             warFrenzy,
@@ -42,7 +64,7 @@
             swiftness
         }
 
-        public enum Hostility {
+        public enum Hostility : byte{
             player,
             enemy,
             unknown2,
@@ -52,7 +74,7 @@
             neutral
         }
 
-        public enum Equipment {
+        public enum Equipment : byte{
             unknown,
             neck,
             chest,
@@ -68,14 +90,18 @@
             pet
         }
 
-        public enum StaticRotation {
+        public enum StaticRotation : byte{
             south,
             east,
             north,
             west
         }
+ 
         public enum Projectile {
-
+            arrow = 1,
+            boomerang,
+            unknown,
+            rock
         }
         public enum ProcType {
 

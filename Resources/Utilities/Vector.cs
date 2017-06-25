@@ -54,4 +54,22 @@ namespace Resources.Utilities {
             writer.Write(z);
         }
     }
+
+    public class ByteVector {
+        public byte x;
+        public byte y;
+        public byte z;
+
+        public void Read(BinaryReader reader) {
+            x = reader.ReadByte();
+            y = reader.ReadByte();
+            z = reader.ReadByte();
+        }
+
+        public void Write(BinaryWriter writer) {
+            writer.Write(x);
+            writer.Write(y);
+            writer.Write(z);
+        }
+    }
 }
