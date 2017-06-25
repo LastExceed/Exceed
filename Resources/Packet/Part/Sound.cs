@@ -1,27 +1,22 @@
-﻿using System.IO;
+﻿using Resources.Utilities;
+using System.IO;
 
 namespace Resources.Packet.Part {
     public class Sound {
-        public int posX;
-        public int posY;
-        public int posZ;
+        public IntVector position = new IntVector();
         public int soundID;
         public float pitch;
         public float volume;
 
         public void Read(BinaryReader reader) {
-            posX = reader.ReadInt32();
-            posY = reader.ReadInt32();
-            posZ = reader.ReadInt32();
+            position.Read(reader);
             soundID = reader.ReadInt32();
             pitch = reader.ReadSingle();
             volume = reader.ReadSingle();
         }
 
         public void Write(BinaryWriter writer) {
-            writer.Write(posX);
-            writer.Write(posY);
-            writer.Write(posZ);
+            position.Write(writer);
             writer.Write(soundID);
             writer.Write(pitch);
             writer.Write(volume);

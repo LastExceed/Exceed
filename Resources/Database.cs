@@ -1,5 +1,43 @@
 ﻿namespace Resources {
     static public class Database {
+        public enum PacketIDtcp {
+            entityUpdate,
+            multiEntityUpdate,
+            entityUpdatesFinished,
+            unknown3,
+            serverUpdate,
+            time,
+            entityAction,
+            hit,
+            passiveProc,
+            shoot,
+            chat,
+            chunk,
+            sector,
+            unknown13,
+            unknown14,
+            mapseed,
+            joinPacket,
+            version,
+            serverFull
+        }
+
+        public enum PacketIDudp {
+            entityUpdate,
+            hit,
+            shoot,
+            proc,
+            chat,
+            time,
+            block,
+            particle,
+            sound,
+            mission,
+            interaction,
+            join,
+            dc
+        }
+
         public enum DamageTypes {
             _placeholder,
             block,
@@ -57,6 +95,14 @@
             east,
             north,
             west
+        }
+
+        public enum Projectiles {
+            _placeholder,
+            arrow,
+            boomerang,
+            unknown,
+            rock
         }
     }
 }

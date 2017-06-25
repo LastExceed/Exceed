@@ -2,22 +2,22 @@
 
 namespace Resources.Packet.Part {
     public class Mission {
-        public int sectionX = 4096;
-        public int sectionY = 4096;
-        public int unknownA = 1;
-        public int unknownB = 1;
-        public int unknownC = 1;
-        public int id = 2;
-        public int unknownD = 1;
-        public int monsterID = 150;
-        public int level = 150;
-        public byte unknownE = 1;
-        public byte state = 2; //0=ready 1=progressing 2=finished
-        //2padding
-        public float unknownF = 100;
-        public float unknownG = 100;
-        public int chunkX = 32768;
-        public int chunkY = 32768;
+        public int sectionX;
+        public int sectionY;
+        public int unknownA;
+        public int unknownB;
+        public int unknownC;
+        public int id;
+        public int unknownD;
+        public int monsterID;
+        public int level;
+        public byte unknownE;
+        public byte state; //0=ready 1=progressing 2=finished
+        public short padding;
+        public float unknownF;
+        public float unknownG;
+        public int chunkX;
+        public int chunkY;
 
         public void Read(BinaryReader reader) {
             sectionX = reader.ReadInt32();
@@ -31,7 +31,7 @@ namespace Resources.Packet.Part {
             level = reader.ReadInt32();
             unknownE = reader.ReadByte();
             state = reader.ReadByte();
-            reader.ReadBytes(2);
+            padding = reader.ReadInt16();
             unknownF = reader.ReadSingle();
             unknownG = reader.ReadSingle();
             chunkX = reader.ReadInt32();
@@ -50,7 +50,7 @@ namespace Resources.Packet.Part {
             writer.Write(level);
             writer.Write(unknownE);
             writer.Write(state);
-            writer.Write((short)0);//padding
+            writer.Write(padding);
             writer.Write(unknownF);
             writer.Write(unknownG);
             writer.Write(chunkX);

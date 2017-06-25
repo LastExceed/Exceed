@@ -14,9 +14,6 @@ namespace Resources.Packet {
         public LongVector position;
         public FloatVector direction = new FloatVector();
         public byte skill;
-        /// <summary>
-        /// Hit, Blocked, Dodged
-        /// </summary>
         public byte type;
         public byte showlight;
         public byte paddingB;

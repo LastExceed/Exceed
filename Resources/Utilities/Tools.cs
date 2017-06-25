@@ -10,29 +10,29 @@ namespace Resources {
             return (value & (1 << bitNumber)) != 0;
         }
         
-        /// <param name="position">0 based Position</param>
-        public static void SetBit(this byte b, bool value, int position) {
-            if(position < 8 && position > -1) {
+        /// <param name="bitnumber">0 based Position</param>
+        public static void SetBit(this byte b, bool value, int bitnumber) {
+            if(bitnumber < 8 && bitnumber > -1) {
                 if(value) {
-                    b |= (byte)(0x01 << position);
+                    b |= (byte)(0x01 << bitnumber);
                 } else {
-                    b &= (byte)~(0x01 << position);
+                    b &= (byte)~(0x01 << bitnumber);
                 }
             } else {
-                throw new InvalidOperationException("Die position ist außerhalb des byte bereichs");
+                throw new IndexOutOfRangeException("bitNumber must be between 0-7 for bytes");
             }
         }
 
-        /// <param name="position">0 based Position</param>
-        public static void SetBit(this int b, bool value, int position) {
-            if(position < 8 && position > -1) {
+        /// <param name="bitNumber">0 based Position</param>
+        public static void SetBit(this int b, bool value, int bitNumber) {
+            if(bitNumber < 32 && bitNumber > -1) {
                 if(value) {
-                    b |= (byte)(0x01 << position);
+                    b |= (0x01 << bitNumber);
                 } else {
-                    b &= (byte)~(0x01 << position);
+                    b &= ~(0x01 << bitNumber);
                 }
             } else {
-                throw new InvalidOperationException("Die position ist außerhalb des byte bereichs");
+                throw new IndexOutOfRangeException("bitNumber must be between 0-31 for integers");
             }
         }
     }
