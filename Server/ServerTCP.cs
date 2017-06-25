@@ -24,8 +24,8 @@ namespace Server {
             listener.Start();
             players = new Dictionary<ulong, Player>();
             worldUpdate = new ServerUpdate();
-            //ZoxModel arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("thing2.zox"));
-            //arena.Parse(worldUpdate, 8397006, 8396937, 127); //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
+            ZoxModel arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("thing2.zox"));
+            arena.Parse(worldUpdate, 8397006, 8396937, 127); //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
         }
 
         public void Listen() {
@@ -153,7 +153,8 @@ namespace Server {
                 #endregion
                 case 7:
                     #region hit
-                    var hit = new Hit(player.reader);
+                    var hit = new Hit();
+                    hit.Read(player.reader);
 
                     var serverUpdate7 = new ServerUpdate();
                     serverUpdate7.hits.Add(hit);

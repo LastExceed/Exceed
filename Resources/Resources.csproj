@@ -73,8 +73,6 @@
     <Compile Include="Packet\ProtocolVersion.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Datagram\Hit.cs" />
-    <Compile Include="UDPDatabase.cs" />
     <Compile Include="Utilities\Tools.cs" />
     <Compile Include="Utilities\Vector.cs" />
     <Compile Include="Utilities\Zlib.cs" />

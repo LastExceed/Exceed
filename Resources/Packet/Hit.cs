@@ -4,7 +4,7 @@ using Resources.Utilities;
 namespace Resources.Packet {
     public class Hit {
         public const int packetID = 7;
-        
+
         public ulong attacker;
         public ulong target;
         public float damage;
@@ -14,18 +14,11 @@ namespace Resources.Packet {
         public LongVector position;
         public FloatVector direction = new FloatVector();
         public byte skill;
-        /// <summary>
-        /// Hit, Blocked, Dodged
-        /// </summary>
         public byte type;
         public byte showlight;
         public byte paddingB;
 
-        public Hit() {
-
-        }
-
-        public Hit(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             attacker = reader.ReadUInt64();
             target = reader.ReadUInt64();
             damage = reader.ReadSingle();
