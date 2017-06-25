@@ -4,7 +4,6 @@ using System.Net.Sockets;
 namespace Resources {
     public class Player {
         //public bool busy = false;
-        public bool connected = true;
         public TcpClient tcp;
         public BinaryWriter writer;
         public BinaryReader reader;

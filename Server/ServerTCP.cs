@@ -35,17 +35,14 @@ namespace Server {
             player.writer = new BinaryWriter(player.tcp.GetStream());
             player.reader = new BinaryReader(player.tcp.GetStream());
             int packetID = -1;
-            while (player.connected) {
+            while (player.tcp.Connected) {
                 try {
                     packetID = player.reader.ReadInt32();
                 } catch (IOException) {
-                    player.connected = false;
                     kick(player);
+                    break;
                 }
-
-                if (player.connected) {
-                    process_packet(packetID, player);
-                }
+                process_packet(packetID, player);
             }
         }
 
@@ -64,7 +61,6 @@ namespace Server {
                         kickMessage.send(player);
                         Console.WriteLine(player.entityData.name + " kicked for illegal " + kickMessage.message);
                         Thread.Sleep(100); //thread is about to run out anyway so np
-                        player.connected = false;
                         kick(player);
                     }
                     if (Tools.GetBit(entityUpdate.bitfield2, 45 - 32)) {
@@ -266,7 +262,7 @@ namespace Server {
                     if (version.version != 3) {
                         version.version = 3;
                         version.send(player);
-                        player.connected = false;
+                        player.tcp.Close();
                     } else {
                         player.entityData.guid = guidCounter;
                         guidCounter++;
