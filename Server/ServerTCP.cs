@@ -48,8 +48,8 @@ namespace Server {
         }
 
         public void Process_packet(int packetID, Player player) {
-            switch (packetID) {
-                case (int)Database.PacketIDtcp.entityUpdate:
+            switch ((Database.PacketID)packetID) {
+                case Database.PacketID.entityUpdate:
                     #region entity update
                     var entityUpdate = new EntityUpdate();
                     entityUpdate.Read(player.reader);
@@ -83,7 +83,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case (int)Database.PacketIDtcp.entityAction:
+                case Database.PacketID.entityAction:
                     #region action
                     EntityAction action = new EntityAction();
                     action.Read(player.reader);
@@ -151,7 +151,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case (int)Database.PacketIDtcp.hit:
+                case Database.PacketID.hit:
                     #region hit
                     var hit = new Hit(player.reader);
 
@@ -160,7 +160,7 @@ namespace Server {
                     serverUpdate7.Send(players, player.entityData.guid);
                     break;
                 #endregion
-                case (int)Database.PacketIDtcp.passiveProc:
+                case Database.PacketID.passiveProc:
                     #region passiveProc
                     var passiveProc = new PassiveProc();
                     passiveProc.Read(player.reader);
@@ -213,7 +213,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case (int)Database.PacketIDtcp.shoot:
+                case Database.PacketID.shoot:
                     #region shoot
                     var shoot = new Shoot();
                     shoot.Read(player.reader);
@@ -223,7 +223,7 @@ namespace Server {
                     serverUpdate9.Send(players, player.entityData.guid);
                     break;
                 #endregion
-                case (int)Database.PacketIDtcp.chat:
+                case Database.PacketID.chat:
                     #region chat
                     var chatMessage = new ChatMessage();
                     chatMessage.read(player.reader);
@@ -247,19 +247,19 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case (int)Database.PacketIDtcp.chunk:
+                case Database.PacketID.chunk:
                     #region chunk discovered
                     var chunk = new Chunk();
                     chunk.Read(player.reader); //currently not doing anything with this
                     break;
                 #endregion
-                case (int)Database.PacketIDtcp.sector:
+                case Database.PacketID.sector:
                     #region sector discovered
                     var sector = new Sector();
                     sector.Read(player.reader); //currently not doing anything with this
                     break;
                 #endregion
-                case (int)Database.PacketIDtcp.version:
+                case Database.PacketID.version:
                     #region version
                     var version = new ProtocolVersion();
                     version.Read(player.reader);

@@ -38,7 +38,7 @@
             players = 255
         }
 
-        public enum DamageTypes {
+        public enum DamageType {
             _placeholder,
             block,
             normal,
