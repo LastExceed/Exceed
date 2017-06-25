@@ -1,6 +1,22 @@
 ﻿namespace Resources {
     static public class Database {
-        public enum DamageTypes {
+        public enum PacketID {
+            entityUpdate,
+            hit,
+            shoot,
+            proc,
+            chat,
+            time,
+            interaction,
+            staticUpdate,
+            block,
+            particle,
+            join,
+            disconnect,
+            players = 255
+        }
+
+        public enum DamageType {
             _placeholder,
             block,
             normal,
@@ -57,6 +73,15 @@
             east,
             north,
             west
+        }
+        public enum Projectile {
+
+        }
+        public enum ProcType {
+
+        }
+        public enum StaticUpdateType {
+
         }
     }
 }

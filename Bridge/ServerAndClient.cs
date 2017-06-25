@@ -32,9 +32,10 @@ namespace Bridge {
 
         public void StC() {
             while (true) {
+                /*
                 switch (switch_on) {
                     default:
-                }
+                }*/
             }
         }
     }

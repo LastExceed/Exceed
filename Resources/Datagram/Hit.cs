@@ -18,13 +18,14 @@ namespace Resources.Datagram {
             get { return BitConverter.ToInt32(data, 6); }
             set { BitConverter.GetBytes(value).CopyTo(data, 6); }
         }
-        public UDPDatabase.Skill Skill {
-            get { return (UDPDatabase.Skill)data[10]; }
-            set { data[10] = (byte)value; }
+        public byte Skill {
+            get { return data[10]; }
+            set { data[10] = value; }
         }
-        public UDPDatabase.DamageType Type {
-            get { return (UDPDatabase.DamageType)(data[11]); }
-            set { data[11] = (byte)value; } }
+        public Database.DamageType Type {
+            get { return (Database.DamageType)(data[11]); }
+            set { data[11] = (byte)value; }
+        }
         public bool ShowLight {
             get { return data[12].GetBit(0); }
             set { data[12].SetBit(value, 0); }

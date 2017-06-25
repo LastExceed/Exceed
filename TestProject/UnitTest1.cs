@@ -8,14 +8,14 @@ namespace TestProject {
         [TestMethod]
         public void GetSetBit() {
             int t = 0;
-            for(int i = 0; i < 8; i++) {
-                Assert.IsFalse(t.GetBit(i));
-            }
-            for(int i = 0; i < 8; i++) {
-                t.SetBit(true, i);
-                Assert.IsTrue(t.GetBit(i));
+            for(int i = 0; i < 32; i++) {
+                Assert.IsFalse(t.GetBit(i), i + "");
             }
 
+            for(int i = 0; i < 32; i++) {
+                t.SetBit(true, i);
+                Assert.IsTrue(t.GetBit(i),i + "");
+            }
         }
     }
 }

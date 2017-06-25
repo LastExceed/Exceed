@@ -199,7 +199,7 @@ namespace Server {
                                     target = passiveProc.target,
                                     damage = passiveProc.modifier,
                                     position = players[passiveProc.target].entityData.position,
-                                    type = (byte)Database.DamageTypes.normal
+                                    type = (byte)Database.DamageType.normal
                                 };
                                 var poisonTick = new ServerUpdate();
                                 poisonTick.hits.Add(poisonDmg);
