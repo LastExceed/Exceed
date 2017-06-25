@@ -11,7 +11,7 @@ namespace Resources.Packet.Part {
         public byte type;
         public int unknown;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             posX = reader.ReadInt32();
             posY = reader.ReadInt32();
             posZ = reader.ReadInt32();
@@ -22,7 +22,7 @@ namespace Resources.Packet.Part {
             unknown = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(posX);
             writer.Write(posY);
             writer.Write(posZ);

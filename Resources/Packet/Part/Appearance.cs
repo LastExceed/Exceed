@@ -40,7 +40,7 @@ namespace Resources.Packet.Part {
         public FloatVector back_offset = new FloatVector();
         public FloatVector wing_offset = new FloatVector();
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             unknownA = reader.ReadByte();
             unknownB = reader.ReadByte();
             hair_red = reader.ReadByte();
@@ -48,7 +48,7 @@ namespace Resources.Packet.Part {
             hair_blue = reader.ReadByte();
             flags = reader.ReadInt16();
             unknownC = reader.ReadByte();
-            character_size.read(reader);
+            character_size.Read(reader);
             head_model = reader.ReadInt16();
             hair_model = reader.ReadInt16();
             hand_model = reader.ReadInt16();
@@ -67,19 +67,19 @@ namespace Resources.Packet.Part {
             shoulder_size = reader.ReadSingle();
             wings_size = reader.ReadSingle();
             body_rotation = reader.ReadSingle();
-            hand_rotation.read(reader);
+            hand_rotation.Read(reader);
             feet_rotation = reader.ReadSingle();
             wing_rotation = reader.ReadSingle();
             tail_rotation = reader.ReadSingle();
-            body_offset.read(reader);
-            head_offset.read(reader);
-            hand_offset.read(reader);
-            foot_offset.read(reader);
-            back_offset.read(reader);
-            wing_offset.read(reader);
+            body_offset.Read(reader);
+            head_offset.Read(reader);
+            hand_offset.Read(reader);
+            foot_offset.Read(reader);
+            back_offset.Read(reader);
+            wing_offset.Read(reader);
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(unknownA);
             writer.Write(unknownB);
             writer.Write(hair_red);
@@ -87,7 +87,7 @@ namespace Resources.Packet.Part {
             writer.Write(hair_blue);
             writer.Write(flags);
             writer.Write(unknownC);
-            character_size.write(writer);
+            character_size.Write(writer);
             writer.Write(head_model);
             writer.Write(hair_model);
             writer.Write(hand_model);
@@ -106,16 +106,16 @@ namespace Resources.Packet.Part {
             writer.Write(shoulder_size);
             writer.Write(wings_size);
             writer.Write(body_rotation);
-            hand_rotation.write(writer);
+            hand_rotation.Write(writer);
             writer.Write(feet_rotation);
             writer.Write(wing_rotation);
             writer.Write(tail_rotation);
-            body_offset.write(writer);
-            head_offset.write(writer);
-            hand_offset.write(writer);
-            foot_offset.write(writer);
-            back_offset.write(writer);
-            wing_offset.write(writer);
+            body_offset.Write(writer);
+            head_offset.Write(writer);
+            hand_offset.Write(writer);
+            foot_offset.Write(writer);
+            back_offset.Write(writer);
+            wing_offset.Write(writer);
         }
     }
 }

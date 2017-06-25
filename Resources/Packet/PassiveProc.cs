@@ -13,7 +13,7 @@ namespace Resources.Packet {
         public int unknown;
         public long guid3;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             source = reader.ReadUInt64();
             target = reader.ReadUInt64();
             type = reader.ReadByte();
@@ -24,7 +24,7 @@ namespace Resources.Packet {
             guid3 = reader.ReadInt64();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(source);
             writer.Write(target);
             writer.Write(type);

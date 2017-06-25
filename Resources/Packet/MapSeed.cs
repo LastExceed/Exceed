@@ -8,18 +8,18 @@ namespace Resources.Packet {
 
         public int seed;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             seed = reader.ReadInt32();
         }
 
-        public void send(Player player) {
+        public void Send(Player player) {
             //SpinWait.SpinUntil(() => !player.busy);
             //player.busy = true;
             player.writer.Write(packetID);
             player.writer.Write(seed);
             //player.busy = false;
         }
-        public void send(Dictionary<ulong, Player> players, ulong toSkip) {
+        public void Send(Dictionary<ulong, Player> players, ulong toSkip) {
             foreach (KeyValuePair<ulong, Player> entry in players) {
                 if (entry.Key != toSkip) {
                     //SpinWait.SpinUntil(() => !entry.Value.busy);

@@ -75,7 +75,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\Tools.cs" />
     <Compile Include="Utilities\Vector.cs" />
-    <Compile Include="Utilities\zlib.cs" />
+    <Compile Include="Utilities\Zlib.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

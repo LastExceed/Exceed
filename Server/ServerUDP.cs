@@ -11,14 +11,14 @@ namespace Server {
         UdpClient UDPclient = new UdpClient(new IPEndPoint(IPAddress.Any, 12345));
         IPEndPoint source;
 
-        public void listen() {
+        public void Listen() {
             while (true) {
                 byte[] data = UDPclient.Receive(ref source);
-                process_packet(data);
+                Process_packet(data);
             }
         }
 
-        public void process_packet(byte[] data) {
+        public void Process_packet(byte[] data) {
             switch (data[0]) {
                 case 0:
                     break;

@@ -7,14 +7,14 @@ namespace Resources.Packet.Part {
         public int unknown;
         public int xp;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             killer = reader.ReadUInt64();
             victim = reader.ReadUInt64();
             unknown = reader.ReadInt32();
             xp = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(killer);
             writer.Write(victim);
             writer.Write(unknown);

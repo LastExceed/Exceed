@@ -24,15 +24,15 @@ namespace Resources.Packet {
         public float unknownC;
         public float unknownD;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             attacker = reader.ReadUInt64();
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
             unknownA = reader.ReadInt32();
             paddingA = reader.ReadInt32();
-            position.read(reader);
-            unknownV.read(reader);
-            velocity.read(reader);
+            position.Read(reader);
+            unknownV.Read(reader);
+            velocity.Read(reader);
             legacyDMG = reader.ReadSingle();
             unknownB = reader.ReadSingle();
             scale = reader.ReadSingle();
@@ -45,15 +45,15 @@ namespace Resources.Packet {
             unknownD = reader.ReadSingle();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(attacker);
             writer.Write(chunkX);
             writer.Write(chunkY);
             writer.Write(unknownA);
             writer.Write(paddingA);
-            position.write(writer);
-            unknownV.write(writer);
-            velocity.write(writer);
+            position.Write(writer);
+            unknownV.Write(writer);
+            velocity.Write(writer);
             writer.Write(legacyDMG);
             writer.Write(unknownB);
             writer.Write(scale);

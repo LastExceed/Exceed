@@ -19,7 +19,7 @@ namespace Resources.Packet.Part {
         public int chunkX = 32768;
         public int chunkY = 32768;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             sectionX = reader.ReadInt32();
             sectionY = reader.ReadInt32();
             unknownA = reader.ReadInt32();
@@ -38,7 +38,7 @@ namespace Resources.Packet.Part {
             chunkY = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(sectionX);
             writer.Write(sectionY);
             writer.Write(unknownA);

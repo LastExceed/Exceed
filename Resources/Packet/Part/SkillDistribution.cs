@@ -14,7 +14,7 @@ namespace Resources.Packet.Part {
         public int ability4;
         public int ability5;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             petmaster = reader.ReadInt32();
             petriding = reader.ReadInt32();
             sailing = reader.ReadInt32();
@@ -28,7 +28,7 @@ namespace Resources.Packet.Part {
             ability5 = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(petmaster);
             writer.Write(petriding);
             writer.Write(sailing);

@@ -6,13 +6,13 @@ namespace Resources.Utilities {
         public long y;
         public long z;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             x = reader.ReadInt64();
             y = reader.ReadInt64();
             z = reader.ReadInt64();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(x);
             writer.Write(y);
             writer.Write(z);
@@ -24,13 +24,13 @@ namespace Resources.Utilities {
         public int y;
         public int z;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             x = reader.ReadInt32();
             y = reader.ReadInt32();
             z = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(x);
             writer.Write(y);
             writer.Write(z);
@@ -42,13 +42,13 @@ namespace Resources.Utilities {
         public float y;
         public float z;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             x = reader.ReadSingle();
             y = reader.ReadSingle();
             z = reader.ReadSingle();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(x);
             writer.Write(y);
             writer.Write(z);

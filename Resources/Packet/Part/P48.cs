@@ -11,7 +11,7 @@ namespace Resources.Packet.Part {
         public ulong unknownA;
         public List<SubP48> subP48s = new List<SubP48>();
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             unknownA = reader.ReadUInt64();
             int count = reader.ReadInt32();
             for (int i = 0; i < count; i++) {
@@ -21,7 +21,7 @@ namespace Resources.Packet.Part {
             }
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(unknownA);
             writer.Write(subP48s.Count);
             foreach (SubP48 subP48 in subP48s) {

@@ -18,16 +18,16 @@ namespace Resources.Packet.Part {
         public int paddingC;
         public ulong guid; //of player who interacts with it
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
             id = reader.ReadInt32();
             paddingA = reader.ReadInt32();
             type = reader.ReadInt32();
             paddingB = reader.ReadInt32();
-            position.read(reader);
+            position.Read(reader);
             rotation = reader.ReadInt32();
-            size.read(reader);
+            size.Read(reader);
             closed = reader.ReadInt32();
             time = reader.ReadInt32();
             unknown = reader.ReadInt32();
@@ -35,16 +35,16 @@ namespace Resources.Packet.Part {
             guid = reader.ReadUInt64();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(chunkX);
             writer.Write(chunkY);
             writer.Write(id);
             writer.Write(paddingA);
             writer.Write(type);
             writer.Write(paddingB);
-            position.write(writer);
+            position.Write(writer);
             writer.Write(rotation);
-            size.write(writer);
+            size.Write(writer);
             writer.Write(closed);
             writer.Write(time);
             writer.Write(unknown);

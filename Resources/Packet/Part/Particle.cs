@@ -18,7 +18,7 @@ namespace Resources.Packet.Part {
         public float spread;
         public int unknown;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             posX = reader.ReadInt64();
             posY = reader.ReadInt64();
             posZ = reader.ReadInt64();
@@ -36,7 +36,7 @@ namespace Resources.Packet.Part {
             unknown = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(posX);
             writer.Write(posY);
             writer.Write(posZ);

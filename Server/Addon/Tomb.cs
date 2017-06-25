@@ -4,15 +4,16 @@ using Resources.Packet.Part;
 
 namespace Server.Addon {
     class Tomb {
-        public static EntityUpdate show(Player player) {
-            var tomb = new EntityUpdate();
-            tomb.guid = player.entityData.guid + 1000;
-            tomb.bitfield1 = 0b00001000_00000000_00100001_10000001;
-            tomb.bitfield2 = 0b00000000_00000000_00100000_00000000;
-            tomb.position = player.entityData.position;
-            tomb.hostility = (byte)Database.Hostility.neutral;
-            tomb.entityType = -1;
-            tomb.appearance = new Appearance();
+        public static EntityUpdate Show(Player player) {
+            var tomb = new EntityUpdate() {
+                guid = player.entityData.guid + 1000,
+                bitfield1 = 0b00001000_00000000_00100001_10000001,
+                bitfield2 = 0b00000000_00000000_00100000_00000000,
+                position = player.entityData.position,
+                hostility = (byte)Database.Hostility.neutral,
+                entityType = -1,
+                appearance = new Appearance()
+            };
             tomb.appearance.character_size.x = 1;
             tomb.appearance.character_size.y = 1;
             tomb.appearance.character_size.z = 1;
@@ -23,13 +24,14 @@ namespace Server.Addon {
             return tomb;
         }
 
-        public static EntityUpdate hide(Player player) {
-            var tomb = new EntityUpdate();
-            tomb.guid = player.entityData.guid + 1000;
-            tomb.bitfield1 = 0b00001000_00000000_00000001_10000000;
-            tomb.hostility = (byte)Database.Hostility.neutral;
-            tomb.entityType = -1;
-            tomb.HP = 0;
+        public static EntityUpdate Hide(Player player) {
+            var tomb = new EntityUpdate() {
+                guid = player.entityData.guid + 1000,
+                bitfield1 = 0b00001000_00000000_00000001_10000000,
+                hostility = (byte)Database.Hostility.neutral,
+                entityType = -1,
+                HP = 0
+            };
             return tomb;
         }
     }

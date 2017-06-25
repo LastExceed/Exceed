@@ -4,7 +4,7 @@ using Resources.Packet.Part;
 
 namespace Server.Addon {
     class AntiCheat {
-        public static string inspect(EntityUpdate toInspect) {
+        public static string Inspect(EntityUpdate toInspect) {
             if (Tools.GetBit(toInspect.bitfield1, 7)) //hostile?
             {
                 if (toInspect.hostility != 0) {

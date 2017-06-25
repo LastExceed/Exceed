@@ -69,7 +69,7 @@ namespace Resources.Packet {
             }
         }
 
-        public void read(BinaryReader r) {
+        public void Read(BinaryReader r) {
             int size = r.ReadInt32();
             byte[] compressed = r.ReadBytes(size);
             byte[] uncompressed = Zlib.Uncompress(compressed);
@@ -81,23 +81,23 @@ namespace Resources.Packet {
             bitfield2 = reader.ReadInt32();
             if (Tools.GetBit(bitfield1, 0)) //position
             {
-                position.read(reader);
+                position.Read(reader);
             }
             if (Tools.GetBit(bitfield1, 1)) //orientation
             {
-                rotation.read(reader);
+                rotation.Read(reader);
             }
             if (Tools.GetBit(bitfield1, 2)) //velocity
             {
-                velocity.read(reader);
+                velocity.Read(reader);
             }
             if (Tools.GetBit(bitfield1, 3)) //acceleration
             {
-                acceleration.read(reader);
+                acceleration.Read(reader);
             }
             if (Tools.GetBit(bitfield1, 4)) //extra veloctiy
             {
-                extraVel.read(reader);
+                extraVel.Read(reader);
             }
             if (Tools.GetBit(bitfield1, 5)) //viewport pitch
             {
@@ -133,7 +133,7 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield1, 13)) //appearance data
             {
-                appearance.read(reader);
+                appearance.Read(reader);
             }
             if (Tools.GetBit(bitfield1, 14)) //entity flags
             {
@@ -177,15 +177,15 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield1, 24)) //unused vector
             {
-                unused24.read(reader);
+                unused24.Read(reader);
             }
             if (Tools.GetBit(bitfield1, 25)) //unused vector
             {
-                unused25.read(reader);
+                unused25.Read(reader);
             }
             if (Tools.GetBit(bitfield1, 26)) //ray hit
             {
-                rayHit.read(reader);
+                rayHit.Read(reader);
             }
             if (Tools.GetBit(bitfield1, 27)) //HP
             {
@@ -201,7 +201,7 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield1, 30)) //multipliers
             {
-                multipliers.read(reader);
+                multipliers.Read(reader);
             }
             if (Tools.GetBit(bitfield1, 31)) //unused
             {
@@ -237,15 +237,15 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield2, 39 - 32)) //unused vector
             {
-                unused39.read(reader);
+                unused39.Read(reader);
             }
             if (Tools.GetBit(bitfield2, 40 - 32)) //spawn position
             {
-                spawnPos.read(reader);
+                spawnPos.Read(reader);
             }
             if (Tools.GetBit(bitfield2, 41 - 32)) //unused vector
             {
-                unused41.read(reader);
+                unused41.Read(reader);
             }
             if (Tools.GetBit(bitfield2, 42 - 32)) //unused
             {
@@ -253,12 +253,12 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield2, 43 - 32)) //consumable
             {
-                consumable.read(reader);
+                consumable.Read(reader);
             }
             if (Tools.GetBit(bitfield2, 44 - 32)) //equipment
             {
                 for (int i = 0; i < 13; i++) {
-                    equipment[i].read(reader);
+                    equipment[i].Read(reader);
                 }
             }
             if (Tools.GetBit(bitfield2, 45 - 32)) //name
@@ -268,7 +268,7 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield2, 46 - 32)) //skills (11*4)
             {
-                skillDistribution.read(reader);
+                skillDistribution.Read(reader);
             }
             if (Tools.GetBit(bitfield2, 47 - 32)) //mama cubes 
             {
@@ -276,7 +276,7 @@ namespace Resources.Packet {
             }
         }
 
-        public void merge(EntityUpdate playerEntityData) {
+        public void Merge(EntityUpdate playerEntityData) {
             if (Tools.GetBit(bitfield1, 0)) //position
             {
                 playerEntityData.position = position;
@@ -471,7 +471,7 @@ namespace Resources.Packet {
             }
         }
 
-        public void filter(EntityUpdate previous) {
+        public void Filter(EntityUpdate previous) {
             if (Tools.GetBit(bitfield1, 0)) //position
             {
                 if (Math.Abs(position.x - previous.position.x) < 32768 &&
@@ -564,7 +564,7 @@ namespace Resources.Packet {
             bitfield2 &= ~(1 << 47 - 32);
         }
 
-        public byte[] getBytes() {
+        public byte[] GetBytes() {
             var stream = new MemoryStream();
             var writer = new BinaryWriter(stream);
             writer.Write(guid);
@@ -573,23 +573,23 @@ namespace Resources.Packet {
 
             if (Tools.GetBit(bitfield1, 0)) //position
             {
-                position.write(writer);
+                position.Write(writer);
             }
             if (Tools.GetBit(bitfield1, 1)) //orientation
             {
-                rotation.write(writer);
+                rotation.Write(writer);
             }
             if (Tools.GetBit(bitfield1, 2)) //velocity
             {
-                velocity.write(writer);
+                velocity.Write(writer);
             }
             if (Tools.GetBit(bitfield1, 3)) //acceleration
             {
-                acceleration.write(writer);
+                acceleration.Write(writer);
             }
             if (Tools.GetBit(bitfield1, 4)) //extra veloctiy
             {
-                extraVel.write(writer);
+                extraVel.Write(writer);
             }
             if (Tools.GetBit(bitfield1, 5)) //viewport pitch
             {
@@ -625,7 +625,7 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield1, 13)) //appearance data
             {
-                appearance.write(writer);
+                appearance.Write(writer);
             }
             if (Tools.GetBit(bitfield1, 14)) //entity flags
             {
@@ -669,15 +669,15 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield1, 24)) //unused vector
             {
-                unused24.write(writer);
+                unused24.Write(writer);
             }
             if (Tools.GetBit(bitfield1, 25)) //unused vector
             {
-                unused25.write(writer);
+                unused25.Write(writer);
             }
             if (Tools.GetBit(bitfield1, 26)) //ray hit
             {
-                rayHit.write(writer);
+                rayHit.Write(writer);
             }
             if (Tools.GetBit(bitfield1, 27)) //HP
             {
@@ -693,7 +693,7 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield1, 30)) //multipliers
             {
-                multipliers.write(writer);
+                multipliers.Write(writer);
             }
             if (Tools.GetBit(bitfield1, 31)) //unused
             {
@@ -729,15 +729,15 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield2, 39 - 32)) //unused vector
             {
-                unused39.write(writer);
+                unused39.Write(writer);
             }
             if (Tools.GetBit(bitfield2, 40 - 32)) //spawn position
             {
-                spawnPos.write(writer);
+                spawnPos.Write(writer);
             }
             if (Tools.GetBit(bitfield2, 41 - 32)) //unused vector
             {
-                unused41.write(writer);
+                unused41.Write(writer);
             }
             if (Tools.GetBit(bitfield2, 42 - 32)) //unused
             {
@@ -745,12 +745,12 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield2, 43 - 32)) //consumable
             {
-                consumable.write(writer);
+                consumable.Write(writer);
             }
             if (Tools.GetBit(bitfield2, 44 - 32)) //equipment
             {
                 foreach (Part.Item item in equipment) {
-                    item.write(writer);
+                    item.Write(writer);
                 }
             }
             if (Tools.GetBit(bitfield2, 45 - 32)) //name
@@ -761,7 +761,7 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield2, 46 - 32)) //skills (11*4)
             {
-                skillDistribution.write(writer);
+                skillDistribution.Write(writer);
             }
             if (Tools.GetBit(bitfield2, 47 - 32)) //mama cubes 
             {
@@ -781,15 +781,15 @@ namespace Resources.Packet {
             return data;
         }
 
-        public void send(Player player) {
-            byte[] data = this.getBytes();
+        public void Send(Player player) {
+            byte[] data = this.GetBytes();
             //SpinWait.SpinUntil(() => !player.busy);
             //player.busy = true;
             player.writer.Write(data);
             //player.busy = false;
         }
-        public void send(Dictionary<ulong, Player> players, ulong toSkip) {
-            byte[] data = this.getBytes();
+        public void Send(Dictionary<ulong, Player> players, ulong toSkip) {
+            byte[] data = this.GetBytes();
             foreach (Player player in new List<Player>(players.Values)) {
                 if (player.entityData.guid != toSkip) {
                     try {

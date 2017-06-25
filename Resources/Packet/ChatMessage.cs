@@ -16,7 +16,7 @@ namespace Resources.Packet {
             message = Encoding.Unicode.GetString(mBytes);
         }
 
-        public void send(Player player) {
+        public void Send(Player player) {
             byte[] mBytes = Encoding.Unicode.GetBytes(message);
             //SpinWait.SpinUntil(() => !player.busy);
             //player.busy = true;
@@ -27,7 +27,7 @@ namespace Resources.Packet {
             //player.busy = false;
         }
 
-        public void send(Dictionary<ulong, Player> players, ulong toSkip) {
+        public void Send(Dictionary<ulong, Player> players, ulong toSkip) {
             byte[] mBytes = Encoding.Unicode.GetBytes(message);
             foreach (Player player in new List<Player>(players.Values)) {
                 if (player.entityData.guid != toSkip) {

@@ -25,13 +25,14 @@ namespace Server {
             players = new Dictionary<ulong, Player>();
             worldUpdate = new ServerUpdate();
             ZoxModel arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("thing2.zox"));
-            arena.parse(worldUpdate, 8397006, 8396937, 127); //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
+            arena.Parse(worldUpdate, 8397006, 8396937, 127); //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
         }
 
-        public void listen() {
-            Player player = new Player();
-            player.tcp = listener.AcceptTcpClient();
-            new Thread(new ThreadStart(listen)).Start(); //for every connection a new thread is created to make sure that packets are received asap
+        public void Listen() {
+            Player player = new Player() {
+                tcp = listener.AcceptTcpClient()
+            };
+            new Thread(new ThreadStart(Listen)).Start(); //for every connection a new thread is created to make sure that packets are received asap
             player.writer = new BinaryWriter(player.tcp.GetStream());
             player.reader = new BinaryReader(player.tcp.GetStream());
             int packetID = -1;
@@ -39,52 +40,53 @@ namespace Server {
                 try {
                     packetID = player.reader.ReadInt32();
                 } catch (IOException) {
-                    kick(player);
+                    Kick(player);
                     break;
                 }
-                process_packet(packetID, player);
+                Process_packet(packetID, player);
             }
         }
 
-        public void process_packet(int packetID, Player player) {
+        public void Process_packet(int packetID, Player player) {
             switch (packetID) {
                 case 0:
                     #region entity update
                     var entityUpdate = new EntityUpdate();
-                    entityUpdate.read(player.reader);
+                    entityUpdate.Read(player.reader);
                     int bitfield1 = entityUpdate.bitfield1;
                     int bitfield2 = entityUpdate.bitfield2;
-                    string ACmessage = AntiCheat.inspect(entityUpdate);
+                    string ACmessage = AntiCheat.Inspect(entityUpdate);
                     if (ACmessage != "ok") {
-                        var kickMessage = new ChatMessage();
-                        kickMessage.message = "illegal " + ACmessage;
-                        kickMessage.send(player);
+                        var kickMessage = new ChatMessage() {
+                            message = "illegal " + ACmessage
+                        };
+                        kickMessage.Send(player);
                         Console.WriteLine(player.entityData.name + " kicked for illegal " + kickMessage.message);
                         Thread.Sleep(100); //thread is about to run out anyway so np
-                        kick(player);
+                        Kick(player);
                     }
                     if (Tools.GetBit(entityUpdate.bitfield2, 45 - 32)) {
-                        Announce.join(entityUpdate.name, player.entityData.name, players);
+                        Announce.Join(entityUpdate.name, player.entityData.name, players);
                     }
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
-                    entityUpdate.filter(player.entityData);
+                    entityUpdate.Filter(player.entityData);
                     if (entityUpdate.bitfield1 != 0 || entityUpdate.bitfield2 != 0) {
-                        entityUpdate.send(players, 0);
+                        entityUpdate.Send(players, 0);
                         entityUpdate.bitfield1 = bitfield1; //bitfield reverted to unfiltered for future purposes
                         entityUpdate.bitfield2 = bitfield2;
                         if (Tools.GetBit(bitfield1, 27) && entityUpdate.HP == 0 && player.entityData.HP > 0) {
-                            Tomb.show(player).send(players, 0);
+                            Tomb.Show(player).Send(players, 0);
                         } else if (Tools.GetBit(bitfield1, 27) && player.entityData.HP == 0 && entityUpdate.HP > 0) {
-                            Tomb.hide(player).send(players, 0);
+                            Tomb.Hide(player).Send(players, 0);
                         }
-                        entityUpdate.merge(player.entityData);
+                        entityUpdate.Merge(player.entityData);
                     }
                     break;
                 #endregion
                 case 6:
                     #region action
                     EntityAction action = new EntityAction();
-                    action.read(player.reader);
+                    action.Read(player.reader);
                     switch (action.type) {
                         case 2: //npc shops/talk WIP
                             Console.WriteLine("###");
@@ -114,12 +116,14 @@ namespace Server {
                             break;
 
                         case 6: //drop (send item back to dropper because dropping is disabled to prevent chatspam)
+                            var pickup = new Pickup() {
+                                guid = player.entityData.guid,
+                                item = action.item
+                            };
+
                             var serverUpdate6 = new ServerUpdate();
-                            var pickup = new Pickup();
-                            pickup.guid = player.entityData.guid;
-                            pickup.item = action.item;
                             serverUpdate6.pickups.Add(pickup);
-                            serverUpdate6.send(player);
+                            serverUpdate6.Send(player);
                             break;
 
                         case 8: //call pet WIP
@@ -150,21 +154,21 @@ namespace Server {
                 case 7:
                     #region hit
                     var hit = new Hit();
-                    hit.read(player.reader);
+                    hit.Read(player.reader);
 
                     var serverUpdate7 = new ServerUpdate();
                     serverUpdate7.hits.Add(hit);
-                    serverUpdate7.send(players, player.entityData.guid);
+                    serverUpdate7.Send(players, player.entityData.guid);
                     break;
                 #endregion
                 case 8:
                     #region passiveProc
                     var passiveProc = new PassiveProc();
-                    passiveProc.read(player.reader);
+                    passiveProc.Read(player.reader);
 
                     var serverUpdate8 = new ServerUpdate();
                     serverUpdate8.passiveProcs.Add(passiveProc);
-                    serverUpdate8.send(players, player.entityData.guid);
+                    serverUpdate8.Send(players, player.entityData.guid);
 
                     switch (passiveProc.type) {
                         case (int)Database.Passives.warFrenzy:
@@ -177,10 +181,11 @@ namespace Server {
                             break;
 
                         case (int)Database.Passives.manashield:
-                            var chatMessage6 = new ChatMessage();
-                            chatMessage6.message = "manashield: " + passiveProc.modifier;
-                            chatMessage6.sender = 0;
-                            chatMessage6.send(player);
+                            var chatMessage6 = new ChatMessage() {
+                                message = "manashield: " + passiveProc.modifier,
+                                sender = 0
+                            };
+                            chatMessage6.Send(player);
                             break;
 
                         case (int)Database.Passives.bulwalk:
@@ -190,16 +195,16 @@ namespace Server {
                         case (int)Database.Passives.poison:
                             if (players.ContainsKey(passiveProc.target))//in case target is a tomb or sth
                             {
-                                var poisonDmg = new Hit();
-                                poisonDmg.attacker = passiveProc.source;
-                                poisonDmg.target = passiveProc.target;
-                                poisonDmg.damage = passiveProc.modifier;
-                                poisonDmg.position = players[passiveProc.target].entityData.position;
-                                poisonDmg.type = (byte)Database.DamageTypes.normal;
-
+                                var poisonDmg = new Hit() {
+                                    attacker = passiveProc.source,
+                                    target = passiveProc.target,
+                                    damage = passiveProc.modifier,
+                                    position = players[passiveProc.target].entityData.position,
+                                    type = (byte)Database.DamageTypes.normal
+                                };
                                 var poisonTick = new ServerUpdate();
                                 poisonTick.hits.Add(poisonDmg);
-                                poison(poisonTick, passiveProc.duration);
+                                Poison(poisonTick, passiveProc.duration);
                             }
                             break;
 
@@ -212,11 +217,11 @@ namespace Server {
                 case 9:
                     #region shoot
                     var shoot = new Shoot();
-                    shoot.read(player.reader);
+                    shoot.Read(player.reader);
 
                     var serverUpdate9 = new ServerUpdate();
                     serverUpdate9.shoots.Add(shoot);
-                    serverUpdate9.send(players, player.entityData.guid);
+                    serverUpdate9.Send(players, player.entityData.guid);
                     break;
                 #endregion
                 case 10:
@@ -233,9 +238,9 @@ namespace Server {
                             parameter = command.Substring(spaceIndex + 1);
                             command = command.Substring(0, spaceIndex);
                         }
-                        Command.execute(command, parameter, player); //wip
+                        Command.Execute(command, parameter, player); //wip
                     } else {
-                        chatMessage.send(players, 0);
+                        chatMessage.Send(players, 0);
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.Write("#" + player.entityData.guid + " " + player.entityData.name + ": ");
                         Console.ForegroundColor = ConsoleColor.White;
@@ -246,40 +251,42 @@ namespace Server {
                 case 11:
                     #region chunk discovered
                     var chunk = new Chunk();
-                    chunk.read(player.reader); //currently not doing anything with this
+                    chunk.Read(player.reader); //currently not doing anything with this
                     break;
                 #endregion
                 case 12:
                     #region sector discovered
                     var sector = new Sector();
-                    sector.read(player.reader); //currently not doing anything with this
+                    sector.Read(player.reader); //currently not doing anything with this
                     break;
                 #endregion
                 case 17:
                     #region version
                     var version = new ProtocolVersion();
-                    version.read(player.reader);
+                    version.Read(player.reader);
                     if (version.version != 3) {
                         version.version = 3;
-                        version.send(player);
+                        version.Send(player);
                         player.tcp.Close();
                     } else {
                         player.entityData.guid = guidCounter;
                         guidCounter++;
                         players.Add(player.entityData.guid, player);
 
-                        var join = new Join();
-                        join.guid = player.entityData.guid;
-                        join.junk = new byte[0x1168];
-                        join.send(player);
+                        var join = new Join() {
+                            guid = player.entityData.guid,
+                            junk = new byte[0x1168]
+                        };
+                        join.Send(player);
 
-                        var mapSeed = new MapSeed();
-                        mapSeed.seed = 8710; //seed is hardcoded for now, dont change
-                        mapSeed.send(player);
+                        var mapSeed = new MapSeed() {
+                            seed = 8710 //seed is hardcoded for now, dont change
+                        };
+                        mapSeed.Send(player);
 
                         foreach (KeyValuePair<ulong, Player> entry in players) {
                             if (entry.Key != player.entityData.guid) {
-                                entry.Value.entityData.send(player);
+                                entry.Value.entityData.Send(player);
                             }
                         }
                         //Task.Delay(10000).ContinueWith(t => load_world_delayed(player)); //WIP, causes crash when player disconnects before executed
@@ -292,30 +299,31 @@ namespace Server {
             }
         }
 
-        public void kick(Player player) {
+        public void Kick(Player player) {
             players.Remove(player.entityData.guid);
             player.tcp.Close();
-            Announce.leave(player.entityData.name, players);
+            Announce.Leave(player.entityData.name, players);
 
-            var pdc = new EntityUpdate();
-            pdc.guid = player.entityData.guid;
-            pdc.bitfield1 = 0b00001000_00000000_00000000_10000000;
-            pdc.hostility = 255; //workaround for DC because i dont like packet2
-            pdc.send(players, 0);
+            var pdc = new EntityUpdate() {
+                guid = player.entityData.guid,
+                bitfield1 = 0b00001000_00000000_00000000_10000000,
+                hostility = 255 //workaround for DC because i dont like packet2
+            };
+            pdc.Send(players, 0);
         }
 
-        public void load_world_delayed(Player player) {
+        public void Load_world_delayed(Player player) {
             if (players.ContainsKey(player.entityData.guid)) {
-                worldUpdate.send(player);
+                worldUpdate.Send(player);
             }
         }
 
-        public void poison(ServerUpdate poisonTick, int duration) {
+        public void Poison(ServerUpdate poisonTick, int duration) {
             if (players.ContainsKey(poisonTick.hits[0].target)) {
                 poisonTick.hits[0].position = players[poisonTick.hits[0].target].entityData.position;
-                poisonTick.send(players, 0);
+                poisonTick.Send(players, 0);
                 if (duration > 0) {
-                    Task.Delay(500).ContinueWith(t => poison(poisonTick, duration - 500));
+                    Task.Delay(500).ContinueWith(t => Poison(poisonTick, duration - 500));
                 }
             }
         }

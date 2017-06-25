@@ -15,9 +15,9 @@ namespace Resources.Packet
         public byte type;
         //3 pad
 
-        public void read(BinaryReader reader)
+        public void Read(BinaryReader reader)
         {
-            item.read(reader);
+            item.Read(reader);
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
             index = reader.ReadInt32();
@@ -26,9 +26,9 @@ namespace Resources.Packet
             reader.ReadBytes(3); //pad
         }
 
-        public void write(BinaryWriter writer)
+        public void Write(BinaryWriter writer)
         {
-            item.write(writer);
+            item.Write(writer);
             writer.Write(chunkX);
             writer.Write(chunkY);
             writer.Write(index);

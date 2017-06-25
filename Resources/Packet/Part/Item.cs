@@ -17,7 +17,7 @@ namespace Resources.Packet.Part {
         List<Spirit> spirits = new List<Spirit>();
         public int spiritCounter;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             type = reader.ReadByte();
             subtype = reader.ReadByte();
             reader.ReadBytes(2);
@@ -43,7 +43,7 @@ namespace Resources.Packet.Part {
             spiritCounter = reader.ReadInt32();
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(type);
             writer.Write(subtype);
             writer.Write((short)0);
@@ -75,7 +75,7 @@ namespace Resources.Packet.Part {
         public short level;
         //2 pad
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             x = reader.ReadByte();
             y = reader.ReadByte();
             z = reader.ReadByte();
@@ -84,7 +84,7 @@ namespace Resources.Packet.Part {
             reader.ReadBytes(2);
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(x);
             writer.Write(y);
             writer.Write(z);

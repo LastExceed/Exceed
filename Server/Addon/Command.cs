@@ -5,7 +5,7 @@ using Resources.Packet.Part;
 
 namespace Server.Addon {
     class Command {
-        public static void execute(string command, string parameter, Player player) {
+        public static void Execute(string command, string parameter, Player player) {
             switch (command) {
                 case "spawn":
                     break;
@@ -17,20 +17,21 @@ namespace Server.Addon {
                     try {
                         int amount = Convert.ToInt32(parameter);
 
-                        var xpDummy = new EntityUpdate();
-                        xpDummy.guid = 1000;
-                        xpDummy.bitfield1 = 0b00000000_00000000_00000000_10000000;
-                        xpDummy.hostility = (byte)Database.Hostility.enemy;
-                        xpDummy.send(player);
+                        var xpDummy = new EntityUpdate() {
+                            guid = 1000,
+                            bitfield1 = 0b00000000_00000000_00000000_10000000,
+                            hostility = (byte)Database.Hostility.enemy
+                        };
+                        xpDummy.Send(player);
 
-                        var kill = new Kill();
-                        kill.killer = player.entityData.guid;
-                        kill.victim = 1000;
-                        kill.xp = amount;
-
+                        var kill = new Kill() {
+                            killer = player.entityData.guid,
+                            victim = 1000,
+                            xp = amount
+                        };
                         var serverUpdate = new ServerUpdate();
                         serverUpdate.kills.Add(kill);
-                        serverUpdate.send(player);
+                        serverUpdate.Send(player);
                         break;
                     } catch (Exception) {
                         //invalid syntax
@@ -42,9 +43,10 @@ namespace Server.Addon {
                         int hour = Convert.ToInt32(parameter.Substring(0, index));
                         int minute = Convert.ToInt32(parameter.Substring(index + 1));
 
-                        var time = new Time();
-                        time.time = (hour * 60 + minute) * 60000;
-                        time.send(player);
+                        var time = new Time() {
+                            time = (hour * 60 + minute) * 60000
+                        };
+                        time.Send(player);
                     } catch (Exception) {
                         //invalid syntax
                     }

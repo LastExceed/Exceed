@@ -7,7 +7,7 @@ namespace Resources.Packet {
         public int sectorX;
         public int sectorY;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             sectorX = reader.ReadInt32();
             sectorY = reader.ReadInt32();
         }

@@ -9,13 +9,13 @@ namespace Resources.Packet {
         public ulong guid;
         public byte[] junk;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             unknown = reader.ReadInt32();
             guid = reader.ReadUInt64();
             junk = reader.ReadBytes(0x1168);
         }
 
-        public void send(Player player) {
+        public void Send(Player player) {
             //SpinWait.SpinUntil(() => !player.busy);
             //player.busy = true;
             player.writer.Write(packetID);

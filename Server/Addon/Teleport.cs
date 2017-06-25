@@ -5,7 +5,7 @@ using Resources.Packet.Part;
 
 namespace Server.Addon {
     class Teleport {
-        public void teleportPlayer(Player player, long x, long y, long z) {
+        public void TeleportPlayer(Player player, long x, long y, long z) {
             var staticEntity = new StaticEntity();
             byte[] buffer = BitConverter.GetBytes(x);
             staticEntity.chunkX = BitConverter.ToInt32(buffer, 3);
@@ -27,9 +27,9 @@ namespace Server.Addon {
 
             var serverUpdate10 = new ServerUpdate();
             serverUpdate10.statics.Add(staticEntity);
-            serverUpdate10.send(player);
+            serverUpdate10.Send(player);
             staticEntity.guid = 0;
-            serverUpdate10.send(player);
+            serverUpdate10.Send(player);
         }
     }
 }

@@ -5,14 +5,14 @@ namespace Resources.Packet.Part {
         public ulong guid;
         public Item item;
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             guid = reader.ReadUInt64();
-            item = new Item(); item.read(reader);
+            item = new Item(); item.Read(reader);
         }
 
-        public void write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             writer.Write(guid);
-            item.write(writer);
+            item.Write(writer);
         }
     }
 }

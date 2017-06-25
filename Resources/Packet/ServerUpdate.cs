@@ -21,77 +21,77 @@ namespace Resources.Packet {
         public List<PassiveProc> passiveProcs = new List<PassiveProc>();
         public List<Mission> missions = new List<Mission>();
 
-        public void read(BinaryReader reader) {
+        public void Read(BinaryReader reader) {
             //todo
         }
 
-        public byte[] getBytes() {
+        public byte[] GetBytes() {
             MemoryStream stream = new MemoryStream();
             BinaryWriter writer = new BinaryWriter(stream);
 
             writer.Write(blockDeltas.Count);
             foreach (BlockDelta blockDelta in blockDeltas) {
-                blockDelta.write(writer);
+                blockDelta.Write(writer);
             }
 
             writer.Write(hits.Count);
             foreach (Hit hit in hits) {
-                hit.write(writer);
+                hit.Write(writer);
             }
 
             writer.Write(particles.Count);
             foreach (Particle particle in particles) {
-                particle.write(writer);
+                particle.Write(writer);
             }
 
             writer.Write(sounds.Count);
             foreach (Sound sound in sounds) {
-                sound.write(writer);
+                sound.Write(writer);
             }
 
             writer.Write(shoots.Count);
             foreach (Shoot shoot in shoots) {
-                shoot.write(writer);
+                shoot.Write(writer);
             }
 
             writer.Write(statics.Count);
             foreach (StaticEntity staticEntity in statics) {
-                staticEntity.write(writer);
+                staticEntity.Write(writer);
             }
 
             writer.Write(chunkItems.Count);
             foreach (ChunkItems chunkItem in chunkItems) {
-                chunkItem.write(writer);
+                chunkItem.Write(writer);
             }
 
             writer.Write(p48s.Count);
             foreach (P48 p48 in p48s) {
-                p48.write(writer);
+                p48.Write(writer);
             }
 
             writer.Write(pickups.Count);
             foreach (Pickup pickup in pickups) {
-                pickup.write(writer);
+                pickup.Write(writer);
             }
 
             writer.Write(kills.Count);
             foreach (Kill kill in kills) {
-                kill.write(writer);
+                kill.Write(writer);
             }
 
             writer.Write(damages.Count);
             foreach (Damage damage in damages) {
-                damage.write(writer);
+                damage.Write(writer);
             }
 
             writer.Write(passiveProcs.Count); //npc rClick ??? todo
             foreach (PassiveProc passiveProc in passiveProcs) {
-                passiveProc.write(writer);
+                passiveProc.Write(writer);
             }
 
             writer.Write(missions.Count);
             foreach (Mission mission in missions) {
-                mission.write(writer);
+                mission.Write(writer);
             }
 
 
@@ -107,15 +107,15 @@ namespace Resources.Packet {
             return data;
         }
 
-        public void send(Player player) {
-            byte[] data = this.getBytes();
+        public void Send(Player player) {
+            byte[] data = this.GetBytes();
             //SpinWait.SpinUntil(() => !player.busy);
             //player.busy = true;
             player.writer.Write(data);
             //player.busy = false;
         }
-        public void send(Dictionary<ulong, Player> players, ulong toSkip) {
-            byte[] data = this.getBytes();
+        public void Send(Dictionary<ulong, Player> players, ulong toSkip) {
+            byte[] data = this.GetBytes();
             foreach (Player player in new List<Player>(players.Values)) {
                 if (player.entityData.guid != toSkip) {
                     try {
