@@ -38,11 +38,11 @@ namespace Server {
                 try {
                     packetID = player.reader.ReadInt32();
                 } catch (IOException) {
-                    Kick(player);
                     break;
                 }
                 ProcessPacket(packetID, player);
             }
+            Kick(player);
         }
         public void ProcessPacket(int packetID, Player player) {
             switch ((Database.PacketID)packetID) {
