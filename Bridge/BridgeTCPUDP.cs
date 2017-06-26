@@ -14,7 +14,7 @@ namespace Bridge {
     static class BridgeTCPUDP {
         static UdpClient udpToServer;
         static TcpClient tcpToServer;
-        static TcpClient client;
+        static TcpClient tcpToClient;
         static TcpListener listener;
         static BinaryWriter writer;
         static BinaryReader reader;
@@ -28,17 +28,17 @@ namespace Bridge {
         }
         public static void Stop() {
             listener.Stop();
-            client.Close();
+            tcpToClient.Close();
             udpToServer.Close();
             tcpToServer.Close();
         }
 
         public static void ListenFromClient() {
-            client = listener.AcceptTcpClient();
-            writer = new BinaryWriter(client.GetStream());
-            reader = new BinaryReader(client.GetStream());
+            tcpToClient = listener.AcceptTcpClient();
+            writer = new BinaryWriter(tcpToClient.GetStream());
+            reader = new BinaryReader(tcpToClient.GetStream());
             int packetID = -1;
-            while (client.Connected) {
+            while (tcpToClient.Connected) {
                 try {
                     packetID = reader.ReadInt32();
                 } catch (IOException) {
