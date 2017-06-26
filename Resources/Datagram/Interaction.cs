@@ -1,11 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Resources.Datagram {
     class Interaction {
-        
+        public Database.DatagramID DatagramID {
+            get { return (Database.DatagramID)data[0]; }
+            private set { data[0] = (byte)value; }
+        }
+
+        //TODO
+
+        public byte[] data;
+
+        public Interaction() {
+            data = new byte[???];
+            DatagramID = Database.DatagramID.interaction;
+        }
+        public Interaction(byte[] data) {
+            this.data = data;
+        }
     }
 }

@@ -1,19 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Resources.Datagram {
-    class InGameTime {
+    public class InGameTime {
+        public Database.DatagramID DatagramID {
+            get { return (Database.DatagramID)data[0]; }
+            private set { data[0] = (byte)value; }
+        }
         public int Time {
-            get { return BitConverter.ToInt32(data, 0); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 0); }
+            get { return BitConverter.ToInt32(data, 1); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 1); }
         }
 
         public byte[] data;
 
-        public InGameTime() { }
+        public InGameTime() {
+            data = new byte[5];
+            DatagramID = Database.DatagramID.time;
+        }
 
         public InGameTime(byte[] data) {
             this.data = data;

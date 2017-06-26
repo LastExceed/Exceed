@@ -1,58 +1,61 @@
 ﻿using Resources.Utilities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Resources.Datagram {
     class Shoot {
+        public Database.DatagramID DatagramID {
+            get { return (Database.DatagramID)data[0]; }
+            private set { data[0] = (byte)value; }
+        }
         public LongVector Position {
             get {
                 var t = new LongVector() {
-                    x = BitConverter.ToInt64(data, 0),
-                    y = BitConverter.ToInt64(data, 4),
-                    z = BitConverter.ToInt64(data, 8)
+                    x = BitConverter.ToInt64(data, 1),
+                    y = BitConverter.ToInt64(data, 9),
+                    z = BitConverter.ToInt64(data, 17)
                 };
                 return t;
             }
             set {
-                BitConverter.GetBytes(value.x).CopyTo(data, 0);
-                BitConverter.GetBytes(value.y).CopyTo(data, 4);
-                BitConverter.GetBytes(value.z).CopyTo(data, 8);
+                BitConverter.GetBytes(value.x).CopyTo(data, 1);
+                BitConverter.GetBytes(value.y).CopyTo(data, 9);
+                BitConverter.GetBytes(value.z).CopyTo(data, 17);
             }
         }
         public FloatVector Velocity {
             get {
                 var t = new FloatVector() {
-                    x = BitConverter.ToSingle(data, 12),
-                    y = BitConverter.ToSingle(data, 16),
-                    z = BitConverter.ToSingle(data, 20)
+                    x = BitConverter.ToSingle(data, 25),
+                    y = BitConverter.ToSingle(data, 29),
+                    z = BitConverter.ToSingle(data, 33)
                 };
                 return t;
             }
             set {
-                BitConverter.GetBytes(value.x).CopyTo(data, 12);
-                BitConverter.GetBytes(value.y).CopyTo(data, 16);
-                BitConverter.GetBytes(value.z).CopyTo(data, 20);
+                BitConverter.GetBytes(value.x).CopyTo(data, 25);
+                BitConverter.GetBytes(value.y).CopyTo(data, 29);
+                BitConverter.GetBytes(value.z).CopyTo(data, 33);
             }
         }
         public float Scale {
-            get { return BitConverter.ToSingle(data, 24); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 24); }
+            get { return BitConverter.ToSingle(data, 37); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 37); }
         }
         public float Particles {
-            get { return BitConverter.ToSingle(data, 28); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 28); }
+            get { return BitConverter.ToSingle(data, 41); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 41); }
         }
         public Database.Projectile Projectile {
-            get { return (Database.Projectile)data[32]; }
-            set { data[32] = (byte)value; }
+            get { return (Database.Projectile)data[45]; }
+            set { data[45] = (byte)value; }
         }
 
         public byte[] data;
 
-        public Shoot() { }
+        public Shoot() {
+            data = new byte[45];
+            DatagramID = Database.DatagramID.shoot;
+        }
 
         public Shoot(byte[] data) {
             this.data = data;

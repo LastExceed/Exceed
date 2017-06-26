@@ -1,20 +1,25 @@
-﻿using Resources.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace Resources.Datagram {
     class Block {
-        public short Length {
-            get { return BitConverter.ToInt16(data, 0); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 0); }
+        public Database.DatagramID DatagramID {
+            get { return (Database.DatagramID)data[0]; }
+            private set { data[0] = (byte)value; }
         }
-        //public compressed ???
+        public short Length {
+            get { return BitConverter.ToInt16(data, 1); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 1); }
+        }
+        public var Compressed {
+            get { return data[3]; }
+            set { data[3] = value; }
+        }
 
         public byte[] data;
-        public Block() { }
+        public Block() {
+            data = new byte[3];
+            DatagramID = Database.DatagramID.block;
+        }
 
         public Block(byte[] data) {
             this.data = data;

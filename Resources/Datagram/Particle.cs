@@ -8,65 +8,69 @@ using System.Threading.Tasks;
 
 namespace Resources.Datagram {
     class Particle {
+        public Database.DatagramID DatagramID {
+            get { return (Database.DatagramID)data[0]; }
+            private set { data[0] = (byte)value; }
+        }
         public LongVector Position {
             get {
-                var t = new LongVector() {
-                    x = BitConverter.ToInt64(data, 0),
-                    y = BitConverter.ToInt64(data, 4),
-                    z = BitConverter.ToInt64(data, 8)
+                return new LongVector() {
+                    x = BitConverter.ToInt64(data, 1),
+                    y = BitConverter.ToInt64(data, 9),
+                    z = BitConverter.ToInt64(data, 17)
                 };
-                return t;
             }
             set {
-                BitConverter.GetBytes(value.x).CopyTo(data, 0);
-                BitConverter.GetBytes(value.y).CopyTo(data, 4);
-                BitConverter.GetBytes(value.z).CopyTo(data, 8);
+                BitConverter.GetBytes(value.x).CopyTo(data, 1);
+                BitConverter.GetBytes(value.y).CopyTo(data, 9);
+                BitConverter.GetBytes(value.z).CopyTo(data, 17);
             }
         }
         public FloatVector Velocity {
             get {
-                var t = new FloatVector() {
-                    x = BitConverter.ToSingle(data, 12),
-                    y = BitConverter.ToSingle(data, 16),
-                    z = BitConverter.ToSingle(data, 20)
+                return new FloatVector() {
+                    x = BitConverter.ToSingle(data, 25),
+                    y = BitConverter.ToSingle(data, 29),
+                    z = BitConverter.ToSingle(data, 33)
                 };
-                return t;
             }
             set {
-                BitConverter.GetBytes(value.x).CopyTo(data, 12);
-                BitConverter.GetBytes(value.y).CopyTo(data, 16);
-                BitConverter.GetBytes(value.z).CopyTo(data, 20);
+                BitConverter.GetBytes(value.x).CopyTo(data, 25);
+                BitConverter.GetBytes(value.y).CopyTo(data, 29);
+                BitConverter.GetBytes(value.z).CopyTo(data, 33);
             }
         }
         public Color Color {
-            get { return Color.FromArgb(data[24], data[25], data[26],data[27]); }
+            get { return Color.FromArgb(data[37], data[38], data[39],data[40]); }
             set {
-                data[24] = value.A;
-                data[25] = value.R;
-                data[26] = value.G;
-                data[27] = value.B;
+                data[37] = value.A;
+                data[38] = value.R;
+                data[39] = value.G;
+                data[40] = value.B;
             }
         }
         public float Size {
-            get { return BitConverter.ToSingle(data, 28); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 28); }
+            get { return BitConverter.ToSingle(data, 41); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 41); }
         }
         public ushort Count {
-            get { return BitConverter.ToUInt16(data, 32); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 32); }
+            get { return BitConverter.ToUInt16(data, 45); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 45); }
         }
         public Database.ParticleType Type {
-            get { return (Database.ParticleType)data[34]; }
-            set { data[34] = (byte)value; }
+            get { return (Database.ParticleType)data[47]; }
+            set { data[47] = (byte)value; }
         }
         public float Spread {
-            get { return BitConverter.ToSingle(data, 35); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 35); }
+            get { return BitConverter.ToSingle(data, 48); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 48); }
         }
 
         public byte[] data;
 
-        public Particle() { }
+        public Particle() {
+            data = new byte[52];
+        }
 
         public Particle(byte[] data) {
             this.data = data;
