@@ -19,19 +19,16 @@ namespace Bridge {
         static BinaryWriter writer;
         static BinaryReader reader;
 
-        public static bool Start(string serverIP, int serverPort) {
+        public static void Start(string serverIP, int serverPort) {
             tcpToServer = new TcpClient();
             udpToServer = new UdpClient();
-            try {
-                tcpToServer.Connect(serverIP, serverPort);
-                udpToServer.Connect(serverIP, serverPort);
-            } catch (Exception) {
-                return false;
-            }
+
+            tcpToServer.Connect(serverIP, serverPort);
+            udpToServer.Connect(serverIP, serverPort);
+
             listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
             listener.Start();
             Task.Factory.StartNew(ListenFromClient);
-            return true;
         }
         public static void Stop() {
             listener.Stop();

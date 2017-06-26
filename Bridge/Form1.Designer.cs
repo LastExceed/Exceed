@@ -121,7 +121,7 @@
             this.buttonConnect.TabIndex = 7;
             this.buttonConnect.Text = "connect";
             this.buttonConnect.UseVisualStyleBackColor = true;
-            this.buttonConnect.Click += new System.EventHandler(this.buttonConnect_Click);
+            this.buttonConnect.Click += new System.EventHandler(this.ButtonConnect_Click);
             // 
             // linkLabel1
             // 
@@ -185,7 +185,7 @@
             this.buttonDisconnect.TabIndex = 9;
             this.buttonDisconnect.Text = "disconnect";
             this.buttonDisconnect.UseVisualStyleBackColor = true;
-            this.buttonDisconnect.Click += new System.EventHandler(this.buttonDisconnect_Click);
+            this.buttonDisconnect.Click += new System.EventHandler(this.ButtonDisconnect_Click);
             // 
             // Form1
             // 

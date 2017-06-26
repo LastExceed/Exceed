@@ -24,10 +24,14 @@ namespace Resources.Datagram {
         public byte[] data;
         
         public Chat(string message) {
-            data = new byte[4 + message.Length];
-            DatagramID = Database.DatagramID.chat;
-            Length = (byte)message.Length;
-            Text = message;
+            if(message.Length <= 255) {
+                data = new byte[4 + message.Length];
+                DatagramID = Database.DatagramID.chat;
+                Length = (byte)message.Length;
+                Text = message;
+            } else {
+                throw new OverflowException("Message to long");
+            }
         }
 
         public Chat(byte[] data) {

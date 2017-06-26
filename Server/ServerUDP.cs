@@ -72,12 +72,12 @@ namespace Server {
         
         public void Kick(Player player) {
             throw new NotImplementedException();
-            /*
+            
             Disconnect p = new Disconnect() {
-                Guid = player.guid
+                //Guid = player.guid
             };
 
-            UDPSendToAll(p.data, player.tcp.Client.RemoteEndPoint as IPEndPoint);*/
+            UDPSendToAll(p.data, player.tcp.Client.RemoteEndPoint as IPEndPoint);
         }
 
         public void ProcessTCP(int packetID, Player player) {

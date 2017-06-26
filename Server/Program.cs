@@ -10,6 +10,12 @@ namespace Server {
                 var text = Console.ReadLine();
                 if(text == "exit")
                     break;
+                else {
+                    var p = new Resources.Datagram.Chat(text) {
+                        Sender = 0
+                    };
+                    UDPserver.UDPSendToAll(p.data, null);
+                }
             }
         }
     }
