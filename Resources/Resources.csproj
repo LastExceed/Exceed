@@ -51,7 +51,6 @@
     <Compile Include="Datagram\Disconnect.cs" />
     <Compile Include="Datagram\Interaction.cs" />
     <Compile Include="Datagram\Particle.cs" />
-    <Compile Include="Datagram\Players.cs" />
     <Compile Include="Datagram\Proc.cs" />
     <Compile Include="Datagram\Shoot.cs" />
     <Compile Include="Datagram\StaticUpdate.cs" />
