@@ -14,13 +14,13 @@ using Resources.Packet.Part;
 
 namespace Server {
     class ServerTCP {
-        public TcpListener listener = new TcpListener(IPAddress.Any, 12345);
+        public TcpListener listener;
         Dictionary<ulong, Player> players = new Dictionary<ulong, Player>();
         ulong guidCounter = 1;
         ServerUpdate worldUpdate = new ServerUpdate();
 
-        public ServerTCP() //constructor
-        {
+        public ServerTCP(int port) {
+            listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
             //ZoxModel arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("thing2.zox"));
             //arena.Parse(worldUpdate, 8397006, 8396937, 127); //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
