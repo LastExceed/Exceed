@@ -2,7 +2,7 @@
 using System.Text;
 
 namespace Resources.Datagram {
-    class Chat {
+    public class Chat {
         public Database.DatagramID DatagramID {
             get { return (Database.DatagramID)data[0]; }
             private set { data[0] = (byte)value; }

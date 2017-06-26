@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Resources.Datagram {
-    class Proc {
+    public class Proc {
         public Database.DatagramID DatagramID {
             get { return (Database.DatagramID)data[0]; }
             private set { data[0] = (byte)value; }

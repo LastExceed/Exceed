@@ -2,7 +2,7 @@
 using System;
 
 namespace Resources.Datagram {
-    class Shoot {
+    public class Shoot {
         public Database.DatagramID DatagramID {
             get { return (Database.DatagramID)data[0]; }
             private set { data[0] = (byte)value; }

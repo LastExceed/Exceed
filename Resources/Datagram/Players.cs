@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Resources.Datagram {
     public class Players {
@@ -20,7 +16,7 @@ namespace Resources.Datagram {
 
         public byte[] data;
 
-        public Players(List<Players> player) {
+        public Players() {
             //data = new byte[]
         }
         public Players(byte[] data) {

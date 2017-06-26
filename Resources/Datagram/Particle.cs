@@ -1,13 +1,9 @@
 ﻿using Resources.Utilities;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Resources.Datagram {
-    class Particle {
+    public class Particle {
         public Database.DatagramID DatagramID {
             get { return (Database.DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
