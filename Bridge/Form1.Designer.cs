@@ -35,11 +35,11 @@
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.buttonInfo = new System.Windows.Forms.Button();
             this.groupBoxAccount = new System.Windows.Forms.GroupBox();
-            this.buttonConnect = new System.Windows.Forms.Button();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.buttonConnect = new System.Windows.Forms.Button();
             this.groupBoxServer = new System.Windows.Forms.GroupBox();
-            this.numericUpDownPort = new System.Windows.Forms.NumericUpDown();
             this.labelPort = new System.Windows.Forms.Label();
+            this.numericUpDownPort = new System.Windows.Forms.NumericUpDown();
             this.buttonDisconnect = new System.Windows.Forms.Button();
             this.groupBoxAccount.SuspendLayout();
             this.groupBoxServer.SuspendLayout();
@@ -113,16 +113,6 @@
             this.groupBoxAccount.TabStop = false;
             this.groupBoxAccount.Text = "account";
             // 
-            // buttonConnect
-            // 
-            this.buttonConnect.Location = new System.Drawing.Point(1, 165);
-            this.buttonConnect.Name = "buttonConnect";
-            this.buttonConnect.Size = new System.Drawing.Size(68, 23);
-            this.buttonConnect.TabIndex = 7;
-            this.buttonConnect.Text = "connect";
-            this.buttonConnect.UseVisualStyleBackColor = true;
-            this.buttonConnect.Click += new System.EventHandler(this.ButtonConnect_Click);
-            // 
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
@@ -132,6 +122,16 @@
             this.linkLabel1.TabIndex = 6;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "register";
+            // 
+            // buttonConnect
+            // 
+            this.buttonConnect.Location = new System.Drawing.Point(1, 165);
+            this.buttonConnect.Name = "buttonConnect";
+            this.buttonConnect.Size = new System.Drawing.Size(68, 23);
+            this.buttonConnect.TabIndex = 7;
+            this.buttonConnect.Text = "connect";
+            this.buttonConnect.UseVisualStyleBackColor = true;
+            this.buttonConnect.Click += new System.EventHandler(this.ButtonConnect_Click);
             // 
             // groupBoxServer
             // 
@@ -144,6 +144,15 @@
             this.groupBoxServer.TabIndex = 8;
             this.groupBoxServer.TabStop = false;
             this.groupBoxServer.Text = "Server";
+            // 
+            // labelPort
+            // 
+            this.labelPort.AutoSize = true;
+            this.labelPort.Location = new System.Drawing.Point(11, 44);
+            this.labelPort.Name = "labelPort";
+            this.labelPort.Size = new System.Drawing.Size(28, 13);
+            this.labelPort.TabIndex = 6;
+            this.labelPort.Text = "port:";
             // 
             // numericUpDownPort
             // 
@@ -167,15 +176,6 @@
             0,
             0});
             // 
-            // labelPort
-            // 
-            this.labelPort.AutoSize = true;
-            this.labelPort.Location = new System.Drawing.Point(11, 44);
-            this.labelPort.Name = "labelPort";
-            this.labelPort.Size = new System.Drawing.Size(28, 13);
-            this.labelPort.TabIndex = 6;
-            this.labelPort.Text = "port:";
-            // 
             // buttonDisconnect
             // 
             this.buttonDisconnect.Enabled = false;
@@ -191,6 +191,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(496, 218);
             this.Controls.Add(this.buttonDisconnect);
             this.Controls.Add(this.buttonConnect);
@@ -203,7 +204,6 @@
             this.MaximumSize = new System.Drawing.Size(512, 9999);
             this.MinimumSize = new System.Drawing.Size(512, 256);
             this.Name = "Form1";
-            this.Text = "fd";
             this.groupBoxAccount.ResumeLayout(false);
             this.groupBoxAccount.PerformLayout();
             this.groupBoxServer.ResumeLayout(false);

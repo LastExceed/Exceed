@@ -35,14 +35,6 @@ namespace Bridge
             });
         }
 
-        public void Success() {
-            richTextBoxChat.AppendText("Connected");
-        }
-
-        public void fail() {
-             richTextBoxChat.AppendText("Connection failed");
-        }
-
         private void ButtonDisconnect_Click(object sender, EventArgs e) {
             buttonDisconnect.Enabled = false;
             buttonConnect.Enabled = true;
