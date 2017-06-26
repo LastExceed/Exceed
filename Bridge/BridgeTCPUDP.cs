@@ -11,7 +11,7 @@ using Resources.Packet.Part;
 using Resources.Datagram;
 
 namespace Bridge {
-    static class ServerAndClient {
+    static class BridgeTCPUDP {
         static UdpClient udpToServer;
         static TcpClient tcpToServer;
         static TcpClient client;
@@ -20,11 +20,11 @@ namespace Bridge {
         static BinaryReader reader;
 
         public static void Start(string serverIP, int serverPort) {
+            tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Parse(serverIP), serverPort));
+            udpToServer = new UdpClient(new IPEndPoint(IPAddress.Parse(serverIP), serverPort));
             listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
             listener.Start();
-            client = new TcpClient(new IPEndPoint(IPAddress.Parse("localhost"), 12345));
-            udpToServer = new UdpClient(new IPEndPoint(IPAddress.Parse(serverIP), serverPort));
-            tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Parse(serverIP), serverPort));
+            Task.Factory.StartNew(ListenFromClient);
         }
         public static void Stop() {
             listener.Stop();
@@ -47,6 +47,7 @@ namespace Bridge {
                 }
                 ProcessPacket(packetID);
             }
+            //disconnect
         }
 
         public static void ProcessDatagram(byte[] packet) {
