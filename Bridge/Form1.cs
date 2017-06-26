@@ -5,16 +5,14 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Bridge
-{
-    public partial class Form1 : Form
-    {
-        public Form1()
-        {
+namespace Bridge {
+    public partial class Form1 : Form {
+        public Form1() {
             InitializeComponent();
         }
 
@@ -26,31 +24,26 @@ namespace Bridge
 
             Task.Factory.StartNew(() => {
                 try {
-                    BridgeTCPUDP.Start(textBoxServerIP.Text, (int)numericUpDownPort.Value);
-                    //richTextBoxChat.AppendText($"Connected to {textBoxServerIP.Text}");
-                    Success();
+                    string[] split = textBoxServerIP.Text.Split(':');
+                    int port = 12345;
+                    if(split.Length == 2) {
+                        if(!int.TryParse(split[2], out port)) {
+                            Log("Invalid port");
+                            return;
+                        }
+                    }
+
+                    BridgeTCPUDP.Start(split[0], port);
+                    Log($"Connected to {textBoxServerIP.Text}");
                 } catch(Exception ex) {
-                    fail();
-                    //richTextBoxChat.AppendText($"Connection failed with message {ex.Message}");
+                    Log($"Connection failed with message {ex.Message}");
                     ButtonDisconnect_Click(sender, e);
                 }
             });
         }
 
-        public void Success() {
-            if(InvokeRequired) {
-                Invoke((Action)Success);
-            } else {
-                richTextBoxChat.AppendText("Connected");
-            }
-        }
-
-        public void fail() {
-            if(InvokeRequired) {
-                Invoke((Action)fail);
-            } else {
-                richTextBoxChat.AppendText("Connection failed");
-            }
+        public void Log(string text) {
+            richTextBoxChat.Invoke(new Action(() => richTextBoxChat.AppendText(text)));
         }
 
         private void ButtonDisconnect_Click(object sender, EventArgs e) {
@@ -58,6 +51,10 @@ namespace Bridge
             buttonConnect.Enabled = true;
             groupBoxServer.Enabled = true;
             groupBoxAccount.Enabled = true;
+        }
+
+        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e) {
+
         }
     }
 }
