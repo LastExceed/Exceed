@@ -1,8 +1,16 @@
-﻿namespace Server {
+﻿using System;
+using System.Threading;
+
+namespace Server {
     class Program {
         static void Main(string[] args) {
-            ServerTCP server = new ServerTCP(12345);
-            server.Listen();
+            ServerTCP TCPserver = new ServerTCP(12345);
+            ServerUDP UDPserver = new ServerUDP(12346);
+            while(true) {
+                var text = Console.ReadLine();
+                if(text == "exit")
+                    break;
+            }
         }
     }
 }
