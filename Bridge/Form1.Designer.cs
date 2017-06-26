@@ -57,7 +57,7 @@
             this.richTextBoxChat.Location = new System.Drawing.Point(0, 0);
             this.richTextBoxChat.Name = "richTextBoxChat";
             this.richTextBoxChat.ReadOnly = true;
-            this.richTextBoxChat.Size = new System.Drawing.Size(477, 336);
+            this.richTextBoxChat.Size = new System.Drawing.Size(247, 217);
             this.richTextBoxChat.TabIndex = 1;
             this.richTextBoxChat.Text = "";
             // 
@@ -65,9 +65,11 @@
             // 
             this.listBoxPlayers.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listBoxPlayers.FormattingEnabled = true;
+            this.listBoxPlayers.Items.AddRange(new object[] {
+            "################"});
             this.listBoxPlayers.Location = new System.Drawing.Point(0, 0);
             this.listBoxPlayers.Name = "listBoxPlayers";
-            this.listBoxPlayers.Size = new System.Drawing.Size(83, 336);
+            this.listBoxPlayers.Size = new System.Drawing.Size(87, 217);
             this.listBoxPlayers.TabIndex = 2;
             // 
             // textBox1
@@ -162,7 +164,6 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitContainer1.IsSplitterFixed = true;
             this.splitContainer1.Location = new System.Drawing.Point(157, 0);
             this.splitContainer1.Name = "splitContainer1";
             // 
@@ -173,8 +174,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.richTextBoxChat);
-            this.splitContainer1.Size = new System.Drawing.Size(564, 336);
-            this.splitContainer1.SplitterDistance = 83;
+            this.splitContainer1.Size = new System.Drawing.Size(338, 217);
+            this.splitContainer1.SplitterDistance = 87;
             this.splitContainer1.TabIndex = 10;
             // 
             // Form1
@@ -182,7 +183,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(238)))), ((int)(((byte)(238)))));
-            this.ClientSize = new System.Drawing.Size(721, 336);
+            this.ClientSize = new System.Drawing.Size(495, 217);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.buttonDisconnect);
             this.Controls.Add(this.buttonConnect);
@@ -190,7 +191,7 @@
             this.Controls.Add(this.groupBoxAccount);
             this.Controls.Add(this.buttonInfo);
             this.MaximizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(255, 255);
+            this.MinimumSize = new System.Drawing.Size(511, 255);
             this.Name = "Form1";
             this.Text = "CubeWorld Bridge";
             this.groupBoxAccount.ResumeLayout(false);
