@@ -79,7 +79,7 @@ namespace Bridge {
                 #endregion
                 case Database.PacketID.hit:
                     #region hit
-                    var hit = new Hit(reader);
+                    var hit = new Resources.Packet.Hit(reader);
                     break;
                 #endregion
                 case Database.PacketID.passiveProc:

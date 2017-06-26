@@ -21,7 +21,7 @@ namespace Resources.Packet
 
         public EntityAction(BinaryReader reader)
         {
-            item.Read(reader);
+            item = new Part.Item(reader);
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
             index = reader.ReadInt32();

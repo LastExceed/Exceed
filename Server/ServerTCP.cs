@@ -59,7 +59,7 @@ namespace Server {
                         kickMessage.Send(player);
                         Console.WriteLine(player.entityData.name + " kicked for illegal " + kickMessage.message);
                         Thread.Sleep(100); //thread is about to run out anyway so np
-                        Kick(player);
+                        //Kick(player);
                     }
                     if (Tools.GetBit(entityUpdate.bitfield2, 45 - 32)) {
                         Announce.Join(entityUpdate.name, player.entityData.name, players);
@@ -87,14 +87,14 @@ namespace Server {
                             break;
 
                         case Database.ActionType.staticInteraction:
-                            //var staticEntity = new part.StaticEntity();
-                            //staticEntity.chunkX = action.chunkX;
-                            //staticEntity.chunkY = action.chunkY;
-                            //staticEntity.id = action.index;
+                            //var staticEntity = new StaticEntity();
+                            //staticEntity.chunkX = entityAction.chunkX;
+                            //staticEntity.chunkY = entityAction.chunkY;
+                            //staticEntity.id = entityAction.index;
                             //staticEntity.type = 0;
                             //staticEntity.position = player.entityData.position;
                             //staticEntity.rotation = 0;
-                            //staticEntity.size.x = 1;
+                            //staticEntity.size.x = 2;
                             //staticEntity.size.y = 1;
                             //staticEntity.size.z = 1;
                             //staticEntity.closed = 0;
@@ -103,7 +103,7 @@ namespace Server {
 
                             //var serverUpdate = new ServerUpdate();
                             //serverUpdate.statics.Add(staticEntity);
-                            //serverUpdate.send(players, 0);
+                            //serverUpdate.Send(players, 0);
                             break;
 
                         case Database.ActionType.pickup: //shouldn't occur since item drops are disabled

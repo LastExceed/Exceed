@@ -253,12 +253,12 @@ namespace Resources.Packet {
             }
             if (Tools.GetBit(bitfield2, 43 - 32)) //consumable
             {
-                consumable.Read(r);
+                consumable = new Part.Item(reader);
             }
             if (Tools.GetBit(bitfield2, 44 - 32)) //equipment
             {
                 for (int i = 0; i < 13; i++) {
-                    equipment[i].Read(r);
+                    equipment[i] = new Part.Item(r);
                 }
             }
             if (Tools.GetBit(bitfield2, 45 - 32)) //name

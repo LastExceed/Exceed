@@ -17,7 +17,11 @@ namespace Resources.Packet.Part {
         List<Spirit> spirits = new List<Spirit>();
         public int spiritCounter;
 
-        public void Read(BinaryReader reader) {
+        public Item() {
+
+        }
+
+        public Item(BinaryReader reader) {
             type = reader.ReadByte();
             subtype = reader.ReadByte();
             reader.ReadBytes(2);

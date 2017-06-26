@@ -41,7 +41,7 @@ namespace Resources.Packet.Part {
         public int unknownC;
 
         public void Read(BinaryReader reader) {
-            item = new Item(); item.Read(reader);
+            item = new Item(reader);
             posX = reader.ReadInt64();
             posY = reader.ReadInt64();
             posZ = reader.ReadInt64();

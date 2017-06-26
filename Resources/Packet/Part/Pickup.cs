@@ -7,7 +7,7 @@ namespace Resources.Packet.Part {
 
         public void Read(BinaryReader reader) {
             guid = reader.ReadUInt64();
-            item = new Item(); item.Read(reader);
+            item = new Item(reader);
         }
 
         public void Write(BinaryWriter writer) {
