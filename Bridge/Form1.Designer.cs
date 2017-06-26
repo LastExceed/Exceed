@@ -176,7 +176,6 @@
             this.splitContainer1.Size = new System.Drawing.Size(564, 336);
             this.splitContainer1.SplitterDistance = 83;
             this.splitContainer1.TabIndex = 10;
-            this.splitContainer1.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
             // 
             // Form1
             // 
