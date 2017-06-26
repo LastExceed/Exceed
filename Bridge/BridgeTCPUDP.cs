@@ -42,12 +42,11 @@ namespace Bridge {
                 try {
                     packetID = reader.ReadInt32();
                 } catch (IOException) {
-                    //end
                     break;
                 }
                 ProcessPacket(packetID);
             }
-            //disconnect
+            //send dc packet to server but keep logging chat
         }
 
         public static void ProcessDatagram(byte[] packet) {
