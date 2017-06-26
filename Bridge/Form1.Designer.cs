@@ -35,11 +35,12 @@
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.buttonInfo = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.buttonLogin = new System.Windows.Forms.Button();
+            this.buttonConnect = new System.Windows.Forms.Button();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.groupBoxServer = new System.Windows.Forms.GroupBox();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.labelPort = new System.Windows.Forms.Label();
+            this.buttonDisconnect = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBoxServer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
@@ -92,9 +93,9 @@
             // 
             // buttonInfo
             // 
-            this.buttonInfo.Location = new System.Drawing.Point(20, 179);
+            this.buttonInfo.Location = new System.Drawing.Point(69, 165);
             this.buttonInfo.Name = "buttonInfo";
-            this.buttonInfo.Size = new System.Drawing.Size(75, 23);
+            this.buttonInfo.Size = new System.Drawing.Size(46, 23);
             this.buttonInfo.TabIndex = 6;
             this.buttonInfo.Text = "info";
             this.buttonInfo.UseVisualStyleBackColor = true;
@@ -102,30 +103,29 @@
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.SystemColors.Control;
-            this.groupBox1.Controls.Add(this.buttonLogin);
             this.groupBox1.Controls.Add(this.linkLabel1);
             this.groupBox1.Controls.Add(this.textBox3);
             this.groupBox1.Controls.Add(this.textBox1);
             this.groupBox1.Location = new System.Drawing.Point(-1, 79);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(113, 94);
+            this.groupBox1.Size = new System.Drawing.Size(113, 86);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "account";
             // 
-            // buttonLogin
+            // buttonConnect
             // 
-            this.buttonLogin.Location = new System.Drawing.Point(44, 66);
-            this.buttonLogin.Name = "buttonLogin";
-            this.buttonLogin.Size = new System.Drawing.Size(63, 23);
-            this.buttonLogin.TabIndex = 7;
-            this.buttonLogin.Text = "login";
-            this.buttonLogin.UseVisualStyleBackColor = true;
+            this.buttonConnect.Location = new System.Drawing.Point(1, 165);
+            this.buttonConnect.Name = "buttonConnect";
+            this.buttonConnect.Size = new System.Drawing.Size(68, 23);
+            this.buttonConnect.TabIndex = 7;
+            this.buttonConnect.Text = "connect";
+            this.buttonConnect.UseVisualStyleBackColor = true;
             // 
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(4, 70);
+            this.linkLabel1.Location = new System.Drawing.Point(13, 67);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(41, 13);
             this.linkLabel1.TabIndex = 6;
@@ -175,11 +175,23 @@
             this.labelPort.TabIndex = 6;
             this.labelPort.Text = "port:";
             // 
+            // buttonDisconnect
+            // 
+            this.buttonDisconnect.Enabled = false;
+            this.buttonDisconnect.Location = new System.Drawing.Point(1, 189);
+            this.buttonDisconnect.Name = "buttonDisconnect";
+            this.buttonDisconnect.Size = new System.Drawing.Size(68, 23);
+            this.buttonDisconnect.TabIndex = 9;
+            this.buttonDisconnect.Text = "disconnect";
+            this.buttonDisconnect.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(496, 218);
+            this.Controls.Add(this.buttonDisconnect);
+            this.Controls.Add(this.buttonConnect);
             this.Controls.Add(this.groupBoxServer);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.buttonInfo);
@@ -208,11 +220,12 @@
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Button buttonInfo;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button buttonLogin;
+        private System.Windows.Forms.Button buttonConnect;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.GroupBox groupBoxServer;
         private System.Windows.Forms.Label labelPort;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.Button buttonDisconnect;
     }
 }
 
