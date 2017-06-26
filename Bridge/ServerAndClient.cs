@@ -11,15 +11,19 @@ using Resources.Packet.Part;
 using Resources.Datagram;
 
 namespace Bridge {
-    class BridgeTCPUDP {
-        UdpClient toServer = new UdpClient();
-        TcpListener listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
+    class ServerAndClient {
+        UdpClient udpToServer;
+        TcpClient tcpToServer;
         TcpClient client;
+        TcpListener listener;
         BinaryWriter writer;
         BinaryReader reader;
 
-        public BridgeTCPUDP() {
-            toServer.Connect(IPAddress.Parse("37.24.37.78"), 12345);
+        public ServerAndClient(string serverIP, int serverPort) {
+            listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
+            client = new TcpClient(new IPEndPoint(IPAddress.Parse("localhost"), 12345));
+            udpToServer = new UdpClient(new IPEndPoint(IPAddress.Parse(serverIP), serverPort));
+            tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Parse(serverIP), serverPort));
         }
 
         public void ListenFromClient() {
@@ -35,6 +39,39 @@ namespace Bridge {
                     break;
                 }
                 ProcessPacket(packetID);
+            }
+        }
+
+        public void ProcessDatagram(byte[] packet) {
+            switch((Database.DatagramID)packet[0]) {
+                case Database.DatagramID.entityUpdate:
+                    break;
+                case Database.DatagramID.hit:
+                    break;
+                case Database.DatagramID.shoot:
+                    break;
+                case Database.DatagramID.proc:
+                    break;
+                case Database.DatagramID.chat:
+                    break;
+                case Database.DatagramID.time:
+                    break;
+                case Database.DatagramID.interaction:
+                    break;
+                case Database.DatagramID.staticUpdate:
+                    break;
+                case Database.DatagramID.block:
+                    break;
+                case Database.DatagramID.particle:
+                    break;
+                case Database.DatagramID.connect:
+                    break;
+                case Database.DatagramID.disconnect:
+                    break;
+                case Database.DatagramID.players:
+                    break;
+                default:
+                    break;
             }
         }
         public void ProcessPacket(int packetID) {
@@ -81,7 +118,7 @@ namespace Bridge {
                     #region hit
                     var hit = new Resources.Packet.Hit(reader);
                     break;
-                #endregion
+                    #endregion
                 case Database.PacketID.passiveProc:
                     #region passiveProc
                     var passiveProc = new PassiveProc(reader);
