@@ -136,7 +136,7 @@ namespace Server {
                             //pet.equipment = player.entityData.equipment;
                             //pet.name = "doppelganger";
 
-                            //pet.send(players, 0);
+                            //pet.Send(players, 0);
                             break;
 
                         default:

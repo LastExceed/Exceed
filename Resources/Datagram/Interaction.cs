@@ -12,7 +12,7 @@ namespace Resources.Datagram {
         public byte[] data;
 
         public Interaction() {
-            data = new byte[???];
+            //data = new byte[???];
             DatagramID = Database.DatagramID.interaction;
         }
         public Interaction(byte[] data) {
