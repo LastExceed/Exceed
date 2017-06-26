@@ -27,30 +27,20 @@ namespace Bridge
             Task.Factory.StartNew(() => {
                 try {
                     BridgeTCPUDP.Start(textBoxServerIP.Text, (int)numericUpDownPort.Value);
-                    //richTextBoxChat.AppendText($"Connected to {textBoxServerIP.Text}");
-                    Success();
+                    richTextBoxChat.Invoke(new Action(() => richTextBoxChat.AppendText("connected")));
                 } catch(Exception ex) {
-                    fail();
-                    //richTextBoxChat.AppendText($"Connection failed with message {ex.Message}");
-                    ButtonDisconnect_Click(sender, e);
+                    richTextBoxChat.Invoke(new Action(() => richTextBoxChat.AppendText("Connection failed")));
+                    buttonDisconnect.Invoke(new Action(() => ButtonDisconnect_Click(sender, e)));
                 }
             });
         }
 
         public void Success() {
-            if(InvokeRequired) {
-                Invoke((Action)Success);
-            } else {
-                richTextBoxChat.AppendText("Connected");
-            }
+            richTextBoxChat.AppendText("Connected");
         }
 
         public void fail() {
-            if(InvokeRequired) {
-                Invoke((Action)fail);
-            } else {
-                richTextBoxChat.AppendText("Connection failed");
-            }
+             richTextBoxChat.AppendText("Connection failed");
         }
 
         private void ButtonDisconnect_Click(object sender, EventArgs e) {
