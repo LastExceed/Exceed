@@ -37,7 +37,7 @@ namespace Bridge {
                     Log($"Connected to {textBoxServerIP.Text}");
                 } catch(Exception ex) {
                     Log($"Connection failed with message {ex.Message}");
-                    ButtonDisconnect_Click(sender, e);
+                    buttonDisconnect.Invoke(new Action(() => ButtonDisconnect_Click(sender, e)));
                 }
             });
         }
@@ -51,10 +51,6 @@ namespace Bridge {
             buttonConnect.Enabled = true;
             groupBoxServer.Enabled = true;
             groupBoxAccount.Enabled = true;
-        }
-
-        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e) {
-
         }
     }
 }
