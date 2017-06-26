@@ -7,7 +7,11 @@ namespace Resources.Packet {
         public int chunkX;
         public int chunkY;
 
-        public void Read(BinaryReader reader) {
+        public Chunk() {
+
+        }
+
+        public Chunk(BinaryReader reader) {
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
         }

@@ -35,8 +35,8 @@
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.buttonInfo = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.buttonLogin = new System.Windows.Forms.Button();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.labelIP = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -45,11 +45,12 @@
             // 
             this.richTextBoxChat.BackColor = System.Drawing.Color.Black;
             this.richTextBoxChat.Dock = System.Windows.Forms.DockStyle.Right;
+            this.richTextBoxChat.ForeColor = System.Drawing.Color.White;
             this.richTextBoxChat.Location = new System.Drawing.Point(238, 0);
             this.richTextBoxChat.Name = "richTextBoxChat";
             this.richTextBoxChat.Size = new System.Drawing.Size(264, 164);
             this.richTextBoxChat.TabIndex = 1;
-            this.richTextBoxChat.Text = "";
+            this.richTextBoxChat.Text = "richTextBoxChat";
             // 
             // listBoxPlayers
             // 
@@ -108,6 +109,15 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "account";
             // 
+            // buttonLogin
+            // 
+            this.buttonLogin.Location = new System.Drawing.Point(44, 66);
+            this.buttonLogin.Name = "buttonLogin";
+            this.buttonLogin.Size = new System.Drawing.Size(63, 23);
+            this.buttonLogin.TabIndex = 7;
+            this.buttonLogin.Text = "login";
+            this.buttonLogin.UseVisualStyleBackColor = true;
+            // 
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
@@ -117,15 +127,6 @@
             this.linkLabel1.TabIndex = 6;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "register";
-            // 
-            // buttonLogin
-            // 
-            this.buttonLogin.Location = new System.Drawing.Point(44, 66);
-            this.buttonLogin.Name = "buttonLogin";
-            this.buttonLogin.Size = new System.Drawing.Size(63, 23);
-            this.buttonLogin.TabIndex = 7;
-            this.buttonLogin.Text = "login";
-            this.buttonLogin.UseVisualStyleBackColor = true;
             // 
             // labelIP
             // 
@@ -148,7 +149,7 @@
             this.Controls.Add(this.listBoxPlayers);
             this.Controls.Add(this.richTextBoxChat);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "fd";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);

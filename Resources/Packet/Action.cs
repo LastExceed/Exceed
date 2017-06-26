@@ -15,7 +15,11 @@ namespace Resources.Packet
         public byte type;
         //3 pad
 
-        public void Read(BinaryReader reader)
+        public EntityAction() {
+
+        }
+
+        public EntityAction(BinaryReader reader)
         {
             item.Read(reader);
             chunkX = reader.ReadInt32();

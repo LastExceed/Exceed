@@ -7,23 +7,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Server.Addon;
+
 using Resources;
 using Resources.Packet;
 using Resources.Packet.Part;
 
 namespace Server {
     class ServerTCP {
-        public TcpListener listener;
-        Dictionary<ulong, Player> players;
+        public TcpListener listener = new TcpListener(IPAddress.Any, 12345);
+        Dictionary<ulong, Player> players = new Dictionary<ulong, Player>();
         ulong guidCounter = 1;
-        ServerUpdate worldUpdate;
+        ServerUpdate worldUpdate = new ServerUpdate();
 
         public ServerTCP() //constructor
         {
-            listener = new TcpListener(IPAddress.Any, 12345);
             listener.Start();
-            players = new Dictionary<ulong, Player>();
-            worldUpdate = new ServerUpdate();
             //ZoxModel arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("thing2.zox"));
             //arena.Parse(worldUpdate, 8397006, 8396937, 127); //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
         }
@@ -43,16 +41,14 @@ namespace Server {
                     Kick(player);
                     break;
                 }
-                Process_packet(packetID, player);
+                ProcessPacket(packetID, player);
             }
         }
-
-        public void Process_packet(int packetID, Player player) {
+        public void ProcessPacket(int packetID, Player player) {
             switch ((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entity update
-                    var entityUpdate = new EntityUpdate();
-                    entityUpdate.Read(player.reader);
+                    var entityUpdate = new EntityUpdate(player.reader);
                     int bitfield1 = entityUpdate.bitfield1;
                     int bitfield2 = entityUpdate.bitfield2;
                     string ACmessage = AntiCheat.Inspect(entityUpdate);
@@ -84,15 +80,13 @@ namespace Server {
                     break;
                 #endregion
                 case Database.PacketID.entityAction:
-                    #region action
-                    EntityAction action = new EntityAction();
-                    action.Read(player.reader);
-                    switch (action.type) {
-                        case 2: //npc shops/talk WIP
-                            Console.WriteLine("###");
+                    #region entity action
+                    EntityAction entityAction = new EntityAction(player.reader);
+                    switch ((Database.ActionType)entityAction.type) {
+                        case Database.ActionType.talk:
                             break;
 
-                        case 3: //static interaction
+                        case Database.ActionType.staticInteraction:
                             //var staticEntity = new part.StaticEntity();
                             //staticEntity.chunkX = action.chunkX;
                             //staticEntity.chunkY = action.chunkY;
@@ -112,13 +106,13 @@ namespace Server {
                             //serverUpdate.send(players, 0);
                             break;
 
-                        case 5: //pickup (shouldn't occur since item drops are disabled)
+                        case Database.ActionType.pickup: //shouldn't occur since item drops are disabled
                             break;
 
-                        case 6: //drop (send item back to dropper because dropping is disabled to prevent chatspam)
+                        case Database.ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
                             var pickup = new Pickup() {
                                 guid = player.entityData.guid,
-                                item = action.item
+                                item = entityAction.item
                             };
 
                             var serverUpdate6 = new ServerUpdate();
@@ -126,7 +120,7 @@ namespace Server {
                             serverUpdate6.Send(player);
                             break;
 
-                        case 8: //call pet WIP
+                        case Database.ActionType.callPet:
                             //var petItem = player.entityData.equipment[(int)Database.Equipment.pet];
 
                             //var pet = new EntityUpdate();
@@ -146,7 +140,7 @@ namespace Server {
                             break;
 
                         default:
-                            Console.WriteLine("unknown action (" + action.type + ") by " + player.entityData.name);
+                            Console.WriteLine("unknown action (" + entityAction.type + ") by " + player.entityData.name);
                             break;
                     }
                     break;
@@ -162,24 +156,23 @@ namespace Server {
                 #endregion
                 case Database.PacketID.passiveProc:
                     #region passiveProc
-                    var passiveProc = new PassiveProc();
-                    passiveProc.Read(player.reader);
+                    var passiveProc = new PassiveProc(player.reader);
 
                     var serverUpdate8 = new ServerUpdate();
                     serverUpdate8.passiveProcs.Add(passiveProc);
                     serverUpdate8.Send(players, player.entityData.guid);
 
                     switch (passiveProc.type) {
-                        case (byte)Database.Passives.warFrenzy:
-                        case (byte)Database.Passives.camouflage:
-                        case (byte)Database.Passives.fireSpark:
-                        case (byte)Database.Passives.intuition:
-                        case (byte)Database.Passives.elusivenes:
-                        case (byte)Database.Passives.swiftness:
+                        case (byte)Database.ProcType.warFrenzy:
+                        case (byte)Database.ProcType.camouflage:
+                        case (byte)Database.ProcType.fireSpark:
+                        case (byte)Database.ProcType.intuition:
+                        case (byte)Database.ProcType.elusivenes:
+                        case (byte)Database.ProcType.swiftness:
                             //nothing particular yet
                             break;
 
-                        case (byte)Database.Passives.manashield:
+                        case (byte)Database.ProcType.manashield:
                             var chatMessage6 = new ChatMessage() {
                                 message = "manashield: " + passiveProc.modifier,
                                 sender = 0
@@ -187,11 +180,11 @@ namespace Server {
                             chatMessage6.Send(player);
                             break;
 
-                        case (byte)Database.Passives.bulwalk:
+                        case (byte)Database.ProcType.bulwalk:
                             //client deals with this automatically
                             break;
 
-                        case (byte)Database.Passives.poison:
+                        case (byte)Database.ProcType.poison:
                             if (players.ContainsKey(passiveProc.target))//in case target is a tomb or sth
                             {
                                 var poisonDmg = new Hit() {
@@ -215,8 +208,7 @@ namespace Server {
                 #endregion
                 case Database.PacketID.shoot:
                     #region shoot
-                    var shoot = new Shoot();
-                    shoot.Read(player.reader);
+                    var shoot = new Shoot(player.reader);
 
                     var serverUpdate9 = new ServerUpdate();
                     serverUpdate9.shoots.Add(shoot);
@@ -225,8 +217,7 @@ namespace Server {
                 #endregion
                 case Database.PacketID.chat:
                     #region chat
-                    var chatMessage = new ChatMessage();
-                    chatMessage.read(player.reader);
+                    var chatMessage = new ChatMessage(player.reader);
                     chatMessage.sender = player.entityData.guid;
 
                     if (chatMessage.message.StartsWith("/")) {
@@ -249,20 +240,17 @@ namespace Server {
                 #endregion
                 case Database.PacketID.chunk:
                     #region chunk discovered
-                    var chunk = new Chunk();
-                    chunk.Read(player.reader); //currently not doing anything with this
+                    var chunk = new Chunk(player.reader); //currently not doing anything with this
                     break;
                 #endregion
                 case Database.PacketID.sector:
                     #region sector discovered
-                    var sector = new Sector();
-                    sector.Read(player.reader); //currently not doing anything with this
+                    var sector = new Sector(player.reader); //currently not doing anything with this
                     break;
                 #endregion
                 case Database.PacketID.version:
                     #region version
-                    var version = new ProtocolVersion();
-                    version.Read(player.reader);
+                    var version = new ProtocolVersion(player.reader);
                     if (version.version != 3) {
                         version.version = 3;
                         version.Send(player);
@@ -297,7 +285,6 @@ namespace Server {
                     break;
             }
         }
-
         public void Kick(Player player) {
             players.Remove(player.entityData.guid);
             player.tcp.Close();
@@ -316,7 +303,6 @@ namespace Server {
                 worldUpdate.Send(player);
             }
         }
-
         public void Poison(ServerUpdate poisonTick, int duration) {
             if (players.ContainsKey(poisonTick.hits[0].target)) {
                 poisonTick.hits[0].position = players[poisonTick.hits[0].target].entityData.position;

@@ -13,7 +13,11 @@ namespace Resources.Packet {
         public int unknown;
         public long guid3;
 
-        public void Read(BinaryReader reader) {
+        public PassiveProc() {
+
+        }
+
+        public PassiveProc(BinaryReader reader) {
             source = reader.ReadUInt64();
             target = reader.ReadUInt64();
             type = reader.ReadByte();

@@ -69,210 +69,210 @@ namespace Resources.Packet {
             }
         }
 
-        public void Read(BinaryReader r) {
-            int size = r.ReadInt32();
-            byte[] compressed = r.ReadBytes(size);
+        public EntityUpdate(BinaryReader reader) {
+            int size = reader.ReadInt32();
+            byte[] compressed = reader.ReadBytes(size);
             byte[] uncompressed = Zlib.Uncompress(compressed);
 
             MemoryStream stream = new MemoryStream(uncompressed);
-            BinaryReader reader = new BinaryReader(stream);
-            guid = reader.ReadUInt64();
-            bitfield1 = reader.ReadInt32();
-            bitfield2 = reader.ReadInt32();
+            BinaryReader r = new BinaryReader(stream);
+            guid = r.ReadUInt64();
+            bitfield1 = r.ReadInt32();
+            bitfield2 = r.ReadInt32();
             if (Tools.GetBit(bitfield1, 0)) //position
             {
-                position.Read(reader);
+                position.Read(r);
             }
             if (Tools.GetBit(bitfield1, 1)) //orientation
             {
-                rotation.Read(reader);
+                rotation.Read(r);
             }
             if (Tools.GetBit(bitfield1, 2)) //velocity
             {
-                velocity.Read(reader);
+                velocity.Read(r);
             }
             if (Tools.GetBit(bitfield1, 3)) //acceleration
             {
-                acceleration.Read(reader);
+                acceleration.Read(r);
             }
             if (Tools.GetBit(bitfield1, 4)) //extra veloctiy
             {
-                extraVel.Read(reader);
+                extraVel.Read(r);
             }
             if (Tools.GetBit(bitfield1, 5)) //viewport pitch
             {
-                viewportPitch = reader.ReadSingle();
+                viewportPitch = r.ReadSingle();
             }
             if (Tools.GetBit(bitfield1, 6)) //physics flags
             {
-                physicsFlags = reader.ReadInt32();
+                physicsFlags = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield1, 7)) //hostile?
             {
-                hostility = reader.ReadByte();
+                hostility = r.ReadByte();
             }
             if (Tools.GetBit(bitfield1, 8)) //entity type
             {
-                entityType = reader.ReadInt32();
+                entityType = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield1, 9)) //current mode
             {
-                mode = reader.ReadByte();
+                mode = r.ReadByte();
             }
             if (Tools.GetBit(bitfield1, 10)) //mode start time
             {
-                modeTimer = reader.ReadInt32();
+                modeTimer = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield1, 11)) //combo
             {
-                combo = reader.ReadInt32();
+                combo = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield1, 12)) //last hittime
             {
-                lastHitTime = reader.ReadInt32();
+                lastHitTime = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield1, 13)) //appearance data
             {
-                appearance.Read(reader);
+                appearance.Read(r);
             }
             if (Tools.GetBit(bitfield1, 14)) //entity flags
             {
-                entityFlags = reader.ReadInt16();
+                entityFlags = r.ReadInt16();
             }
             if (Tools.GetBit(bitfield1, 15)) //roll
             {
-                roll = reader.ReadInt32();
+                roll = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield1, 16)) //stun
             {
-                stun = reader.ReadInt32();
+                stun = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield1, 17)) //slowed?
             {
-                slow = reader.ReadInt32();
+                slow = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield1, 18)) //make blue time (ice)
             {
-                ice = reader.ReadInt32();
+                ice = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield1, 19)) //speed up time (wind)
             {
-                wind = reader.ReadInt32();
+                wind = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield1, 20)) //show patch time?
             {
-                showPatchTime = reader.ReadInt32();
+                showPatchTime = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield1, 21)) //public class
             {
-                entityClass = reader.ReadByte();
+                entityClass = r.ReadByte();
             }
             if (Tools.GetBit(bitfield1, 22)) //subpublic class
             {
-                specialization = reader.ReadByte();
+                specialization = r.ReadByte();
             }
             if (Tools.GetBit(bitfield1, 23)) //charge
             {
-                charge = reader.ReadSingle();
+                charge = r.ReadSingle();
             }
             if (Tools.GetBit(bitfield1, 24)) //unused vector
             {
-                unused24.Read(reader);
+                unused24.Read(r);
             }
             if (Tools.GetBit(bitfield1, 25)) //unused vector
             {
-                unused25.Read(reader);
+                unused25.Read(r);
             }
             if (Tools.GetBit(bitfield1, 26)) //ray hit
             {
-                rayHit.Read(reader);
+                rayHit.Read(r);
             }
             if (Tools.GetBit(bitfield1, 27)) //HP
             {
-                HP = reader.ReadSingle();
+                HP = r.ReadSingle();
             }
             if (Tools.GetBit(bitfield1, 28)) //MP
             {
-                MP = reader.ReadSingle();
+                MP = r.ReadSingle();
             }
             if (Tools.GetBit(bitfield1, 29)) //block power
             {
-                block = reader.ReadSingle();
+                block = r.ReadSingle();
             }
             if (Tools.GetBit(bitfield1, 30)) //multipliers
             {
-                multipliers.Read(reader);
+                multipliers.Read(r);
             }
             if (Tools.GetBit(bitfield1, 31)) //unused
             {
-                unused31 = reader.ReadByte();
+                unused31 = r.ReadByte();
             }
             if (Tools.GetBit(bitfield2, 32 - 32)) //unused
             {
-                unused32 = reader.ReadByte();
+                unused32 = r.ReadByte();
             }
             if (Tools.GetBit(bitfield2, 33 - 32)) //level
             {
-                level = reader.ReadInt32();
+                level = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield2, 34 - 32)) //xp
             {
-                XP = reader.ReadInt32();
+                XP = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield2, 35 - 32)) //parent owner?
             {
-                parentOwner = reader.ReadInt64();
+                parentOwner = r.ReadInt64();
             }
             if (Tools.GetBit(bitfield2, 36 - 32)) //unused *2
             {
-                unused36 = reader.ReadInt64();
+                unused36 = r.ReadInt64();
             }
             if (Tools.GetBit(bitfield2, 37 - 32)) //power base
             {
-                powerBase = reader.ReadByte();
+                powerBase = r.ReadByte();
             }
             if (Tools.GetBit(bitfield2, 38 - 32)) //unused
             {
-                unused38 = reader.ReadInt32();
+                unused38 = r.ReadInt32();
             }
             if (Tools.GetBit(bitfield2, 39 - 32)) //unused vector
             {
-                unused39.Read(reader);
+                unused39.Read(r);
             }
             if (Tools.GetBit(bitfield2, 40 - 32)) //spawn position
             {
-                spawnPos.Read(reader);
+                spawnPos.Read(r);
             }
             if (Tools.GetBit(bitfield2, 41 - 32)) //unused vector
             {
-                unused41.Read(reader);
+                unused41.Read(r);
             }
             if (Tools.GetBit(bitfield2, 42 - 32)) //unused
             {
-                unused42 = reader.ReadByte();
+                unused42 = r.ReadByte();
             }
             if (Tools.GetBit(bitfield2, 43 - 32)) //consumable
             {
-                consumable.Read(reader);
+                consumable.Read(r);
             }
             if (Tools.GetBit(bitfield2, 44 - 32)) //equipment
             {
                 for (int i = 0; i < 13; i++) {
-                    equipment[i].Read(reader);
+                    equipment[i].Read(r);
                 }
             }
             if (Tools.GetBit(bitfield2, 45 - 32)) //name
             {
-                name = new string(reader.ReadChars(16));
+                name = new string(r.ReadChars(16));
                 name = name.Substring(0, name.IndexOf("\0"));
             }
             if (Tools.GetBit(bitfield2, 46 - 32)) //skills (11*4)
             {
-                skillDistribution.Read(reader);
+                skillDistribution.Read(r);
             }
             if (Tools.GetBit(bitfield2, 47 - 32)) //mama cubes 
             {
-                manaCubes = reader.ReadInt32();
+                manaCubes = r.ReadInt32();
             }
         }
 
