@@ -11,14 +11,14 @@ using Resources.Packet.Part;
 using Resources.Datagram;
 
 namespace Bridge {
-    class ServerAndClient {
+    class BridgeTCPUDP {
         UdpClient toServer = new UdpClient();
         TcpListener listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
         TcpClient client;
         BinaryWriter writer;
         BinaryReader reader;
 
-        public ServerAndClient() {
+        public BridgeTCPUDP() {
             toServer.Connect(IPAddress.Parse("37.24.37.78"), 12345);
         }
 
@@ -89,7 +89,7 @@ namespace Bridge {
                 #endregion
                 case Database.PacketID.shoot:
                     #region shoot
-                    var shoot = new Shoot(reader);
+                    var shoot = new Resources.Packet.Shoot(reader);
                     break;
                 #endregion
                 case Database.PacketID.chat:
