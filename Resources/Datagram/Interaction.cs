@@ -7,12 +7,23 @@ namespace Resources.Datagram {
             private set { data[0] = (byte)value; }
         }
 
-        //TODO
+        public ushort ChunkX {
+            get { return BitConverter.ToUInt16(data, 1); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 1); }
+        }
+        public ushort ChunkY {
+            get { return BitConverter.ToUInt16(data, 3); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 3); }
+        }
+        public ushort Index {
+            get { return BitConverter.ToUInt16(data, 5); }
+            set { BitConverter.GetBytes(value).CopyTo(data, 5); }
+        }
 
         public byte[] data;
 
         public Interaction() {
-            //data = new byte[???];
+            data = new byte[7];
             DatagramID = Database.DatagramID.interaction;
         }
         public Interaction(byte[] data) {
