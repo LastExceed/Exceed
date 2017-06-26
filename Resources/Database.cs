@@ -21,7 +21,6 @@
             version,
             serverFull
         }
-
         public enum DatagramID : byte {
             entityUpdate,
             hit,
@@ -37,7 +36,6 @@
             disconnect,
             players = 255
         }
-
         public enum DamageType : byte {
             _placeholder,
             block,
@@ -47,8 +45,7 @@
             absorb,
             invisible2
         }
-
-        public enum Passives : byte {
+        public enum ProcType : byte {
             _placeholder,
             bulwalk,
             warFrenzy,
@@ -63,7 +60,6 @@
             elusivenes, //ninja
             swiftness
         }
-
         public enum Hostility : byte {
             player,
             enemy,
@@ -73,7 +69,6 @@
             pet,
             neutral
         }
-
         public enum Equipment : byte {
             unknown,
             neck,
@@ -89,28 +84,33 @@
             special,
             pet
         }
-
         public enum StaticRotation : byte {
             south,
             east,
             north,
             west
         }
-
         public enum Projectile : byte {
             arrow = 1,
             boomerang,
             unknown,
             rock
         }
-        public enum ProcType : byte {
-
+        public enum ActionType : byte {
+            unknown1 = 1,
+            talk,
+            staticInteraction,
+            unknown4,
+            pickup,
+            drop,
+            unknown7,
+            callPet
         }
         public enum StaticUpdateType : byte {
-
+            //TODO
         }
         public enum ParticleType : byte {
-
+            //TODO
         }
     }
 }

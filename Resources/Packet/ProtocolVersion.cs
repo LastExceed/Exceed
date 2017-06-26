@@ -7,7 +7,11 @@ namespace Resources.Packet {
 
         public int version;
 
-        public void Read(BinaryReader reader) {
+        public ProtocolVersion() {
+
+        }
+
+        public ProtocolVersion(BinaryReader reader) {
             version = reader.ReadInt32();
         }
 

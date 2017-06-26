@@ -9,8 +9,12 @@ namespace Resources.Packet {
 
         public ulong sender;
         public string message;
+        
+        public ChatMessage() {
 
-        public void read(BinaryReader reader) {
+        }
+
+        public ChatMessage(BinaryReader reader) {
             int length = reader.ReadInt32();
             byte[] mBytes = reader.ReadBytes(length * 2);
             message = Encoding.Unicode.GetString(mBytes);
