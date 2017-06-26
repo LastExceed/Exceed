@@ -11,22 +11,29 @@ using Resources.Packet.Part;
 using Resources.Datagram;
 
 namespace Bridge {
-    class ServerAndClient {
-        UdpClient udpToServer;
-        TcpClient tcpToServer;
-        TcpClient client;
-        TcpListener listener;
-        BinaryWriter writer;
-        BinaryReader reader;
+    static class ServerAndClient {
+        static UdpClient udpToServer;
+        static TcpClient tcpToServer;
+        static TcpClient client;
+        static TcpListener listener;
+        static BinaryWriter writer;
+        static BinaryReader reader;
 
-        public ServerAndClient(string serverIP, int serverPort) {
+        public static void Start(string serverIP, int serverPort) {
             listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
+            listener.Start();
             client = new TcpClient(new IPEndPoint(IPAddress.Parse("localhost"), 12345));
             udpToServer = new UdpClient(new IPEndPoint(IPAddress.Parse(serverIP), serverPort));
             tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Parse(serverIP), serverPort));
         }
+        public static void Stop() {
+            listener.Stop();
+            client.Close();
+            udpToServer.Close();
+            tcpToServer.Close();
+        }
 
-        public void ListenFromClient() {
+        public static void ListenFromClient() {
             client = listener.AcceptTcpClient();
             writer = new BinaryWriter(client.GetStream());
             reader = new BinaryReader(client.GetStream());
@@ -42,7 +49,7 @@ namespace Bridge {
             }
         }
 
-        public void ProcessDatagram(byte[] packet) {
+        public static void ProcessDatagram(byte[] packet) {
             switch((Database.DatagramID)packet[0]) {
                 case Database.DatagramID.entityUpdate:
                     break;
@@ -74,7 +81,7 @@ namespace Bridge {
                     break;
             }
         }
-        public void ProcessPacket(int packetID) {
+        public static void ProcessPacket(int packetID) {
             switch ((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entity update
