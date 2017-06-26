@@ -16,5 +16,24 @@ namespace Bridge
         {
             InitializeComponent();
         }
+
+        private void buttonConnect_Click(object sender, EventArgs e) {
+            buttonConnect.Enabled = false;
+            buttonDisconnect.Enabled = true;
+            groupBoxServer.Enabled = false;
+            groupBoxAccount.Enabled = false;
+
+            if (!BridgeTCPUDP.Start(textBoxServerIP.Text, (int)numericUpDownPort.Value)) {
+                richTextBoxChat.Text = "connection failed";
+                buttonDisconnect_Click(sender, e);
+            }
+        }
+
+        private void buttonDisconnect_Click(object sender, EventArgs e) {
+            buttonDisconnect.Enabled = false;
+            buttonConnect.Enabled = true;
+            groupBoxServer.Enabled = true;
+            groupBoxAccount.Enabled = true;
+        }
     }
 }
