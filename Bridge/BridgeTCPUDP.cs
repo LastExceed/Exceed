@@ -28,7 +28,7 @@ namespace Bridge {
 
             listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
             listener.Start();
-            Task.Factory.StartNew(ListenFromClient);
+            Task.Factory.StartNew(ListenFromClientTCP);
         }
         public static void Stop() {
             listener.Stop();
@@ -37,7 +37,7 @@ namespace Bridge {
             tcpToServer.Close();
         }
 
-        public static void ListenFromClient() {
+        public static void ListenFromClientTCP() {
             tcpToClient = listener.AcceptTcpClient();
             writer = new BinaryWriter(tcpToClient.GetStream());
             reader = new BinaryReader(tcpToClient.GetStream());
@@ -51,6 +51,12 @@ namespace Bridge {
                 ProcessPacket(packetID);
             }
             //send dc packet to server but keep logging chat
+        }
+        public static void ListenFromServerTCP() {
+
+        }
+        public static void ListenFromServerUDP() {
+
         }
 
         public static void ProcessDatagram(byte[] packet) {

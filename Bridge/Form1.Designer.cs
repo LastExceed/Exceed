@@ -40,12 +40,16 @@
             this.groupBoxServer = new System.Windows.Forms.GroupBox();
             this.buttonDisconnect = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.numericUpDownPort = new System.Windows.Forms.NumericUpDown();
+            this.labelPort = new System.Windows.Forms.Label();
+            this.labelHostname = new System.Windows.Forms.Label();
             this.groupBoxAccount.SuspendLayout();
             this.groupBoxServer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPort)).BeginInit();
             this.SuspendLayout();
             // 
             // richTextBoxChat
@@ -82,11 +86,11 @@
             // 
             // textBoxServerIP
             // 
-            this.textBoxServerIP.Location = new System.Drawing.Point(6, 18);
+            this.textBoxServerIP.Location = new System.Drawing.Point(38, 12);
             this.textBoxServerIP.Name = "textBoxServerIP";
-            this.textBoxServerIP.Size = new System.Drawing.Size(127, 20);
+            this.textBoxServerIP.Size = new System.Drawing.Size(95, 20);
             this.textBoxServerIP.TabIndex = 4;
-            this.textBoxServerIP.Text = "exceed.rocks:12345";
+            this.textBoxServerIP.Text = "exceed.rocks";
             // 
             // textBox3
             // 
@@ -139,10 +143,13 @@
             // 
             // groupBoxServer
             // 
+            this.groupBoxServer.Controls.Add(this.labelHostname);
+            this.groupBoxServer.Controls.Add(this.labelPort);
+            this.groupBoxServer.Controls.Add(this.numericUpDownPort);
             this.groupBoxServer.Controls.Add(this.textBoxServerIP);
-            this.groupBoxServer.Location = new System.Drawing.Point(12, 12);
+            this.groupBoxServer.Location = new System.Drawing.Point(6, 0);
             this.groupBoxServer.Name = "groupBoxServer";
-            this.groupBoxServer.Size = new System.Drawing.Size(139, 47);
+            this.groupBoxServer.Size = new System.Drawing.Size(139, 59);
             this.groupBoxServer.TabIndex = 8;
             this.groupBoxServer.TabStop = false;
             this.groupBoxServer.Text = "Server";
@@ -178,6 +185,46 @@
             this.splitContainer1.SplitterDistance = 87;
             this.splitContainer1.TabIndex = 10;
             // 
+            // numericUpDownPort
+            // 
+            this.numericUpDownPort.Location = new System.Drawing.Point(38, 34);
+            this.numericUpDownPort.Maximum = new decimal(new int[] {
+            49151,
+            0,
+            0,
+            0});
+            this.numericUpDownPort.Minimum = new decimal(new int[] {
+            1024,
+            0,
+            0,
+            0});
+            this.numericUpDownPort.Name = "numericUpDownPort";
+            this.numericUpDownPort.Size = new System.Drawing.Size(95, 20);
+            this.numericUpDownPort.TabIndex = 5;
+            this.numericUpDownPort.Value = new decimal(new int[] {
+            12345,
+            0,
+            0,
+            0});
+            // 
+            // labelPort
+            // 
+            this.labelPort.AutoSize = true;
+            this.labelPort.Location = new System.Drawing.Point(6, 37);
+            this.labelPort.Name = "labelPort";
+            this.labelPort.Size = new System.Drawing.Size(26, 13);
+            this.labelPort.TabIndex = 6;
+            this.labelPort.Text = "Port";
+            // 
+            // labelHostname
+            // 
+            this.labelHostname.AutoSize = true;
+            this.labelHostname.Location = new System.Drawing.Point(15, 15);
+            this.labelHostname.Name = "labelHostname";
+            this.labelHostname.Size = new System.Drawing.Size(17, 13);
+            this.labelHostname.TabIndex = 7;
+            this.labelHostname.Text = "IP";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -202,6 +249,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPort)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -220,6 +268,9 @@
         private System.Windows.Forms.GroupBox groupBoxServer;
         private System.Windows.Forms.Button buttonDisconnect;
         private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.Label labelHostname;
+        private System.Windows.Forms.Label labelPort;
+        private System.Windows.Forms.NumericUpDown numericUpDownPort;
     }
 }
 
