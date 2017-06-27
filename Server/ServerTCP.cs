@@ -13,7 +13,7 @@ using Resources.Packet;
 using Resources.Packet.Part;
 
 namespace Server {
-    class ServerTCP {
+    public class ServerTCP {
         public TcpListener listener;
         Dictionary<ulong, Player> players = new Dictionary<ulong, Player>();
         ulong guidCounter = 1;
@@ -22,17 +22,14 @@ namespace Server {
         public ServerTCP(int port) {
             listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
+            Task.Factory.StartNew(Listen);
             //ZoxModel arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("thing2.zox"));
             //arena.Parse(worldUpdate, 8397006, 8396937, 127); //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
         }
 
         public void Listen() {
-            Player player = new Player() {
-                tcp = listener.AcceptTcpClient()
-            };
+            Player player = new Player(listener.AcceptTcpClient());
             new Thread(new ThreadStart(Listen)).Start(); //for every connection a new thread is created to make sure that packets are received asap
-            player.writer = new BinaryWriter(player.tcp.GetStream());
-            player.reader = new BinaryReader(player.tcp.GetStream());
             int packetID = -1;
             while (player.tcp.Connected) {
                 try {

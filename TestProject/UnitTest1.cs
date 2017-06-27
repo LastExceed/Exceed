@@ -9,12 +9,12 @@ namespace TestProject {
         public void GetSetBit() {
             int t = 0;
             for(int i = 0; i < 32; i++) {
-                Assert.IsFalse(t.GetBit(i), i + "");
+                Assert.IsFalse(t.GetBit(i), i + " GetBit");
             }
 
             for(int i = 0; i < 32; i++) {
-                t.SetBit(true, i);
-                Assert.IsTrue(t.GetBit(i),i + "");
+                Tools.SetBit(ref t,true, i);
+                Assert.IsTrue(t.GetBit(i),i + " SetBit + GetBit");
             }
         }
     }

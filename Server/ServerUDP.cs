@@ -16,6 +16,8 @@ namespace Server {
             public TcpClient tcp;
             public BinaryWriter writer;
             public BinaryReader reader;
+            public string name;
+            public ushort guid;
 
             public Player(TcpClient client, ServerUDP server) {
                 tcp = client;
@@ -46,6 +48,7 @@ namespace Server {
             UDPclient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             Task.Factory.StartNew(UDPListen);
             TCPserver = new TcpListener(IPAddress.Any, port);
+            TCPserver.Start();
             Task.Factory.StartNew(TCPListen);
         }
 
@@ -62,22 +65,35 @@ namespace Server {
             }
         }
 
-        public void UDPSendToAll(byte[] data, IPEndPoint source) {
+        public void UDPSendToAll(byte[] data, IPEndPoint source = null) {
             foreach(var item in clients) {
                 var adress = item.tcp.Client.RemoteEndPoint as IPEndPoint;
                 if(adress != source)
                     UDPclient.Send(data, data.Length, adress);
             }
         }
+
+        public void Alert(string message, ConsoleColor color = ConsoleColor.White) {
+             var p = new Chat(message) {
+                Sender = 0
+            };
+            UDPSendToAll(p.data);
+            var oldColor = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+            Console.WriteLine(message);
+            Console.ForegroundColor = oldColor;
+        }
         
         public void Kick(Player player) {
-            throw new NotImplementedException();
-            
+            clients.Remove(player);
+            player.tcp.Close();
+            Alert(player.name + "left", ConsoleColor.DarkRed);
+
             Disconnect p = new Disconnect() {
-                //Guid = player.guid
+                Guid = player.guid
             };
 
-            UDPSendToAll(p.data, player.tcp.Client.RemoteEndPoint as IPEndPoint);
+            UDPSendToAll(p.data);
         }
 
         public void ProcessTCP(int packetID, Player player) {

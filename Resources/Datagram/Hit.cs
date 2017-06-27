@@ -31,11 +31,11 @@ namespace Resources.Datagram {
         }
         public bool ShowLight {
             get { return data[13].GetBit(0); }
-            set { data[13].SetBit(value, 0); }
+            set { Tools.SetBit(ref data[13], value, 0); }
         }
         public bool Critical {
             get { return data[13].GetBit(1); }
-            set { data[13].SetBit(value, 1); }
+            set { Tools.SetBit(ref data[13], value, 1); }
         }
 
         public byte[] data;
