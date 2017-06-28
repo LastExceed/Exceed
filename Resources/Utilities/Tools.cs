@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Resources {
     public static class Tools {
@@ -11,7 +12,7 @@ namespace Resources {
         public static bool GetBit(this long value, int bitNumber) {
             return (value & (1 << bitNumber)) != 0;
         }
-        
+
         /// <param name="bitnumber">0 based Position</param>
         public static void SetBit(ref byte b, bool value, int bitnumber) {
             if(bitnumber < 8 && bitnumber > -1) {

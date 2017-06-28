@@ -25,7 +25,7 @@ namespace Bridge {
             reader = new BinaryReader(tcpToClient.GetStream());
             var login = new Login() {
                 name = "BLACKROCK",
-                password = "asdf1234"
+                password = Hashing.Hash("asdf1234")
             };
             login.Send(writer);
             //TODO: await response and react

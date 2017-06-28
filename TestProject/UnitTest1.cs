@@ -53,5 +53,12 @@ namespace TestProject {
             }
             #endregion
         }
+
+        [TestMethod]
+        public void TestHashh() {
+            string text = "test1234";
+            var hash = Hashing.Hash(text);
+            Assert.IsTrue(Hashing.Verify(text, hash));
+        }
     }
 }

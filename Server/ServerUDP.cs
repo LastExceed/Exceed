@@ -65,7 +65,7 @@ namespace Server {
             }
         }
 
-        public void UDPSendToAll(byte[] data, IPEndPoint source) {
+        public void UDPSendToAll(byte[] data, IPEndPoint source = null) {
             foreach(var player in connections.Values) {
                 var adress = player.tcp.Client.RemoteEndPoint as IPEndPoint;
                 if(adress != source)
