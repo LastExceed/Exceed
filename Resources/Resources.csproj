@@ -61,6 +61,7 @@
     <Compile Include="Packet\EntityUpdate.cs" />
     <Compile Include="Packet\Hit.cs" />
     <Compile Include="Packet\Join.cs" />
+    <Compile Include="Packet\Login.cs" />
     <Compile Include="Packet\MapSeed.cs" />
     <Compile Include="Packet\Part\Appearance.cs" />
     <Compile Include="Packet\Part\BlockDelta.cs" />

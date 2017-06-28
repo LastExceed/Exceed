@@ -12,82 +12,81 @@ using System.Threading;
 
 namespace Server {
     class ServerUDP {
-        public class Player {
-            public TcpClient tcp;
-            public BinaryWriter writer;
-            public BinaryReader reader;
+        //public class Player {
+        //    public TcpClient tcp;
+        //    public BinaryWriter writer;
+        //    public BinaryReader reader;
 
-            public Player(TcpClient client, ServerUDP server) {
-                tcp = client;
-                writer = new BinaryWriter(tcp.GetStream());
-                reader = new BinaryReader(tcp.GetStream());
-                Task.Factory.StartNew(() => Listen(server));
-            }
+        //    public Player(TcpClient client, ServerUDP server) {
+        //        tcp = client;
+        //        writer = new BinaryWriter(tcp.GetStream());
+        //        reader = new BinaryReader(tcp.GetStream());
+        //        Task.Factory.StartNew(() => Listen(server));
+        //    }
 
-            public void Listen(ServerUDP server) {
-                int packetID = -1;
-                while(tcp.Connected) {
-                    try {
-                        packetID = reader.ReadInt32();
-                    } catch(IOException) {
-                        server.Kick(this);
-                        break;
-                    }
-                    server.ProcessTCP( packetID, this);
-                }
-            }
-        }
+        //    public void Listen(ServerUDP server) {
+        //        int packetID = -1;
+        //        while(tcp.Connected) {
+        //            try {
+        //                packetID = reader.ReadInt32();
+        //            } catch(IOException) {
+        //                server.Kick(this);
+        //                break;
+        //            }
+        //            server.ProcessTCP( packetID, this);
+        //        }
+        //    }
+        //}
         
-        UdpClient UDPclient;
-        List<Player> clients = new List<Player>();
-        TcpListener TCPserver;
+        UdpClient udp;
+        Dictionary<ulong, Player> connections = new Dictionary<ulong, Player>();
+        TcpListener listener;
 
         public ServerUDP(int port) {
-            UDPclient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
+            udp = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             Task.Factory.StartNew(UDPListen);
-            TCPserver = new TcpListener(IPAddress.Any, port);
+            listener = new TcpListener(IPAddress.Any, port);
             Task.Factory.StartNew(TCPListen);
+            //loop sending player list to bridge
         }
 
         public void TCPListen() {
             while(true) {
-                clients.Add(new Player(TCPserver.AcceptTcpClient(),this));
+                Player player = new Player(listener.AcceptTcpClient());
+                //read login credentials
+                //if ok return true and add to connections
             }
         }
         public void UDPListen() {
             IPEndPoint source = null;
             while(true) {
-                byte[] data = UDPclient.Receive(ref source);
-                ProcessPacket(data, source);
+                byte[] datagram = udp.Receive(ref source);
+                ProcessDatagram(datagram, source);
             }
         }
 
         public void UDPSendToAll(byte[] data, IPEndPoint source) {
-            foreach(var item in clients) {
-                var adress = item.tcp.Client.RemoteEndPoint as IPEndPoint;
+            foreach(var player in connections.Values) {
+                var adress = player.tcp.Client.RemoteEndPoint as IPEndPoint;
                 if(adress != source)
-                    UDPclient.Send(data, data.Length, adress);
+                    udp.Send(data, data.Length, adress);
             }
         }
         
         public void Kick(Player player) {
-            throw new NotImplementedException();
-            
-            Disconnect p = new Disconnect() {
+            Disconnect dc = new Disconnect() {
                 //Guid = player.guid
             };
 
-            UDPSendToAll(p.data, player.tcp.Client.RemoteEndPoint as IPEndPoint);
+            UDPSendToAll(dc.data, player.tcp.Client.RemoteEndPoint as IPEndPoint);
         }
 
-        public void ProcessTCP(int packetID, Player player) {
-            throw new NotImplementedException();
-        }
-        public void ProcessPacket(byte[] packet, IPEndPoint source) {
-            throw new NotImplementedException();
+        public void ProcessPacket(int packetID, Player player) {
 
-            var type = (Database.DatagramID)packet[0];
-            switch(type) {
+        }
+        public void ProcessDatagram(byte[] datagram, IPEndPoint source) {
+            var datagramID = (Database.DatagramID)datagram[0];
+            switch(datagramID) {
                 case Database.DatagramID.entityUpdate:
                     break;
                 case Database.DatagramID.hit:
@@ -115,7 +114,7 @@ namespace Server {
                 case Database.DatagramID.players:
                     break;
                 default:
-                    Console.WriteLine("unknown packet ID: " + type); //causes some console spam, but allows resyncing with the player without DC or crash
+                    Console.WriteLine("unknown DatagramID: " + datagramID);
                     break;
             }
         }

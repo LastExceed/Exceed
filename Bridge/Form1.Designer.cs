@@ -240,7 +240,7 @@
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(511, 255);
             this.Name = "Form1";
-            this.Text = "CubeWorld Bridge";
+            this.Text = "Exceed Bridge";
             this.groupBoxAccount.ResumeLayout(false);
             this.groupBoxAccount.PerformLayout();
             this.groupBoxServer.ResumeLayout(false);

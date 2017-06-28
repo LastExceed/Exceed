@@ -27,12 +27,8 @@ namespace Server {
         }
 
         public void Listen() {
-            Player player = new Player() {
-                tcp = listener.AcceptTcpClient()
-            };
-            new Thread(new ThreadStart(Listen)).Start(); //for every connection a new thread is created to make sure that packets are received asap
-            player.writer = new BinaryWriter(player.tcp.GetStream());
-            player.reader = new BinaryReader(player.tcp.GetStream());
+            Player player = new Player(listener.AcceptTcpClient()); //blocks until connection is received
+            Task.Factory.StartNew(Listen); //for every connection a new thread is created to make sure that packets are received asap
             int packetID = -1;
             while (player.tcp.Connected) {
                 try {

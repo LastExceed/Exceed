@@ -12,24 +12,29 @@ using Resources.Datagram;
 
 namespace Bridge {
     static class BridgeTCPUDP {
-        static UdpClient udpToServer;
-        static TcpClient tcpToServer;
+        static UdpClient udpToServer = new UdpClient();
+        public static TcpClient tcpToServer = new TcpClient();
         static TcpClient tcpToClient;
         static TcpListener listener;
         static BinaryWriter writer;
         static BinaryReader reader;
 
         public static void Start(string serverIP, int serverPort) {
-            tcpToServer = new TcpClient();
-            udpToServer = new UdpClient();
-
             tcpToServer.Connect(serverIP, serverPort);
-            udpToServer.Connect(serverIP, serverPort);
+            writer = new BinaryWriter(tcpToClient.GetStream());
+            reader = new BinaryReader(tcpToClient.GetStream());
+            var login = new Login() {
+                name = "BLACKROCK",
+                password = "asdf1234"
+            };
+            login.Send(writer);
+            //TODO: await response and react
 
+            udpToServer.Connect(serverIP, serverPort);
             listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
             listener.Start();
-            Task.Factory.StartNew(ListenFromClientTCP);
         }
+
         public static void Stop() {
             listener.Stop();
             tcpToClient.Close();
@@ -39,8 +44,7 @@ namespace Bridge {
 
         public static void ListenFromClientTCP() {
             tcpToClient = listener.AcceptTcpClient();
-            writer = new BinaryWriter(tcpToClient.GetStream());
-            reader = new BinaryReader(tcpToClient.GetStream());
+            listener.Stop();
             int packetID = -1;
             while (tcpToClient.Connected) {
                 try {
