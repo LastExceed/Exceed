@@ -8,6 +8,9 @@ namespace Resources {
         public static bool GetBit(this int value, int bitNumber) {
             return (value & (1 << bitNumber)) != 0;
         }
+        public static bool GetBit(this long value, int bitNumber) {
+            return (value & (1 << bitNumber)) != 0;
+        }
         
         /// <param name="bitnumber">0 based Position</param>
         public static void SetBit(ref byte b, bool value, int bitnumber) {
@@ -31,6 +34,18 @@ namespace Resources {
                 }
             } else {
                 throw new IndexOutOfRangeException("bitNumber must be between 0-31 for integers");
+            }
+        }
+        /// <param name="bitnumber">0 based Position</param>
+        public static void SetBit(ref long b, bool value, int bitnumber) {
+            if(bitnumber < 64 && bitnumber > -1) {
+                if(value) {
+                    b |= 0x01 << bitnumber;
+                } else {
+                    b &= ~(0x01 << bitnumber);
+                }
+            } else {
+                throw new IndexOutOfRangeException("bitNumber must be between 0-63 for bytes");
             }
         }
     }
