@@ -23,12 +23,17 @@ namespace Bridge {
             groupBoxAccount.Enabled = false;
             richTextBoxChat.AppendText("connecting...\n");
             Task.Factory.StartNew(() => {
+                bool connected = false;
                 try {
                     BridgeTCPUDP.Start(textBoxServerIP.Text, (int)numericUpDownPort.Value);
                     Log($"Connected");
+                    connected = true;
                 } catch(Exception ex) {
                     Log($"Connection failed: \n{ex.Message}\n");
                     buttonDisconnect.Invoke(new Action(() => ButtonDisconnect_Click(sender, e)));
+                }
+                if (connected) {
+                    BridgeTCPUDP.ListenFromClientTCP();
                 }
             });
         }
