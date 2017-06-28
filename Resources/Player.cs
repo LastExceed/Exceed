@@ -10,9 +10,8 @@ namespace Resources {
 
         public Packet.EntityUpdate entityData = new Packet.EntityUpdate();
 
-        public Player(TcpClient tcp) //constructor
-        {
-            this.tcp = tcp;
+        public Player(TcpClient client) {
+            tcp = client;
             writer = new BinaryWriter(tcp.GetStream());
             reader = new BinaryReader(tcp.GetStream());
             entityData.bitfield1 = -1;

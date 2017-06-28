@@ -72,13 +72,26 @@ namespace Server {
                     udp.Send(data, data.Length, adress);
             }
         }
+
+        public void Alert(string message, ConsoleColor color = ConsoleColor.White) {
+             var p = new Chat(message) {
+                Sender = 0
+            };
+            UDPSendToAll(p.data);
+            var oldColor = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+            Console.WriteLine(message);
+            Console.ForegroundColor = oldColor;
+        }
         
         public void Kick(Player player) {
-            Disconnect dc = new Disconnect() {
+            throw new NotImplementedException();
+            
+            Disconnect p = new Disconnect() {
                 //Guid = player.guid
             };
 
-            UDPSendToAll(dc.data, player.tcp.Client.RemoteEndPoint as IPEndPoint);
+            UDPSendToAll(p.data);
         }
 
         public void ProcessPacket(int packetID, Player player) {

@@ -63,7 +63,7 @@ namespace Resources.Datagram {
         }
         public bool Closed {
             get { return data[45].GetBit(0); }
-            set { data[45].SetBit(value, 0); }
+            set { Tools.SetBit(ref data[45], value, 0); }
         }
         
         public byte[] data;
