@@ -20,11 +20,14 @@ namespace Bridge {
         static BinaryReader reader;
 
         public static void Connect(Form1 form) {
+            form.Log("connecting...");
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
             try {
                 tcpToServer.Connect(serverIP, serverPort);
-            } catch (IOException) {
+                form.Log($"Connected");
+            } catch (IOException ex) {
+                form.Log($"Connection failed: \n{ex.Message}\n");
                 return; //could not connect
             }
             writer = new BinaryWriter(tcpToServer.GetStream());
