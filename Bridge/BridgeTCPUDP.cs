@@ -13,26 +13,41 @@ using Resources.Datagram;
 namespace Bridge {
     static class BridgeTCPUDP {
         static UdpClient udpToServer = new UdpClient();
-        public static TcpClient tcpToServer = new TcpClient();
+        static TcpClient tcpToServer = new TcpClient();
         static TcpClient tcpToClient;
         static TcpListener listener;
         static BinaryWriter writer;
         static BinaryReader reader;
 
-        public static void Start(string serverIP, int serverPort) {
-            tcpToServer.Connect(serverIP, serverPort);
-            writer = new BinaryWriter(tcpToClient.GetStream());
-            reader = new BinaryReader(tcpToClient.GetStream());
+        public static void Connect(Form1 form) {
+            string serverIP = form.textBoxServerIP.Text;
+            int serverPort = (int)form.numericUpDownPort.Value;
+            try {
+                tcpToServer.Connect(serverIP, serverPort);
+            } catch (IOException) {
+                return; //could not connect
+            }
+            writer = new BinaryWriter(tcpToServer.GetStream());
+            reader = new BinaryReader(tcpToServer.GetStream());
             var login = new Login() {
-                name = "BLACKROCK",
-                password = Hashing.Hash("asdf1234")
+                name = form.textBoxUsername.Text,
+                password = Hashing.Hash(form.textBoxPassword.Text)
             };
             login.Send(writer);
-            //TODO: await response and react
-
-            udpToServer.Connect(serverIP, serverPort);
-            listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
-            listener.Start();
+            switch (reader.ReadByte()) { //its not worth it to create a class for a 1byte response
+                case 0: //success
+                    udpToServer.Connect(serverIP, serverPort);
+                    listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
+                    listener.Start();
+                    Task.Factory.StartNew(ListenFromClientTCP);
+                    ListenFromServerTCP(form);
+                    break;
+                case 1: //failed
+                case 2: //banned
+                default://unknown response
+                    tcpToServer.Close();
+                    break;
+            }
         }
 
         public static void Stop() {
@@ -54,10 +69,21 @@ namespace Bridge {
                 }
                 ProcessPacket(packetID);
             }
+            //player dc
             //send dc packet to server but keep logging chat
         }
-        public static void ListenFromServerTCP() {
-
+        public static void ListenFromServerTCP(Form1 form) {
+            byte packetID = 255;
+            while (tcpToServer.Connected) {
+                try {
+                    packetID = reader.ReadByte(); //we can use byte here because it doesn't contain vanilla packets
+                    //player list updates
+                } catch (IOException) {
+                    break;
+                }
+                //process packet
+            }
+            //server offline
         }
         public static void ListenFromServerUDP() {
 
