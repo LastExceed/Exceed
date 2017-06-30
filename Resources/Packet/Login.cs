@@ -20,14 +20,18 @@ namespace Resources.Packet {
             length = reader.ReadByte();
         }
 
-        public void Send(BinaryWriter writer) {
+        public void Write(BinaryWriter writer, bool writePacketID) {
             byte[] nBytes = Encoding.UTF8.GetBytes(name);
-            //SpinWait.SpinUntil(() => !player.busy);
-            //player.busy = true;
+            byte[] pBytes = Encoding.UTF8.GetBytes(name);
+
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
             writer.Write(packetID);
             writer.Write((byte)nBytes.Length);
             writer.Write(nBytes);
-            //player.busy = false;
+            writer.Write((byte)pBytes.Length);
+            writer.Write(pBytes);
         }
     }
 }

@@ -48,6 +48,7 @@ namespace Server {
             udp = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             Task.Factory.StartNew(UDPListen);
             listener = new TcpListener(IPAddress.Any, port);
+            listener.Start();
             Task.Factory.StartNew(TCPListen);
             //loop sending player list to bridge
         }

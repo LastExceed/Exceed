@@ -36,7 +36,7 @@ namespace Resources.Packet {
 
             writer.Write(hits.Count);
             foreach (Hit hit in hits) {
-                hit.Write(writer);
+                hit.Write(writer, false);
             }
 
             writer.Write(particles.Count);
@@ -51,7 +51,7 @@ namespace Resources.Packet {
 
             writer.Write(shoots.Count);
             foreach (Shoot shoot in shoots) {
-                shoot.Write(writer);
+                shoot.Write(writer, false);
             }
 
             writer.Write(statics.Count);
@@ -86,7 +86,7 @@ namespace Resources.Packet {
 
             writer.Write(passiveProcs.Count); //npc rClick ??? todo
             foreach (PassiveProc passiveProc in passiveProcs) {
-                passiveProc.Write(writer);
+                passiveProc.Write(writer, false);
             }
 
             writer.Write(missions.Count);
@@ -107,14 +107,15 @@ namespace Resources.Packet {
             return data;
         }
 
-        public void Send(Player player) {
+        public void Write(BinaryWriter writer, bool writePacketID) {
             byte[] data = this.GetBytes();
-            //SpinWait.SpinUntil(() => !player.busy);
-            //player.busy = true;
-            player.writer.Write(data);
-            //player.busy = false;
+
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
+            writer.Write(data);
         }
-        public void Send(Dictionary<ulong, Player> players, ulong toSkip) {
+        public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
             byte[] data = this.GetBytes();
             foreach (Player player in new List<Player>(players.Values)) {
                 if (player.entityData.guid != toSkip) {

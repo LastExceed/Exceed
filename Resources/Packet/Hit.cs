@@ -37,7 +37,10 @@ namespace Resources.Packet {
             paddingB = reader.ReadByte();
         }
 
-        public void Write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer, bool writePacketID) {
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
             writer.Write(attacker);
             writer.Write(target);
             writer.Write(damage);

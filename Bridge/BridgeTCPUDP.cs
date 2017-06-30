@@ -16,8 +16,8 @@ namespace Bridge {
         static TcpClient tcpToServer = new TcpClient();
         static TcpClient tcpToClient;
         static TcpListener listener;
-        static BinaryWriter writer;
-        static BinaryReader reader;
+        static BinaryWriter swriter, cwriter;
+        static BinaryReader sreader, creader;
 
         public static void Connect(Form1 form) {
             form.Log("connecting...");
@@ -30,22 +30,22 @@ namespace Bridge {
                 form.Log($"Connection failed: \n{ex.Message}\n");
                 return; //could not connect
             }
-            writer = new BinaryWriter(tcpToServer.GetStream());
-            reader = new BinaryReader(tcpToServer.GetStream());
+            swriter = new BinaryWriter(tcpToServer.GetStream());
+            sreader = new BinaryReader(tcpToServer.GetStream());
 
-            string publicKey = reader.ReadString();
+            string publicKey = sreader.ReadString();
 
             var username = Hashing.Encrypt(publicKey, form.textBoxUsername.Text);
-            writer.Write(username.Length);
-            writer.Write(username); //Send username
+            swriter.Write(username.Length);
+            swriter.Write(username); //Send username
 
-            var salt = reader.ReadBytes(16); // get salt
+            var salt = sreader.ReadBytes(16); // get salt
 
             var hash = Hashing.Encrypt(publicKey, Hashing.Hash(form.textBoxPassword.Text, salt));
-            writer.Write(hash.Length);
-            writer.Write(hash); //send hashed password
+            swriter.Write(hash.Length);
+            swriter.Write(hash); //send hashed password
 
-            switch(reader.ReadByte()) {
+            switch(sreader.ReadByte()) {
                 case 0: //success
                     udpToServer.Connect(serverIP, serverPort);
                     listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
@@ -74,8 +74,8 @@ namespace Bridge {
             int packetID = -1;
             while(tcpToClient.Connected) {
                 try {
-                    packetID = reader.ReadInt32();
-                } catch(IOException) {
+                    packetID = sreader.ReadInt32();
+                } catch (IOException) {
                     break;
                 }
                 ProcessPacket(packetID);
@@ -87,7 +87,7 @@ namespace Bridge {
             byte packetID = 255;
             while(tcpToServer.Connected) {
                 try {
-                    packetID = reader.ReadByte(); //we can use byte here because it doesn't contain vanilla packets
+                    packetID = sreader.ReadByte(); //we can use byte here because it doesn't contain vanilla packets
                     //player list updates
                 } catch(IOException) {
                     break;
@@ -100,8 +100,8 @@ namespace Bridge {
 
         }
 
-        public static void ProcessDatagram(byte[] packet) {
-            switch((Database.DatagramID)packet[0]) {
+        public static void ProcessDatagram(byte[] datagram) {
+            switch ((Database.DatagramID)datagram[0]) {
                 case Database.DatagramID.entityUpdate:
                     break;
                 case Database.DatagramID.hit:
@@ -123,6 +123,11 @@ namespace Bridge {
                 case Database.DatagramID.particle:
                     break;
                 case Database.DatagramID.connect:
+                    var connect = new Connect(datagram);
+                    var join = new Join() {
+                        guid = connect.Guid
+                    };
+                    join.Write(cwriter, true);
                     break;
                 case Database.DatagramID.disconnect:
                     break;
@@ -136,7 +141,7 @@ namespace Bridge {
             switch((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entity update
-                    var entityUpdate = new EntityUpdate(reader);
+                    var entityUpdate = new EntityUpdate(sreader);
                     break;
                 #endregion
                 case Database.PacketID.entityAction:
@@ -174,43 +179,48 @@ namespace Bridge {
                 #endregion
                 case Database.PacketID.hit:
                     #region hit
-                    var hit = new Resources.Packet.Hit(reader);
+                    var hit = new Resources.Packet.Hit(sreader);
                     break;
                 #endregion
                 case Database.PacketID.passiveProc:
                     #region passiveProc
-                    var passiveProc = new PassiveProc(reader);
+                    var passiveProc = new PassiveProc(sreader);
                     break;
                 #endregion
                 case Database.PacketID.shoot:
                     #region shoot
-                    var shoot = new Resources.Packet.Shoot(reader);
+                    var shoot = new Resources.Packet.Shoot(sreader);
                     break;
                 #endregion
                 case Database.PacketID.chat:
                     #region chat
-                    var chatMessage = new ChatMessage(reader);
+                    var chatMessage = new ChatMessage(sreader);
                     break;
                 #endregion
                 case Database.PacketID.chunk:
                     #region chunk discovered
-                    var chunk = new Chunk(reader);//currently not doing anything with this
+                    var chunk = new Chunk(sreader);//currently not doing anything with this
                     break;
                 #endregion
                 case Database.PacketID.sector:
                     #region sector discovered
-                    var sector = new Sector(reader);//currently not doing anything with this
+                    var sector = new Sector(sreader);//currently not doing anything with this
                     break;
                 #endregion
                 case Database.PacketID.version:
                     #region version
-                    var version = new ProtocolVersion();
+                    var version = new ProtocolVersion(sreader);
+                    SendUDP(new Connect().data);
                     break;
                 #endregion
                 default:
                     //unknown packet id
                     break;
             }
+        }
+
+        public static void SendUDP(byte[] data) {
+            udpToServer.Send(data, data.Length);
         }
     }
 }

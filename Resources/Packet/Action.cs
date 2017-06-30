@@ -30,8 +30,10 @@ namespace Resources.Packet
             reader.ReadBytes(3); //pad
         }
 
-        public void Write(BinaryWriter writer)
-        {
+        public void Write(BinaryWriter writer, bool writePacketID) {
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
             item.Write(writer);
             writer.Write(chunkX);
             writer.Write(chunkY);

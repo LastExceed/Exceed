@@ -20,18 +20,19 @@ namespace Resources.Packet {
             message = Encoding.Unicode.GetString(mBytes);
         }
 
-        public void Send(Player player) {
+        public void Write(BinaryWriter writer, bool writePacketID) {
             byte[] mBytes = Encoding.Unicode.GetBytes(message);
-            //SpinWait.SpinUntil(() => !player.busy);
-            //player.busy = true;
-            player.writer.Write(packetID);
-            player.writer.Write(sender);
-            player.writer.Write(mBytes.Length / 2);
-            player.writer.Write(mBytes);
-            //player.busy = false;
+
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
+            writer.Write(packetID);
+            writer.Write(sender);
+            writer.Write(mBytes.Length / 2);
+            writer.Write(mBytes);
         }
 
-        public void Send(Dictionary<ulong, Player> players, ulong toSkip) {
+        public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
             byte[] mBytes = Encoding.Unicode.GetBytes(message);
             foreach (Player player in new List<Player>(players.Values)) {
                 if (player.entityData.guid != toSkip) {

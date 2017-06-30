@@ -15,14 +15,13 @@ namespace Resources.Packet {
             junk = reader.ReadBytes(0x1168);
         }
 
-        public void Send(Player player) {
-            //SpinWait.SpinUntil(() => !player.busy);
-            //player.busy = true;
-            player.writer.Write(packetID);
-            player.writer.Write(unknown);
-            player.writer.Write(guid);
-            player.writer.Write(junk);
-            //player.busy = false;
+        public void Write(BinaryWriter writer, bool writePacketID) {
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
+            writer.Write(unknown);
+            writer.Write(guid);
+            writer.Write(junk);
         }
     }
 }

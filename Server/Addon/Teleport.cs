@@ -27,9 +27,9 @@ namespace Server.Addon {
 
             var serverUpdate10 = new ServerUpdate();
             serverUpdate10.statics.Add(staticEntity);
-            serverUpdate10.Send(player);
+            serverUpdate10.Write(player.writer, true);
             staticEntity.guid = 0;
-            serverUpdate10.Send(player);
+            serverUpdate10.Write(player.writer, true);
         }
     }
 }
