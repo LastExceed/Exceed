@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Resources.Datagram {
-    public class Hit {
+    public class Attack {
         public Database.DatagramID DatagramID {
             get { return (Database.DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
@@ -14,9 +14,6 @@ namespace Resources.Datagram {
             get { return BitConverter.ToSingle(data, 3); }
             set { BitConverter.GetBytes(value).CopyTo(data, 3); }
         }
-        /// <summary>
-        /// Stuntime in milliseconds
-        /// </summary>
         public int StunTime {
             get { return BitConverter.ToInt32(data, 7); }
             set { BitConverter.GetBytes(value).CopyTo(data, 7); }
@@ -40,12 +37,12 @@ namespace Resources.Datagram {
 
         public byte[] data;
 
-        public Hit() {
+        public Attack() {
             data = new byte[13];
             DatagramID = Database.DatagramID.hit;
         }
 
-        public Hit(byte[] data) {
+        public Attack(byte[] data) {
             this.data = data;
         }
     }

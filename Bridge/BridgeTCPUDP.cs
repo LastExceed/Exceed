@@ -18,6 +18,7 @@ namespace Bridge {
         static TcpListener listener;
         static BinaryWriter swriter, cwriter;
         static BinaryReader sreader, creader;
+        static ushort guid;
 
         public static void Connect(Form1 form) {
             form.Log("connecting...");
@@ -124,10 +125,17 @@ namespace Bridge {
                     break;
                 case Database.DatagramID.connect:
                     var connect = new Connect(datagram);
+                    guid = connect.Guid;
+
                     var join = new Join() {
                         guid = connect.Guid
                     };
                     join.Write(cwriter, true);
+
+                    var mapseed = new MapSeed() {
+                        seed = connect.Mapseed
+                    };
+                    mapseed.Write(cwriter, true);
                     break;
                 case Database.DatagramID.disconnect:
                     break;
@@ -141,12 +149,12 @@ namespace Bridge {
             switch((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entity update
-                    var entityUpdate = new EntityUpdate(sreader);
+                    var entityUpdate = new EntityUpdate(creader);
                     break;
                 #endregion
                 case Database.PacketID.entityAction:
                     #region entity action
-                    EntityAction entityAction = new EntityAction(reader);
+                    EntityAction entityAction = new EntityAction(creader);
                     switch((Database.ActionType)entityAction.type) {
                         case Database.ActionType.talk:
                             break;
@@ -158,14 +166,14 @@ namespace Bridge {
                             break;
 
                         case Database.ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
-                                                       //var pickup = new Pickup() {
-                                                       //    guid = player.entityData.guid,
-                                                       //    item = entityAction.item
-                                                       //};
+                            var pickup = new Pickup() {
+                                guid = guid,
+                                item = entityAction.item
+                            };
 
-                            //var serverUpdate6 = new ServerUpdate();
-                            //serverUpdate6.pickups.Add(pickup);
-                            //serverUpdate6.Send(player);
+                            var serverUpdate6 = new ServerUpdate();
+                            serverUpdate6.pickups.Add(pickup);
+                            serverUpdate6.Write(cwriter, true);
                             break;
 
                         case Database.ActionType.callPet:
@@ -179,22 +187,55 @@ namespace Bridge {
                 #endregion
                 case Database.PacketID.hit:
                     #region hit
-                    var hit = new Resources.Packet.Hit(sreader);
+                    var hit = new Hit(creader);
+
+                    var attack = new Attack() {
+                        Target = (ushort)hit.target,
+                        Damage = hit.damage,
+                        StunTime = hit.stuntime,
+                        Skill = hit.skill,
+                        Type = (Database.DamageType)hit.type,
+                        ShowLight = Convert.ToBoolean(hit.showlight),
+                        Critical = Convert.ToBoolean(hit.critical)
+                    };
+                    SendUDP(attack.data);
                     break;
                 #endregion
                 case Database.PacketID.passiveProc:
                     #region passiveProc
                     var passiveProc = new PassiveProc(sreader);
+
+                    var proc = new Proc() {
+                        Target = (ushort)passiveProc.target,
+                        Type = (Database.ProcType)passiveProc.type,
+                        Modifier = passiveProc.modifier,
+                        Duration = passiveProc.duration
+                    };
+                    SendUDP(proc.data);
                     break;
                 #endregion
                 case Database.PacketID.shoot:
                     #region shoot
-                    var shoot = new Resources.Packet.Shoot(sreader);
+                    var shootPacket = new Resources.Packet.Shoot(sreader);
+
+                    var shootDatagram = new Resources.Datagram.Shoot() {
+                        Position = shootPacket.position,
+                        Velocity = shootPacket.velocity,
+                        Scale = shootPacket.scale,
+                        Particles = shootPacket.particles,
+                        Projectile = (Database.Projectile)shootPacket.projectile
+                    };
+                    SendUDP(shootDatagram.data);
                     break;
                 #endregion
                 case Database.PacketID.chat:
                     #region chat
                     var chatMessage = new ChatMessage(sreader);
+
+                    var chat = new Chat(chatMessage.message) {
+                        Sender = (ushort)chatMessage.sender
+                    };
+                    SendUDP(chat.data);
                     break;
                 #endregion
                 case Database.PacketID.chunk:
