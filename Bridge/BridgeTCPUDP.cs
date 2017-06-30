@@ -16,8 +16,8 @@ namespace Bridge {
         static TcpClient tcpToServer = new TcpClient();
         static TcpClient tcpToClient;
         static TcpListener listener;
-        static BinaryWriter writer;
-        static BinaryReader reader;
+        static BinaryWriter swriter, cwriter;
+        static BinaryReader sreader, creader;
 
         public static void Connect(Form1 form) {
             form.Log("connecting...");
@@ -30,14 +30,14 @@ namespace Bridge {
                 form.Log($"Connection failed: \n{ex.Message}\n");
                 return; //could not connect
             }
-            writer = new BinaryWriter(tcpToServer.GetStream());
-            reader = new BinaryReader(tcpToServer.GetStream());
+            swriter = new BinaryWriter(tcpToServer.GetStream());
+            sreader = new BinaryReader(tcpToServer.GetStream());
             var login = new Login() {
                 name = form.textBoxUsername.Text,
                 password = Hashing.Hash(form.textBoxPassword.Text)
             };
-            login.Send(writer);
-            switch (reader.ReadByte()) { //its not worth it to create a class for a 1byte response
+            login.Write(swriter, true);
+            switch (sreader.ReadByte()) { //its not worth it to create a class for a 1byte response
                 case 0: //success
                     udpToServer.Connect(serverIP, serverPort);
                     listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
@@ -66,7 +66,7 @@ namespace Bridge {
             int packetID = -1;
             while (tcpToClient.Connected) {
                 try {
-                    packetID = reader.ReadInt32();
+                    packetID = sreader.ReadInt32();
                 } catch (IOException) {
                     break;
                 }
@@ -79,7 +79,7 @@ namespace Bridge {
             byte packetID = 255;
             while (tcpToServer.Connected) {
                 try {
-                    packetID = reader.ReadByte(); //we can use byte here because it doesn't contain vanilla packets
+                    packetID = sreader.ReadByte(); //we can use byte here because it doesn't contain vanilla packets
                     //player list updates
                 } catch (IOException) {
                     break;
@@ -92,8 +92,8 @@ namespace Bridge {
 
         }
 
-        public static void ProcessDatagram(byte[] packet) {
-            switch((Database.DatagramID)packet[0]) {
+        public static void ProcessDatagram(byte[] datagram) {
+            switch ((Database.DatagramID)datagram[0]) {
                 case Database.DatagramID.entityUpdate:
                     break;
                 case Database.DatagramID.hit:
@@ -115,6 +115,11 @@ namespace Bridge {
                 case Database.DatagramID.particle:
                     break;
                 case Database.DatagramID.connect:
+                    var connect = new Connect(datagram);
+                    var join = new Join() {
+                        guid = connect.Guid
+                    };
+                    join.Write(cwriter, true);
                     break;
                 case Database.DatagramID.disconnect:
                     break;
@@ -128,12 +133,12 @@ namespace Bridge {
             switch ((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entity update
-                    var entityUpdate = new EntityUpdate(reader);
+                    var entityUpdate = new EntityUpdate(sreader);
                     break;
                 #endregion
                 case Database.PacketID.entityAction:
                     #region entity action
-                    EntityAction entityAction = new EntityAction(reader);
+                    EntityAction entityAction = new EntityAction(sreader);
                     switch ((Database.ActionType)entityAction.type) {
                         case Database.ActionType.talk:
                             break;
@@ -145,10 +150,10 @@ namespace Bridge {
                             break;
 
                         case Database.ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
-                                                        //var pickup = new Pickup() {
-                                                        //    guid = player.entityData.guid,
-                                                        //    item = entityAction.item
-                                                        //};
+                                                       //var pickup = new Pickup() {
+                                                       //    guid = player.entityData.guid,
+                                                       //    item = entityAction.item
+                                                       //};
 
                             //var serverUpdate6 = new ServerUpdate();
                             //serverUpdate6.pickups.Add(pickup);
@@ -166,43 +171,48 @@ namespace Bridge {
                 #endregion
                 case Database.PacketID.hit:
                     #region hit
-                    var hit = new Resources.Packet.Hit(reader);
+                    var hit = new Resources.Packet.Hit(sreader);
                     break;
-                    #endregion
+                #endregion
                 case Database.PacketID.passiveProc:
                     #region passiveProc
-                    var passiveProc = new PassiveProc(reader);
+                    var passiveProc = new PassiveProc(sreader);
                     break;
                 #endregion
                 case Database.PacketID.shoot:
                     #region shoot
-                    var shoot = new Resources.Packet.Shoot(reader);
+                    var shoot = new Resources.Packet.Shoot(sreader);
                     break;
                 #endregion
                 case Database.PacketID.chat:
                     #region chat
-                    var chatMessage = new ChatMessage(reader);
+                    var chatMessage = new ChatMessage(sreader);
                     break;
                 #endregion
                 case Database.PacketID.chunk:
                     #region chunk discovered
-                    var chunk = new Chunk(reader);//currently not doing anything with this
+                    var chunk = new Chunk(sreader);//currently not doing anything with this
                     break;
                 #endregion
                 case Database.PacketID.sector:
                     #region sector discovered
-                    var sector = new Sector(reader);//currently not doing anything with this
+                    var sector = new Sector(sreader);//currently not doing anything with this
                     break;
                 #endregion
                 case Database.PacketID.version:
                     #region version
-                    var version = new ProtocolVersion();
+                    var version = new ProtocolVersion(sreader);
+                    SendUDP(new Connect().data);
                     break;
                 #endregion
                 default:
                     //unknown packet id
                     break;
             }
+        }
+
+        public static void SendUDP(byte[] data) {
+            udpToServer.Send(data, data.Length);
         }
     }
 }

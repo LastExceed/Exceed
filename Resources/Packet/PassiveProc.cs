@@ -28,7 +28,10 @@ namespace Resources.Packet {
             guid3 = reader.ReadInt64();
         }
 
-        public void Write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer, bool writePacketID) {
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
             writer.Write(source);
             writer.Write(target);
             writer.Write(type);

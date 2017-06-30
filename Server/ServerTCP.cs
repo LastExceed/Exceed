@@ -16,7 +16,7 @@ namespace Server {
     public class ServerTCP {
         public TcpListener listener;
         Dictionary<ulong, Player> players = new Dictionary<ulong, Player>();
-        ulong guidCounter = 1;
+        ulong guidCounter = 123456;
         ServerUpdate worldUpdate = new ServerUpdate();
 
         public ServerTCP(int port) {
@@ -31,7 +31,7 @@ namespace Server {
             Player player = new Player(listener.AcceptTcpClient()); //blocks until connection is received
             Task.Factory.StartNew(Listen); //for every connection a new thread is created to make sure that packets are received asap
             int packetID = -1;
-            while (player.tcp.Connected) {
+            while (true) {
                 try {
                     packetID = player.reader.ReadInt32();
                 } catch (IOException) {
@@ -53,7 +53,7 @@ namespace Server {
                         var kickMessage = new ChatMessage() {
                             message = "illegal " + ACmessage
                         };
-                        kickMessage.Send(player);
+                        kickMessage.Write(player.writer, true);
                         Console.WriteLine(player.entityData.name + " kicked for illegal " + kickMessage.message);
                         Thread.Sleep(100); //thread is about to run out anyway so np
                         //Kick(player);
@@ -64,13 +64,13 @@ namespace Server {
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
                     entityUpdate.Filter(player.entityData);
                     if (entityUpdate.bitfield1 != 0 || entityUpdate.bitfield2 != 0) {
-                        entityUpdate.Send(players, 0);
+                        entityUpdate.Broadcast(players, 0);
                         entityUpdate.bitfield1 = bitfield1; //bitfield reverted to unfiltered for future purposes
                         entityUpdate.bitfield2 = bitfield2;
                         if (Tools.GetBit(bitfield1, 27) && entityUpdate.HP == 0 && player.entityData.HP > 0) {
-                            Tomb.Show(player).Send(players, 0);
+                            Tomb.Show(player).Broadcast(players, 0);
                         } else if (Tools.GetBit(bitfield1, 27) && player.entityData.HP == 0 && entityUpdate.HP > 0) {
-                            Tomb.Hide(player).Send(players, 0);
+                            Tomb.Hide(player).Broadcast(players, 0);
                         }
                         entityUpdate.Merge(player.entityData);
                     }
@@ -114,7 +114,7 @@ namespace Server {
 
                             var serverUpdate6 = new ServerUpdate();
                             serverUpdate6.pickups.Add(pickup);
-                            serverUpdate6.Send(player);
+                            serverUpdate6.Write(player.writer, true);
                             break;
 
                         case Database.ActionType.callPet:
@@ -148,7 +148,7 @@ namespace Server {
 
                     var serverUpdate7 = new ServerUpdate();
                     serverUpdate7.hits.Add(hit);
-                    serverUpdate7.Send(players, player.entityData.guid);
+                    serverUpdate7.Broadcast(players, player.entityData.guid);
                     break;
                 #endregion
                 case Database.PacketID.passiveProc:
@@ -157,7 +157,7 @@ namespace Server {
 
                     var serverUpdate8 = new ServerUpdate();
                     serverUpdate8.passiveProcs.Add(passiveProc);
-                    serverUpdate8.Send(players, player.entityData.guid);
+                    serverUpdate8.Broadcast(players, player.entityData.guid);
 
                     switch (passiveProc.type) {
                         case (byte)Database.ProcType.warFrenzy:
@@ -174,7 +174,7 @@ namespace Server {
                                 message = "manashield: " + passiveProc.modifier,
                                 sender = 0
                             };
-                            chatMessage6.Send(player);
+                            chatMessage6.Write(player.writer, true);
                             break;
 
                         case (byte)Database.ProcType.bulwalk:
@@ -209,7 +209,7 @@ namespace Server {
 
                     var serverUpdate9 = new ServerUpdate();
                     serverUpdate9.shoots.Add(shoot);
-                    serverUpdate9.Send(players, player.entityData.guid);
+                    serverUpdate9.Broadcast(players, player.entityData.guid);
                     break;
                 #endregion
                 case Database.PacketID.chat:
@@ -227,7 +227,7 @@ namespace Server {
                         }
                         Command.Execute(command, parameter, player); //wip
                     } else {
-                        chatMessage.Send(players, 0);
+                        chatMessage.Broadcast(players, 0);
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.Write("#" + player.entityData.guid + " " + player.entityData.name + ": ");
                         Console.ForegroundColor = ConsoleColor.White;
@@ -250,7 +250,7 @@ namespace Server {
                     var version = new ProtocolVersion(player.reader);
                     if (version.version != 3) {
                         version.version = 3;
-                        version.Send(player);
+                        version.Write(player.writer, true);
                         player.tcp.Close();
                     } else {
                         player.entityData.guid = guidCounter;
@@ -261,16 +261,16 @@ namespace Server {
                             guid = player.entityData.guid,
                             junk = new byte[0x1168]
                         };
-                        join.Send(player);
+                        join.Write(player.writer, true);
 
                         var mapSeed = new MapSeed() {
                             seed = 8710 //seed is hardcoded for now, dont change
                         };
-                        mapSeed.Send(player);
+                        mapSeed.Write(player.writer, true);
 
                         foreach (KeyValuePair<ulong, Player> entry in players) {
                             if (entry.Key != player.entityData.guid) {
-                                entry.Value.entityData.Send(player);
+                                entry.Value.entityData.Write(player.writer, true);
                             }
                         }
                         //Task.Delay(10000).ContinueWith(t => load_world_delayed(player)); //WIP, causes crash when player disconnects before executed
@@ -292,18 +292,18 @@ namespace Server {
                 bitfield1 = 0b00001000_00000000_00000000_10000000,
                 hostility = 255 //workaround for DC because i dont like packet2
             };
-            pdc.Send(players, 0);
+            pdc.Broadcast(players, 0);
         }
 
         public void Load_world_delayed(Player player) {
             if (players.ContainsKey(player.entityData.guid)) {
-                worldUpdate.Send(player);
+                worldUpdate.Write(player.writer, true);
             }
         }
         public void Poison(ServerUpdate poisonTick, int duration) {
             if (players.ContainsKey(poisonTick.hits[0].target)) {
                 poisonTick.hits[0].position = players[poisonTick.hits[0].target].entityData.position;
-                poisonTick.Send(players, 0);
+                poisonTick.Broadcast(players, 0);
                 if (duration > 0) {
                     Task.Delay(500).ContinueWith(t => Poison(poisonTick, duration - 500));
                 }

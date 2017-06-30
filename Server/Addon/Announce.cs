@@ -11,7 +11,7 @@ namespace Server.Addon {
                     var chatMessage = new ChatMessage() {
                         message = current + " joined"
                     };
-                    chatMessage.Send(players, 0);
+                    chatMessage.Broadcast(players, 0);
                     Console.ForegroundColor = ConsoleColor.DarkGreen;
                     Console.WriteLine(chatMessage.message);
                     Console.ForegroundColor = ConsoleColor.White;
@@ -19,7 +19,7 @@ namespace Server.Addon {
                     var chatMessage = new ChatMessage() {
                         message = previous + " -> " + current
                     };
-                    chatMessage.Send(players, 0);
+                    chatMessage.Broadcast(players, 0);
                     Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.WriteLine(chatMessage.message);
                     Console.ForegroundColor = ConsoleColor.White;
@@ -31,7 +31,7 @@ namespace Server.Addon {
             var chatMessage = new ChatMessage() {
                 message = name + " left"
             };
-            chatMessage.Send(players, 0);
+            chatMessage.Broadcast(players, 0);
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine(chatMessage.message);
             Console.ForegroundColor = ConsoleColor.White;

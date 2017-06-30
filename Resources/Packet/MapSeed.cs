@@ -12,14 +12,14 @@ namespace Resources.Packet {
             seed = reader.ReadInt32();
         }
 
-        public void Send(Player player) {
-            //SpinWait.SpinUntil(() => !player.busy);
-            //player.busy = true;
-            player.writer.Write(packetID);
-            player.writer.Write(seed);
-            //player.busy = false;
+        public void Write(BinaryWriter writer, bool writePacketID) {
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
+            writer.Write(packetID);
+            writer.Write(seed);
         }
-        public void Send(Dictionary<ulong, Player> players, ulong toSkip) {
+        public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
             foreach (KeyValuePair<ulong, Player> entry in players) {
                 if (entry.Key != toSkip) {
                     //SpinWait.SpinUntil(() => !entry.Value.busy);

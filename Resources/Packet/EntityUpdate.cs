@@ -781,14 +781,15 @@ namespace Resources.Packet {
             return data;
         }
 
-        public void Send(Player player) {
+        public void Write(BinaryWriter writer, bool writePacketID) {
             byte[] data = this.GetBytes();
-            //SpinWait.SpinUntil(() => !player.busy);
-            //player.busy = true;
-            player.writer.Write(data);
-            //player.busy = false;
+
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
+            writer.Write(data);
         }
-        public void Send(Dictionary<ulong, Player> players, ulong toSkip) {
+        public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
             byte[] data = this.GetBytes();
             foreach (Player player in new List<Player>(players.Values)) {
                 if (player.entityData.guid != toSkip) {

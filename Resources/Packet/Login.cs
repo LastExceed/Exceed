@@ -22,17 +22,18 @@ namespace Resources.Packet {
             password = reader.ReadBytes(length);
         }
 
-        public void Send(BinaryWriter writer) {
+        public void Write(BinaryWriter writer, bool writePacketID) {
             byte[] nBytes = Encoding.UTF8.GetBytes(name);
             byte[] pBytes = Encoding.UTF8.GetBytes(name);
-            //SpinWait.SpinUntil(() => !player.busy);
-            //player.busy = true;
+
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
             writer.Write(packetID);
             writer.Write((byte)nBytes.Length);
             writer.Write(nBytes);
             writer.Write((byte)pBytes.Length);
             writer.Write(pBytes);
-            //player.busy = false;
         }
     }
 }

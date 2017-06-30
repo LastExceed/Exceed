@@ -21,30 +21,14 @@ namespace Bridge {
             buttonDisconnect.Enabled = true;
             groupBoxServer.Enabled = false;
             groupBoxAccount.Enabled = false;
-            Task.Factory.StartNew(BridgeTCPUDP.Connect(this));
-
-            richTextBoxChat.AppendText("connecting...\n");
-            Task.Factory.StartNew(() => {
-                bool connected = false;
-                try {
-                    BridgeTCPUDP.Connect(textBoxServerIP.Text, (int)numericUpDownPort.Value);
-                    Log($"Connected");
-                    connected = true;
-                } catch(Exception ex) {
-                    Log($"Connection failed: \n{ex.Message}\n");
-                    buttonDisconnect.Invoke(new Action(() => ButtonDisconnect_Click(sender, e)));
-                }
-                if (connected) {
-                    BridgeTCPUDP.ListenFromClientTCP();
-                }
-            });
+            Task.Factory.StartNew(() => BridgeTCPUDP.Connect(this));
         }
 
         public void Log(string text) {
             richTextBoxChat.Invoke(new Action(() => richTextBoxChat.AppendText(text)));
         }
 
-        private void ButtonDisconnect_Click(object sender, EventArgs e) {
+        public void ButtonDisconnect_Click(object sender, EventArgs e) {
             buttonDisconnect.Enabled = false;
             buttonConnect.Enabled = true;
             groupBoxServer.Enabled = true;

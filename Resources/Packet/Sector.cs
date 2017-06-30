@@ -15,5 +15,13 @@ namespace Resources.Packet {
             sectorX = reader.ReadInt32();
             sectorY = reader.ReadInt32();
         }
+
+        public void Write(BinaryWriter writer, bool writePacketID) {
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
+            writer.Write(sectorX);
+            writer.Write(sectorY);
+        }
     }
 }

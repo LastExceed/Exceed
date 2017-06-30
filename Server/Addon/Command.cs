@@ -22,7 +22,7 @@ namespace Server.Addon {
                             bitfield1 = 0b00000000_00000000_00000000_10000000,
                             hostility = (byte)Database.Hostility.enemy
                         };
-                        xpDummy.Send(player);
+                        xpDummy.Write(player.writer, true);
 
                         var kill = new Kill() {
                             killer = player.entityData.guid,
@@ -31,7 +31,7 @@ namespace Server.Addon {
                         };
                         var serverUpdate = new ServerUpdate();
                         serverUpdate.kills.Add(kill);
-                        serverUpdate.Send(player);
+                        serverUpdate.Write(player.writer, true);
                         break;
                     } catch (Exception) {
                         //invalid syntax
@@ -46,7 +46,7 @@ namespace Server.Addon {
                         var time = new Time() {
                             time = (hour * 60 + minute) * 60000
                         };
-                        time.Send(player);
+                        time.Write(player.writer, true);
                     } catch (Exception) {
                         //invalid syntax
                     }

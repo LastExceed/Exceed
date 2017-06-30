@@ -49,7 +49,10 @@ namespace Resources.Packet {
             unknownD = reader.ReadSingle();
         }
 
-        public void Write(BinaryWriter writer) {
+        public void Write(BinaryWriter writer, bool writePacketID) {
+            if (writePacketID) {
+                writer.Write(packetID);
+            }
             writer.Write(attacker);
             writer.Write(chunkX);
             writer.Write(chunkY);
