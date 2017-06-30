@@ -26,7 +26,7 @@ namespace Bridge {
             try {
                 tcpToServer.Connect(serverIP, serverPort);
                 form.Log($"Connected");
-            } catch (IOException ex) {
+            } catch(IOException ex) {
                 form.Log($"Connection failed: \n{ex.Message}\n");
                 return; //could not connect
             }
@@ -64,7 +64,7 @@ namespace Bridge {
             tcpToClient = listener.AcceptTcpClient();
             listener.Stop();
             int packetID = -1;
-            while (tcpToClient.Connected) {
+            while(tcpToClient.Connected) {
                 try {
                     packetID = sreader.ReadInt32();
                 } catch (IOException) {
@@ -77,11 +77,11 @@ namespace Bridge {
         }
         public static void ListenFromServerTCP(Form1 form) {
             byte packetID = 255;
-            while (tcpToServer.Connected) {
+            while(tcpToServer.Connected) {
                 try {
                     packetID = sreader.ReadByte(); //we can use byte here because it doesn't contain vanilla packets
                     //player list updates
-                } catch (IOException) {
+                } catch(IOException) {
                     break;
                 }
                 //process packet
@@ -130,7 +130,7 @@ namespace Bridge {
             }
         }
         public static void ProcessPacket(int packetID) {
-            switch ((Database.PacketID)packetID) {
+            switch((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entity update
                     var entityUpdate = new EntityUpdate(sreader);
@@ -138,8 +138,8 @@ namespace Bridge {
                 #endregion
                 case Database.PacketID.entityAction:
                     #region entity action
-                    EntityAction entityAction = new EntityAction(sreader);
-                    switch ((Database.ActionType)entityAction.type) {
+                    EntityAction entityAction = new EntityAction(reader);
+                    switch((Database.ActionType)entityAction.type) {
                         case Database.ActionType.talk:
                             break;
 

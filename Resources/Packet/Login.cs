@@ -10,7 +10,6 @@ namespace Resources.Packet {
         public const int packetID = 255;
 
         public string name;
-        public byte[] password;
 
         public Login() {
 
@@ -19,7 +18,6 @@ namespace Resources.Packet {
             byte length = reader.ReadByte();
             name = Encoding.UTF8.GetString(reader.ReadBytes(length));
             length = reader.ReadByte();
-            password = reader.ReadBytes(length);
         }
 
         public void Write(BinaryWriter writer, bool writePacketID) {

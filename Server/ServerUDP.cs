@@ -54,8 +54,20 @@ namespace Server {
         public void TCPListen() {
             while(true) {
                 Player player = new Player(listener.AcceptTcpClient());
-                //read login credentials
-                //if ok return true and add to connections
+                var username = player.reader.ReadString();
+                //get data from db
+
+                var salt = new byte[16];
+                var hash = new byte[20];
+                player.writer.Write(salt); //send salt
+
+                var clientHash = player.reader.ReadBytes(20);
+
+                if(hash.SequenceEqual(clientHash)) {
+                    player.writer.Write(0); // success;
+                } else {
+                    player.writer.Write(1); // Wrong password
+                }
             }
         }
         public void UDPListen() {
