@@ -42,6 +42,8 @@ namespace Server {
         Dictionary<ulong, Player> connections = new Dictionary<ulong, Player>();
         TcpListener listener;
 
+        Tuple<string, string> encryptionKeys = Hashing.CreateKeyPair();
+
         public ServerUDP(int port) {
             udp = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             Task.Factory.StartNew(UDPListen);
@@ -53,20 +55,26 @@ namespace Server {
         public void TCPListen() {
             while(true) {
                 Player player = new Player(listener.AcceptTcpClient());
-                var username = player.reader.ReadString();
-                //get data from db
+                player.writer.Write(encryptionKeys.Item2);
 
+                var userLength = player.reader.ReadInt32();
+                var username = Hashing.Decrypt(encryptionKeys.Item1, player.reader.ReadBytes(userLength));
+                
+                //get data from db
                 var salt = new byte[16];
                 var hash = new byte[20];
                 player.writer.Write(salt); //send salt
 
-                var clientHash = player.reader.ReadBytes(20);
+                var hashLength = player.reader.ReadInt32();
+                var clientHash = Hashing.DecryptB(encryptionKeys.Item1, player.reader.ReadBytes(hashLength));
 
+                player.writer.Write(0); //No db for now
+                /*
                 if(hash.SequenceEqual(clientHash)) {
                     player.writer.Write(0); // success;
                 } else {
                     player.writer.Write(1); // Wrong password
-                }
+                }*/
             }
         }
         public void UDPListen() {

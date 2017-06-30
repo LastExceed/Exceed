@@ -9,7 +9,6 @@ namespace Resources {
         private const int hashSize = 20;
         private const int itterations = 10000; // DO NOT CHANGE
 
-
         public static string Hash(string password) {
             //create salt
             byte[] salt;
@@ -60,6 +59,58 @@ namespace Resources {
             byte[] reverse = new Rfc2898DeriveBytes(password, salt, iterations).GetBytes(hashSize);
             
             return hash.SequenceEqual(reverse);
+        }
+
+        public static Tuple<string, string> CreateKeyPair() {
+            CspParameters cspParams = new CspParameters { ProviderType = 1 };
+
+            RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(1024, cspParams);
+
+            string publicKey = Convert.ToBase64String(rsaProvider.ExportCspBlob(false));
+            string privateKey = Convert.ToBase64String(rsaProvider.ExportCspBlob(true));
+
+            return new Tuple<string, string>(privateKey, publicKey);
+        }
+
+        public static byte[] Encrypt(string publicKey, string data) {
+            CspParameters cspParams = new CspParameters { ProviderType = 1 };
+            RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(cspParams);
+
+            rsaProvider.ImportCspBlob(Convert.FromBase64String(publicKey));
+
+            byte[] plainBytes = Encoding.UTF8.GetBytes(data);
+
+            return rsaProvider.Encrypt(plainBytes, false);
+        }
+        public static byte[] Encrypt(string publicKey, byte[] data) {
+            CspParameters cspParams = new CspParameters { ProviderType = 1 };
+            RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(cspParams);
+
+            rsaProvider.ImportCspBlob(Convert.FromBase64String(publicKey));
+            
+            return rsaProvider.Encrypt(data, false);
+        }
+
+        public static string Decrypt(string privateKey, byte[] encryptedBytes) {
+            CspParameters cspParams = new CspParameters { ProviderType = 1 };
+            RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(cspParams);
+
+            rsaProvider.ImportCspBlob(Convert.FromBase64String(privateKey));
+
+            byte[] plainBytes = rsaProvider.Decrypt(encryptedBytes, false);
+
+            string plainText = Encoding.UTF8.GetString(plainBytes, 0, plainBytes.Length);
+
+            return plainText;
+        }
+
+        public static byte[] DecryptB(string privateKey, byte[] encryptedBytes) {
+            CspParameters cspParams = new CspParameters { ProviderType = 1 };
+            RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(cspParams);
+
+            rsaProvider.ImportCspBlob(Convert.FromBase64String(privateKey));
+
+            return rsaProvider.Decrypt(encryptedBytes, false);
         }
     }
 }

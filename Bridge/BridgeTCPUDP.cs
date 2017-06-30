@@ -33,9 +33,17 @@ namespace Bridge {
             writer = new BinaryWriter(tcpToServer.GetStream());
             reader = new BinaryReader(tcpToServer.GetStream());
 
-            writer.Write(form.textBoxUsername.Text); //Send username
+            string publicKey = reader.ReadString();
+
+            var username = Hashing.Encrypt(publicKey, form.textBoxUsername.Text);
+            writer.Write(username.Length);
+            writer.Write(username); //Send username
+
             var salt = reader.ReadBytes(16); // get salt
-            writer.Write(Hashing.Hash(form.textBoxPassword.Text, salt)); //send hashed password
+
+            var hash = Hashing.Encrypt(publicKey, Hashing.Hash(form.textBoxPassword.Text, salt));
+            writer.Write(hash.Length);
+            writer.Write(hash); //send hashed password
 
             switch(reader.ReadByte()) {
                 case 0: //success
