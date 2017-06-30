@@ -26,18 +26,18 @@ namespace Bridge {
             try {
                 tcpToServer.Connect(serverIP, serverPort);
                 form.Log($"Connected");
-            } catch (IOException ex) {
+            } catch(IOException ex) {
                 form.Log($"Connection failed: \n{ex.Message}\n");
                 return; //could not connect
             }
             writer = new BinaryWriter(tcpToServer.GetStream());
             reader = new BinaryReader(tcpToServer.GetStream());
-            var login = new Login() {
-                name = form.textBoxUsername.Text,
-                password = Hashing.Hash(form.textBoxPassword.Text)
-            };
-            login.Send(writer);
-            switch (reader.ReadByte()) { //its not worth it to create a class for a 1byte response
+
+            writer.Write(form.textBoxUsername.Text); //Send username
+            var salt = reader.ReadBytes(16); // get salt
+            writer.Write(Hashing.Hash(form.textBoxPassword.Text, salt)); //send hashed password
+
+            switch(reader.ReadByte()) {
                 case 0: //success
                     udpToServer.Connect(serverIP, serverPort);
                     listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
@@ -64,10 +64,10 @@ namespace Bridge {
             tcpToClient = listener.AcceptTcpClient();
             listener.Stop();
             int packetID = -1;
-            while (tcpToClient.Connected) {
+            while(tcpToClient.Connected) {
                 try {
                     packetID = reader.ReadInt32();
-                } catch (IOException) {
+                } catch(IOException) {
                     break;
                 }
                 ProcessPacket(packetID);
@@ -77,11 +77,11 @@ namespace Bridge {
         }
         public static void ListenFromServerTCP(Form1 form) {
             byte packetID = 255;
-            while (tcpToServer.Connected) {
+            while(tcpToServer.Connected) {
                 try {
                     packetID = reader.ReadByte(); //we can use byte here because it doesn't contain vanilla packets
                     //player list updates
-                } catch (IOException) {
+                } catch(IOException) {
                     break;
                 }
                 //process packet
@@ -125,7 +125,7 @@ namespace Bridge {
             }
         }
         public static void ProcessPacket(int packetID) {
-            switch ((Database.PacketID)packetID) {
+            switch((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entity update
                     var entityUpdate = new EntityUpdate(reader);
@@ -134,7 +134,7 @@ namespace Bridge {
                 case Database.PacketID.entityAction:
                     #region entity action
                     EntityAction entityAction = new EntityAction(reader);
-                    switch ((Database.ActionType)entityAction.type) {
+                    switch((Database.ActionType)entityAction.type) {
                         case Database.ActionType.talk:
                             break;
 
@@ -145,10 +145,10 @@ namespace Bridge {
                             break;
 
                         case Database.ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
-                                                        //var pickup = new Pickup() {
-                                                        //    guid = player.entityData.guid,
-                                                        //    item = entityAction.item
-                                                        //};
+                                                       //var pickup = new Pickup() {
+                                                       //    guid = player.entityData.guid,
+                                                       //    item = entityAction.item
+                                                       //};
 
                             //var serverUpdate6 = new ServerUpdate();
                             //serverUpdate6.pickups.Add(pickup);
@@ -168,7 +168,7 @@ namespace Bridge {
                     #region hit
                     var hit = new Resources.Packet.Hit(reader);
                     break;
-                    #endregion
+                #endregion
                 case Database.PacketID.passiveProc:
                     #region passiveProc
                     var passiveProc = new PassiveProc(reader);
