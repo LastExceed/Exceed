@@ -11,33 +11,7 @@ using System.IO;
 using System.Threading;
 
 namespace Server {
-    class ServerUDP {
-        //public class Player {
-        //    public TcpClient tcp;
-        //    public BinaryWriter writer;
-        //    public BinaryReader reader;
-
-        //    public Player(TcpClient client, ServerUDP server) {
-        //        tcp = client;
-        //        writer = new BinaryWriter(tcp.GetStream());
-        //        reader = new BinaryReader(tcp.GetStream());
-        //        Task.Factory.StartNew(() => Listen(server));
-        //    }
-
-        //    public void Listen(ServerUDP server) {
-        //        int packetID = -1;
-        //        while(tcp.Connected) {
-        //            try {
-        //                packetID = reader.ReadInt32();
-        //            } catch(IOException) {
-        //                server.Kick(this);
-        //                break;
-        //            }
-        //            server.ProcessTCP( packetID, this);
-        //        }
-        //    }
-        //}
-        
+    class ServerUDP {        
         UdpClient udp;
         Dictionary<ulong, Player> connections = new Dictionary<ulong, Player>();
         TcpListener listener;
@@ -83,6 +57,8 @@ namespace Server {
             while(true) {
                 byte[] datagram = udp.Receive(ref source);
                 ProcessDatagram(datagram, source);
+                //                          Find player from connections where the adreess == source
+                //ProcessDatagram(datagram, connections.First(x => x.Value.tcp.Client.RemoteEndPoint as IPEndPoint == source).Value);
             }
         }
 
@@ -101,15 +77,15 @@ namespace Server {
             UDPSendToAll(p.data);
             var oldColor = Console.ForegroundColor;
             Console.ForegroundColor = color;
-            Console.WriteLine(message);
+            Console.WriteLine($"Server: {message}");
             Console.ForegroundColor = oldColor;
         }
         
-        public void Kick(Player player) {
+        public void KickPlayer(Player player) {
             throw new NotImplementedException();
-            
+
             Disconnect p = new Disconnect() {
-                //Guid = player.guid
+                Guid = 0//player.entityData.guid Cant use ulong
             };
 
             UDPSendToAll(p.data);
