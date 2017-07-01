@@ -81,8 +81,11 @@ namespace Bridge {
                 }
                 ProcessPacket(packetID);
             }
-            //player dc
-            //send dc packet to server but keep logging chat
+            var dc = new Disconnect() {
+                Guid = guid
+            };
+            SendUDP(dc.data);
+            tcpToClient.Close();
         }
         public static void ListenFromServerTCP(Form1 form) {
             byte packetID = 255;
@@ -95,10 +98,16 @@ namespace Bridge {
                 }
                 //process packet
             }
-            //server offline
+            tcpToClient.Close();
         }
         public static void ListenFromServerUDP() {
-
+            IPEndPoint source = null;
+            while(true) {
+                byte[] datagram = udpToServer.Receive(ref source);
+                if(true) { //source == server
+                    ProcessDatagram(datagram); //might require try n' catch here, we'll see
+                }
+            }
         }
 
         public static void ProcessDatagram(byte[] datagram) {
