@@ -123,7 +123,7 @@ namespace Server {
             switch(datagramID) {
                 case Database.DatagramID.entityUpdate:
                     break;
-                case Database.DatagramID.hit:
+                case Database.DatagramID.attack:
                     break;
                 case Database.DatagramID.shoot:
                     break;

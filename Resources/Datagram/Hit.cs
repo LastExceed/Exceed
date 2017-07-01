@@ -14,7 +14,7 @@ namespace Resources.Datagram {
             get { return BitConverter.ToSingle(data, 3); }
             set { BitConverter.GetBytes(value).CopyTo(data, 3); }
         }
-        public int StunTime {
+        public int Stuntime {
             get { return BitConverter.ToInt32(data, 7); }
             set { BitConverter.GetBytes(value).CopyTo(data, 7); }
         }
@@ -39,7 +39,7 @@ namespace Resources.Datagram {
 
         public Attack() {
             data = new byte[13];
-            DatagramID = Database.DatagramID.hit;
+            DatagramID = Database.DatagramID.attack;
         }
 
         public Attack(byte[] data) {

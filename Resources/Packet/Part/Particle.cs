@@ -7,7 +7,7 @@ namespace Resources.Packet.Part {
         public FloatVector velocity;
         public FloatVector color = new FloatVector();
         public float alpha;
-        public float scale;
+        public float size;
         public int count;
         public int type;
         public float spread;
@@ -18,7 +18,7 @@ namespace Resources.Packet.Part {
             velocity.Read(reader);
             color.Read(reader);
             alpha = reader.ReadSingle();
-            scale = reader.ReadSingle();
+            size = reader.ReadSingle();
             count = reader.ReadInt32();
             type = reader.ReadInt32();
             spread = reader.ReadSingle();
@@ -30,7 +30,7 @@ namespace Resources.Packet.Part {
             velocity.Write(writer);
             color.Write(writer);
             writer.Write(alpha);
-            writer.Write(scale);
+            writer.Write(size);
             writer.Write(count);
             writer.Write(type);
             writer.Write(spread);

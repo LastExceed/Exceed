@@ -54,7 +54,7 @@
     <Compile Include="Datagram\Proc.cs" />
     <Compile Include="Datagram\Shoot.cs" />
     <Compile Include="Datagram\StaticUpdate.cs" />
-    <Compile Include="Datagram\Time.cs" />
+    <Compile Include="Datagram\InGameTime.cs" />
     <Compile Include="Packet\Action.cs" />
     <Compile Include="Packet\ChatMessage.cs" />
     <Compile Include="Packet\Chunk.cs" />

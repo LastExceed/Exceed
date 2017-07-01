@@ -105,23 +105,113 @@ namespace Bridge {
             switch ((Database.DatagramID)datagram[0]) {
                 case Database.DatagramID.entityUpdate:
                     break;
-                case Database.DatagramID.hit:
+                case Database.DatagramID.attack:
+                    var attack = new Attack(datagram);
+
+                    var hit = new Hit() {
+                        target = attack.Target,
+                        damage = attack.Damage,
+                        critical = Convert.ToInt32(attack.Critical),
+                        stuntime = attack.Stuntime,
+                        //hit.position = attack.
+                        skill = attack.Skill,
+                        type = (byte)attack.Type,
+                        showlight = Convert.ToByte(attack.ShowLight)
+                    };
+                    hit.Write(cwriter, true);
                     break;
                 case Database.DatagramID.shoot:
+                    var shootDatagram = new Resources.Datagram.Shoot(datagram);
+
+                    var shootPacket = new Resources.Packet.Shoot() {
+                        position = shootDatagram.Position,
+                        velocity = shootDatagram.Velocity,
+                        scale = shootDatagram.Scale,
+                        particles = shootDatagram.Particles,
+                        projectile = (int)shootDatagram.Projectile
+                    };
+                    shootPacket.Write(cwriter, true);
                     break;
                 case Database.DatagramID.proc:
+                    var proc = new Proc(datagram);
+
+                    var passiveProc = new PassiveProc() {
+                        target = proc.Target,
+                        type = (byte)proc.Type,
+                        modifier = proc.Modifier,
+                        duration = proc.Duration
+                    };
+                    passiveProc.Write(cwriter, true);
                     break;
                 case Database.DatagramID.chat:
+                    var chat = new Chat(datagram);
+
+                    var chatMessage = new ChatMessage() {
+                        sender = chat.Sender,
+                        message = chat.Text
+                    };
+                    chatMessage.Write(cwriter, true);
                     break;
                 case Database.DatagramID.time:
+                    var igt = new InGameTime(datagram);
+
+                    var time = new Time() {
+                        time = igt.Time
+                    };
+                    time.Write(cwriter, true);
                     break;
                 case Database.DatagramID.interaction:
+                    var interaction = new Interaction(datagram);
+
+                    var entityAction = new EntityAction() {
+                        chunkX = interaction.ChunkX,
+                        chunkY = interaction.ChunkY,
+                        index = interaction.Index,
+                        type = (byte)Database.ActionType.staticInteraction
+                    };
+                    entityAction.Write(cwriter, true);
                     break;
                 case Database.DatagramID.staticUpdate:
+                    var staticUpdate = new StaticUpdate(datagram);
+
+                    var staticEntity = new StaticEntity() {
+                        chunkX = (int)(staticUpdate.Position.x / (65536 * 256)),
+                        chunkY = (int)(staticUpdate.Position.y / (65536 * 256)),
+                        id = staticUpdate.Id,
+                        type = (int)staticUpdate.Type,
+                        position = staticUpdate.Position,
+                        rotation = (int)staticUpdate.Direction,
+                        size = staticUpdate.Size,
+                        closed = Convert.ToInt32(staticUpdate.Closed),
+                        time = staticUpdate.Time,
+                        guid = staticUpdate.User
+                    };
+                    var serverUpdate = new ServerUpdate();
+                    serverUpdate.statics.Add(staticEntity);
+                    serverUpdate.Write(cwriter, true);
                     break;
                 case Database.DatagramID.block:
+                    //var block = new Block(datagram);
+                    //TODO
                     break;
                 case Database.DatagramID.particle:
+                    var particleDatagram = new Resources.Datagram.Particle(datagram);
+
+                    var particleSubPacket = new Resources.Packet.Part.Particle();
+                    particleSubPacket.position = particleDatagram.Position;
+                    particleSubPacket.velocity = particleDatagram.Velocity;
+                    particleSubPacket.color.x = particleDatagram.Color.R / 255;
+                    particleSubPacket.color.y = particleDatagram.Color.G / 255;
+                    particleSubPacket.color.z = particleDatagram.Color.B / 255;
+                    particleSubPacket.alpha = particleDatagram.Color.A / 255;
+                    particleSubPacket.size = particleDatagram.Size;
+                    particleSubPacket.count = particleDatagram.Count;
+                    particleSubPacket.type = (int)particleDatagram.Type;
+                    particleSubPacket.spread = particleDatagram.Spread;
+
+                    var serverUpdateP = new ServerUpdate();
+                    serverUpdateP.particles.Add(particleSubPacket);
+                    serverUpdateP.Write(cwriter, true);
                     break;
                 case Database.DatagramID.connect:
                     var connect = new Connect(datagram);
@@ -192,7 +282,7 @@ namespace Bridge {
                     var attack = new Attack() {
                         Target = (ushort)hit.target,
                         Damage = hit.damage,
-                        StunTime = hit.stuntime,
+                        Stuntime = hit.stuntime,
                         Skill = hit.skill,
                         Type = (Database.DamageType)hit.type,
                         ShowLight = Convert.ToBoolean(hit.showlight),

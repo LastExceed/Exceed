@@ -23,7 +23,7 @@
         }
         public enum DatagramID : byte {
             entityUpdate,
-            hit,
+            attack,
             shoot,
             proc,
             chat,
