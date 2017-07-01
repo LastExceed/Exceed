@@ -33,6 +33,7 @@ namespace Bridge {
             }
             swriter = new BinaryWriter(tcpToServer.GetStream());
             sreader = new BinaryReader(tcpToServer.GetStream());
+
             #region secure login transfer
             string publicKey = sreader.ReadString();
 
@@ -50,9 +51,10 @@ namespace Bridge {
             switch(sreader.ReadByte()) {
                 case 0: //success
                     udpToServer.Connect(serverIP, serverPort);
-                    listener = new TcpListener(IPAddress.Parse("localhost"), 12345);
+                    listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345);
                     listener.Start();
                     Task.Factory.StartNew(ListenFromClientTCP);
+                    Task.Factory.StartNew(ListenFromServerUDP);
                     ListenFromServerTCP(form);
                     break;
                 case 1: //failed
@@ -73,10 +75,12 @@ namespace Bridge {
         public static void ListenFromClientTCP() {
             tcpToClient = listener.AcceptTcpClient();
             listener.Stop();
+            creader = new BinaryReader(tcpToClient.GetStream());
+            cwriter = new BinaryWriter(tcpToClient.GetStream());
             int packetID = -1;
             while(tcpToClient.Connected) {
                 try {
-                    packetID = sreader.ReadInt32();
+                    packetID = creader.ReadInt32();
                 } catch (IOException) {
                     break;
                 }
@@ -86,7 +90,6 @@ namespace Bridge {
                 Guid = guid
             };
             SendUDP(dc.data);
-            tcpToClient.Close();
         }
 
         public static void ListenFromServerTCP(Form1 form) {
@@ -234,7 +237,8 @@ namespace Bridge {
                     guid = connect.Guid;
 
                     var join = new Join() {
-                        guid = guid
+                        guid = guid,
+                        junk = new byte[0x1168]
                     };
                     join.Write(cwriter, true);
 
@@ -317,7 +321,7 @@ namespace Bridge {
                     #endregion
                 case Database.PacketID.passiveProc:
                     #region passiveProc
-                    var passiveProc = new PassiveProc(sreader);
+                    var passiveProc = new PassiveProc(creader);
 
                     var proc = new Proc() {
                         Target = (ushort)passiveProc.target,
@@ -330,7 +334,7 @@ namespace Bridge {
                     #endregion
                 case Database.PacketID.shoot:
                     #region shoot
-                    var shootPacket = new Resources.Packet.Shoot(sreader);
+                    var shootPacket = new Resources.Packet.Shoot(creader);
 
                     var shootDatagram = new Resources.Datagram.Shoot() {
                         Position = shootPacket.position,
@@ -344,7 +348,7 @@ namespace Bridge {
                     #endregion
                 case Database.PacketID.chat:
                     #region chat
-                    var chatMessage = new ChatMessage(sreader);
+                    var chatMessage = new ChatMessage(creader);
 
                     var chat = new Chat(chatMessage.message) {
                         Sender = (ushort)chatMessage.sender
@@ -366,8 +370,14 @@ namespace Bridge {
                     break;
                 case Database.PacketID.version:
                     #region version
-                    var version = new ProtocolVersion(sreader);
-                    SendUDP(new Connect().data);
+                    var version = new ProtocolVersion(creader);
+                    if(version.version != 3) {
+                        version.version = 3;
+                        version.Write(cwriter, true);
+                    } else {
+                        SendUDP(new Connect().data);
+                    }
+
                     break;
                     #endregion
                 case Database.PacketID.serverFull:

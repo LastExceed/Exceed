@@ -30,6 +30,9 @@ namespace Server {
         public void TCPListen() {
             while(true) {
                 Player player = new Player(listener.AcceptTcpClient());
+                player.entityData.guid = (ushort)(connections.Count + 10);
+                connections.Add((ulong)(connections.Count + 10), player);
+
                 player.writer.Write(encryptionKeys.Item2);
 
                 var userLength = player.reader.ReadInt32();
@@ -56,9 +59,8 @@ namespace Server {
             IPEndPoint source = null;
             while(true) {
                 byte[] datagram = udp.Receive(ref source);
-                ProcessDatagram(datagram, source);
                 //                          Find player from connections where the adreess == source
-                //ProcessDatagram(datagram, connections.First(x => x.Value.tcp.Client.RemoteEndPoint as IPEndPoint == source).Value);
+                ProcessDatagram(datagram, connections.First(x => x.Value.tcp.Client.RemoteEndPoint.Address.ToString() == source.Address.ToString()).Value, source);
             }
         }
 
@@ -94,9 +96,8 @@ namespace Server {
         public void ProcessPacket(int packetID, Player player) {
 
         }
-        public void ProcessDatagram(byte[] datagram, IPEndPoint source) {
-            var datagramID = (Database.DatagramID)datagram[0];
-            switch(datagramID) {
+        public void ProcessDatagram(byte[] datagram, Player player, IPEndPoint source) {
+            switch((Database.DatagramID)datagram[0]) {
                 case Database.DatagramID.entityUpdate:
                     break;
                 case Database.DatagramID.attack:
@@ -118,13 +119,27 @@ namespace Server {
                 case Database.DatagramID.particle:
                     break;
                 case Database.DatagramID.connect:
+                    var connect = new Connect(datagram) {
+                        Guid = (ushort)player.entityData.guid,
+                        Mapseed = 8710
+                    };
+                    udp.Send(connect.data, connect.data.Length, source);
+                    foreach(var item in connections) {
+                        if(item.Key != player.entityData.guid) {
+                            var ms = new MemoryStream();
+                            item.Value.entityData.Write(new BinaryWriter(ms), true);
+                            var d = ms.ToArray();
+                            udp.Send(d, d.Length, source);
+                        }
+                    }
+
                     break;
                 case Database.DatagramID.disconnect:
                     break;
                 case Database.DatagramID.players:
                     break;
                 default:
-                    Console.WriteLine("unknown DatagramID: " + datagramID);
+                    Console.WriteLine("unknown DatagramID: " + datagram[0]);
                     break;
             }
         }
