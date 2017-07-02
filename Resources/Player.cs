@@ -7,6 +7,7 @@ namespace Resources {
         public TcpClient tcp;
         public BinaryWriter writer;
         public BinaryReader reader;
+        public bool online = false;
 
         public Packet.EntityUpdate entityData = new Packet.EntityUpdate();
 

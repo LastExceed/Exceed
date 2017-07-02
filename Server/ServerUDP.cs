@@ -13,7 +13,8 @@ using System.Threading;
 namespace Server {
     class ServerUDP {        
         UdpClient udp;
-        Dictionary<ulong, Player> connections = new Dictionary<ulong, Player>();
+        Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
+        Dictionary<IPEndPoint, ushort> guids = new Dictionary<IPEndPoint, ushort>();
         TcpListener listener;
 
         Tuple<string, string> encryptionKeys = Hashing.CreateKeyPair();
@@ -30,8 +31,11 @@ namespace Server {
         public void TCPListen() {
             while(true) {
                 Player player = new Player(listener.AcceptTcpClient());
-                player.entityData.guid = (ushort)(connections.Count + 10);
-                connections.Add((ulong)(connections.Count + 10), player);
+                ushort newGuid = 1;
+                while(connections.ContainsKey(newGuid)) {//find lowest available guid
+                    newGuid++;
+                }
+                connections.Add(newGuid, player);
 
                 player.writer.Write(encryptionKeys.Item2);
 
@@ -60,84 +64,76 @@ namespace Server {
             while(true) {
                 byte[] datagram = udp.Receive(ref source);
                 //                          Find player from connections where the adreess == source
-                ProcessDatagram(datagram, connections.First(x => x.Value.tcp.Client.RemoteEndPoint.Address.ToString() == source.Address.ToString()).Value, source);
+                ProcessDatagram(datagram, source);
             }
         }
 
-        public void UDPSendToAll(byte[] data, IPEndPoint source = null) {
+        public void UDPSend(byte[] data, IPEndPoint target) {
+            udp.Send(data, data.Length, target);
+        }
+        public void UDPSend(byte[] data, ushort target) {
+            udp.Send(data, data.Length, connections[target].tcp.Client.RemoteEndPoint as IPEndPoint);
+        }
+        public void UDPbroadcast(byte[] data, IPEndPoint toSkip, bool includeClientless) {
             foreach(var player in connections.Values) {
-                var adress = player.tcp.Client.RemoteEndPoint as IPEndPoint;
-                if(adress != source)
-                    udp.Send(data, data.Length, adress);
+                var address = player.tcp.Client.RemoteEndPoint as IPEndPoint;
+                if(address != toSkip && (player.online || includeClientless)) {
+                    udp.Send(data, data.Length, address);
+                }
             }
-        }
-
-        public void Alert(string message, ConsoleColor color = ConsoleColor.White) {
-             var p = new Chat(message) {
-                Sender = 0
-            };
-            UDPSendToAll(p.data);
-            var oldColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.WriteLine($"Server: {message}");
-            Console.ForegroundColor = oldColor;
-        }
-        
-        public void KickPlayer(Player player) {
-            throw new NotImplementedException();
-
-            Disconnect p = new Disconnect() {
-                Guid = 0//player.entityData.guid Cant use ulong
-            };
-
-            UDPSendToAll(p.data);
         }
 
         public void ProcessPacket(int packetID, Player player) {
 
         }
-        public void ProcessDatagram(byte[] datagram, Player player, IPEndPoint source) {
+        public void ProcessDatagram(byte[] datagram, IPEndPoint source) {
             switch((Database.DatagramID)datagram[0]) {
                 case Database.DatagramID.entityUpdate:
+                    #region entityUpdate
                     break;
+                    #endregion
                 case Database.DatagramID.attack:
+                    #region attack
+                    //pass to all players except source
                     break;
+                    #endregion
                 case Database.DatagramID.shoot:
+                    #region shoot
+                    //pass to all players except source
                     break;
+                    #endregion
                 case Database.DatagramID.proc:
+                    #region proc
+                    //pass to all players except source
                     break;
+                    #endregion
                 case Database.DatagramID.chat:
+                    #region chat
+                    //pass to all players
                     break;
-                case Database.DatagramID.time:
-                    break;
+                    #endregion
                 case Database.DatagramID.interaction:
+                    #region interaction
+                    //pass to all players except source
                     break;
-                case Database.DatagramID.staticUpdate:
-                    break;
-                case Database.DatagramID.block:
-                    break;
-                case Database.DatagramID.particle:
-                    break;
+                    #endregion
                 case Database.DatagramID.connect:
+                    #region connect
+                    Player player = connections[guids[source]];
                     var connect = new Connect(datagram) {
                         Guid = (ushort)player.entityData.guid,
-                        Mapseed = 8710
+                        Mapseed = 8710 //hardcoded for now
                     };
-                    udp.Send(connect.data, connect.data.Length, source);
-                    foreach(var item in connections) {
-                        if(item.Key != player.entityData.guid) {
-                            var ms = new MemoryStream();
-                            item.Value.entityData.Write(new BinaryWriter(ms), true);
-                            var d = ms.ToArray();
-                            udp.Send(d, d.Length, source);
-                        }
-                    }
-
+                    UDPSend(connect.data, source);
+                    player.online = true;
                     break;
+                    #endregion
                 case Database.DatagramID.disconnect:
+                    #region disconnect
+                    var disconnect = new Disconnect(datagram);
+                    connections[disconnect.Guid].online = false;
                     break;
-                case Database.DatagramID.players:
-                    break;
+                    #endregion
                 default:
                     Console.WriteLine("unknown DatagramID: " + datagram[0]);
                     break;

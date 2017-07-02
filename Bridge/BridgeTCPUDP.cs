@@ -97,7 +97,6 @@ namespace Bridge {
             while(tcpToServer.Connected) {
                 try {
                     packetID = sreader.ReadByte(); //we can use byte here because it doesn't contain vanilla packets
-                    //player list updates
                 } catch(IOException) {
                     break;
                 }
@@ -248,8 +247,6 @@ namespace Bridge {
                     mapseed.Write(cwriter, true);
                     break;
                 case Database.DatagramID.disconnect:
-                    break;
-                case Database.DatagramID.players:
                     break;
                 default:
                     break;

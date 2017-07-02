@@ -33,8 +33,7 @@
             block,
             particle,
             connect,
-            disconnect,
-            players = 255
+            disconnect
         }
         public enum DamageType : byte {
             _placeholder,
