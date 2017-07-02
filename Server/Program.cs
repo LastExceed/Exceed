@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Resources.Datagram;
+using System;
 using System.Threading;
 
 namespace Server {
     class Program {
         static void Main(string[] args) {
             //ServerTCP TCPserver = new ServerTCP(12345);
-            ServerUDP UDPserver = new ServerUDP(12346);
+            ServerUDP UDPserver = new ServerUDP(12345);
             while(true) {
                 var text = Console.ReadLine();
                 if(text.StartsWith("help")) {
@@ -21,7 +22,7 @@ namespace Server {
                         Console.WriteLine("Message:");
                         message = Console.ReadLine();
                     }
-                    UDPserver.Alert(message);
+                    UDPserver.UDPbroadcast(new Chat(message).data);
                 } else if(text.StartsWith("clear")) {
                     Console.Clear();
                 } else {

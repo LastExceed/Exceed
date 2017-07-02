@@ -214,10 +214,11 @@ namespace Server {
                 #endregion
                 case Database.PacketID.chat:
                     #region chat
-                    var chatMessage = new ChatMessage(player.reader);
-                    chatMessage.sender = player.entityData.guid;
+                    var chatMessage = new ChatMessage(player.reader) {
+                        sender = player.entityData.guid
+                    };
 
-                    if (chatMessage.message.StartsWith("/")) {
+                    if(chatMessage.message.StartsWith("/")) {
                         string parameter = "";
                         string command = chatMessage.message.Substring(1);
                         if (chatMessage.message.Contains(" ")) {
@@ -233,16 +234,6 @@ namespace Server {
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.WriteLine(chatMessage.message);
                     }
-                    break;
-                #endregion
-                case Database.PacketID.chunk:
-                    #region chunk discovered
-                    var chunk = new Chunk(player.reader); //currently not doing anything with this
-                    break;
-                #endregion
-                case Database.PacketID.sector:
-                    #region sector discovered
-                    var sector = new Sector(player.reader); //currently not doing anything with this
                     break;
                 #endregion
                 case Database.PacketID.version:

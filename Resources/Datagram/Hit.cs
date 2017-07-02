@@ -38,7 +38,7 @@ namespace Resources.Datagram {
         public byte[] data;
 
         public Attack() {
-            data = new byte[13];
+            data = new byte[14];
             DatagramID = Database.DatagramID.attack;
         }
 

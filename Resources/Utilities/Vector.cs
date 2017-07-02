@@ -17,6 +17,14 @@ namespace Resources.Utilities {
             writer.Write(y);
             writer.Write(z);
         }
+
+        public LongVector() { }
+
+        public LongVector(BinaryReader reader) {
+            x = reader.ReadInt64();
+            y = reader.ReadInt64();
+            z = reader.ReadInt64();
+        }
     }
 
     public class IntVector {
@@ -34,6 +42,13 @@ namespace Resources.Utilities {
             writer.Write(x);
             writer.Write(y);
             writer.Write(z);
+        }
+
+        public IntVector() { }
+        public IntVector(BinaryReader reader) {
+            x = reader.ReadInt32();
+            y = reader.ReadInt32();
+            z = reader.ReadInt32();
         }
     }
 
@@ -53,6 +68,13 @@ namespace Resources.Utilities {
             writer.Write(y);
             writer.Write(z);
         }
+
+        public FloatVector() { }
+        public FloatVector(BinaryReader reader) {
+            x = reader.ReadSingle();
+            y = reader.ReadSingle();
+            z = reader.ReadSingle();
+        }
     }
 
     public class ByteVector {
@@ -70,6 +92,13 @@ namespace Resources.Utilities {
             writer.Write(x);
             writer.Write(y);
             writer.Write(z);
+        }
+
+        public ByteVector() { }
+        public ByteVector(BinaryReader reader) {
+            x = reader.ReadByte();
+            y = reader.ReadByte();
+            z = reader.ReadByte();
         }
     }
 }

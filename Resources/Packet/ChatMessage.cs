@@ -20,13 +20,12 @@ namespace Resources.Packet {
             message = Encoding.Unicode.GetString(mBytes);
         }
 
-        public void Write(BinaryWriter writer, bool writePacketID) {
+        public void Write(BinaryWriter writer, bool writePacketID = true) {
             byte[] mBytes = Encoding.Unicode.GetBytes(message);
 
             if (writePacketID) {
                 writer.Write(packetID);
             }
-            writer.Write(packetID);
             writer.Write(sender);
             writer.Write(mBytes.Length / 2);
             writer.Write(mBytes);

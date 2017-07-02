@@ -51,9 +51,9 @@ namespace Resources.Datagram {
         }
 
         public byte[] data;
-
+         
         public Shoot() {
-            data = new byte[45];
+            data = new byte[46];
             DatagramID = Database.DatagramID.shoot;
         }
 

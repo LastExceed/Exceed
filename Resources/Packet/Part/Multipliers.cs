@@ -23,5 +23,14 @@ namespace Resources.Packet.Part {
             writer.Write(armor);
             writer.Write(resi);
         }
+
+        public Multipliers() { }
+        public Multipliers(BinaryReader reader) {
+            HP = reader.ReadSingle();
+            attackSpeed = reader.ReadSingle();
+            damge = reader.ReadSingle();
+            armor = reader.ReadSingle();
+            resi = reader.ReadSingle();
+        }
     }
 }
