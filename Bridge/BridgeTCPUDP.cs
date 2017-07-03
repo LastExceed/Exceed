@@ -9,6 +9,7 @@ using Resources;
 using Resources.Packet;
 using Resources.Packet.Part;
 using Resources.Datagram;
+using System.Windows.Forms;
 
 namespace Bridge {
     static class BridgeTCPUDP {
@@ -58,8 +59,12 @@ namespace Bridge {
                     ListenFromServerTCP(form);
                     break;
                 case 1: //failed
+                    MessageBox.Show("Wrong Username/Password");
+                    goto default;
                 case 2: //banned
+                    break;
                 default://unknown response
+                    form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
                     tcpToServer.Close();
                     break;
             }
@@ -282,7 +287,7 @@ namespace Bridge {
             switch((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entityUpdate
-                    var update = new EntityUpdate(creader);
+                    var update = new Resources.Packet.EntityUpdate(creader);
                     var ms = new MemoryStream();
                     update.Write(new BinaryWriter(ms), true);
                     SendUDP(ms.ToArray());

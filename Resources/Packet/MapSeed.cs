@@ -16,7 +16,6 @@ namespace Resources.Packet {
             if (writePacketID) {
                 writer.Write(packetID);
             }
-            writer.Write(packetID);
             writer.Write(seed);
         }
         public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {

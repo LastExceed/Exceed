@@ -37,27 +37,40 @@ namespace Server {
                 connections.Add(newGuid, player);
 
                 #region secure login
-                player.writer.Write(encryptionKeys.Item2);
+                player.writer.Write(encryptionKeys.Item2); // Send rsa encryption key
+                
+                var username = Hashing.Decrypt(encryptionKeys.Item1, player.reader.ReadBytes(player.reader.ReadInt32())); // Read username
 
-                var userLength = player.reader.ReadInt32();
-                var username = Hashing.Decrypt(encryptionKeys.Item1, player.reader.ReadBytes(userLength));
+                testEntities db = new testEntities();
+                var row = (from o in db.users where o.username == username select o).FirstOrDefault(); // Get user with username from db
 
-                //get data from db
-                var salt = new byte[16];
-                var hash = new byte[20];
-                player.writer.Write(salt); //send salt
+                if(row != null) { // if row is not empty
+                    var hashData = row.hash.Split('$'); // Split hash from db
+                    var hashBytes = Convert.FromBase64String(hashData[4]); //Get hasbytes = salt + hash
 
-                var hashLength = player.reader.ReadInt32();
-                var clientHash = Hashing.DecryptB(encryptionKeys.Item1, player.reader.ReadBytes(hashLength));
-                #endregion
+                    var salt = new byte[16];
+                    Array.Copy(hashBytes, 0, salt, 0, 16); // extract salt
+                    var hash = new byte[20];
+                    Array.Copy(hashBytes, 16, hash, 0, 20);// extract hash
 
-                player.writer.Write(0); //No db for now
-                /*
-                if(hash.SequenceEqual(clientHash)) {
-                    player.writer.Write(0); // success;
+                    player.writer.Write(salt); //send salt
+                    
+                    var clientHash = Hashing.DecryptB(encryptionKeys.Item1, player.reader.ReadBytes(player.reader.ReadInt32())); // Get clientside hashed password
+
+                    if(hash.SequenceEqual(clientHash)) {
+                        player.writer.Write(0); // success;
+                        continue;
+                    }
                 } else {
-                    player.writer.Write(1); // Wrong password
-                }*/
+                    // Advance with random data so bridge dosen't get stuck
+                    var bytes = new byte[16];
+                    new Random().NextBytes(bytes);
+                    player.writer.Write(bytes);
+                    player.reader.ReadBytes(player.reader.ReadInt32());
+                }
+
+                player.writer.Write(1); // login failed
+                #endregion
             }
         }
         public void UDPListen() {
@@ -81,7 +94,7 @@ namespace Server {
         }
         public void UDPbroadcast(byte[] data, IPEndPoint toSkip = null, bool includeClientless = false) {
             foreach(var item in guids) {
-                if(item.Key != toSkip && (connections[item.Value].online || includeClientless)) {
+                if(!item.Key.Equals(toSkip) && (connections[item.Value].online || includeClientless)) {
                     UDPSend(data, item.Key);
                 }
             }
@@ -178,7 +191,7 @@ namespace Server {
                     #region time
                     UDPbroadcast(datagram);
                     break;
-                    #endregion
+                #endregion
                 case Database.DatagramID.interaction:
                     #region interaction
                     UDPbroadcast(datagram, source); //pass to all players except source

@@ -62,7 +62,7 @@
             this.richTextBoxChat.Name = "richTextBoxChat";
             this.richTextBoxChat.ReadOnly = true;
             this.richTextBoxChat.Size = new System.Drawing.Size(247, 217);
-            this.richTextBoxChat.TabIndex = 1;
+            this.richTextBoxChat.TabIndex = 0;
             this.richTextBoxChat.Text = "";
             // 
             // listBoxPlayers
@@ -74,14 +74,14 @@
             this.listBoxPlayers.Location = new System.Drawing.Point(0, 0);
             this.listBoxPlayers.Name = "listBoxPlayers";
             this.listBoxPlayers.Size = new System.Drawing.Size(87, 217);
-            this.listBoxPlayers.TabIndex = 2;
+            this.listBoxPlayers.TabIndex = 0;
             // 
             // textBoxPassword
             // 
             this.textBoxPassword.Location = new System.Drawing.Point(6, 44);
             this.textBoxPassword.Name = "textBoxPassword";
             this.textBoxPassword.Size = new System.Drawing.Size(127, 20);
-            this.textBoxPassword.TabIndex = 3;
+            this.textBoxPassword.TabIndex = 1;
             this.textBoxPassword.UseSystemPasswordChar = true;
             // 
             // textBoxServerIP
@@ -89,7 +89,7 @@
             this.textBoxServerIP.Location = new System.Drawing.Point(38, 12);
             this.textBoxServerIP.Name = "textBoxServerIP";
             this.textBoxServerIP.Size = new System.Drawing.Size(95, 20);
-            this.textBoxServerIP.TabIndex = 4;
+            this.textBoxServerIP.TabIndex = 0;
             this.textBoxServerIP.Text = "exceed.rocks";
             // 
             // textBoxUsername
@@ -97,14 +97,14 @@
             this.textBoxUsername.Location = new System.Drawing.Point(6, 18);
             this.textBoxUsername.Name = "textBoxUsername";
             this.textBoxUsername.Size = new System.Drawing.Size(127, 20);
-            this.textBoxUsername.TabIndex = 5;
+            this.textBoxUsername.TabIndex = 0;
             // 
             // buttonInfo
             // 
             this.buttonInfo.Location = new System.Drawing.Point(12, 186);
             this.buttonInfo.Name = "buttonInfo";
             this.buttonInfo.Size = new System.Drawing.Size(139, 23);
-            this.buttonInfo.TabIndex = 6;
+            this.buttonInfo.TabIndex = 4;
             this.buttonInfo.Text = "info";
             this.buttonInfo.UseVisualStyleBackColor = true;
             // 
@@ -117,7 +117,7 @@
             this.groupBoxAccount.Location = new System.Drawing.Point(12, 65);
             this.groupBoxAccount.Name = "groupBoxAccount";
             this.groupBoxAccount.Size = new System.Drawing.Size(139, 86);
-            this.groupBoxAccount.TabIndex = 7;
+            this.groupBoxAccount.TabIndex = 1;
             this.groupBoxAccount.TabStop = false;
             this.groupBoxAccount.Text = "account";
             // 
@@ -127,7 +127,7 @@
             this.linkLabel1.Location = new System.Drawing.Point(6, 67);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(41, 13);
-            this.linkLabel1.TabIndex = 6;
+            this.linkLabel1.TabIndex = 2;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "register";
             // 
@@ -136,7 +136,7 @@
             this.buttonConnect.Location = new System.Drawing.Point(12, 157);
             this.buttonConnect.Name = "buttonConnect";
             this.buttonConnect.Size = new System.Drawing.Size(64, 23);
-            this.buttonConnect.TabIndex = 7;
+            this.buttonConnect.TabIndex = 2;
             this.buttonConnect.Text = "connect";
             this.buttonConnect.UseVisualStyleBackColor = true;
             this.buttonConnect.Click += new System.EventHandler(this.ButtonConnect_Click);
@@ -150,7 +150,7 @@
             this.groupBoxServer.Location = new System.Drawing.Point(6, 0);
             this.groupBoxServer.Name = "groupBoxServer";
             this.groupBoxServer.Size = new System.Drawing.Size(139, 59);
-            this.groupBoxServer.TabIndex = 8;
+            this.groupBoxServer.TabIndex = 0;
             this.groupBoxServer.TabStop = false;
             this.groupBoxServer.Text = "Server";
             // 
@@ -160,7 +160,7 @@
             this.labelHostname.Location = new System.Drawing.Point(15, 15);
             this.labelHostname.Name = "labelHostname";
             this.labelHostname.Size = new System.Drawing.Size(17, 13);
-            this.labelHostname.TabIndex = 7;
+            this.labelHostname.TabIndex = 2;
             this.labelHostname.Text = "IP";
             // 
             // labelPort
@@ -169,7 +169,7 @@
             this.labelPort.Location = new System.Drawing.Point(6, 37);
             this.labelPort.Name = "labelPort";
             this.labelPort.Size = new System.Drawing.Size(26, 13);
-            this.labelPort.TabIndex = 6;
+            this.labelPort.TabIndex = 3;
             this.labelPort.Text = "Port";
             // 
             // numericUpDownPort
@@ -187,7 +187,7 @@
             0});
             this.numericUpDownPort.Name = "numericUpDownPort";
             this.numericUpDownPort.Size = new System.Drawing.Size(95, 20);
-            this.numericUpDownPort.TabIndex = 5;
+            this.numericUpDownPort.TabIndex = 1;
             this.numericUpDownPort.Value = new decimal(new int[] {
             12345,
             0,
@@ -200,7 +200,7 @@
             this.buttonDisconnect.Location = new System.Drawing.Point(82, 157);
             this.buttonDisconnect.Name = "buttonDisconnect";
             this.buttonDisconnect.Size = new System.Drawing.Size(69, 23);
-            this.buttonDisconnect.TabIndex = 9;
+            this.buttonDisconnect.TabIndex = 3;
             this.buttonDisconnect.Text = "disconnect";
             this.buttonDisconnect.UseVisualStyleBackColor = true;
             this.buttonDisconnect.Click += new System.EventHandler(this.ButtonDisconnect_Click);

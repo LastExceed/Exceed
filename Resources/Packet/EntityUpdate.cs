@@ -770,23 +770,16 @@ namespace Resources.Packet {
 
             byte[] uncompressed = stream.ToArray();
             stream.Dispose();
-            byte[] compressed = Zlib.Compress(uncompressed);
-            stream = new MemoryStream();
-            writer = new BinaryWriter(stream);
-            writer.Write(0);
-            writer.Write(compressed.Length);
-            writer.Write(compressed);
-            byte[] data = stream.ToArray();
-            stream.Dispose();
-            return data;
+
+            return Zlib.Compress(uncompressed);
         }
 
         public void Write(BinaryWriter writer, bool writePacketID) {
-            byte[] data = this.GetBytes();
-
             if (writePacketID) {
                 writer.Write(packetID);
             }
+            var data = GetBytes();
+            writer.Write(data.Length);
             writer.Write(data);
         }
         public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
