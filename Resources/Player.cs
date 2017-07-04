@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net;
 using System.Net.Sockets;
 
 namespace Resources {
@@ -8,6 +9,10 @@ namespace Resources {
         public BinaryWriter writer;
         public BinaryReader reader;
         public bool playing = false;
+
+        public IPEndPoint Address {
+            get { return tcp.Client.RemoteEndPoint as IPEndPoint; }
+        }
 
         public Packet.EntityUpdate entityData = new Packet.EntityUpdate();
 

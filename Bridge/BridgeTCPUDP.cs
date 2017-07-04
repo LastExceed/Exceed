@@ -13,8 +13,8 @@ using System.Windows.Forms;
 
 namespace Bridge {
     static class BridgeTCPUDP {
-        static UdpClient udpToServer = new UdpClient();
-        static TcpClient tcpToServer = new TcpClient();
+        static UdpClient udpToServer = new UdpClient(new IPEndPoint(IPAddress.Any, 54321));
+        static TcpClient tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Any, 54321));
         static TcpClient tcpToClient;
         static TcpListener listener;
         static BinaryWriter swriter, cwriter;
@@ -23,9 +23,11 @@ namespace Bridge {
 
         public static void Connect(Form1 form) {
             tcpToServer.NoDelay = true;
+
             form.Log("connecting...");
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
+            
             try {
                 tcpToServer.Connect(serverIP, serverPort);
                 form.Log($"Connected");
@@ -62,10 +64,10 @@ namespace Bridge {
                     MessageBox.Show("Wrong Username/Password");
                     goto default;
                 case 2: //banned
-                    break;
+                    MessageBox.Show("You are banned");
+                    goto default;
                 default://unknown response
                     form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
-                    tcpToServer.Close();
                     break;
             }
         }

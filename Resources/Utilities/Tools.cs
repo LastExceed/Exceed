@@ -41,9 +41,9 @@ namespace Resources {
         public static void SetBit(ref long b, bool value, int bitnumber) {
             if(bitnumber < 64 && bitnumber > -1) {
                 if(value) {
-                    b |= 0x01 << bitnumber;
+                    b |= 1L << bitnumber;
                 } else {
-                    b &= ~(0x01 << bitnumber);
+                    b &= ~(1L << bitnumber);
                 }
             } else {
                 throw new IndexOutOfRangeException("bitNumber must be between 0-63 for bytes");

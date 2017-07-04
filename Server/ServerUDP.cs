@@ -14,8 +14,9 @@ namespace Server {
         UdpClient udp;
         TcpListener listener;
         Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
-        Dictionary<IPEndPoint, ushort> guids = new Dictionary<IPEndPoint, ushort>();
-        Dictionary<ushort, IPEndPoint> reverseGuids = new Dictionary<ushort, IPEndPoint>();
+
+        //Dictionary<IPEndPoint, ushort> guids = new Dictionary<IPEndPoint, ushort>();
+        //Dictionary<ushort, IPEndPoint> reverseGuids = new Dictionary<ushort, IPEndPoint>();
 
         Tuple<string, string> encryptionKeys = Hashing.CreateKeyPair();
 
@@ -73,29 +74,25 @@ namespace Server {
                 #endregion
             }
         }
+
         public void ListenUDP() {
             IPEndPoint source = null;
             while(true) {
                 byte[] datagram = udp.Receive(ref source);
-                if(!guids.ContainsKey(source)) {
-                    var guid = connections.First(x => (x.Value.tcp.Client.RemoteEndPoint as IPEndPoint).Address.ToString() == source.Address.ToString()).Key;
-                    guids.Add(source, guid);
-                    reverseGuids.Add(guid, source);
-                }
-                ProcessDatagram(datagram, source);
+                ProcessDatagram(datagram, connections.First(x => x.Value.Address.Address == source.Address).Value);
             }
         }
 
-        public void SendUDP(byte[] data, IPEndPoint target) {
-            udp.Send(data, data.Length, target);
+        public void SendUDP(byte[] data, Player target) {
+            var end = target.Address;
+            end.Port = 54321;
+            udp.Send(data, data.Length, end);
         }
-        public void SendUDP(byte[] data, ushort target) {
-            udp.Send(data, data.Length, reverseGuids[target]);
-        }
-        public void BroadcastUDP(byte[] data, IPEndPoint toSkip = null, bool includeNotPlaying = false) {
-            foreach(var item in guids) {
-                if(!item.Key.Equals(toSkip) && (connections[item.Value].playing || includeNotPlaying)) {
-                    SendUDP(data, item.Key);
+
+        public void BroadcastUDP(byte[] data, Player toSkip = null, bool includeNotPlaying = false) {
+            foreach(var item in connections.Values) {
+                if(item != toSkip && (item.playing || includeNotPlaying)) {
+                    SendUDP(data, item);
                 }
             }
         }
@@ -103,26 +100,26 @@ namespace Server {
         public void ProcessPacket(int packetID, Player player) {
 
         }
-        public void ProcessDatagram(byte[] datagram, IPEndPoint source) {
+        public void ProcessDatagram(byte[] datagram, Player player) {
             switch((Database.DatagramID)datagram[0]) {
                 case Database.DatagramID.entityUpdate:
                     #region entityUpdate
-                    BroadcastUDP(datagram, source);
+                    BroadcastUDP(datagram, player);
                     break;
                 #endregion
                 case Database.DatagramID.attack:
                     #region attack
-                    BroadcastUDP(datagram, source); //pass to all players except source
+                    BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
                 case Database.DatagramID.shoot:
                     #region shoot
-                    BroadcastUDP(datagram, source); //pass to all players except source
+                    BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
                 case Database.DatagramID.proc:
                     #region proc
-                    BroadcastUDP(datagram, source); //pass to all players except source
+                    BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
                 case Database.DatagramID.chat:
@@ -175,7 +172,7 @@ namespace Server {
                                     var time = new InGameTime() {
                                         Time = (hour * 60 + minute) * 60000
                                     };
-                                    SendUDP(time.data, source);
+                                    SendUDP(time.data, player);
                                 } catch(Exception) {
                                     //invalid syntax
                                 }
@@ -194,7 +191,7 @@ namespace Server {
                     #endregion
                 case Database.DatagramID.interaction:
                     #region interaction
-                    BroadcastUDP(datagram, source); //pass to all players except source
+                    BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
                 case Database.DatagramID.staticUpdate:
@@ -205,12 +202,11 @@ namespace Server {
                     break;
                 case Database.DatagramID.connect:
                     #region connect
-                    Player player = connections[guids[source]];
                     var connect = new Connect(datagram) {
-                        Guid = guids[source],
+                        Guid = (ushort)player.entityData.guid,
                         Mapseed = 8710 //hardcoded for now
                     };
-                    player.online = true;
+                    player.playing = true;
                     BroadcastUDP(connect.data);
                     break;
                 #endregion
@@ -218,7 +214,7 @@ namespace Server {
                     #region disconnect
                     var disconnect = new Disconnect(datagram);
                     connections[disconnect.Guid].playing = false;
-                    BroadcastUDP(datagram, source);
+                    BroadcastUDP(datagram, player);
                     break;
                 #endregion
                 default:
