@@ -22,13 +22,14 @@ namespace Bridge {
         static ushort guid;
 
         public static void Connect(Form1 form) {
+            tcpToServer.NoDelay = true;
             form.Log("connecting...");
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
             try {
                 tcpToServer.Connect(serverIP, serverPort);
                 form.Log($"Connected");
-            } catch(IOException ex) {
+            } catch(Exception ex) {
                 form.Log($"Connection failed: \n{ex.Message}\n");
                 return; //could not connect
             }
@@ -53,7 +54,6 @@ namespace Bridge {
                 case 0: //success
                     udpToServer.Connect(serverIP, serverPort);
                     listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345);
-                    listener.Start();
                     Task.Factory.StartNew(ListenFromClientTCP);
                     Task.Factory.StartNew(ListenFromServerUDP);
                     ListenFromServerTCP(form);
@@ -71,8 +71,10 @@ namespace Bridge {
         }
 
         public static void ListenFromClientTCP() {
+            listener.Start();
             tcpToClient = listener.AcceptTcpClient();
             listener.Stop();
+            tcpToClient.NoDelay = true;
             creader = new BinaryReader(tcpToClient.GetStream());
             cwriter = new BinaryWriter(tcpToClient.GetStream());
             int packetID;
@@ -88,7 +90,6 @@ namespace Bridge {
             SendUDP(new Disconnect() { Guid = guid }.data);
             Task.Factory.StartNew(ListenFromClientTCP);
         }
-
         public static void ListenFromServerTCP(Form1 form) {
             byte packetID;
             while(tcpToServer.Connected) {
@@ -119,8 +120,8 @@ namespace Bridge {
             switch((Database.DatagramID)datagram[0]) {
                 case Database.DatagramID.entityUpdate:
                     #region entityUpdate
-                    var update = new Resources.Packet.EntityUpdate(new BinaryReader(new MemoryStream(datagram)));
-                    update.Write(cwriter, true);
+                    var entityUpdate = new Resources.Packet.EntityUpdate(new BinaryReader(new MemoryStream(datagram)));
+                    entityUpdate.Write(cwriter, true);
                     break;
                     #endregion
                 case Database.DatagramID.attack:
@@ -282,7 +283,6 @@ namespace Bridge {
                     break;
             }
         }
-
         public static void ProcessClientPacket(int packetID) {
             switch((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
@@ -293,16 +293,6 @@ namespace Bridge {
                     SendUDP(ms.ToArray());
                     break;
                     #endregion
-                case Database.PacketID.multiEntityUpdate:
-                    break;
-                case Database.PacketID.entityUpdatesFinished:
-                    break;
-                case Database.PacketID.unknown3:
-                    break;
-                case Database.PacketID.serverUpdate:
-                    break;
-                case Database.PacketID.time:
-                    break;
                 case Database.PacketID.entityAction:
                     #region entity action
                     EntityAction entityAction = new EntityAction(creader);
@@ -384,12 +374,6 @@ namespace Bridge {
                     break;
                 case Database.PacketID.sector:
                     break;
-                case Database.PacketID.unknown13:
-                    break;
-                case Database.PacketID.unknown14:
-                    break;
-                case Database.PacketID.mapseed:
-                    break;
                 case Database.PacketID.joinPacket:
                     break;
                 case Database.PacketID.version:
@@ -399,7 +383,7 @@ namespace Bridge {
                         version.version = 3;
                         version.Write(cwriter, true);
                     } else {
-                        SendUDP(new Connect().data);
+                        cwriter.Write((byte)255);
                     }
 
                     break;
