@@ -7,12 +7,13 @@ namespace Resources {
         public TcpClient tcp;
         public BinaryWriter writer;
         public BinaryReader reader;
-        public bool online = false;
+        public bool playing = false;
 
         public Packet.EntityUpdate entityData = new Packet.EntityUpdate();
 
         public Player(TcpClient client) {
             tcp = client;
+            tcp.NoDelay = true;
             writer = new BinaryWriter(tcp.GetStream());
             reader = new BinaryReader(tcp.GetStream());
             entityData.bitfield1 = -1;

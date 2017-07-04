@@ -21,68 +21,89 @@ namespace Server {
 
         public ServerUDP(int port) {
             udp = new UdpClient(new IPEndPoint(IPAddress.Any, port));
-            Task.Factory.StartNew(UDPListen);
+            Task.Factory.StartNew(ListenUDP);
             listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
-            Task.Factory.StartNew(TCPListen);
+            Task.Factory.StartNew(ListenTCP);
         }
 
-        public void TCPListen() {
-            while(true) {
-                Player player = new Player(listener.AcceptTcpClient());
-                ushort newGuid = 1;
-                while(connections.ContainsKey(newGuid)) {//find lowest available guid
-                    newGuid++;
-                }
-                connections.Add(newGuid, player);
-
-                #region secure login
-                player.writer.Write(encryptionKeys.Item2);
-
-                var userLength = player.reader.ReadInt32();
-                var username = Hashing.Decrypt(encryptionKeys.Item1, player.reader.ReadBytes(userLength));
-
-                //get data from db
-                var salt = new byte[16];
-                var hash = new byte[20];
-                player.writer.Write(salt); //send salt
-
-                var hashLength = player.reader.ReadInt32();
-                var clientHash = Hashing.DecryptB(encryptionKeys.Item1, player.reader.ReadBytes(hashLength));
-                #endregion
-
-                player.writer.Write(0); //No db for now
-                /*
-                if(hash.SequenceEqual(clientHash)) {
-                    player.writer.Write(0); // success;
-                } else {
-                    player.writer.Write(1); // Wrong password
-                }*/
+        public void ListenTCP() {
+            Player player = new Player(listener.AcceptTcpClient());
+            Task.Factory.StartNew(ListenTCP);
+            ushort newGuid = 1;
+            while(connections.ContainsKey(newGuid)) {//find lowest available guid
+                newGuid++;
             }
+            connections.Add(newGuid, player);
+            guids.Add(player.tcp.Client.RemoteEndPoint as IPEndPoint, newGuid);
+
+            #region secure login
+            player.writer.Write(encryptionKeys.Item2);
+
+            var userLength = player.reader.ReadInt32();
+            var username = Hashing.Decrypt(encryptionKeys.Item1, player.reader.ReadBytes(userLength));
+
+            //get data from db
+            var salt = new byte[16];
+            var hash = new byte[20];
+            player.writer.Write(salt); //send salt
+
+            var hashLength = player.reader.ReadInt32();
+            var clientHash = Hashing.DecryptB(encryptionKeys.Item1, player.reader.ReadBytes(hashLength));
+            #endregion
+
+            player.writer.Write((byte)0); //No db for now
+            /*
+            if(hash.SequenceEqual(clientHash)) {
+                player.writer.Write((byte)0); // success;
+            } else {
+                player.writer.Write((byte)1); // Wrong password
+            }*/
+            while(true) {
+                byte x = 255;
+                try {
+                    x = player.reader.ReadByte();
+                } catch(Exception) {
+                    break;
+                }
+                switch(x) {
+                    case 0:
+                        player.playing = true;
+                        var connect = new Connect() {
+                            Guid = newGuid,
+                            Mapseed = 8710
+                        };
+                        SendUDP(connect.data, newGuid);
+
+                        //send entity update of everyone
+                        break;
+                    default:
+                        break;
+                }
+            }
+            connections.Remove(newGuid);
+            guids.Remove(player.tcp.Client.RemoteEndPoint as IPEndPoint);
         }
-        public void UDPListen() {
+        public void ListenUDP() {
             IPEndPoint source = null;
             while(true) {
                 byte[] datagram = udp.Receive(ref source);
-                if(!guids.ContainsKey(source)) {
-                    var guid = connections.First(x => (x.Value.tcp.Client.RemoteEndPoint as IPEndPoint).Address.ToString() == source.Address.ToString()).Key;
-                    guids.Add(source, guid);
-                    reverseGuids.Add(guid, source);
+                if(guids.ContainsKey(source)) {
+                    ProcessDatagram(datagram, source);
                 }
-                ProcessDatagram(datagram, source);
             }
         }
 
-        public void UDPSend(byte[] data, IPEndPoint target) {
+        public void SendUDP(byte[] data, IPEndPoint target) {
             udp.Send(data, data.Length, target);
         }
-        public void UDPSend(byte[] data, ushort target) {
+        public void SendUDP(byte[] data, ushort target) {
             udp.Send(data, data.Length, reverseGuids[target]);
         }
-        public void UDPbroadcast(byte[] data, IPEndPoint toSkip = null, bool includeClientless = false) {
+        public void BroadcastUDP(byte[] data, IPEndPoint toSkip = null, bool includeNotPlaying = false) {
             foreach(var item in guids) {
-                if(item.Key != toSkip && (connections[item.Value].online || includeClientless)) {
-                    UDPSend(data, item.Key);
+                if(item.Key != toSkip && (connections[item.Value].playing || includeNotPlaying)) {
+                    SendUDP(data, item.Key);
                 }
             }
         }
@@ -94,22 +115,22 @@ namespace Server {
             switch((Database.DatagramID)datagram[0]) {
                 case Database.DatagramID.entityUpdate:
                     #region entityUpdate
-                    UDPbroadcast(datagram, source);
+                    BroadcastUDP(datagram, source);
                     break;
                 #endregion
                 case Database.DatagramID.attack:
                     #region attack
-                    UDPbroadcast(datagram, source); //pass to all players except source
+                    BroadcastUDP(datagram, source); //pass to all players except source
                     break;
                 #endregion
                 case Database.DatagramID.shoot:
                     #region shoot
-                    UDPbroadcast(datagram, source); //pass to all players except source
+                    BroadcastUDP(datagram, source); //pass to all players except source
                     break;
                 #endregion
                 case Database.DatagramID.proc:
                     #region proc
-                    UDPbroadcast(datagram, source); //pass to all players except source
+                    BroadcastUDP(datagram, source); //pass to all players except source
                     break;
                 #endregion
                 case Database.DatagramID.chat:
@@ -162,7 +183,7 @@ namespace Server {
                                     var time = new InGameTime() {
                                         Time = (hour * 60 + minute) * 60000
                                     };
-                                    UDPSend(time.data, source);
+                                    SendUDP(time.data, source);
                                 } catch(Exception) {
                                     //invalid syntax
                                 }
@@ -171,41 +192,24 @@ namespace Server {
                                 break;
                         }
                     }
-                    UDPbroadcast(datagram, null, true); //pass to all players
+                    BroadcastUDP(datagram, null, true); //pass to all players
                     break;
                 #endregion
                 case Database.DatagramID.time:
                     #region time
-                    UDPbroadcast(datagram);
+                    BroadcastUDP(datagram);
                     break;
                     #endregion
                 case Database.DatagramID.interaction:
                     #region interaction
-                    UDPbroadcast(datagram, source); //pass to all players except source
-                    break;
-                #endregion
-                case Database.DatagramID.staticUpdate:
-                    break;
-                case Database.DatagramID.block:
-                    break;
-                case Database.DatagramID.particle:
-                    break;
-                case Database.DatagramID.connect:
-                    #region connect
-                    Player player = connections[guids[source]];
-                    var connect = new Connect(datagram) {
-                        Guid = guids[source],
-                        Mapseed = 8710 //hardcoded for now
-                    };
-                    player.online = true;
-                    UDPbroadcast(connect.data);
+                    BroadcastUDP(datagram, source); //pass to all players except source
                     break;
                 #endregion
                 case Database.DatagramID.disconnect:
                     #region disconnect
                     var disconnect = new Disconnect(datagram);
-                    connections[disconnect.Guid].online = false;
-                    UDPbroadcast(datagram, source);
+                    connections[disconnect.Guid].playing = false;
+                    BroadcastUDP(datagram, source);
                     break;
                 #endregion
                 default:
