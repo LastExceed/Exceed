@@ -5,10 +5,10 @@ using System.IO;
 using System.Text;
 
 namespace Resources.Datagram {
-    public class EntityUpdate : Packet.EntityUpdate {
-        public EntityUpdate() { }
+    public class DynamicUpdate : Packet.EntityUpdate {
+        public DynamicUpdate() { }
 
-        public EntityUpdate(byte[] data) : base(Convert(data)) { }
+        public DynamicUpdate(byte[] data) : base(Convert(data)) { }
 
         private static BinaryReader Convert(byte[] data) {
             var reader = new BinaryReader(new MemoryStream(data));

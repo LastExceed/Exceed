@@ -49,7 +49,7 @@
     <Compile Include="Datagram\Chat.cs" />
     <Compile Include="Datagram\Connect.cs" />
     <Compile Include="Datagram\Disconnect.cs" />
-    <Compile Include="Datagram\EntityUpdate.cs" />
+    <Compile Include="Datagram\DynamicUpdate.cs" />
     <Compile Include="Datagram\Interaction.cs" />
     <Compile Include="Datagram\Particle.cs" />
     <Compile Include="Datagram\Proc.cs" />
