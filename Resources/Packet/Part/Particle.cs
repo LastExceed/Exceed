@@ -5,7 +5,7 @@ namespace Resources.Packet.Part {
     public class Particle {
         public LongVector position;
         public FloatVector velocity;
-        public FloatVector color = new FloatVector();
+        public FloatVector color;
         public float alpha;
         public float size;
         public int count;
@@ -13,10 +13,12 @@ namespace Resources.Packet.Part {
         public float spread;
         public int unknown;
 
-        public void Read(BinaryReader reader) {
-            position.Read(reader);
-            velocity.Read(reader);
-            color.Read(reader);
+        public Particle() { }
+
+        public Particle(BinaryReader reader) {
+            position = new LongVector(reader);
+            velocity = new FloatVector(reader);
+            color = new FloatVector(reader);
             alpha = reader.ReadSingle();
             size = reader.ReadSingle();
             count = reader.ReadInt32();

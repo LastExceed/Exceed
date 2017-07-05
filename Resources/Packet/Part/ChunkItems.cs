@@ -7,14 +7,14 @@ namespace Resources.Packet.Part {
         public int chunkY;
         public List<DroppedItem> droppedItems = new List<DroppedItem>();
 
-        public void Read(BinaryReader reader) {
+        public ChunkItems() { }
+
+        public ChunkItems(BinaryReader reader) {
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
             int m = reader.ReadInt32();
-            for (int i = 0; i < m; i++) {
-                DroppedItem droppedItem = new DroppedItem();
-                droppedItem.Read(reader);
-                droppedItems.Add(droppedItem);
+            for(int i = 0; i < m; i++) {
+                droppedItems.Add(new DroppedItem(reader));
             }
         }
 
@@ -22,7 +22,7 @@ namespace Resources.Packet.Part {
             writer.Write(chunkX);
             writer.Write(chunkY);
             writer.Write(droppedItems.Count);
-            foreach (DroppedItem droppedItem in droppedItems) {
+            foreach(DroppedItem droppedItem in droppedItems) {
                 droppedItem.Write(writer);
             }
         }
@@ -40,7 +40,7 @@ namespace Resources.Packet.Part {
         public int unknownB;
         public int unknownC;
 
-        public void Read(BinaryReader reader) {
+        public DroppedItem(BinaryReader reader) {
             item = new Item(reader);
             posX = reader.ReadInt64();
             posY = reader.ReadInt64();

@@ -10,9 +10,9 @@ namespace Resources.Packet {
         public int chunkY;
         public int unknownA;
         public int paddingA;
-        public LongVector position = new LongVector();
-        public IntVector unknownV = new IntVector();
-        public FloatVector velocity = new FloatVector();
+        public LongVector position;
+        public IntVector unknownV;
+        public FloatVector velocity;
         public float legacyDMG;
         public float unknownB;
         public float scale;
@@ -24,9 +24,7 @@ namespace Resources.Packet {
         public float unknownC;
         public float unknownD;
 
-        public Shoot() {
-
-        }
+        public Shoot() { }
 
         public Shoot(BinaryReader reader) {
             attacker = reader.ReadUInt64();
@@ -34,9 +32,9 @@ namespace Resources.Packet {
             chunkY = reader.ReadInt32();
             unknownA = reader.ReadInt32();
             paddingA = reader.ReadInt32();
-            position.Read(reader);
-            unknownV.Read(reader);
-            velocity.Read(reader);
+            position = new LongVector(reader);
+            unknownV = new IntVector(reader);
+            velocity = new FloatVector(reader);
             legacyDMG = reader.ReadSingle();
             unknownB = reader.ReadSingle();
             scale = reader.ReadSingle();
@@ -49,8 +47,8 @@ namespace Resources.Packet {
             unknownD = reader.ReadSingle();
         }
 
-        public void Write(BinaryWriter writer, bool writePacketID) {
-            if (writePacketID) {
+        public void Write(BinaryWriter writer, bool writePacketID = true) {
+            if(writePacketID) {
                 writer.Write(packetID);
             }
             writer.Write(attacker);

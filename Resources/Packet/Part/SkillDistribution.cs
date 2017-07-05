@@ -14,20 +14,6 @@ namespace Resources.Packet.Part {
         public int ability4;
         public int ability5;
 
-        public void Read(BinaryReader reader) {
-            petmaster = reader.ReadInt32();
-            petriding = reader.ReadInt32();
-            sailing = reader.ReadInt32();
-            climbing = reader.ReadInt32();
-            hangGliding = reader.ReadInt32();
-            swimming = reader.ReadInt32();
-            ability1 = reader.ReadInt32();
-            ability2 = reader.ReadInt32();
-            ability3 = reader.ReadInt32();
-            ability4 = reader.ReadInt32();
-            ability5 = reader.ReadInt32();
-        }
-
         public void Write(BinaryWriter writer) {
             writer.Write(petmaster);
             writer.Write(petriding);

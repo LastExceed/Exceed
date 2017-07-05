@@ -31,10 +31,10 @@ namespace Server {
             Player player = new Player(listener.AcceptTcpClient()); //blocks until connection is received
             Task.Factory.StartNew(Listen); //for every connection a new thread is created to make sure that packets are received asap
             int packetID = -1;
-            while (true) {
+            while(true) {
                 try {
                     packetID = player.reader.ReadInt32();
-                } catch (IOException) {
+                } catch(IOException) {
                     break;
                 }
                 ProcessPacket(packetID, player);
@@ -42,14 +42,13 @@ namespace Server {
             Kick(player);
         }
         public void ProcessPacket(int packetID, Player player) {
-            switch ((Database.PacketID)packetID) {
+            switch((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entity update
                     var entityUpdate = new EntityUpdate(player.reader);
-                    int bitfield1 = entityUpdate.bitfield1;
-                    int bitfield2 = entityUpdate.bitfield2;
+
                     string ACmessage = AntiCheat.Inspect(entityUpdate);
-                    if (ACmessage != "ok") {
+                    if(ACmessage != "ok") {
                         var kickMessage = new ChatMessage() {
                             message = "illegal " + ACmessage
                         };
@@ -58,18 +57,16 @@ namespace Server {
                         Thread.Sleep(100); //thread is about to run out anyway so np
                         //Kick(player);
                     }
-                    if (Tools.GetBit(entityUpdate.bitfield2, 45 - 32)) {
+                    if(entityUpdate.name != null) {
                         Announce.Join(entityUpdate.name, player.entityData.name, players);
                     }
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
                     entityUpdate.Filter(player.entityData);
-                    if (entityUpdate.bitfield1 != 0 || entityUpdate.bitfield2 != 0) {
+                    if(!entityUpdate.IsEmpty()) {
                         entityUpdate.Broadcast(players, 0);
-                        entityUpdate.bitfield1 = bitfield1; //bitfield reverted to unfiltered for future purposes
-                        entityUpdate.bitfield2 = bitfield2;
-                        if (Tools.GetBit(bitfield1, 27) && entityUpdate.HP == 0 && player.entityData.HP > 0) {
+                        if(entityUpdate.HP == 0 && player.entityData.HP > 0) {
                             Tomb.Show(player).Broadcast(players, 0);
-                        } else if (Tools.GetBit(bitfield1, 27) && player.entityData.HP == 0 && entityUpdate.HP > 0) {
+                        } else if(player.entityData.HP == 0 && entityUpdate.HP > 0) {
                             Tomb.Hide(player).Broadcast(players, 0);
                         }
                         entityUpdate.Merge(player.entityData);
@@ -79,7 +76,7 @@ namespace Server {
                 case Database.PacketID.entityAction:
                     #region entity action
                     EntityAction entityAction = new EntityAction(player.reader);
-                    switch ((Database.ActionType)entityAction.type) {
+                    switch((Database.ActionType)entityAction.type) {
                         case Database.ActionType.talk:
                             break;
 
@@ -159,7 +156,7 @@ namespace Server {
                     serverUpdate8.passiveProcs.Add(passiveProc);
                     serverUpdate8.Broadcast(players, player.entityData.guid);
 
-                    switch (passiveProc.type) {
+                    switch(passiveProc.type) {
                         case (byte)Database.ProcType.warFrenzy:
                         case (byte)Database.ProcType.camouflage:
                         case (byte)Database.ProcType.fireSpark:
@@ -182,7 +179,7 @@ namespace Server {
                             break;
 
                         case (byte)Database.ProcType.poison:
-                            if (players.ContainsKey(passiveProc.target))//in case target is a tomb or sth
+                            if(players.ContainsKey(passiveProc.target))//in case target is a tomb or sth
                             {
                                 var poisonDmg = new Hit() {
                                     attacker = passiveProc.source,
@@ -221,7 +218,7 @@ namespace Server {
                     if(chatMessage.message.StartsWith("/")) {
                         string parameter = "";
                         string command = chatMessage.message.Substring(1);
-                        if (chatMessage.message.Contains(" ")) {
+                        if(chatMessage.message.Contains(" ")) {
                             int spaceIndex = command.IndexOf(" ");
                             parameter = command.Substring(spaceIndex + 1);
                             command = command.Substring(0, spaceIndex);
@@ -239,7 +236,7 @@ namespace Server {
                 case Database.PacketID.version:
                     #region version
                     var version = new ProtocolVersion(player.reader);
-                    if (version.version != 3) {
+                    if(version.version != 3) {
                         version.version = 3;
                         version.Write(player.writer, true);
                         player.tcp.Close();
@@ -259,8 +256,8 @@ namespace Server {
                         };
                         mapSeed.Write(player.writer, true);
 
-                        foreach (KeyValuePair<ulong, Player> entry in players) {
-                            if (entry.Key != player.entityData.guid) {
+                        foreach(KeyValuePair<ulong, Player> entry in players) {
+                            if(entry.Key != player.entityData.guid) {
                                 entry.Value.entityData.Write(player.writer, true);
                             }
                         }
@@ -280,22 +277,21 @@ namespace Server {
 
             var pdc = new EntityUpdate() {
                 guid = player.entityData.guid,
-                bitfield1 = 0b00001000_00000000_00000000_10000000,
                 hostility = 255 //workaround for DC because i dont like packet2
             };
             pdc.Broadcast(players, 0);
         }
 
         public void Load_world_delayed(Player player) {
-            if (players.ContainsKey(player.entityData.guid)) {
+            if(players.ContainsKey(player.entityData.guid)) {
                 worldUpdate.Write(player.writer, true);
             }
         }
         public void Poison(ServerUpdate poisonTick, int duration) {
-            if (players.ContainsKey(poisonTick.hits[0].target)) {
+            if(players.ContainsKey(poisonTick.hits[0].target)) {
                 poisonTick.hits[0].position = players[poisonTick.hits[0].target].entityData.position;
                 poisonTick.Broadcast(players, 0);
-                if (duration > 0) {
+                if(duration > 0) {
                     Task.Delay(500).ContinueWith(t => Poison(poisonTick, duration - 500));
                 }
             }

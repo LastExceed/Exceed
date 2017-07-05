@@ -16,5 +16,6 @@ namespace Server
     {
         public string username { get; set; }
         public string hash { get; set; }
+        public Nullable<bool> banned { get; set; }
     }
 }

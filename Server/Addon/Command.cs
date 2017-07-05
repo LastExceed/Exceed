@@ -19,7 +19,6 @@ namespace Server.Addon {
 
                         var xpDummy = new EntityUpdate() {
                             guid = 1000,
-                            bitfield1 = 0b00000000_00000000_00000000_10000000,
                             hostility = (byte)Database.Hostility.enemy
                         };
                         xpDummy.Write(player.writer, true);

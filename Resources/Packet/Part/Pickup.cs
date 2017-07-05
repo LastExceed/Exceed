@@ -5,7 +5,9 @@ namespace Resources.Packet.Part {
         public ulong guid;
         public Item item;
 
-        public void Read(BinaryReader reader) {
+        public Pickup() { }
+
+        public Pickup(BinaryReader reader) {
             guid = reader.ReadUInt64();
             item = new Item(reader);
         }

@@ -1,5 +1,7 @@
 ﻿namespace Resources {
     static public class Database {
+        public const int BridgePort = 54321;
+
         public enum PacketID : int {
             entityUpdate,
             multiEntityUpdate,
@@ -110,6 +112,11 @@
         }
         public enum ParticleType : byte {
             //TODO
+        }
+        public enum LoginResponse : byte {
+            success,
+            fail,
+            banned
         }
     }
 }

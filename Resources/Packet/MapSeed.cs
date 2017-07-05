@@ -8,24 +8,22 @@ namespace Resources.Packet {
 
         public int seed;
 
-        public void Read(BinaryReader reader) {
+        public MapSeed() { }
+
+        public MapSeed(BinaryReader reader) {
             seed = reader.ReadInt32();
         }
 
-        public void Write(BinaryWriter writer, bool writePacketID) {
-            if (writePacketID) {
+        public void Write(BinaryWriter writer, bool writePacketID = true) {
+            if(writePacketID) {
                 writer.Write(packetID);
             }
             writer.Write(seed);
         }
         public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
-            foreach (KeyValuePair<ulong, Player> entry in players) {
-                if (entry.Key != toSkip) {
-                    //SpinWait.SpinUntil(() => !entry.Value.busy);
-                    //entry.Value.busy = true;
-                    entry.Value.writer.Write(packetID);
-                    entry.Value.writer.Write(seed);
-                    //entry.Value.busy = false;
+            foreach(KeyValuePair<ulong, Player> entry in players) {
+                if(entry.Key != toSkip) {
+                    Write(entry.Value.writer);
                 }
             }
         }

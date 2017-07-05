@@ -7,7 +7,9 @@ namespace Resources.Packet.Part {
         public float damage;
         public int unknown;
 
-        public void Read(BinaryReader reader) {
+        public Damage() { }
+
+        public Damage(BinaryReader reader) {
             target = reader.ReadUInt64();
             attacker = reader.ReadUInt64();
             damage = reader.ReadSingle();

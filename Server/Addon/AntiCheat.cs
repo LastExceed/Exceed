@@ -5,14 +5,11 @@ using Resources.Packet.Part;
 namespace Server.Addon {
     class AntiCheat {
         public static string Inspect(EntityUpdate toInspect) {
-            if (Tools.GetBit(toInspect.bitfield1, 7)) //hostile?
-            {
-                if (toInspect.hostility != 0) {
-                    return "hostility";
-                }
+            if(toInspect.hostility != null && toInspect.hostility != 0) {
+                return "hostility";
             }
-            if (Tools.GetBit(toInspect.bitfield1, 13)) {
-                if ((toInspect.appearance.character_size.x != 0.8000000119f && toInspect.appearance.character_size.x != 0.9600000381f && toInspect.appearance.character_size.x != 1.039999962f) ||
+            if(toInspect.appearance != null) {
+                if((toInspect.appearance.character_size.x != 0.8000000119f && toInspect.appearance.character_size.x != 0.9600000381f && toInspect.appearance.character_size.x != 1.039999962f) ||
                     (toInspect.appearance.character_size.y != 0.8000000119f && toInspect.appearance.character_size.y != 0.9600000381f && toInspect.appearance.character_size.y != 1.039999962f) ||
                     (toInspect.appearance.character_size.z != 1.799999952f && toInspect.appearance.character_size.z != 2.160000086f && toInspect.appearance.character_size.z != 2.339999914f) ||
                     (toInspect.appearance.head_size != 0.8999999762f && toInspect.appearance.head_size != 1.00999999f) ||
@@ -27,27 +24,17 @@ namespace Server.Addon {
                     return "appearance";
                 }
             }
-            if (Tools.GetBit(toInspect.bitfield1, 23)) //charge?
-            {
-                if (toInspect.charge > 1) {
-                    return "MP charge";
-                }
+            if(toInspect.charge != null && toInspect.charge > 1) {
+                return "MP charge";
             }
-            if (Tools.GetBit(toInspect.bitfield1, 27)) //HP?
-            {
-                if (toInspect.HP > 3333) {
-                    return "HP";
-                }
+            if(toInspect.HP != null && toInspect.HP > 3333) {
+                return "HP";
             }
-            if (Tools.GetBit(toInspect.bitfield1, 28)) //MP?
-            {
-                if (toInspect.MP > 1) {
-                    return "MP";
-                }
+            if(toInspect.MP != null && toInspect.MP > 1) {
+                return "MP";
             }
-            if (Tools.GetBit(toInspect.bitfield1, 30)) //multipliers?
-            {
-                if (toInspect.multipliers.HP != 100 ||
+            if(toInspect.multipliers != null) {
+                if(toInspect.multipliers.HP != 100 ||
                     toInspect.multipliers.attackSpeed != 1 ||
                     toInspect.multipliers.damge != 1 ||
                     toInspect.multipliers.armor != 1 ||
@@ -55,33 +42,27 @@ namespace Server.Addon {
                     return "multipliers";
                 }
             }
-            if (Tools.GetBit(toInspect.bitfield2, 33 - 32)) //level
-            {
-                if (toInspect.level > 500) {
-                    return "level";
-                }
+            if(toInspect.level != null && toInspect.level > 500) {
+                return "level";
             }
-            if (Tools.GetBit(toInspect.bitfield2, 43 - 32)) //consumable
-            {
-                if (toInspect.consumable.type == 1 &&
+            if(toInspect.consumable != null) {
+                if(toInspect.consumable.type == 1 &&
                     toInspect.consumable.subtype == 1 ||
                     toInspect.consumable.level > 647 ||
                     toInspect.consumable.rarity != 0) {
                     //return "consumable";
                 }
             }
-            if (Tools.GetBit(toInspect.bitfield2, 44 - 32)) //equip
-            {
-                foreach (Item item in toInspect.equipment) {
-                    if (item.type != 0 && (item.level > 647 ||
+            if(toInspect.equipment != null) {
+                foreach(Item item in toInspect.equipment) {
+                    if(item.type != 0 && (item.level > 647 ||
                         item.rarity > 4)) {
                         return "equipment";
                     }
                 }
             }
-            if (Tools.GetBit(toInspect.bitfield2, 46 - 32)) //skills
-            {
-                if (toInspect.skillDistribution.petmaster +
+            if(toInspect.skillDistribution != null) {
+                if(toInspect.skillDistribution.petmaster +
                     toInspect.skillDistribution.petriding +
                     toInspect.skillDistribution.sailing +
                     toInspect.skillDistribution.climbing +

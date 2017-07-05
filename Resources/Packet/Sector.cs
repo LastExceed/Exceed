@@ -7,17 +7,15 @@ namespace Resources.Packet {
         public int sectorX;
         public int sectorY;
 
-        public Sector() {
-
-        }
+        public Sector() { }
 
         public Sector(BinaryReader reader) {
             sectorX = reader.ReadInt32();
             sectorY = reader.ReadInt32();
         }
 
-        public void Write(BinaryWriter writer, bool writePacketID) {
-            if (writePacketID) {
+        public void Write(BinaryWriter writer, bool writePacketID = true) {
+            if(writePacketID) {
                 writer.Write(packetID);
             }
             writer.Write(sectorX);

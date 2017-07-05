@@ -17,9 +17,7 @@ namespace Resources.Packet.Part {
         List<Spirit> spirits = new List<Spirit>();
         public int spiritCounter;
 
-        public Item() {
-
-        }
+        public Item() { }
 
         public Item(BinaryReader reader) {
             type = reader.ReadByte();
@@ -35,14 +33,7 @@ namespace Resources.Packet.Part {
             reader.ReadBytes(2);
 
             for (int i = 0; i < 32; i++) {
-                Spirit spirit = new Spirit();
-                spirit.x = reader.ReadByte();
-                spirit.y = reader.ReadByte();
-                spirit.z = reader.ReadByte();
-                spirit.type = reader.ReadByte();
-                spirit.level = reader.ReadInt16();
-                reader.ReadBytes(2);
-                spirits.Add(spirit);
+                spirits.Add(new Spirit(reader));
             }
             spiritCounter = reader.ReadInt32();
         }
@@ -60,12 +51,7 @@ namespace Resources.Packet.Part {
             writer.Write(level);
             writer.Write((short)0);
             foreach (Spirit spirit in spirits) {
-                writer.Write(spirit.x);
-                writer.Write(spirit.y);
-                writer.Write(spirit.z);
-                writer.Write(spirit.type);
-                writer.Write(spirit.level);
-                writer.Write((short)0);
+                spirit.Write(writer);
             }
             writer.Write(spiritCounter);
         }
@@ -79,15 +65,6 @@ namespace Resources.Packet.Part {
         public short level;
         //2 pad
 
-        public void Read(BinaryReader reader) {
-            x = reader.ReadByte();
-            y = reader.ReadByte();
-            z = reader.ReadByte();
-            type = reader.ReadByte();
-            level = reader.ReadInt16();
-            reader.ReadBytes(2);
-        }
-
         public void Write(BinaryWriter writer) {
             writer.Write(x);
             writer.Write(y);
@@ -95,6 +72,15 @@ namespace Resources.Packet.Part {
             writer.Write(type);
             writer.Write(level);
             writer.Write((short)0);
+        }
+
+        public Spirit(BinaryReader reader) {
+            x = reader.ReadByte();
+            y = reader.ReadByte();
+            z = reader.ReadByte();
+            type = reader.ReadByte();
+            level = reader.ReadInt16();
+            reader.ReadBytes(2);
         }
     }
 }

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.IO;
 
-namespace Resources.Packet
-{
-    public class EntityAction
-    {
+namespace Resources.Packet {
+    public class EntityAction {
         public const int packetID = 6;
 
-        public Part.Item item = new Part.Item();
+        public Part.Item item;
         public int chunkX;
         public int chunkY;
         public int index;
@@ -15,12 +13,9 @@ namespace Resources.Packet
         public byte type;
         //3 pad
 
-        public EntityAction() {
+        public EntityAction() { }
 
-        }
-
-        public EntityAction(BinaryReader reader)
-        {
+        public EntityAction(BinaryReader reader) {
             item = new Part.Item(reader);
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
@@ -30,8 +25,8 @@ namespace Resources.Packet
             reader.ReadBytes(3); //pad
         }
 
-        public void Write(BinaryWriter writer, bool writePacketID) {
-            if (writePacketID) {
+        public void Write(BinaryWriter writer, bool writePacketID = true) {
+            if(writePacketID) {
                 writer.Write(packetID);
             }
             item.Write(writer);

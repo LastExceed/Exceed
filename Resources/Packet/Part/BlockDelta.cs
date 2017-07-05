@@ -4,13 +4,15 @@ using System.IO;
 namespace Resources.Packet.Part {
     public class BlockDelta {
         public IntVector position;
-        public ByteVector color = new ByteVector();
+        public ByteVector color;
         public byte type;
         public int unknown;
 
-        public void Read(BinaryReader reader) {
-            position.Read(reader);
-            color.Read(reader);
+        public BlockDelta() { }
+
+        public BlockDelta(BinaryReader reader) {
+            position = new IntVector(reader);
+            color = new ByteVector(reader);
             type = reader.ReadByte();
             unknown = reader.ReadInt32();
         }

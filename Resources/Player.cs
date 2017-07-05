@@ -10,9 +10,7 @@ namespace Resources {
         public BinaryReader reader;
         public bool playing = false;
 
-        public IPEndPoint Address {
-            get { return tcp.Client.RemoteEndPoint as IPEndPoint; }
-        }
+        public IPEndPoint Address { get; private set; }
 
         public Packet.EntityUpdate entityData = new Packet.EntityUpdate();
 
@@ -21,8 +19,8 @@ namespace Resources {
             tcp.NoDelay = true;
             writer = new BinaryWriter(tcp.GetStream());
             reader = new BinaryReader(tcp.GetStream());
-            entityData.bitfield1 = -1;
-            entityData.bitfield2 = -1;
+            
+            Address = new IPEndPoint((tcp.Client.RemoteEndPoint as IPEndPoint).Address, Database.BridgePort);
         }
     }
 }

@@ -13,9 +13,7 @@ namespace Resources.Packet {
         public int unknown;
         public long guid3;
 
-        public PassiveProc() {
-
-        }
+        public PassiveProc() { }
 
         public PassiveProc(BinaryReader reader) {
             source = reader.ReadUInt64();
@@ -28,8 +26,8 @@ namespace Resources.Packet {
             guid3 = reader.ReadInt64();
         }
 
-        public void Write(BinaryWriter writer, bool writePacketID) {
-            if (writePacketID) {
+        public void Write(BinaryWriter writer, bool writePacketID = true) {
+            if(writePacketID) {
                 writer.Write(packetID);
             }
             writer.Write(source);

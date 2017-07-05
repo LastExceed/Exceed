@@ -19,7 +19,9 @@ namespace Resources.Packet.Part {
         public int chunkX;
         public int chunkY;
 
-        public void Read(BinaryReader reader) {
+        public Mission() { }
+
+        public Mission(BinaryReader reader) {
             sectionX = reader.ReadInt32();
             sectionY = reader.ReadInt32();
             unknownA = reader.ReadInt32();

@@ -10,772 +10,805 @@ namespace Resources.Packet {
         public const int packetID = 0;
 
         public ulong guid;
-        public int bitfield1;
-        public int bitfield2;
 
-        public LongVector position = new LongVector();
-        public FloatVector rotation = new FloatVector();
-        public FloatVector velocity = new FloatVector();
-        public FloatVector acceleration = new FloatVector();
-        public FloatVector extraVel = new FloatVector();
-        public float viewportPitch;
-        public int physicsFlags;
-        public byte hostility;
-        public int entityType;
-        public byte mode;
-        public int modeTimer;
-        public int combo;
-        public int lastHitTime;
-        public Part.Appearance appearance = new Part.Appearance();
-        public short entityFlags;
-        public int roll;
-        public int stun;
-        public int slow;
-        public int ice;
-        public int wind;
-        public int showPatchTime;
-        public byte entityClass;
-        public byte specialization;
-        public float charge;
-        public FloatVector unused24 = new FloatVector();
-        public FloatVector unused25 = new FloatVector();
-        public FloatVector rayHit = new FloatVector();
-        public float HP;
-        public float MP;
-        public float block;
-        public Part.Multipliers multipliers = new Part.Multipliers();
-        public byte unused31;
-        public byte unused32;
-        public int level;
-        public int XP;
-        public long parentOwner;
-        public long unused36;
-        public byte powerBase;
-        public int unused38;
-        public IntVector unused39 = new IntVector();
-        public LongVector spawnPos = new LongVector();
-        public IntVector unused41 = new IntVector();
-        public byte unused42;
-        public Part.Item consumable = new Part.Item();
-        public Part.Item[] equipment = new Part.Item[13];
-        public string name = "";
-        public Part.SkillDistribution skillDistribution = new Part.SkillDistribution();
-        public int manaCubes;
+        public LongVector position;
+        public FloatVector rotation;
+        public FloatVector velocity;
+        public FloatVector acceleration;
+        public FloatVector extraVel;
+        public float? viewportPitch;
+        public int? physicsFlags;
+        public byte? hostility;
+        public int? entityType;
+        public byte? mode;
+        public int? modeTimer;
+        public int? combo;
+        public int? lastHitTime;
+        public Part.Appearance appearance;
+        public short? entityFlags;
+        public int? roll;
+        public int? stun;
+        public int? slow;
+        public int? ice;
+        public int? wind;
+        public int? showPatchTime;
+        public byte? entityClass;
+        public byte? specialization;
+        public float? charge;
+        public FloatVector unused24;
+        public FloatVector unused25;
+        public FloatVector rayHit;
+        public float? HP;
+        public float? MP;
+        public float? block;
+        public Part.Multipliers multipliers;
+        public byte? unused31;
+        public byte? unused32;
+        public int? level;
+        public int? XP;
+        public long? parentOwner;
+        public long? unused36;
+        public byte? powerBase;
+        public int? unused38;
+        public IntVector unused39;
+        public LongVector spawnPos;
+        public IntVector unused41;
+        public byte? unused42;
+        public Part.Item consumable;
+        public Part.Item[] equipment;
+        public string name;
+        public Part.SkillDistribution skillDistribution;
+        public int? manaCubes;
 
-        public EntityUpdate() //constructor
-        {
-            for (int i = 0; i < 13; i++) {
+        public EntityUpdate() {
+            /*equipment = new Part.Item[13];
+            for(int i = 0; i < 13; i++) {
                 equipment[i] = new Part.Item();
-            }
+            }*/
         }
 
         public EntityUpdate(BinaryReader reader) {
-            int size = reader.ReadInt32();
-            byte[] compressed = reader.ReadBytes(size);
-            byte[] uncompressed = Zlib.Uncompress(compressed);
+            byte[] uncompressed = Zlib.Uncompress(reader.ReadBytes(reader.ReadInt32()));
 
             MemoryStream stream = new MemoryStream(uncompressed);
             BinaryReader r = new BinaryReader(stream);
             guid = r.ReadUInt64();
-            bitfield1 = r.ReadInt32();
-            bitfield2 = r.ReadInt32();
-            if (Tools.GetBit(bitfield1, 0)) //position
-            {
-                position.Read(r);
+            var bitfield = r.ReadInt64();
+
+            //position
+            if(Tools.GetBit(bitfield, 0)) {
+                position = new LongVector(r);
             }
-            if (Tools.GetBit(bitfield1, 1)) //orientation
-            {
-                rotation.Read(r);
+            //orientation
+            if(Tools.GetBit(bitfield, 1)) {
+                rotation = new FloatVector(r);
             }
-            if (Tools.GetBit(bitfield1, 2)) //velocity
-            {
-                velocity.Read(r);
+            //velocity
+            if(Tools.GetBit(bitfield, 2)) {
+                velocity = new FloatVector(r);
             }
-            if (Tools.GetBit(bitfield1, 3)) //acceleration
-            {
-                acceleration.Read(r);
+            //acceleration
+            if(Tools.GetBit(bitfield, 3)) {
+                acceleration = new FloatVector(r);
             }
-            if (Tools.GetBit(bitfield1, 4)) //extra veloctiy
-            {
-                extraVel.Read(r);
+            //extra veloctiy
+            if(Tools.GetBit(bitfield, 4)) {
+                extraVel = new FloatVector(r);
             }
-            if (Tools.GetBit(bitfield1, 5)) //viewport pitch
-            {
+            //viewport pitch
+            if(Tools.GetBit(bitfield, 5)) {
                 viewportPitch = r.ReadSingle();
             }
-            if (Tools.GetBit(bitfield1, 6)) //physics flags
-            {
+            //physics flags
+            if(Tools.GetBit(bitfield, 6)) {
                 physicsFlags = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield1, 7)) //hostile?
-            {
+            //hostile?
+            if(Tools.GetBit(bitfield, 7)) {
                 hostility = r.ReadByte();
             }
-            if (Tools.GetBit(bitfield1, 8)) //entity type
-            {
+            //entity type
+            if(Tools.GetBit(bitfield, 8)) {
                 entityType = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield1, 9)) //current mode
-            {
+            //current mode
+            if(Tools.GetBit(bitfield, 9)) {
                 mode = r.ReadByte();
             }
-            if (Tools.GetBit(bitfield1, 10)) //mode start time
-            {
+            //mode start time
+            if(Tools.GetBit(bitfield, 10)) {
                 modeTimer = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield1, 11)) //combo
-            {
+            //combo
+            if(Tools.GetBit(bitfield, 11)) {
                 combo = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield1, 12)) //last hittime
-            {
+            //last hittime
+            if(Tools.GetBit(bitfield, 12)) {
                 lastHitTime = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield1, 13)) //appearance data
-            {
-                appearance.Read(r);
+            //appearance data
+            if(Tools.GetBit(bitfield, 13)) {
+                appearance = new Part.Appearance(r);
             }
-            if (Tools.GetBit(bitfield1, 14)) //entity flags
-            {
+            //entity flags
+            if(Tools.GetBit(bitfield, 14)) {
                 entityFlags = r.ReadInt16();
             }
-            if (Tools.GetBit(bitfield1, 15)) //roll
-            {
+            //roll
+            if(Tools.GetBit(bitfield, 15)) {
                 roll = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield1, 16)) //stun
-            {
+            //stun
+            if(Tools.GetBit(bitfield, 16)) {
                 stun = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield1, 17)) //slowed?
-            {
+            //slowed?
+            if(Tools.GetBit(bitfield, 17)) {
                 slow = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield1, 18)) //make blue time (ice)
-            {
+            //make blue time (ice)
+            if(Tools.GetBit(bitfield, 18)) {
                 ice = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield1, 19)) //speed up time (wind)
-            {
+            //speed up time (wind)
+            if(Tools.GetBit(bitfield, 19)) {
                 wind = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield1, 20)) //show patch time?
-            {
+            //show patch time?
+            if(Tools.GetBit(bitfield, 20)) {
                 showPatchTime = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield1, 21)) //public class
-            {
+            //public class
+            if(Tools.GetBit(bitfield, 21)) {
                 entityClass = r.ReadByte();
             }
-            if (Tools.GetBit(bitfield1, 22)) //subpublic class
-            {
+            //subpublic class
+            if(Tools.GetBit(bitfield, 22)) {
                 specialization = r.ReadByte();
             }
-            if (Tools.GetBit(bitfield1, 23)) //charge
-            {
+            //charge
+            if(Tools.GetBit(bitfield, 23)) {
                 charge = r.ReadSingle();
             }
-            if (Tools.GetBit(bitfield1, 24)) //unused vector
-            {
-                unused24.Read(r);
+            //unused vector
+            if(Tools.GetBit(bitfield, 24)) {
+                unused24 = new FloatVector(r);
             }
-            if (Tools.GetBit(bitfield1, 25)) //unused vector
-            {
-                unused25.Read(r);
+            //unused vector
+            if(Tools.GetBit(bitfield, 25)) {
+                unused25 = new FloatVector(r);
             }
-            if (Tools.GetBit(bitfield1, 26)) //ray hit
-            {
-                rayHit.Read(r);
+            //ray hit
+            if(Tools.GetBit(bitfield, 26)) {
+                rayHit = new FloatVector(r);
             }
-            if (Tools.GetBit(bitfield1, 27)) //HP
-            {
+            //HP
+            if(Tools.GetBit(bitfield, 27)) {
                 HP = r.ReadSingle();
             }
-            if (Tools.GetBit(bitfield1, 28)) //MP
-            {
+            //MP
+            if(Tools.GetBit(bitfield, 28)) {
                 MP = r.ReadSingle();
             }
-            if (Tools.GetBit(bitfield1, 29)) //block power
-            {
+            //block power
+            if(Tools.GetBit(bitfield, 29)) {
                 block = r.ReadSingle();
             }
-            if (Tools.GetBit(bitfield1, 30)) //multipliers
-            {
-                multipliers.Read(r);
+            //multipliers
+            if(Tools.GetBit(bitfield, 30)) {
+                multipliers = new Part.Multipliers(r);
             }
-            if (Tools.GetBit(bitfield1, 31)) //unused
-            {
+            //unused
+            if(Tools.GetBit(bitfield, 31)) {
                 unused31 = r.ReadByte();
             }
-            if (Tools.GetBit(bitfield2, 32 - 32)) //unused
-            {
+            //unused
+            if(Tools.GetBit(bitfield, 32)) {
                 unused32 = r.ReadByte();
             }
-            if (Tools.GetBit(bitfield2, 33 - 32)) //level
-            {
+            //level
+            if(Tools.GetBit(bitfield, 33)) {
                 level = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield2, 34 - 32)) //xp
-            {
+            //xp
+            if(Tools.GetBit(bitfield, 34)) {
                 XP = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield2, 35 - 32)) //parent owner?
-            {
+            //parent owner?
+            if(Tools.GetBit(bitfield, 35)) {
                 parentOwner = r.ReadInt64();
             }
-            if (Tools.GetBit(bitfield2, 36 - 32)) //unused *2
-            {
+            //unused *2
+            if(Tools.GetBit(bitfield, 36)) {
                 unused36 = r.ReadInt64();
             }
-            if (Tools.GetBit(bitfield2, 37 - 32)) //power base
-            {
+            //power base
+            if(Tools.GetBit(bitfield, 37)) {
                 powerBase = r.ReadByte();
             }
-            if (Tools.GetBit(bitfield2, 38 - 32)) //unused
-            {
+            //unused
+            if(Tools.GetBit(bitfield, 38)) {
                 unused38 = r.ReadInt32();
             }
-            if (Tools.GetBit(bitfield2, 39 - 32)) //unused vector
-            {
-                unused39.Read(r);
+            //unused vector
+            if(Tools.GetBit(bitfield, 39)) {
+                unused39 = new IntVector(r);
             }
-            if (Tools.GetBit(bitfield2, 40 - 32)) //spawn position
-            {
-                spawnPos.Read(r);
+            //spawn position
+            if(Tools.GetBit(bitfield, 40)) {
+                spawnPos = new LongVector(r);
             }
-            if (Tools.GetBit(bitfield2, 41 - 32)) //unused vector
-            {
-                unused41.Read(r);
+            //unused vector
+            if(Tools.GetBit(bitfield, 41)) {
+                unused41 = new IntVector(r);
             }
-            if (Tools.GetBit(bitfield2, 42 - 32)) //unused
-            {
+            //unused
+            if(Tools.GetBit(bitfield, 42)) {
                 unused42 = r.ReadByte();
             }
-            if (Tools.GetBit(bitfield2, 43 - 32)) //consumable
-            {
-                consumable = new Part.Item(reader);
+            //consumable
+            if(Tools.GetBit(bitfield, 43)) {
+                consumable = new Part.Item(r);
             }
-            if (Tools.GetBit(bitfield2, 44 - 32)) //equipment
-            {
-                for (int i = 0; i < 13; i++) {
+            //equipment
+            if(Tools.GetBit(bitfield, 44)) {
+                equipment = new Part.Item[13];
+                for(int i = 0; i < 13; i++) {
                     equipment[i] = new Part.Item(r);
                 }
             }
-            if (Tools.GetBit(bitfield2, 45 - 32)) //name
-            {
+            //name
+            if(Tools.GetBit(bitfield, 45)) {
                 name = new string(r.ReadChars(16));
                 name = name.Substring(0, name.IndexOf("\0"));
             }
-            if (Tools.GetBit(bitfield2, 46 - 32)) //skills (11*4)
-            {
-                skillDistribution.Read(r);
+            //skills (11*4)
+            if(Tools.GetBit(bitfield, 46)) {
+                skillDistribution = new Part.SkillDistribution(r);
             }
-            if (Tools.GetBit(bitfield2, 47 - 32)) //mama cubes 
-            {
+            //mama cubes 
+            if(Tools.GetBit(bitfield, 47)) {
                 manaCubes = r.ReadInt32();
             }
         }
 
+        public bool IsEmpty() {
+            return !(position != null ||
+                rotation != null ||
+                velocity != null ||
+                acceleration != null ||
+                extraVel != null ||
+                viewportPitch != null ||
+                physicsFlags != null ||
+                hostility != null ||
+                entityType != null ||
+                mode != null ||
+                modeTimer != null ||
+                combo != null ||
+                lastHitTime != null ||
+                appearance != null ||
+                entityFlags != null ||
+                roll != null ||
+                stun != null ||
+                slow != null ||
+                ice != null ||
+                wind != null ||
+                showPatchTime != null ||
+                entityClass != null ||
+                specialization != null ||
+                charge != null ||
+                unused24 != null ||
+                unused25 != null ||
+                rayHit != null ||
+                HP != null ||
+                MP != null ||
+                block != null ||
+                multipliers != null ||
+                unused31 != null ||
+                unused32 != null ||
+                level != null ||
+                XP != null ||
+                parentOwner != null ||
+                unused36 != null ||
+                powerBase != null ||
+                unused38 != null ||
+                unused39 != null ||
+                spawnPos != null ||
+                unused41 != null ||
+                unused42 != null ||
+                consumable != null ||
+                equipment != null ||
+                name != null ||
+                skillDistribution != null ||
+                manaCubes != null);
+        }
+
         public void Merge(EntityUpdate playerEntityData) {
-            if (Tools.GetBit(bitfield1, 0)) //position
-            {
+            if(position != null) {
                 playerEntityData.position = position;
             }
-            if (Tools.GetBit(bitfield1, 1)) //orientation
-            {
+            if(rotation != null) {
                 playerEntityData.rotation = rotation;
             }
-            if (Tools.GetBit(bitfield1, 2)) //velocity
-            {
+            if(velocity != null) {
                 playerEntityData.velocity = velocity;
             }
-            if (Tools.GetBit(bitfield1, 3)) //acceleration
-            {
+            if(acceleration != null) {
                 playerEntityData.acceleration = acceleration;
             }
-            if (Tools.GetBit(bitfield1, 4)) //extra veloctiy
-            {
+            if(extraVel != null) {
                 playerEntityData.extraVel = extraVel;
             }
-            if (Tools.GetBit(bitfield1, 5)) //viewport pitch
-            {
+            if(viewportPitch != null) {
                 playerEntityData.viewportPitch = viewportPitch;
             }
-            if (Tools.GetBit(bitfield1, 6)) //physics flags
-            {
+            if(physicsFlags != null) {
                 playerEntityData.physicsFlags = physicsFlags;
             }
-            if (Tools.GetBit(bitfield1, 7)) //hostile?
-            {
+            if(hostility != null) {
                 playerEntityData.hostility = hostility;
             }
-            if (Tools.GetBit(bitfield1, 8)) //entity type
-            {
+            if(entityType != null) {
                 playerEntityData.entityType = entityType;
             }
-            if (Tools.GetBit(bitfield1, 9)) //current mode
-            {
+            if(mode != null) {
                 playerEntityData.mode = mode;
             }
-            if (Tools.GetBit(bitfield1, 10)) //mode start time
-            {
+            if(modeTimer != null) {
                 playerEntityData.modeTimer = modeTimer;
             }
-            if (Tools.GetBit(bitfield1, 11)) //combo
-            {
+            if(combo != null) {
                 playerEntityData.combo = combo;
             }
-            if (Tools.GetBit(bitfield1, 12)) //last hittime
-            {
+            if(lastHitTime != null) {
                 playerEntityData.lastHitTime = lastHitTime;
             }
-            if (Tools.GetBit(bitfield1, 13)) //appearance data
-            {
+            if(appearance != null) {
                 playerEntityData.appearance = appearance;
             }
-            if (Tools.GetBit(bitfield1, 14)) //entity flags
-            {
+            if(entityFlags != null) {
                 playerEntityData.entityFlags = entityFlags;
             }
-            if (Tools.GetBit(bitfield1, 15)) //roll
-            {
+            if(roll != null) {
                 playerEntityData.roll = roll;
             }
-            if (Tools.GetBit(bitfield1, 16)) //stun
-            {
+            if(stun != null) {
                 playerEntityData.stun = stun;
             }
-            if (Tools.GetBit(bitfield1, 17)) //slowed?
-            {
+            if(slow != null) {
                 playerEntityData.slow = slow;
             }
-            if (Tools.GetBit(bitfield1, 18)) //make blue time (ice)
-            {
+            if(ice != null) {
                 playerEntityData.ice = ice;
             }
-            if (Tools.GetBit(bitfield1, 19)) //speed up time (wind)
-            {
+            if(wind != null) {
                 playerEntityData.wind = wind;
             }
-            if (Tools.GetBit(bitfield1, 20)) //show patch time?
-            {
+            if(showPatchTime != null) {
                 playerEntityData.showPatchTime = showPatchTime;
             }
-            if (Tools.GetBit(bitfield1, 21)) //public class
-            {
+            if(entityClass != null) {
                 playerEntityData.entityClass = entityClass;
             }
-            if (Tools.GetBit(bitfield1, 22)) //subpublic class
-            {
+            if(specialization != null) {
                 playerEntityData.specialization = specialization;
             }
-            if (Tools.GetBit(bitfield1, 23)) //charge
-            {
+            if(charge != null) {
                 playerEntityData.charge = charge;
             }
-            if (Tools.GetBit(bitfield1, 24)) //unused vector
-            {
+            if(unused24 != null) {
                 playerEntityData.unused24 = unused24;
             }
-            if (Tools.GetBit(bitfield1, 25)) //unused vector
-            {
+            if(unused25 != null) {
                 playerEntityData.unused25 = unused25;
             }
-            if (Tools.GetBit(bitfield1, 26)) //ray hit
-            {
+            if(rayHit != null) {
                 playerEntityData.rayHit = rayHit;
             }
-            if (Tools.GetBit(bitfield1, 27)) //HP
-            {
+            if(HP != null) {
                 playerEntityData.HP = HP;
             }
-            if (Tools.GetBit(bitfield1, 28)) //MP
-            {
+            if(MP != null) {
                 playerEntityData.MP = MP;
             }
-            if (Tools.GetBit(bitfield1, 29)) //block power
-            {
+            if(block != null) {
                 playerEntityData.block = block;
             }
-            if (Tools.GetBit(bitfield1, 30)) //multipliers
-            {
+            if(multipliers != null) {
                 playerEntityData.multipliers = multipliers;
             }
-            if (Tools.GetBit(bitfield1, 31)) //unused
-            {
+            if(unused31 != null) {
                 playerEntityData.unused31 = unused31;
             }
-            if (Tools.GetBit(bitfield2, 32 - 32)) //unused
-            {
+            if(unused32 != null) {
                 playerEntityData.unused32 = unused32;
             }
-            if (Tools.GetBit(bitfield2, 33 - 32)) //level
-            {
+            if(level != null) {
                 playerEntityData.level = level;
             }
-            if (Tools.GetBit(bitfield2, 34 - 32)) //xp
-            {
+            if(XP != null) {
                 playerEntityData.XP = XP;
             }
-            if (Tools.GetBit(bitfield2, 35 - 32)) //parent owner?
-            {
+            if(parentOwner != null) {
                 playerEntityData.parentOwner = parentOwner;
             }
-            if (Tools.GetBit(bitfield2, 36 - 32)) //unused *2
-            {
+            if(unused36 != null) {
                 playerEntityData.unused36 = unused36;
             }
-            if (Tools.GetBit(bitfield2, 37 - 32)) //power base
-            {
+            if(powerBase != null) {
                 playerEntityData.powerBase = powerBase;
             }
-            if (Tools.GetBit(bitfield2, 38 - 32)) //unused
-            {
+            if(unused38 != null) {
                 playerEntityData.unused38 = unused38;
             }
-            if (Tools.GetBit(bitfield2, 39 - 32)) //unused vector
-            {
+            if(unused39 != null) {
                 playerEntityData.unused39 = unused39;
             }
-            if (Tools.GetBit(bitfield2, 40 - 32)) //spawn position
-            {
+            if(spawnPos != null) {
                 playerEntityData.spawnPos = spawnPos;
             }
-            if (Tools.GetBit(bitfield2, 41 - 32)) //unused vector
-            {
+            if(unused41 != null) {
                 playerEntityData.unused41 = unused41;
             }
-            if (Tools.GetBit(bitfield2, 42 - 32)) //unused
-            {
+            if(unused42 != null) {
                 playerEntityData.unused42 = unused42;
             }
-            if (Tools.GetBit(bitfield2, 43 - 32)) //consumable
-            {
+            if(consumable != null) {
                 playerEntityData.consumable = consumable;
             }
-            if (Tools.GetBit(bitfield2, 44 - 32)) //equipment
-            {
+            if(equipment != null) {
                 playerEntityData.equipment = equipment;
             }
-            if (Tools.GetBit(bitfield2, 45 - 32)) //name
-            {
+            if(name != null) {
                 playerEntityData.name = name;
             }
-            if (Tools.GetBit(bitfield2, 46 - 32)) //skills (11*4)
-            {
+            if(skillDistribution != null) {
                 playerEntityData.skillDistribution = skillDistribution;
             }
-            if (Tools.GetBit(bitfield2, 47 - 32)) //mama cubes 
-            {
+            if(manaCubes != null) {
                 playerEntityData.manaCubes = manaCubes;
             }
         }
 
         public void Filter(EntityUpdate previous) {
-            if (Tools.GetBit(bitfield1, 0)) //position
-            {
-                if (Math.Abs(position.x - previous.position.x) < 32768 &&
+            if(position != null) {
+                if(Math.Abs(position.x - previous.position.x) < 32768 &&
                     Math.Abs(position.y - previous.position.y) < 32768 &&
                     Math.Abs(position.z - previous.position.z) < 32768) {
-                    bitfield1 &= ~(1 << 0);
+                    position = null;
                 }
             }
-            bitfield1 &= ~(1 << 1);
-            if (Tools.GetBit(bitfield1, 2)) //velocity
-            {
-                if (Math.Abs(velocity.x) < 1 &&
+            rotation = null;
+            if(velocity != null) {
+                if(Math.Abs(velocity.x) < 1 &&
                     Math.Abs(velocity.y) < 1 &&
                     Math.Abs(velocity.z) < 1) {
-                    bitfield1 &= ~(1 << 2);
+                    velocity = null;
                 }
             }
-            if (Tools.GetBit(bitfield1, 4)) //extra veloctiy
-            {
-                if (Math.Abs(extraVel.x) < 1 &&
+            if(extraVel != null) {
+                if(Math.Abs(extraVel.x) < 1 &&
                     Math.Abs(extraVel.y) < 1 &&
                     Math.Abs(extraVel.z) < 1) {
-                    bitfield1 &= ~(1 << 4);
+                    extraVel = null;
                 }
             }
-            bitfield1 &= ~(1 << 5);
-            if (Tools.GetBit(bitfield1, 10)) //mode start time
-            {
-                if (modeTimer != 0) {
-                    bitfield1 &= ~(1 << 10);
-                }
+            viewportPitch = null;
+            if(modeTimer != null && modeTimer != 0) {
+                mode = null;
             }
-            bitfield1 &= ~(1 << 12);
-            if (Tools.GetBit(bitfield1, 15)) //roll
-            {
-                if (roll != 600) {
-                    bitfield1 &= ~(1 << 15);
-                }
+            lastHitTime = null;
+            if(roll != null && roll != 600) {
+                roll = null;
             }
-            if (Tools.GetBit(bitfield1, 16)) //stun
-            {
-                if (stun < previous.stun) {
-                    bitfield1 &= ~(1 << 16);
-                }
+            if(stun != null && stun < previous.stun) {
+                stun = null;
             }
-            if (Tools.GetBit(bitfield1, 17)) //slowed?
-            {
-                if (slow < previous.slow) {
-                    bitfield1 &= ~(1 << 17);
-                }
+            if(slow != null && slow < previous.slow) {
+                slow = null;
             }
-            if (Tools.GetBit(bitfield1, 18)) //make blue time (ice)
-            {
-                if (ice < previous.ice) {
-                    bitfield1 &= ~(1 << 18);
-                }
+            if(ice != null && ice < previous.ice) {
+                ice = null;
             }
-            if (Tools.GetBit(bitfield1, 19)) //speed up time (wind)
-            {
-                if (wind < previous.wind) {
-                    bitfield1 &= ~(1 << 19);
-                }
+            if(wind != null && wind < previous.wind) {
+                wind = null;
             }
-            bitfield1 &= ~(1 << 20);
-            bitfield1 &= ~(1 << 24);
-            bitfield1 &= ~(1 << 25);
-            if (Tools.GetBit(bitfield1, 26)) //ray hit
-            {
-                if (previous.mode == 0 ||
+            showPatchTime = null;
+            unused24 = null;
+            unused25 = null;
+            if(rayHit != null) {
+                if(previous.mode == 0 ||
                     (Math.Abs(rayHit.x - previous.rayHit.x) > 0.5 &&
                      Math.Abs(rayHit.y - previous.rayHit.y) > 0.5 &&
                      Math.Abs(rayHit.z - previous.rayHit.z) > 0.5)) {
-                    bitfield1 &= ~(1 << 26);
+                    rayHit = null;
                 }
             }
-            bitfield1 &= ~(1 << 28);
-            bitfield1 &= ~(1 << 30);
-            bitfield1 &= ~(1 << 31);
-            bitfield2 &= ~(1 << 32 - 32);
-            bitfield2 &= ~(1 << 34 - 32);
+            MP = null;
+            multipliers = null;
+            unused31 = null;
+            unused32 = null;
+            XP = null;
             //bitfield2 &= ~(1 << 35 - 32); //parent owner?
-            bitfield2 &= ~(1 << 36 - 32);
-            bitfield2 &= ~(1 << 37 - 32);
-            bitfield2 &= ~(1 << 38 - 32);
-            bitfield2 &= ~(1 << 39 - 32);
-            bitfield2 &= ~(1 << 40 - 32);
-            bitfield2 &= ~(1 << 41 - 32);
-            bitfield2 &= ~(1 << 42 - 32);
-            bitfield2 &= ~(1 << 46 - 32);
-            bitfield2 &= ~(1 << 47 - 32);
+            unused36 = null;
+            powerBase = null;
+            unused38 = null;
+            unused39 = null;
+            spawnPos = null;
+            unused41 = null;
+            unused42 = null;
+            skillDistribution = null;
+            manaCubes = null;
         }
 
         public byte[] GetBytes() {
+            long bitfield = 0;
+
             var stream = new MemoryStream();
             var writer = new BinaryWriter(stream);
-            writer.Write(guid);
-            writer.Write(bitfield1);
-            writer.Write(bitfield2);
 
-            if (Tools.GetBit(bitfield1, 0)) //position
-            {
+            writer.Write(guid);
+
+
+            if(position != null) {
                 position.Write(writer);
+                Tools.SetBit(ref bitfield, true, 0);
             }
-            if (Tools.GetBit(bitfield1, 1)) //orientation
-            {
+
+            if(rotation != null) {
                 rotation.Write(writer);
+                Tools.SetBit(ref bitfield, true, 1);
             }
-            if (Tools.GetBit(bitfield1, 2)) //velocity
-            {
+
+            if(velocity != null) {
                 velocity.Write(writer);
+                Tools.SetBit(ref bitfield, true, 2);
             }
-            if (Tools.GetBit(bitfield1, 3)) //acceleration
-            {
+
+            if(acceleration != null) {
                 acceleration.Write(writer);
+                Tools.SetBit(ref bitfield, true, 3);
             }
-            if (Tools.GetBit(bitfield1, 4)) //extra veloctiy
-            {
+
+            if(extraVel != null) {
                 extraVel.Write(writer);
+                Tools.SetBit(ref bitfield, true, 4);
             }
-            if (Tools.GetBit(bitfield1, 5)) //viewport pitch
-            {
-                writer.Write(viewportPitch);
+
+            if(viewportPitch != null) {
+                writer.Write((float)viewportPitch);
+                Tools.SetBit(ref bitfield, true, 5);
             }
-            if (Tools.GetBit(bitfield1, 6)) //physics flags
-            {
-                writer.Write(physicsFlags);
+
+            if(physicsFlags != null) {
+                writer.Write((int)physicsFlags);
+                Tools.SetBit(ref bitfield, true, 6);
             }
-            if (Tools.GetBit(bitfield1, 7)) //hostile?
-            {
-                writer.Write(hostility);
+
+            if(hostility != null) {
+                writer.Write((byte)hostility);
+                Tools.SetBit(ref bitfield, true, 7);
             }
-            if (Tools.GetBit(bitfield1, 8)) //entity type
-            {
-                writer.Write(entityType);
+
+            if(entityType != null) {
+                writer.Write((int)entityType);
+                Tools.SetBit(ref bitfield, true, 8);
             }
-            if (Tools.GetBit(bitfield1, 9)) //current mode
-            {
-                writer.Write(mode);
+
+            if(mode != null) {
+                writer.Write((byte)mode);
+                Tools.SetBit(ref bitfield, true, 9);
             }
-            if (Tools.GetBit(bitfield1, 10)) //mode start time
-            {
-                writer.Write(modeTimer);
+
+            if(modeTimer != null) {
+                writer.Write((int)modeTimer);
+                Tools.SetBit(ref bitfield, true, 10);
             }
-            if (Tools.GetBit(bitfield1, 11)) //combo
-            {
-                writer.Write(combo);
+
+            if(combo != null) {
+                writer.Write((int)combo);
+                Tools.SetBit(ref bitfield, true, 11);
             }
-            if (Tools.GetBit(bitfield1, 12)) //last hittime
-            {
-                writer.Write(lastHitTime);
+
+            if(lastHitTime != null) {
+                writer.Write((int)lastHitTime);
+                Tools.SetBit(ref bitfield, true, 12);
             }
-            if (Tools.GetBit(bitfield1, 13)) //appearance data
-            {
+
+            if(appearance != null) {
                 appearance.Write(writer);
+                Tools.SetBit(ref bitfield, true, 13);
             }
-            if (Tools.GetBit(bitfield1, 14)) //entity flags
-            {
-                writer.Write(entityFlags);
+
+            if(entityFlags != null) {
+                writer.Write((short)entityFlags);
+                Tools.SetBit(ref bitfield, true, 14);
             }
-            if (Tools.GetBit(bitfield1, 15)) //roll
-            {
-                writer.Write(roll);
+
+            if(roll != null) {
+                writer.Write((int)roll);
+                Tools.SetBit(ref bitfield, true, 15);
             }
-            if (Tools.GetBit(bitfield1, 16)) //stun
-            {
-                writer.Write(stun);
+
+            if(stun != null) {
+                writer.Write((int)stun);
+                Tools.SetBit(ref bitfield, true, 16);
             }
-            if (Tools.GetBit(bitfield1, 17)) //slowed?
-            {
-                writer.Write(slow);
+
+            if(slow != null) {
+                writer.Write((int)slow);
+                Tools.SetBit(ref bitfield, true, 17);
             }
-            if (Tools.GetBit(bitfield1, 18)) //make blue time (ice)
-            {
-                writer.Write(ice);
+
+            if(ice != null) {
+                writer.Write((int)ice);
+                Tools.SetBit(ref bitfield, true, 18);
             }
-            if (Tools.GetBit(bitfield1, 19)) //speed up time (wind)
-            {
-                writer.Write(wind);
+
+            if(wind != null) {
+                writer.Write((int)wind);
+                Tools.SetBit(ref bitfield, true, 19);
             }
-            if (Tools.GetBit(bitfield1, 20)) //show patch time?
-            {
-                writer.Write(showPatchTime);
+
+            if(showPatchTime != null) {
+                writer.Write((int)showPatchTime);
+                Tools.SetBit(ref bitfield, true, 20);
             }
-            if (Tools.GetBit(bitfield1, 21)) //public class
-            {
-                writer.Write(entityClass);
+
+            if(entityClass != null) {
+                writer.Write((byte)entityClass);
+                Tools.SetBit(ref bitfield, true, 21);
             }
-            if (Tools.GetBit(bitfield1, 22)) //subpublic class
-            {
-                writer.Write(specialization);
+
+            if(specialization != null) {
+                writer.Write((byte)specialization);
+                Tools.SetBit(ref bitfield, true, 22);
             }
-            if (Tools.GetBit(bitfield1, 23)) //charge
-            {
-                writer.Write(charge);
+
+            if(charge != null) {
+                writer.Write((float)charge);
+                Tools.SetBit(ref bitfield, true, 23);
             }
-            if (Tools.GetBit(bitfield1, 24)) //unused vector
-            {
+
+            if(unused24 != null) {
                 unused24.Write(writer);
+                Tools.SetBit(ref bitfield, true, 24);
             }
-            if (Tools.GetBit(bitfield1, 25)) //unused vector
-            {
+
+            if(unused25 != null) {
                 unused25.Write(writer);
+                Tools.SetBit(ref bitfield, true, 25);
             }
-            if (Tools.GetBit(bitfield1, 26)) //ray hit
-            {
+
+            if(rayHit != null) {
                 rayHit.Write(writer);
+                Tools.SetBit(ref bitfield, true, 26);
             }
-            if (Tools.GetBit(bitfield1, 27)) //HP
-            {
-                writer.Write(HP);
+
+            if(HP != null) {
+                writer.Write((float)HP);
+                Tools.SetBit(ref bitfield, true, 27);
             }
-            if (Tools.GetBit(bitfield1, 28)) //MP
-            {
-                writer.Write(MP);
+
+            if(MP != null) {
+                writer.Write((float)MP);
+                Tools.SetBit(ref bitfield, true, 28);
             }
-            if (Tools.GetBit(bitfield1, 29)) //block power
-            {
-                writer.Write(block);
+
+            if(block != null) {
+                writer.Write((float)block);
+                Tools.SetBit(ref bitfield, true, 29);
             }
-            if (Tools.GetBit(bitfield1, 30)) //multipliers
-            {
+
+            if(multipliers != null) {
                 multipliers.Write(writer);
+                Tools.SetBit(ref bitfield, true, 30);
             }
-            if (Tools.GetBit(bitfield1, 31)) //unused
-            {
-                writer.Write(unused31);
+
+            if(unused31 != null) {
+                writer.Write((byte)unused31);
+                Tools.SetBit(ref bitfield, true, 31);
             }
-            if (Tools.GetBit(bitfield2, 32 - 32)) //unused
-            {
-                writer.Write(unused32);
+
+
+            if(unused32 != null) {
+                writer.Write((byte)unused32);
+                Tools.SetBit(ref bitfield, true, 32);
             }
-            if (Tools.GetBit(bitfield2, 33 - 32)) //level
-            {
-                writer.Write(level);
+
+            if(level != null) {
+                writer.Write((int)level);
+                Tools.SetBit(ref bitfield, true, 33);
             }
-            if (Tools.GetBit(bitfield2, 34 - 32)) //xp
-            {
-                writer.Write(XP);
+
+            if(XP != null) {
+                writer.Write((int)XP);
+                Tools.SetBit(ref bitfield, true, 34);
             }
-            if (Tools.GetBit(bitfield2, 35 - 32)) //parent owner?
-            {
-                writer.Write(parentOwner);
+
+            if(parentOwner != null) {
+                writer.Write((long)parentOwner);
+                Tools.SetBit(ref bitfield, true, 35);
             }
-            if (Tools.GetBit(bitfield2, 36 - 32)) //unused *2
-            {
-                writer.Write(unused36);
+
+            if(unused36 != null) {
+                writer.Write((long)unused36);
+                Tools.SetBit(ref bitfield, true, 36);
             }
-            if (Tools.GetBit(bitfield2, 37 - 32)) //power base
-            {
-                writer.Write(powerBase);
+
+            if(powerBase != null) {
+                writer.Write((byte)powerBase);
+                Tools.SetBit(ref bitfield, true, 37);
             }
-            if (Tools.GetBit(bitfield2, 38 - 32)) //unused
-            {
-                writer.Write(unused38);
+
+            if(unused38 != null) {
+                writer.Write((int)unused38);
+                Tools.SetBit(ref bitfield, true, 38);
             }
-            if (Tools.GetBit(bitfield2, 39 - 32)) //unused vector
-            {
+
+            if(unused39 != null) {
                 unused39.Write(writer);
+                Tools.SetBit(ref bitfield, true, 39);
             }
-            if (Tools.GetBit(bitfield2, 40 - 32)) //spawn position
-            {
+
+            if(spawnPos != null) {
                 spawnPos.Write(writer);
+                Tools.SetBit(ref bitfield, true, 40);
             }
-            if (Tools.GetBit(bitfield2, 41 - 32)) //unused vector
-            {
+
+            if(unused41 != null) {
                 unused41.Write(writer);
+                Tools.SetBit(ref bitfield, true, 41);
             }
-            if (Tools.GetBit(bitfield2, 42 - 32)) //unused
-            {
-                writer.Write(unused42);
+
+            if(unused42 != null) {
+                writer.Write((byte)unused42);
+                Tools.SetBit(ref bitfield, true, 42);
             }
-            if (Tools.GetBit(bitfield2, 43 - 32)) //consumable
-            {
+
+            if(consumable != null) {
                 consumable.Write(writer);
+                Tools.SetBit(ref bitfield, true, 43);
             }
-            if (Tools.GetBit(bitfield2, 44 - 32)) //equipment
-            {
-                foreach (Part.Item item in equipment) {
+
+            if(equipment != null) {
+                foreach(Packet.Part.Item item in equipment) {
                     item.Write(writer);
                 }
+                Tools.SetBit(ref bitfield, true, 44);
             }
-            if (Tools.GetBit(bitfield2, 45 - 32)) //name
-            {
+
+            if(name != null) {
                 byte[] nameBytes = Encoding.UTF8.GetBytes(name);
                 writer.Write(nameBytes);
                 writer.Write(new byte[16 - nameBytes.Length]);
+                Tools.SetBit(ref bitfield, true, 45);
             }
-            if (Tools.GetBit(bitfield2, 46 - 32)) //skills (11*4)
-            {
+
+            if(skillDistribution != null) {
                 skillDistribution.Write(writer);
-            }
-            if (Tools.GetBit(bitfield2, 47 - 32)) //mama cubes 
-            {
-                writer.Write(manaCubes);
+                Tools.SetBit(ref bitfield, true, 46);
             }
 
-            byte[] uncompressed = stream.ToArray();
-            stream.Dispose();
+            if(manaCubes != null) {
+                writer.Write((int)manaCubes);
+                Tools.SetBit(ref bitfield, true, 47);
+            }
 
-            return Zlib.Compress(uncompressed);
+            var asd = stream.ToArray();
+
+            stream = new MemoryStream();
+            writer = new BinaryWriter(stream);
+
+            writer.Write(bitfield);
+            writer.Write(asd);
+
+            return Zlib.Compress(stream.ToArray());
         }
 
-        public void Write(BinaryWriter writer, bool writePacketID) {
-            if (writePacketID) {
+        public void Write(BinaryWriter writer, bool writePacketID = true) {
+            if(writePacketID) {
                 writer.Write(packetID);
             }
             var data = GetBytes();
@@ -783,14 +816,12 @@ namespace Resources.Packet {
             writer.Write(data);
         }
         public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
-            byte[] data = this.GetBytes();
-            foreach (Player player in new List<Player>(players.Values)) {
-                if (player.entityData.guid != toSkip) {
-                    try {
-                        player.writer.Write(data);
-                    } catch (IOException) {
-
-                    }
+            byte[] data = GetBytes();
+            foreach(var player in players) {
+                if(player.Key != toSkip) {
+                    player.Value.writer.Write(packetID);
+                    player.Value.writer.Write(data.Length);
+                    player.Value.writer.Write(data);
                 }
             }
         }

@@ -13,8 +13,8 @@ using System.Windows.Forms;
 
 namespace Bridge {
     static class BridgeTCPUDP {
-        static UdpClient udpToServer = new UdpClient(new IPEndPoint(IPAddress.Any, 54321));
-        static TcpClient tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Any, 54321));
+        static UdpClient udpToServer = new UdpClient(new IPEndPoint(IPAddress.Any, Database.BridgePort));
+        static TcpClient tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Any, Database.BridgePort));
         static TcpClient tcpToClient;
         static TcpListener listener;
         static BinaryWriter swriter, cwriter;
@@ -27,7 +27,7 @@ namespace Bridge {
             form.Log("connecting...");
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
-            
+
             try {
                 tcpToServer.Connect(serverIP, serverPort);
                 form.Log($"Connected");
@@ -45,28 +45,28 @@ namespace Bridge {
             swriter.Write(username.Length);
             swriter.Write(username); //Send username
 
-            var salt = sreader.ReadBytes(16); // get salt
+            var salt = sreader.ReadBytes(Hashing.saltSize); // get salt
 
             var hash = Hashing.Encrypt(publicKey, Hashing.Hash(form.textBoxPassword.Text, salt));
             swriter.Write(hash.Length);
             swriter.Write(hash); //send hashed password
             #endregion
 
-            switch(sreader.ReadByte()) {
-                case 0: //success
+            switch((Database.LoginResponse)sreader.ReadByte()) {
+                case Database.LoginResponse.success:
                     udpToServer.Connect(serverIP, serverPort);
                     listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345);
                     Task.Factory.StartNew(ListenFromClientTCP);
                     Task.Factory.StartNew(ListenFromServerUDP);
                     ListenFromServerTCP(form);
                     break;
-                case 1: //failed
+                case Database.LoginResponse.fail:
                     MessageBox.Show("Wrong Username/Password");
                     goto default;
-                case 2: //banned
+                case Database.LoginResponse.banned:
                     MessageBox.Show("You are banned");
                     goto default;
-                default://unknown response
+                default:
                     form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
                     break;
             }
@@ -125,7 +125,7 @@ namespace Bridge {
                     var entityUpdate = new Resources.Packet.EntityUpdate(new BinaryReader(new MemoryStream(datagram)));
                     entityUpdate.Write(cwriter, true);
                     break;
-                    #endregion
+                #endregion
                 case Database.DatagramID.attack:
                     #region attack
                     var attack = new Attack(datagram);
@@ -252,7 +252,7 @@ namespace Bridge {
                     particleServerUpdate.particles.Add(particleSubPacket);
                     particleServerUpdate.Write(cwriter, true);
                     break;
-                    #endregion
+                #endregion
                 case Database.DatagramID.connect:
                     #region connect
                     var connect = new Connect(datagram);
@@ -275,7 +275,6 @@ namespace Bridge {
                     var disconnect = new Disconnect(datagram);
                     var pdc = new Resources.Packet.EntityUpdate() {
                         guid = disconnect.Guid,
-                        bitfield1 = 0b00001000_00000000_00000000_10000000,
                         hostility = 255 //workaround for DC because i dont like packet2
                     };
                     pdc.Write(cwriter, true);
@@ -294,7 +293,7 @@ namespace Bridge {
                     update.Write(new BinaryWriter(ms), true);
                     SendUDP(ms.ToArray());
                     break;
-                    #endregion
+                #endregion
                 case Database.PacketID.entityAction:
                     #region entity action
                     EntityAction entityAction = new EntityAction(creader);
@@ -384,9 +383,9 @@ namespace Bridge {
                     if(version.version != 3) {
                         version.version = 3;
                         version.Write(cwriter, true);
-                    } else {
-                        cwriter.Write((byte)255);
-                    }
+                    }// else {
+                    //    cwriter.Write((byte)255);
+                    //}
 
                     break;
                 #endregion

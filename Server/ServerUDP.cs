@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
@@ -14,9 +13,6 @@ namespace Server {
         UdpClient udp;
         TcpListener listener;
         Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
-
-        //Dictionary<IPEndPoint, ushort> guids = new Dictionary<IPEndPoint, ushort>();
-        //Dictionary<ushort, IPEndPoint> reverseGuids = new Dictionary<ushort, IPEndPoint>();
 
         Tuple<string, string> encryptionKeys = Hashing.CreateKeyPair();
 
@@ -39,60 +35,60 @@ namespace Server {
 
                 #region secure login
                 player.writer.Write(encryptionKeys.Item2); // Send rsa encryption key
-                
+
                 var username = Hashing.Decrypt(encryptionKeys.Item1, player.reader.ReadBytes(player.reader.ReadInt32())); // Read username
 
                 testEntities db = new testEntities();
                 var row = (from o in db.users where o.username == username select o).FirstOrDefault(); // Get user with username from db
 
                 if(row != null) { // if row is not empty
-                    var hashData = row.hash.Split('$'); // Split hash from db
+                    var hashData = row.hash.Split('$'); // Split hash from db e.g. $CUBEHASH$Version$itterations$hash
                     var hashBytes = Convert.FromBase64String(hashData[4]); //Get hasbytes = salt + hash
 
-                    var salt = new byte[16];
-                    Array.Copy(hashBytes, 0, salt, 0, 16); // extract salt
-                    var hash = new byte[20];
-                    Array.Copy(hashBytes, 16, hash, 0, 20);// extract hash
+                    var salt = new byte[Hashing.saltSize];
+                    Array.Copy(hashBytes, 0, salt, 0, salt.Length); // extract salt
+                    var hash = new byte[Hashing.hashSize];
+                    Array.Copy(hashBytes, salt.Length, hash, 0, hash.Length);// extract hash
 
                     player.writer.Write(salt); //send salt
-                    
+
                     var clientHash = Hashing.DecryptB(encryptionKeys.Item1, player.reader.ReadBytes(player.reader.ReadInt32())); // Get clientside hashed password
 
                     if(hash.SequenceEqual(clientHash)) {
-                        player.writer.Write(0); // success;
+                        if(row.banned.HasValue) {
+                            player.writer.Write((byte)Database.LoginResponse.banned);
+                        } else {
+                            player.writer.Write((byte)Database.LoginResponse.success);
+                        }
                         continue;
                     }
                 } else {
                     // Advance with random data so bridge dosen't get stuck
-                    var bytes = new byte[16];
+                    var bytes = new byte[Hashing.saltSize];
                     new Random().NextBytes(bytes);
                     player.writer.Write(bytes);
                     player.reader.ReadBytes(player.reader.ReadInt32());
                 }
 
-                player.writer.Write(1); // login failed
+                player.writer.Write((byte)Database.LoginResponse.fail);
                 #endregion
             }
         }
-
         public void ListenUDP() {
             IPEndPoint source = null;
             while(true) {
                 byte[] datagram = udp.Receive(ref source);
-                ProcessDatagram(datagram, connections.First(x => x.Value.Address.Address == source.Address).Value);
+                ProcessDatagram(datagram, connections.First(x => x.Value.Address == source).Value);
             }
         }
 
         public void SendUDP(byte[] data, Player target) {
-            var end = target.Address;
-            end.Port = 54321;
-            udp.Send(data, data.Length, end);
+            udp.Send(data, data.Length, target.Address);
         }
-
         public void BroadcastUDP(byte[] data, Player toSkip = null, bool includeNotPlaying = false) {
-            foreach(var item in connections.Values) {
-                if(item != toSkip && (item.playing || includeNotPlaying)) {
-                    SendUDP(data, item);
+            foreach(var player in connections.Values) {
+                if(player != toSkip && (player.playing || includeNotPlaying)) {
+                    SendUDP(data, player);
                 }
             }
         }
@@ -166,8 +162,8 @@ namespace Server {
                             case "time":
                                 try {
                                     int index = parameter.IndexOf(":");
-                                    int hour = Convert.ToInt32(parameter.Substring(0, index));
-                                    int minute = Convert.ToInt32(parameter.Substring(index + 1));
+                                    int hour = int.Parse(parameter.Substring(0, index));
+                                    int minute = int.Parse(parameter.Substring(index + 1));
 
                                     var time = new InGameTime() {
                                         Time = (hour * 60 + minute) * 60000
@@ -183,12 +179,12 @@ namespace Server {
                     }
                     BroadcastUDP(datagram, null, true); //pass to all players
                     break;
-                    #endregion
+                #endregion
                 case Database.DatagramID.time:
                     #region time
                     BroadcastUDP(datagram);
                     break;
-                    #endregion
+                #endregion
                 case Database.DatagramID.interaction:
                     #region interaction
                     BroadcastUDP(datagram, player); //pass to all players except source

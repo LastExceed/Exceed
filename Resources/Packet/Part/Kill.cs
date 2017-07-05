@@ -7,7 +7,9 @@ namespace Resources.Packet.Part {
         public int unknown;
         public int xp;
 
-        public void Read(BinaryReader reader) {
+        public Kill() { }
+
+        public Kill(BinaryReader reader) {
             killer = reader.ReadUInt64();
             victim = reader.ReadUInt64();
             unknown = reader.ReadInt32();

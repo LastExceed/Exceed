@@ -5,269 +5,15 @@ using System.IO;
 using System.Text;
 
 namespace Resources.Datagram {
-    public class EntityUpdate {
-        public ulong guid;
+    public class EntityUpdate : Packet.EntityUpdate {
+        public EntityUpdate() { }
 
-        public LongVector position;
-        public FloatVector rotation;
-        public FloatVector velocity;
-        public FloatVector acceleration;
-        public FloatVector extraVel;
-        public float? viewportPitch;
-        public int? physicsFlags;
-        public byte? hostility;
-        public int? entityType;
-        public byte? mode;
-        public int? modeTimer;
-        public int? combo;
-        public int? lastHitTime;
-        public Packet.Part.Appearance appearance;
-        public short? entityFlags;
-        public int? roll;
-        public int? stun;
-        public int? slow;
-        public int? ice;
-        public int? wind;
-        public int? showPatchTime;
-        public byte? entityClass;
-        public byte? specialization;
-        public float? charge;
-        public FloatVector unused24;
-        public FloatVector unused25;
-        public FloatVector rayHit;
-        public float? HP;
-        public float? MP;
-        public float? block;
-        public Packet.Part.Multipliers multipliers;
-        public byte? unused31;
-        public byte? unused32;
-        public int? level;
-        public int? XP;
-        public long? parentOwner;
-        public long? unused36;
-        public byte? powerBase;
-        public int? unused38;
-        public IntVector unused39;
-        public LongVector spawnPos;
-        public IntVector unused41;
-        public byte? unused42;
-        public Packet.Part.Item consumable;
-        public Packet.Part.Item[] equipment;
-        public string name;
-        public Packet.Part.SkillDistribution skillDistribution;
-        public int? manaCubes;
+        public EntityUpdate(byte[] data) : base(Convert(data)) { }
 
-        public EntityUpdate() {
-
-        }
-
-        public EntityUpdate(byte[] data) {
-            var c = new byte[BitConverter.ToInt32(data,1)];
-            Array.Copy(data, 5, c, 0, c.Length);
-            
-            byte[] uncompressed = Zlib.Uncompress(c);
-
-            MemoryStream stream = new MemoryStream(uncompressed);
-            BinaryReader r = new BinaryReader(stream);
-            guid = r.ReadUInt64();
-            var bitfield = r.ReadInt64();
-
-            //position
-            if(Tools.GetBit(bitfield, 0)) {
-                position = new LongVector(r);
-            }
-            //orientation
-            if(Tools.GetBit(bitfield, 1)) {
-                rotation = new FloatVector(r);
-            }
-            //velocity
-            if(Tools.GetBit(bitfield, 2)) {
-                velocity = new FloatVector(r);
-            }
-            //acceleration
-            if(Tools.GetBit(bitfield, 3)) {
-                acceleration = new FloatVector(r);
-            }
-            //extra veloctiy
-            if(Tools.GetBit(bitfield, 4)) {
-                extraVel = new FloatVector(r);
-            }
-            //viewport pitch
-            if(Tools.GetBit(bitfield, 5)) {
-                viewportPitch = r.ReadSingle();
-            }
-            //physics flags
-            if(Tools.GetBit(bitfield, 6)) {
-                physicsFlags = r.ReadInt32();
-            }
-            //hostile?
-            if(Tools.GetBit(bitfield, 7)) {
-                hostility = r.ReadByte();
-            }
-            //entity type
-            if(Tools.GetBit(bitfield, 8)) {
-                entityType = r.ReadInt32();
-            }
-            //current mode
-            if(Tools.GetBit(bitfield, 9)) {
-                mode = r.ReadByte();
-            }
-            //mode start time
-            if(Tools.GetBit(bitfield, 10)) {
-                modeTimer = r.ReadInt32();
-            }
-            //combo
-            if(Tools.GetBit(bitfield, 11)) {
-                combo = r.ReadInt32();
-            }
-            //last hittime
-            if(Tools.GetBit(bitfield, 12)) {
-                lastHitTime = r.ReadInt32();
-            }
-            //appearance data
-            if(Tools.GetBit(bitfield, 13)) {
-                appearance = new Packet.Part.Appearance(r);
-            }
-            //entity flags
-            if(Tools.GetBit(bitfield, 14)) {
-                entityFlags = r.ReadInt16();
-            }
-            //roll
-            if(Tools.GetBit(bitfield, 15)) {
-                roll = r.ReadInt32();
-            }
-            //stun
-            if(Tools.GetBit(bitfield, 16)) {
-                stun = r.ReadInt32();
-            }
-            //slowed?
-            if(Tools.GetBit(bitfield, 17)) {
-                slow = r.ReadInt32();
-            }
-            //make blue time (ice)
-            if(Tools.GetBit(bitfield, 18)) {
-                ice = r.ReadInt32();
-            }
-            //speed up time (wind)
-            if(Tools.GetBit(bitfield, 19)) {
-                wind = r.ReadInt32();
-            }
-            //show patch time?
-            if(Tools.GetBit(bitfield, 20)) {
-                showPatchTime = r.ReadInt32();
-            }
-            //public class
-            if(Tools.GetBit(bitfield, 21)) {
-                entityClass = r.ReadByte();
-            }
-            //subpublic class
-            if(Tools.GetBit(bitfield, 22)) {
-                specialization = r.ReadByte();
-            }
-            //charge
-            if(Tools.GetBit(bitfield, 23)) {
-                charge = r.ReadSingle();
-            }
-            //unused vector
-            if(Tools.GetBit(bitfield, 24)) {
-                unused24 = new FloatVector(r);
-            }
-            //unused vector
-            if(Tools.GetBit(bitfield, 25)) {
-                unused25 = new FloatVector(r);
-            }
-            //ray hit
-            if(Tools.GetBit(bitfield, 26)) {
-                rayHit = new FloatVector(r);
-            }
-            //HP
-            if(Tools.GetBit(bitfield, 27)) {
-                HP = r.ReadSingle();
-            }
-            //MP
-            if(Tools.GetBit(bitfield, 28)) {
-                MP = r.ReadSingle();
-            }
-            //block power
-            if(Tools.GetBit(bitfield, 29)) {
-                block = r.ReadSingle();
-            }
-            //multipliers
-            if(Tools.GetBit(bitfield, 30)) {
-                multipliers = new Packet.Part.Multipliers(r);
-            }
-            //unused
-            if(Tools.GetBit(bitfield, 31)) {
-                unused31 = r.ReadByte();
-            }
-            //unused
-            if(Tools.GetBit(bitfield, 32)) {
-                unused32 = r.ReadByte();
-            }
-            //level
-            if(Tools.GetBit(bitfield, 33)) {
-                level = r.ReadInt32();
-            }
-            //xp
-            if(Tools.GetBit(bitfield, 34)) {
-                XP = r.ReadInt32();
-            }
-            //parent owner?
-            if(Tools.GetBit(bitfield, 35)) {
-                parentOwner = r.ReadInt64();
-            }
-            //unused *2
-            if(Tools.GetBit(bitfield, 36)) {
-                unused36 = r.ReadInt64();
-            }
-            //power base
-            if(Tools.GetBit(bitfield, 37)) {
-                powerBase = r.ReadByte();
-            }
-            //unused
-            if(Tools.GetBit(bitfield, 38)) {
-                unused38 = r.ReadInt32();
-            }
-            //unused vector
-            if(Tools.GetBit(bitfield, 39)) {
-                unused39 = new IntVector(r);
-            }
-            //spawn position
-            if(Tools.GetBit(bitfield, 40)) {
-                spawnPos = new LongVector(r);
-            }
-            //unused vector
-            if(Tools.GetBit(bitfield, 41)) {
-                unused41 = new IntVector(r);
-            }
-            //unused
-            if(Tools.GetBit(bitfield, 42)) {
-                unused42 = r.ReadByte();
-            }
-            //consumable
-            if(Tools.GetBit(bitfield, 43)) {
-                consumable = new Packet.Part.Item(r);
-            }
-            //equipment
-            if(Tools.GetBit(bitfield, 44)) {
-                equipment = new Packet.Part.Item[13];
-                for(int i = 0; i < 13; i++) {
-                    equipment[i] = new Packet.Part.Item(r);
-                }
-            }
-            //name
-            if(Tools.GetBit(bitfield, 45)) {
-                name = new string(r.ReadChars(16));
-                name = name.Substring(0, name.IndexOf("\0"));
-            }
-            //skills (11*4)
-            if(Tools.GetBit(bitfield, 46)) {
-                skillDistribution = new Packet.Part.SkillDistribution(r);
-            }
-            //mama cubes 
-            if(Tools.GetBit(bitfield, 47)) {
-                manaCubes = r.ReadInt32();
-            }
+        private static BinaryReader Convert(byte[] data) {
+            var reader = new BinaryReader(new MemoryStream(data));
+            reader.ReadInt32();
+            return reader;
         }
 
         public byte[] GetData() {
@@ -275,6 +21,8 @@ namespace Resources.Datagram {
 
             var stream = new MemoryStream();
             var writer = new BinaryWriter(stream);
+
+            writer.Write(guid);
 
             //position
             if(position != null) {
@@ -526,8 +274,7 @@ namespace Resources.Datagram {
 
             stream = new MemoryStream();
             writer = new BinaryWriter(stream);
-
-            writer.Write(guid);
+            
             writer.Write(bitfield);
             writer.Write(asd);
 

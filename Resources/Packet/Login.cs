@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Resources.Packet {
     public class Login {
@@ -11,23 +7,20 @@ namespace Resources.Packet {
 
         public string name;
 
-        public Login() {
+        public Login() { }
 
-        }
         public Login(BinaryReader reader) {
-            byte length = reader.ReadByte();
-            name = Encoding.UTF8.GetString(reader.ReadBytes(length));
-            length = reader.ReadByte();
+            name = Encoding.UTF8.GetString(reader.ReadBytes(reader.ReadByte()));
+            reader.ReadByte();
         }
 
-        public void Write(BinaryWriter writer, bool writePacketID) {
+        public void Write(BinaryWriter writer, bool writePacketID = true) {
             byte[] nBytes = Encoding.UTF8.GetBytes(name);
             byte[] pBytes = Encoding.UTF8.GetBytes(name);
 
-            if (writePacketID) {
+            if(writePacketID) {
                 writer.Write(packetID);
             }
-            writer.Write(packetID);
             writer.Write((byte)nBytes.Length);
             writer.Write(nBytes);
             writer.Write((byte)pBytes.Length);

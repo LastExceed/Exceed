@@ -8,14 +8,6 @@ namespace Resources.Packet.Part {
         public float armor;
         public float resi;
 
-        public void Read(BinaryReader reader) {
-            HP = reader.ReadSingle();
-            attackSpeed = reader.ReadSingle();
-            damge = reader.ReadSingle();
-            armor = reader.ReadSingle();
-            resi = reader.ReadSingle();
-        }
-
         public void Write(BinaryWriter writer) {
             writer.Write(HP);
             writer.Write(attackSpeed);

@@ -9,10 +9,8 @@ namespace Resources.Packet {
 
         public ulong sender;
         public string message;
-        
-        public ChatMessage() {
 
-        }
+        public ChatMessage() { }
 
         public ChatMessage(BinaryReader reader) {
             int length = reader.ReadInt32();
@@ -23,7 +21,7 @@ namespace Resources.Packet {
         public void Write(BinaryWriter writer, bool writePacketID = true) {
             byte[] mBytes = Encoding.Unicode.GetBytes(message);
 
-            if (writePacketID) {
+            if(writePacketID) {
                 writer.Write(packetID);
             }
             writer.Write(sender);
@@ -33,16 +31,12 @@ namespace Resources.Packet {
 
         public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
             byte[] mBytes = Encoding.Unicode.GetBytes(message);
-            foreach (Player player in new List<Player>(players.Values)) {
-                if (player.entityData.guid != toSkip) {
-                    try {
-                        player.writer.Write(packetID);
-                        player.writer.Write(sender);
-                        player.writer.Write(mBytes.Length / 2);
-                        player.writer.Write(mBytes);
-                    } catch (IOException) {
-
-                    }
+            foreach(Player player in new List<Player>(players.Values)) {
+                if(player.entityData.guid != toSkip) {
+                    player.writer.Write(packetID);
+                    player.writer.Write(sender);
+                    player.writer.Write(mBytes.Length / 2);
+                    player.writer.Write(mBytes);
                 }
             }
         }

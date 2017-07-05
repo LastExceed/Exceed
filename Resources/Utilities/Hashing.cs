@@ -5,9 +5,10 @@ using System.Text;
 
 namespace Resources {
     public sealed class Hashing {
-        private const int saltSize = 16;
-        private const int hashSize = 20;
-        private const int itterations = 10000; // DO NOT CHANGE
+        //DO NOT CHANGE CONSTANTS
+        public const int saltSize = 16;
+        public const int hashSize = 20; 
+        private const int itterations = 10000; 
 
         public static string Hash(string password) {
             //create salt
@@ -103,7 +104,6 @@ namespace Resources {
 
             return plainText;
         }
-
         public static byte[] DecryptB(string privateKey, byte[] encryptedBytes) {
             CspParameters cspParams = new CspParameters { ProviderType = 1 };
             RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(cspParams);

@@ -5,10 +5,10 @@ namespace Resources.Packet.Part {
     public class Appearance {
         public byte unknownA;
         public byte unknownB;
-        public ByteVector hair_color = new ByteVector();
+        public ByteVector hair_color;
         public short flags;
         public byte unknownC; //padding?
-        public FloatVector character_size = new FloatVector();
+        public FloatVector character_size;
         public short head_model;
         public short hair_model;
         public short hand_model;
@@ -27,53 +27,16 @@ namespace Resources.Packet.Part {
         public float shoulder_size;
         public float wings_size;
         public float body_rotation;
-        public FloatVector hand_rotation = new FloatVector();
+        public FloatVector hand_rotation;
         public float feet_rotation;
         public float wing_rotation;
         public float tail_rotation;
-        public FloatVector body_offset = new FloatVector();
-        public FloatVector head_offset = new FloatVector();
-        public FloatVector hand_offset = new FloatVector();
-        public FloatVector foot_offset = new FloatVector();
-        public FloatVector back_offset = new FloatVector();
-        public FloatVector wing_offset = new FloatVector();
-
-        public void Read(BinaryReader reader) {
-            unknownA = reader.ReadByte();
-            unknownB = reader.ReadByte();
-            hair_color.Read(reader);
-            flags = reader.ReadInt16();
-            unknownC = reader.ReadByte();
-            character_size.Read(reader);
-            head_model = reader.ReadInt16();
-            hair_model = reader.ReadInt16();
-            hand_model = reader.ReadInt16();
-            foot_model = reader.ReadInt16();
-            body_model = reader.ReadInt16();
-            tail_model = reader.ReadInt16();
-            shoulder2_model = reader.ReadInt16();
-            wings_model = reader.ReadInt16();
-            head_size = reader.ReadSingle();
-            body_size = reader.ReadSingle();
-            hand_size = reader.ReadSingle();
-            foot_size = reader.ReadSingle();
-            shoulder2_size = reader.ReadSingle();
-            weapon_size = reader.ReadSingle();
-            tail_size = reader.ReadSingle();
-            shoulder_size = reader.ReadSingle();
-            wings_size = reader.ReadSingle();
-            body_rotation = reader.ReadSingle();
-            hand_rotation.Read(reader);
-            feet_rotation = reader.ReadSingle();
-            wing_rotation = reader.ReadSingle();
-            tail_rotation = reader.ReadSingle();
-            body_offset.Read(reader);
-            head_offset.Read(reader);
-            hand_offset.Read(reader);
-            foot_offset.Read(reader);
-            back_offset.Read(reader);
-            wing_offset.Read(reader);
-        }
+        public FloatVector body_offset;
+        public FloatVector head_offset;
+        public FloatVector hand_offset;
+        public FloatVector foot_offset;
+        public FloatVector back_offset;
+        public FloatVector wing_offset;
 
         public void Write(BinaryWriter writer) {
             writer.Write(unknownA);
@@ -116,10 +79,10 @@ namespace Resources.Packet.Part {
         public Appearance(BinaryReader reader) {
             unknownA = reader.ReadByte();
             unknownB = reader.ReadByte();
-            hair_color.Read(reader);
+            hair_color = new ByteVector(reader);
             flags = reader.ReadInt16();
             unknownC = reader.ReadByte();
-            character_size.Read(reader);
+            character_size = new FloatVector(reader);
             head_model = reader.ReadInt16();
             hair_model = reader.ReadInt16();
             hand_model = reader.ReadInt16();
@@ -138,16 +101,16 @@ namespace Resources.Packet.Part {
             shoulder_size = reader.ReadSingle();
             wings_size = reader.ReadSingle();
             body_rotation = reader.ReadSingle();
-            hand_rotation.Read(reader);
+            hand_rotation = new FloatVector(reader);
             feet_rotation = reader.ReadSingle();
             wing_rotation = reader.ReadSingle();
             tail_rotation = reader.ReadSingle();
-            body_offset.Read(reader);
-            head_offset.Read(reader);
-            hand_offset.Read(reader);
-            foot_offset.Read(reader);
-            back_offset.Read(reader);
-            wing_offset.Read(reader);
+            body_offset = new FloatVector(reader);
+            head_offset = new FloatVector(reader);
+            hand_offset = new FloatVector(reader);
+            foot_offset = new FloatVector(reader);
+            back_offset = new FloatVector(reader);
+            wing_offset = new FloatVector(reader);
         }
     }
 }
