@@ -17,10 +17,7 @@ namespace Bridge {
         }
 
         private void ButtonConnect_Click(object sender, EventArgs e) {
-            buttonConnect.Enabled = false;
-            buttonDisconnect.Enabled = true;
-            groupBoxServer.Enabled = false;
-            groupBoxAccount.Enabled = false;
+            DisableButtons();
             Task.Factory.StartNew(() => BridgeTCPUDP.Connect(this));
         }
 
@@ -28,11 +25,32 @@ namespace Bridge {
             richTextBoxChat.Invoke(new Action(() => richTextBoxChat.AppendText(text)));
         }
 
+        public void EnableButtons() {
+            if(InvokeRequired) {
+                Invoke((Action)EnableButtons);
+            } else {
+                buttonDisconnect.Enabled = false;
+                buttonConnect.Enabled = true;
+                groupBoxServer.Enabled = true;
+                groupBoxAccount.Enabled = true;
+            }
+        }
+
+        public void DisableButtons() {
+            if(InvokeRequired) {
+                Invoke((Action)DisableButtons);
+            } else {
+                buttonDisconnect.Enabled = true;
+                buttonConnect.Enabled = false;
+                groupBoxServer.Enabled = false;
+                groupBoxAccount.Enabled = false;
+            }
+        }
+
         public void ButtonDisconnect_Click(object sender, EventArgs e) {
-            buttonDisconnect.Enabled = false;
-            buttonConnect.Enabled = true;
-            groupBoxServer.Enabled = true;
-            groupBoxAccount.Enabled = true;
+            EnableButtons();
+
+            Task.Factory.StartNew(BridgeTCPUDP.Close);
         }
     }
 }
