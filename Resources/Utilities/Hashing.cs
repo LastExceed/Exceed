@@ -25,7 +25,7 @@ namespace Resources {
 
             var base64Hash = Convert.ToBase64String(hashBytes);
 
-            return $"$V1${base64Hash}";
+            return $"$CUBEHASH$V1${base64Hash}";
         }
 
         public static byte[] Hash(string password, byte[] salt) {

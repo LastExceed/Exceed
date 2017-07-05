@@ -13,28 +13,40 @@ using System.Windows.Forms;
 
 namespace Bridge {
     static class BridgeTCPUDP {
-        static UdpClient udpToServer = new UdpClient(new IPEndPoint(IPAddress.Any, Database.BridgePort));
-        static TcpClient tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Any, Database.BridgePort));
-        static TcpClient tcpToClient;
-        static TcpListener listener;
-        static BinaryWriter swriter, cwriter;
-        static BinaryReader sreader, creader;
-        static ushort guid;
+        public static UdpClient udpToServer;
+        public static TcpClient tcpToServer, tcpToClient;
+        public static TcpListener tcpFromClient;
+        public static BinaryWriter swriter, cwriter;
+        public static BinaryReader sreader, creader;
+        public static ushort guid;
 
         public static void Connect(Form1 form) {
-            tcpToServer.NoDelay = true;
-
             form.Log("connecting...");
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
 
+            udpToServer = new UdpClient(new IPEndPoint(IPAddress.Any, Database.BridgePort));
+            tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Any, Database.BridgePort)) {
+                NoDelay = true
+            };
+
             try {
                 tcpToServer.Connect(serverIP, serverPort);
+                udpToServer.Connect(serverIP, serverPort);
                 form.Log($"Connected");
             } catch(Exception ex) {
+                tcpToServer.Close();
+                tcpToServer = null;
+
+                udpToServer.Close();
+                udpToServer = null;
+
                 form.Log($"Connection failed: \n{ex.Message}\n");
-                return; //could not connect
+                form.EnableButtons();
+
+                return;
             }
+
             swriter = new BinaryWriter(tcpToServer.GetStream());
             sreader = new BinaryReader(tcpToServer.GetStream());
 
@@ -54,11 +66,10 @@ namespace Bridge {
 
             switch((Database.LoginResponse)sreader.ReadByte()) {
                 case Database.LoginResponse.success:
-                    udpToServer.Connect(serverIP, serverPort);
-                    listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345);
+                    tcpFromClient = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345);
                     Task.Factory.StartNew(ListenFromClientTCP);
                     Task.Factory.StartNew(ListenFromServerUDP);
-                    ListenFromServerTCP(form);
+                    Task.Factory.StartNew(() => ListenFromServerTCP(form));
                     break;
                 case Database.LoginResponse.fail:
                     MessageBox.Show("Wrong Username/Password");
@@ -72,10 +83,30 @@ namespace Bridge {
             }
         }
 
+        public static void Close() {
+            LingerOption lingerOption = new LingerOption(true, 0);
+            try {
+                udpToServer.Close();
+            } catch { }
+            try {
+                tcpToServer.LingerState = lingerOption;
+                tcpToServer.Client.Close();
+                tcpToServer.Close();
+            } catch { }
+            try {
+                tcpToClient.LingerState = lingerOption;
+                tcpToClient.Client.Close();
+                tcpToClient.Close();
+            } catch { }
+            try {
+                tcpFromClient.Stop();
+            } catch { }
+        }
+
         public static void ListenFromClientTCP() {
-            listener.Start();
-            tcpToClient = listener.AcceptTcpClient();
-            listener.Stop();
+            tcpFromClient.Start();
+            tcpToClient = tcpFromClient.AcceptTcpClient();
+            tcpFromClient.Stop();
             tcpToClient.NoDelay = true;
             creader = new BinaryReader(tcpToClient.GetStream());
             cwriter = new BinaryWriter(tcpToClient.GetStream());
@@ -93,28 +124,32 @@ namespace Bridge {
             Task.Factory.StartNew(ListenFromClientTCP);
         }
         public static void ListenFromServerTCP(Form1 form) {
-            byte packetID;
-            while(tcpToServer.Connected) {
+            while(true) {
                 try {
-                    packetID = sreader.ReadByte(); //we can use byte here because it doesn't contain vanilla packets
+                    ProcessServerPacket(sreader.ReadByte()); //we can use byte here because it doesn't contain vanilla packets
                 } catch(IOException) {
+                    form.Log("Connection to Server lost");
+                    form.buttonDisconnect.Enabled = false;
+                    form.buttonConnect.Enabled = true;
+                    form.groupBoxServer.Enabled = true;
+                    form.groupBoxAccount.Enabled = true;
+                    break;
+                } catch(SocketException) {
                     break;
                 }
-                ProcessServerPacket(packetID);
             }
-            tcpToClient.Close();
 
-            form.buttonDisconnect.Enabled = false;
-            form.buttonConnect.Enabled = true;
-            form.groupBoxServer.Enabled = true;
-            form.groupBoxAccount.Enabled = true;
-            form.Log("Connection to Server lost");
+
         }
         public static void ListenFromServerUDP() {
             IPEndPoint source = null;
             while(true) {
-                byte[] datagram = udpToServer.Receive(ref source);
-                ProcessDatagram(datagram); //might require try n' catch here, we'll see
+                try {
+                    byte[] datagram = udpToServer.Receive(ref source);
+                    ProcessDatagram(datagram); //might require try n' catch here, we'll see
+                } catch(SocketException) {
+                    break;
+                }
             }
         }
 
