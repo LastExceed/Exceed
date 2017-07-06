@@ -13,10 +13,11 @@ namespace Server {
         UdpClient udp;
         TcpListener listener;
         Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
-
+        int port;
         Tuple<string, string> encryptionKeys = Hashing.CreateKeyPair();
 
         public ServerUDP(int port) {
+            this.port = port;
             udp = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             Task.Factory.StartNew(ListenUDP);
             listener = new TcpListener(IPAddress.Any, port);
@@ -78,12 +79,12 @@ namespace Server {
             IPEndPoint source = null;
             while(true) {
                 byte[] datagram = udp.Receive(ref source);
-                ProcessDatagram(datagram, connections.First(x => x.Value.Address == source.Address).Value);
+                ProcessDatagram(datagram, connections.First(x => x.Value.Address.Equals(source.Address)).Value);
             }
         }
 
         public void SendUDP(byte[] data, Player target) {
-            udp.Send(data, data.Length);
+            udp.Send(data, data.Length, new IPEndPoint(target.Address, port));
         }
         public void BroadcastUDP(byte[] data, Player toSkip = null, bool includeNotPlaying = false) {
             foreach(var player in connections.Values) {
