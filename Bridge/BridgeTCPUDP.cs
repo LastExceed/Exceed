@@ -48,6 +48,7 @@ namespace Bridge {
 
             swriter = new BinaryWriter(tcpToServer.GetStream());
             sreader = new BinaryReader(tcpToServer.GetStream());
+            form.Log("authenticating...");
 
             #region secure login transfer
             string publicKey = sreader.ReadString();
@@ -65,6 +66,7 @@ namespace Bridge {
 
             switch((Database.LoginResponse)sreader.ReadByte()) {
                 case Database.LoginResponse.success:
+                    form.Log("success\n");
                     tcpFromClient = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345); //hardcoded because clients port can't be changed
                     Task.Factory.StartNew(ListenFromClientTCP);
                     Task.Factory.StartNew(ListenFromServerUDP);
@@ -77,6 +79,7 @@ namespace Bridge {
                     MessageBox.Show("You are banned");
                     goto default;
                 default:
+                    form.Log("failed\n");
                     form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
                     break;
             }
@@ -443,7 +446,7 @@ namespace Bridge {
         }
 
         public static void SendUDP(byte[] data) {
-            udpToServer.Send(data, data.Length, "exceed.rocks", 12345);
+            udpToServer.Send(data, data.Length);
         }
     }
 }
