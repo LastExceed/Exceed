@@ -1,15 +1,16 @@
-﻿using System.Reflection;
+﻿using System.Resources;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Bridge")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Exceed Server Bridge")]
+[assembly: AssemblyDescription("Exceed is a custom server for the game CubeWorld (by picroma).\r\nIt is particularly focusing on speed and traffic minimization.\r\nThe Bridge is used to connect to the Exceed Server")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("Bridge")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Exceed")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -34,3 +35,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: NeutralResourcesLanguage("en")]
+

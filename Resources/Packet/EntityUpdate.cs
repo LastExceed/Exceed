@@ -68,7 +68,7 @@ namespace Resources.Packet {
         }
 
         public EntityUpdate(BinaryReader reader) {
-            byte[] uncompressed = Zlib.Uncompress(reader.ReadBytes(reader.ReadInt32()));
+            byte[] uncompressed = Zlib.Decompress(reader.ReadBytes(reader.ReadInt32()));
 
             MemoryStream stream = new MemoryStream(uncompressed);
             BinaryReader r = new BinaryReader(stream);

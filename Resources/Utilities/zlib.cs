@@ -18,7 +18,7 @@ namespace Resources {
             return compressed;
         }
 
-        public static byte[] Uncompress(byte[] buffer) {
+        public static byte[] Decompress(byte[] buffer) {
             byte[] toDecompress = new byte[buffer.Length - 2];
             Array.Copy(buffer, 2, toDecompress, 0, toDecompress.Length);
 

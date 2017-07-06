@@ -4,9 +4,6 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -51,6 +48,16 @@ namespace Bridge {
             EnableButtons();
 
             Task.Factory.StartNew(BridgeTCPUDP.Close);
+        }
+        
+        private void TextBoxPassword_KeyDown(object sender, KeyEventArgs e) {
+            if(e.KeyCode == Keys.Enter) {
+                buttonConnect.PerformClick();
+            }
+        }
+
+        private void buttonInfo_Click(object sender, EventArgs e) {
+            new AboutBox().ShowDialog();
         }
     }
 }

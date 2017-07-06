@@ -107,6 +107,7 @@
             this.buttonInfo.TabIndex = 4;
             this.buttonInfo.Text = "info";
             this.buttonInfo.UseVisualStyleBackColor = true;
+            this.buttonInfo.Click += new System.EventHandler(this.buttonInfo_Click);
             // 
             // groupBoxAccount
             // 
