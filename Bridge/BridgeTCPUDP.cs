@@ -24,8 +24,8 @@ namespace Bridge {
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
 
-            udpToServer = new UdpClient(new IPEndPoint(IPAddress.Any, serverPort));
-            tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Any, serverPort)) {
+            udpToServer = new UdpClient();
+            tcpToServer = new TcpClient() {
                 NoDelay = true
             };
 
