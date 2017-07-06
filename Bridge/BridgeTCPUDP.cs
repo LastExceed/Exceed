@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -33,7 +32,7 @@ namespace Bridge {
             try {
                 tcpToServer.Connect(serverIP, serverPort);
                 udpToServer.Connect(serverIP, serverPort);
-                form.Log($"Connected");
+                form.Log("connected\n");
             } catch(Exception ex) {
                 tcpToServer.Close();
                 tcpToServer = null;
@@ -407,21 +406,25 @@ namespace Bridge {
                     break;
                 #endregion
                 case Database.PacketID.chunk:
+                    #region chunk
+                    var chunk = new Chunk(creader);
                     break;
+                #endregion
                 case Database.PacketID.sector:
+                    #region sector
+                    var sector = new Sector(creader);
                     break;
-                case Database.PacketID.joinPacket:
-                    break;
+                #endregion
                 case Database.PacketID.version:
                     #region version
                     var version = new ProtocolVersion(creader);
                     if(version.version != 3) {
                         version.version = 3;
                         version.Write(cwriter, true);
-                    }// else {
-                    //    cwriter.Write((byte)255);
-                    //}
-
+                    } else {
+                        var connect = new Connect();
+                        SendUDP(connect.data);
+                    }
                     break;
                 #endregion
                 case Database.PacketID.serverFull:
@@ -440,7 +443,7 @@ namespace Bridge {
         }
 
         public static void SendUDP(byte[] data) {
-            udpToServer.Send(data, data.Length);
+            udpToServer.Send(data, data.Length, "exceed.rocks", 12345);
         }
     }
 }

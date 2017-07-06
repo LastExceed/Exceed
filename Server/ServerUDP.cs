@@ -78,12 +78,12 @@ namespace Server {
             IPEndPoint source = null;
             while(true) {
                 byte[] datagram = udp.Receive(ref source);
-                ProcessDatagram(datagram, connections.First(x => x.Value.Address == source).Value);
+                ProcessDatagram(datagram, connections.First(x => x.Value.Address == source.Address).Value);
             }
         }
 
         public void SendUDP(byte[] data, Player target) {
-            udp.Send(data, data.Length, target.Address);
+            udp.Send(data, data.Length, new IPEndPoint(target.Address, Database.BridgePort));
         }
         public void BroadcastUDP(byte[] data, Player toSkip = null, bool includeNotPlaying = false) {
             foreach(var player in connections.Values) {
@@ -202,8 +202,8 @@ namespace Server {
                         Guid = (ushort)player.entityData.guid,
                         Mapseed = 8710 //hardcoded for now
                     };
+                    SendUDP(connect.data, player);
                     player.playing = true;
-                    BroadcastUDP(connect.data);
                     break;
                 #endregion
                 case Database.DatagramID.disconnect:
