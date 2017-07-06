@@ -83,7 +83,7 @@ namespace Server {
         }
 
         public void SendUDP(byte[] data, Player target) {
-            udp.Send(data, data.Length, new IPEndPoint(target.Address, Database.BridgePort));
+            udp.Send(data, data.Length);
         }
         public void BroadcastUDP(byte[] data, Player toSkip = null, bool includeNotPlaying = false) {
             foreach(var player in connections.Values) {

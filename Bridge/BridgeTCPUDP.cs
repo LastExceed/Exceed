@@ -24,8 +24,8 @@ namespace Bridge {
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
 
-            udpToServer = new UdpClient(new IPEndPoint(IPAddress.Any, Database.BridgePort));
-            tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Any, Database.BridgePort)) {
+            udpToServer = new UdpClient(new IPEndPoint(IPAddress.Any, serverPort));
+            tcpToServer = new TcpClient(new IPEndPoint(IPAddress.Any, serverPort)) {
                 NoDelay = true
             };
 
@@ -65,7 +65,7 @@ namespace Bridge {
 
             switch((Database.LoginResponse)sreader.ReadByte()) {
                 case Database.LoginResponse.success:
-                    tcpFromClient = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345);
+                    tcpFromClient = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345); //hardcoded because clients port can't be changed
                     Task.Factory.StartNew(ListenFromClientTCP);
                     Task.Factory.StartNew(ListenFromServerUDP);
                     Task.Factory.StartNew(() => ListenFromServerTCP(form));

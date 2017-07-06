@@ -1,7 +1,5 @@
 ﻿namespace Resources {
     static public class Database {
-        public const int BridgePort = 12345;
-
         public enum PacketID : int {
             entityUpdate,
             multiEntityUpdate,
