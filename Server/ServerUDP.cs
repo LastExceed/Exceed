@@ -10,29 +10,29 @@ using System.Text.RegularExpressions;
 
 namespace Server {
     class ServerUDP {
-        UdpClient udp;
-        TcpListener listener;
+        UdpClient udpListener;
+        TcpListener tcpListener;
         Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
-        int port;
         Tuple<string, string> encryptionKeys = Hashing.CreateKeyPair();
 
         public ServerUDP(int port) {
-            this.port = port;
-            udp = new UdpClient(new IPEndPoint(IPAddress.Any, port));
+            udpListener = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             Task.Factory.StartNew(ListenUDP);
-            listener = new TcpListener(IPAddress.Any, port);
-            listener.Start();
+            tcpListener = new TcpListener(IPAddress.Any, port);
+            tcpListener.Start();
             Task.Factory.StartNew(ListenTCP);
         }
 
         public void ListenTCP() {
             while(true) {
-                Player player = new Player(listener.AcceptTcpClient());
+                Player player = new Player(tcpListener.AcceptTcpClient());
                 ushort newGuid = 1;
                 while(connections.ContainsKey(newGuid)) {//find lowest available guid
                     newGuid++;
                 }
                 connections.Add(newGuid, player);
+
+                Database.LoginResponse response = Database.LoginResponse.fail;
 
                 #region secure login
                 player.writer.Write(encryptionKeys.Item2); // Send rsa encryption key
@@ -40,8 +40,8 @@ namespace Server {
                 var username = Hashing.Decrypt(encryptionKeys.Item1, player.reader.ReadBytes(player.reader.ReadInt32())); // Read username
 
                 testEntities db = new testEntities();
-                var row = (from o in db.users where o.username == username select o).FirstOrDefault(); // Get user with username from db
-
+                var row = (from o in db.users where o.username == username || o.Email == username select o).FirstOrDefault(); // Get user with username from db
+                
                 if(row != null) { // if row is not empty
                     var hashData = row.hash.Split('$'); // Split hash from db e.g. $CUBEHASH$Version$itterations$hash
                     var hashBytes = Convert.FromBase64String(hashData[4]); //Get hasbytes = salt + hash
@@ -57,11 +57,10 @@ namespace Server {
 
                     if(hash.SequenceEqual(clientHash)) {
                         if(row.banned.HasValue) {
-                            player.writer.Write((byte)Database.LoginResponse.banned);
+                            response = Database.LoginResponse.banned;
                         } else {
-                            player.writer.Write((byte)Database.LoginResponse.success);
+                            response = Database.LoginResponse.success;
                         }
-                        continue;
                     }
                 } else {
                     // Advance with random data so bridge dosen't get stuck
@@ -70,21 +69,24 @@ namespace Server {
                     player.writer.Write(bytes);
                     player.reader.ReadBytes(player.reader.ReadInt32());
                 }
-
-                player.writer.Write((byte)Database.LoginResponse.fail);
                 #endregion
+
+                if(response != Database.LoginResponse.success) {
+                    connections.Remove(newGuid);
+                }
+                player.writer.Write((byte)response);
             }
         }
         public void ListenUDP() {
             IPEndPoint source = null;
             while(true) {
-                byte[] datagram = udp.Receive(ref source);
-                ProcessDatagram(datagram, connections.First(x => x.Value.Address.Equals(source.Address)).Value);
+                byte[] datagram = udpListener.Receive(ref source);
+                ProcessDatagram(datagram, connections.First(x => x.Value.Address.Equals(source)).Value);
             }
         }
 
         public void SendUDP(byte[] data, Player target) {
-            udp.Send(data, data.Length, new IPEndPoint(target.Address, port));
+            udpListener.Send(data, data.Length, target.Address);
         }
         public void BroadcastUDP(byte[] data, Player toSkip = null, bool includeNotPlaying = false) {
             foreach(var player in connections.Values) {
@@ -95,7 +97,7 @@ namespace Server {
         }
 
         public void ProcessPacket(int packetID, Player player) {
-
+            throw new NotImplementedException();
         }
         public void ProcessDatagram(byte[] datagram, Player player) {
             switch((Database.DatagramID)datagram[0]) {
@@ -137,16 +139,16 @@ namespace Server {
                                 /*
                                 try {
                                     int amount = Convert.ToInt32(parameter);
-                                    
-                                    var xpDummy = new EntityUpdate();
-                                    xpDummy.shit.guid = 1000;
-                                    //xpDummy.shit.Bitfield = 0b00000000_00000000_00000000_10000000;
-                                    xpDummy.shit.hostility = (byte)Database.Hostility.enemy;
 
-                                    UDPbroadcast(xpDummy.getData());
+                                    var xpDummy = new DynamicUpdate() {
+                                        guid = 1000,
+                                        hostility = (byte)Database.Hostility.enemy
+                                    };
+
+                                    BroadcastUDP(xpDummy.GetData());
 
                                     var kill = new Kill() {
-                                        killer = connections[guids[source]].entityData.guid,
+                                        killer = player.entityData.guid,
                                         victim = 1000,
                                         xp = amount
                                     };
@@ -156,7 +158,7 @@ namespace Server {
                                     
                                     break;
                                 } catch(Exception) {
-                                    //invalid syntax
+                                    SendUDP(new Chat("Wrong Syntax").data, player);
                                 }
                                 */
                                 break;
@@ -171,7 +173,7 @@ namespace Server {
                                     };
                                     SendUDP(time.data, player);
                                 } catch(Exception) {
-                                    //invalid syntax
+                                    SendUDP(new Chat("Wrong Syntax").data, player);
                                 }
                                 break;
                             default:
@@ -182,10 +184,7 @@ namespace Server {
                     break;
                 #endregion
                 case Database.DatagramID.time:
-                    #region time
-                    BroadcastUDP(datagram);
-                    break;
-                #endregion
+                    break; // Ignore time
                 case Database.DatagramID.interaction:
                     #region interaction
                     BroadcastUDP(datagram, player); //pass to all players except source

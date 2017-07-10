@@ -10,7 +10,7 @@ namespace Resources {
             return (value & (1 << bitNumber)) != 0;
         }
         public static bool GetBit(this long value, int bitNumber) {
-            return (value & (1 << bitNumber)) != 0;
+            return (value & (1L << bitNumber)) != 0;
         }
 
         /// <param name="bitnumber">0 based Position</param>

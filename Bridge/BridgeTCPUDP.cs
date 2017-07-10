@@ -24,13 +24,14 @@ namespace Bridge {
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
 
-            udpToServer = new UdpClient();
             tcpToServer = new TcpClient() {
                 NoDelay = true
             };
 
             try {
                 tcpToServer.Connect(serverIP, serverPort);
+
+                udpToServer = new UdpClient(tcpToServer.Client.LocalEndPoint as IPEndPoint);
                 udpToServer.Connect(serverIP, serverPort);
                 form.Log("connected\n");
             } catch(Exception ex) {
@@ -113,7 +114,7 @@ namespace Bridge {
             creader = new BinaryReader(tcpToClient.GetStream());
             cwriter = new BinaryWriter(tcpToClient.GetStream());
             int packetID;
-            while(tcpToClient.Connected) {
+            while(true) {
                 try {
                     packetID = creader.ReadInt32();
                 } catch(IOException) {
@@ -122,8 +123,8 @@ namespace Bridge {
                 ProcessClientPacket(packetID);
             }
 
-            SendUDP(new Disconnect() { Guid = guid }.data);
             Task.Factory.StartNew(ListenFromClientTCP);
+            SendUDP(new Disconnect() { Guid = guid }.data);
         }
         public static void ListenFromServerTCP(Form1 form) {
             while(true) {
@@ -148,7 +149,7 @@ namespace Bridge {
             while(true) {
                 try {
                     byte[] datagram = udpToServer.Receive(ref source);
-                    ProcessDatagram(datagram); //might require try n' catch here, we'll see
+                    ProcessDatagram(datagram);
                 } catch(SocketException) {
                     break;
                 }

@@ -10,18 +10,32 @@ Warnung 6002: Für Tabelle/Sicht 'def.test.users' ist kein Primärschlüssel def
         <EntityType Name="users">
           <Key>
             <PropertyRef Name="username" />
+            <PropertyRef Name="Email" />
             <PropertyRef Name="hash" />
+            <PropertyRef Name="registeredTime" />
+            <PropertyRef Name="lastLoggin" />
+            <PropertyRef Name="playTime" />
           </Key>
           <Property Name="username" Type="char" MaxLength="100" Nullable="false" />
+          <Property Name="Email" Type="char" MaxLength="255" Nullable="false" />
           <Property Name="hash" Type="tinytext" Nullable="false" />
           <Property Name="banned" Type="bool" />
+          <Property Name="EmailVal" Type="bool" />
+          <Property Name="registeredTime" Type="datetime" Precision="0" Nullable="false" />
+          <Property Name="lastLoggin" Type="datetime" Precision="0" Nullable="false" />
+          <Property Name="playTime" Type="int" Nullable="false" />
         </EntityType>
         <EntityContainer Name="testModelStoreContainer">
           <EntitySet Name="users" EntityType="Self.users" store:Type="Tables" store:Schema="test">
             <DefiningQuery>SELECT
 `users`.`username`, 
+`users`.`Email`, 
 `users`.`hash`, 
-`users`.`banned`
+`users`.`banned`, 
+`users`.`EmailVal`, 
+`users`.`registeredTime`, 
+`users`.`lastLoggin`, 
+`users`.`playTime`
 FROM `users` AS `users`</DefiningQuery>
           </EntitySet>
         </EntityContainer>
@@ -33,10 +47,19 @@ FROM `users` AS `users`</DefiningQuery>
           <Key>
             <PropertyRef Name="username" />
             <PropertyRef Name="hash" />
+            <PropertyRef Name="Email" />
+            <PropertyRef Name="registeredTime" />
+            <PropertyRef Name="lastLoggin" />
+            <PropertyRef Name="playTime" />
           </Key>
           <Property Name="username" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="hash" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="banned" Type="Boolean" />
+          <Property Name="Email" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="EmailVal" Type="Boolean" />
+          <Property Name="registeredTime" Type="DateTime" Nullable="false" />
+          <Property Name="lastLoggin" Type="DateTime" Nullable="false" />
+          <Property Name="playTime" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityContainer Name="testEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="users" EntityType="Self.users" />
@@ -50,6 +73,11 @@ FROM `users` AS `users`</DefiningQuery>
           <EntitySetMapping Name="users">
             <EntityTypeMapping TypeName="testModel.users">
               <MappingFragment StoreEntitySet="users">
+                <ScalarProperty Name="playTime" ColumnName="playTime" />
+                <ScalarProperty Name="lastLoggin" ColumnName="lastLoggin" />
+                <ScalarProperty Name="registeredTime" ColumnName="registeredTime" />
+                <ScalarProperty Name="EmailVal" ColumnName="EmailVal" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
                 <ScalarProperty Name="banned" ColumnName="banned" />
                 <ScalarProperty Name="username" ColumnName="username" />
                 <ScalarProperty Name="hash" ColumnName="hash" />

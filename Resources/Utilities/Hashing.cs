@@ -25,7 +25,7 @@ namespace Resources {
 
             var base64Hash = Convert.ToBase64String(hashBytes);
 
-            return $"$CUBEHASH$V1${base64Hash}";
+            return $"$CUBEHASH$V1${itterations}${base64Hash}";
         }
 
         public static byte[] Hash(string password, byte[] salt) {
@@ -36,7 +36,7 @@ namespace Resources {
         /// Checks if hash is supported
         /// </summary>
         public static bool IsHashSupported(string hash) {
-            return hash.Contains("$V1$");
+            return hash.Contains("$CUBEHASH$V1$");
         }
 
         /// <summary>
@@ -48,8 +48,8 @@ namespace Resources {
             }
 
             var splits = hashedPassword.Split('$');
-            var iterations = int.Parse(splits[2]);
-            var hashBytes = Convert.FromBase64String(splits[3]);
+            var iterations = int.Parse(splits[3]);
+            var hashBytes = Convert.FromBase64String(splits[4]);
             
             var salt = new byte[saltSize];
             Array.Copy(hashBytes, 0, salt, 0, saltSize);

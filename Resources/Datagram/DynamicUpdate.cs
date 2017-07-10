@@ -270,13 +270,13 @@ namespace Resources.Datagram {
                 Tools.SetBit(ref bitfield, true, 47);
             }
 
-            var asd = stream.ToArray();
+            var data = stream.ToArray();
 
             stream = new MemoryStream();
             writer = new BinaryWriter(stream);
             
             writer.Write(bitfield);
-            writer.Write(asd);
+            writer.Write(data);
 
             byte[] compressed = Zlib.Compress(stream.ToArray());
             stream = new MemoryStream();
@@ -284,9 +284,7 @@ namespace Resources.Datagram {
             writer.Write(0);
             writer.Write(compressed.Length);
             writer.Write(compressed);
-            byte[] data = stream.ToArray();
-            stream.Dispose();
-            return data;
+            return stream.ToArray();
         }
     }
 }
