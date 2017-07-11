@@ -6,7 +6,7 @@ namespace Server {
     class Program {
         static void Main(string[] args) {
             //ServerTCP TCPserver = new ServerTCP(12345);
-            ServerUDP serverUDP = new ServerUDP(24681);
+            ServerUDP serverUDP = new ServerUDP(12345);
             while(true) {
                 var text = Console.ReadLine();
                 if(text.StartsWith("help")) {

@@ -15,9 +15,9 @@ namespace Server
     public partial class users
     {
         public string username { get; set; }
+        public string Email { get; set; }
         public string hash { get; set; }
         public Nullable<bool> banned { get; set; }
-        public string Email { get; set; }
         public Nullable<bool> EmailVal { get; set; }
         public System.DateTime registeredTime { get; set; }
         public System.DateTime lastLoggin { get; set; }

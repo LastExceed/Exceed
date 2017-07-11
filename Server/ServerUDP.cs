@@ -7,6 +7,7 @@ using System.Net;
 using Resources;
 using Resources.Datagram;
 using System.Text.RegularExpressions;
+using System.Timers;
 
 namespace Server {
     class ServerUDP {
@@ -14,13 +15,27 @@ namespace Server {
         TcpListener tcpListener;
         Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
         Tuple<string, string> encryptionKeys = Hashing.CreateKeyPair();
+        public testEntities DB = new testEntities();
+        public Timer timer = new Timer(1000 * 10);
 
         public ServerUDP(int port) {
+            timer.Elapsed += Timer_Elapsed;
+            timer.Enabled = true;
             udpListener = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             Task.Factory.StartNew(ListenUDP);
             tcpListener = new TcpListener(IPAddress.Any, port);
             tcpListener.Start();
             Task.Factory.StartNew(ListenTCP);
+        }
+
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e) {
+            int last = (int)(timer.Interval / 1000);
+            foreach(var item in connections) {
+                if(item.Value.playing) {
+                    DB.users.First(x => x.username == item.Value.username).playTime += last;
+                }
+            }
+            DB.SaveChanges();
         }
 
         public void ListenTCP() {
@@ -30,7 +45,6 @@ namespace Server {
                 while(connections.ContainsKey(newGuid)) {//find lowest available guid
                     newGuid++;
                 }
-                connections.Add(newGuid, player);
 
                 Database.LoginResponse response = Database.LoginResponse.fail;
 
@@ -39,10 +53,11 @@ namespace Server {
 
                 var username = Hashing.Decrypt(encryptionKeys.Item1, player.reader.ReadBytes(player.reader.ReadInt32())); // Read username
 
-                testEntities db = new testEntities();
-                var row = (from o in db.users where o.username == username || o.Email == username select o).FirstOrDefault(); // Get user with username from db
+                var row = (from o in DB.users where o.username == username || o.Email == username select o).FirstOrDefault(); // Get user with username from db
                 
                 if(row != null) { // if row is not empty
+                    player.username = row.username;
+
                     var hashData = row.hash.Split('$'); // Split hash from db e.g. $CUBEHASH$Version$itterations$hash
                     var hashBytes = Convert.FromBase64String(hashData[4]); //Get hasbytes = salt + hash
 
@@ -59,6 +74,8 @@ namespace Server {
                         if(row.banned.HasValue) {
                             response = Database.LoginResponse.banned;
                         } else {
+                            row.lastLoggin = DateTime.Now;
+                            connections.Add(newGuid, player);
                             response = Database.LoginResponse.success;
                         }
                     }
@@ -71,9 +88,6 @@ namespace Server {
                 }
                 #endregion
 
-                if(response != Database.LoginResponse.success) {
-                    connections.Remove(newGuid);
-                }
                 player.writer.Write((byte)response);
             }
         }

@@ -16,7 +16,7 @@ Warnung 6002: Für Tabelle/Sicht 'def.test.users' ist kein Primärschlüssel def
             <PropertyRef Name="lastLoggin" />
             <PropertyRef Name="playTime" />
           </Key>
-          <Property Name="username" Type="char" MaxLength="100" Nullable="false" />
+          <Property Name="username" Type="char" MaxLength="255" Nullable="false" />
           <Property Name="Email" Type="char" MaxLength="255" Nullable="false" />
           <Property Name="hash" Type="tinytext" Nullable="false" />
           <Property Name="banned" Type="bool" />
@@ -53,9 +53,9 @@ FROM `users` AS `users`</DefiningQuery>
             <PropertyRef Name="playTime" />
           </Key>
           <Property Name="username" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Email" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="hash" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="banned" Type="Boolean" />
-          <Property Name="Email" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="EmailVal" Type="Boolean" />
           <Property Name="registeredTime" Type="DateTime" Nullable="false" />
           <Property Name="lastLoggin" Type="DateTime" Nullable="false" />

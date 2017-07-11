@@ -11,6 +11,7 @@ namespace Resources {
         public bool playing = false;
         public IPEndPoint Address { get; private set; }
         public Packet.EntityUpdate entityData = new Packet.EntityUpdate();
+        public string username;
 
         public Player(TcpClient client) {
             tcp = client;
