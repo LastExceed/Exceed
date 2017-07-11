@@ -14,6 +14,7 @@ namespace Server
     
     public partial class users
     {
+        public int index { get; set; }
         public string username { get; set; }
         public string Email { get; set; }
         public string hash { get; set; }

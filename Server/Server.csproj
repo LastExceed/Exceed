@@ -134,19 +134,19 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="UserDB.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>UserDB.Context.cs</LastGenOutput>
       <DependentUpon>UserDB.edmx</DependentUpon>
+      <LastGenOutput>UserDB.Context.cs</LastGenOutput>
     </Content>
     <Content Include="UserDB.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>UserDB.edmx</DependentUpon>
       <LastGenOutput>UserDB.cs</LastGenOutput>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
