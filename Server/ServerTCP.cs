@@ -16,7 +16,7 @@ namespace Server {
     public class ServerTCP {
         public TcpListener listener;
         Dictionary<ulong, Player> players = new Dictionary<ulong, Player>();
-        ulong guidCounter = 123456;
+        ulong guidCounter = 1;
         ServerUpdate worldUpdate = new ServerUpdate();
 
         public ServerTCP(int port) {
@@ -34,10 +34,10 @@ namespace Server {
             while(true) {
                 try {
                     packetID = player.reader.ReadInt32();
+                    ProcessPacket(packetID, player);
                 } catch(IOException) {
                     break;
                 }
-                ProcessPacket(packetID, player);
             }
             Kick(player);
         }
@@ -61,7 +61,9 @@ namespace Server {
                         Announce.Join(entityUpdate.name, player.entityData.name, players);
                     }
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
-                    entityUpdate.Filter(player.entityData);
+                    //if(player.entityData.position != null) {
+                    //    entityUpdate.Filter(player.entityData);
+                    //}
                     if(!entityUpdate.IsEmpty()) {
                         entityUpdate.Broadcast(players, 0);
                         if(entityUpdate.HP == 0 && player.entityData.HP > 0) {
@@ -233,6 +235,12 @@ namespace Server {
                     }
                     break;
                 #endregion
+                case Database.PacketID.chunk:
+                    var chunk = new Chunk(player.reader);
+                    break;
+                case Database.PacketID.sector:
+                    var sector = new Chunk(player.reader);
+                    break;
                 case Database.PacketID.version:
                     #region version
                     var version = new ProtocolVersion(player.reader);
@@ -244,7 +252,6 @@ namespace Server {
                         player.entityData.guid = guidCounter;
                         guidCounter++;
                         players.Add(player.entityData.guid, player);
-
                         var join = new Join() {
                             guid = player.entityData.guid,
                             junk = new byte[0x1168]
@@ -256,11 +263,10 @@ namespace Server {
                         };
                         mapSeed.Write(player.writer, true);
 
-                        foreach(KeyValuePair<ulong, Player> entry in players) {
-                            if(entry.Key != player.entityData.guid) {
-                                entry.Value.entityData.Write(player.writer, true);
-                            }
+                        foreach(Player p in players.Values) {
+                             p.entityData.Write(player.writer, true);
                         }
+                        
                         //Task.Delay(10000).ContinueWith(t => load_world_delayed(player)); //WIP, causes crash when player disconnects before executed
                     }
                     break;

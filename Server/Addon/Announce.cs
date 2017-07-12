@@ -7,7 +7,7 @@ namespace Server.Addon {
     class Announce {
         public static void Join(string current, string previous, Dictionary<ulong, Player> players) {
             if (current != previous) {
-                if (previous == "") {
+                if (previous == null) {
                     var chatMessage = new ChatMessage() {
                         message = current + " joined"
                     };
@@ -20,7 +20,7 @@ namespace Server.Addon {
                         message = previous + " -> " + current
                     };
                     chatMessage.Broadcast(players, 0);
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
                     Console.WriteLine(chatMessage.message);
                     Console.ForegroundColor = ConsoleColor.White;
                 }
