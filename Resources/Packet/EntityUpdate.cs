@@ -542,15 +542,12 @@ namespace Resources.Packet {
             manaCubes = null;
         }
 
-        public byte[] GetBytes() {
+        private byte[] GetBytes() {
             long bitfield = 0;
 
             var stream = new MemoryStream();
             var writer = new BinaryWriter(stream);
-
-            writer.Write(guid);
-
-
+            
             if(position != null) {
                 position.Write(writer);
                 Tools.SetBit(ref bitfield, true, 0);
@@ -801,6 +798,7 @@ namespace Resources.Packet {
             stream = new MemoryStream();
             writer = new BinaryWriter(stream);
 
+            writer.Write(guid);
             writer.Write(bitfield);
             writer.Write(asd);
 
