@@ -22,7 +22,7 @@ namespace Resources.Datagram {
             get { return BitConverter.ToInt32(data, 8); }
             set { BitConverter.GetBytes(value).CopyTo(data, 8); }
         }
-
+        
         public byte[] data;
 
         public Proc() {

@@ -49,7 +49,6 @@
     <Compile Include="Datagram\Chat.cs" />
     <Compile Include="Datagram\Connect.cs" />
     <Compile Include="Datagram\Disconnect.cs" />
-    <Compile Include="Datagram\DynamicUpdate.cs" />
     <Compile Include="Datagram\Interaction.cs" />
     <Compile Include="Datagram\Particle.cs" />
     <Compile Include="Datagram\Proc.cs" />
@@ -62,7 +61,6 @@
     <Compile Include="Packet\EntityUpdate.cs" />
     <Compile Include="Packet\Hit.cs" />
     <Compile Include="Packet\Join.cs" />
-    <Compile Include="Packet\Login.cs" />
     <Compile Include="Packet\MapSeed.cs" />
     <Compile Include="Packet\Part\Appearance.cs" />
     <Compile Include="Packet\Part\BlockDelta.cs" />

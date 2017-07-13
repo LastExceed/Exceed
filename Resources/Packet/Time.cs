@@ -20,7 +20,6 @@ namespace Resources.Packet {
             if(writePacketID) {
                 writer.Write(packetID);
             }
-            writer.Write(packetID);
             writer.Write(day);
             writer.Write(time);
         }

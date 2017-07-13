@@ -7,7 +7,7 @@ using System;
 
 namespace Resources.Packet {
     public class EntityUpdate {
-        public const int packetID = 0;
+        public Database.PacketID packetID = Database.PacketID.entityUpdate;
 
         public ulong guid;
 
@@ -60,13 +60,27 @@ namespace Resources.Packet {
         public Part.SkillDistribution skillDistribution;
         public int? manaCubes;
 
+        public byte[] data {
+            get {
+                var stream = new MemoryStream();
+                var writer = new BinaryWriter(stream);
+                
+                byte[] compressed = GetBytes();
+
+                writer.Write((int)packetID);
+                writer.Write(compressed.Length);
+                writer.Write(compressed);
+                return stream.ToArray();
+            }
+        }
+        
         public EntityUpdate() {
             /*equipment = new Part.Item[13];
             for(int i = 0; i < 13; i++) {
                 equipment[i] = new Part.Item();
             }*/
         }
-
+        
         public EntityUpdate(BinaryReader reader) {
             byte[] uncompressed = Zlib.Decompress(reader.ReadBytes(reader.ReadInt32()));
 
@@ -271,6 +285,13 @@ namespace Resources.Packet {
             if(Tools.GetBit(bitfield, 47)) {
                 manaCubes = r.ReadInt32();
             }
+        }
+
+        public EntityUpdate(byte[] data) : this(Convert(data)) { }
+        private static BinaryReader Convert(byte[] data) {
+            var reader = new BinaryReader(new MemoryStream(data));
+            reader.ReadInt32();
+            return reader;
         }
 
         public bool IsEmpty() {
@@ -804,10 +825,10 @@ namespace Resources.Packet {
 
             return Zlib.Compress(stream.ToArray());
         }
-
+        
         public void Write(BinaryWriter writer, bool writePacketID = true) {
             if(writePacketID) {
-                writer.Write(packetID);
+                writer.Write((int)packetID);
             }
             var data = GetBytes();
             writer.Write(data.Length);
@@ -817,7 +838,7 @@ namespace Resources.Packet {
             byte[] data = GetBytes();
             foreach(var player in players) {
                 if(player.Key != toSkip) {
-                    player.Value.writer.Write(packetID);
+                    player.Value.writer.Write((int)packetID);
                     player.Value.writer.Write(data.Length);
                     player.Value.writer.Write(data);
                 }

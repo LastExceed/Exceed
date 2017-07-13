@@ -45,8 +45,7 @@
             invisible2
         }
         public enum ProcType : byte {
-            _placeholder,
-            bulwalk,
+            bulwalk = 1,
             warFrenzy,
             camouflage,
             poison,

@@ -160,7 +160,7 @@ namespace Bridge {
             switch((Database.DatagramID)datagram[0]) {
                 case Database.DatagramID.entityUpdate:
                     #region entityUpdate
-                    var entityUpdate = new Resources.Packet.EntityUpdate(new BinaryReader(new MemoryStream(datagram)));
+                    var entityUpdate = new EntityUpdate(datagram);
                     entityUpdate.Write(cwriter, true);
                     break;
                 #endregion
@@ -326,10 +326,8 @@ namespace Bridge {
             switch((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entityUpdate
-                    var update = new Resources.Packet.EntityUpdate(creader);
-                    var ms = new MemoryStream();
-                    update.Write(new BinaryWriter(ms), true);
-                    SendUDP(ms.ToArray());
+                    var update = new EntityUpdate(creader);
+                    SendUDP(update.data);
                     break;
                 #endregion
                 case Database.PacketID.entityAction:
