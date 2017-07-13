@@ -815,11 +815,11 @@ namespace Resources.Packet {
         }
         public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
             byte[] data = GetBytes();
-            foreach(var player in players) {
-                if(player.Key != toSkip) {
-                    player.Value.writer.Write(packetID);
-                    player.Value.writer.Write(data.Length);
-                    player.Value.writer.Write(data);
+            foreach(var player in players.Values) {
+                if(player.entityData.guid != toSkip) {
+                    player.writer.Write(packetID);
+                    player.writer.Write(data.Length);
+                    player.writer.Write(data);
                 }
             }
         }
