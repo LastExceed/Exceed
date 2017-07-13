@@ -495,8 +495,9 @@ namespace Resources.Packet {
                 }
             }
             viewportPitch = null;
+            physicsFlags = null;
             if(modeTimer != null && modeTimer != 0) {
-                mode = null;
+                modeTimer = null;
             }
             lastHitTime = null;
             if(roll != null && roll != 600) {
@@ -530,7 +531,6 @@ namespace Resources.Packet {
             unused31 = null;
             unused32 = null;
             XP = null;
-            //bitfield2 &= ~(1 << 35 - 32); //parent owner?
             unused36 = null;
             powerBase = null;
             unused38 = null;
@@ -801,12 +801,12 @@ namespace Resources.Packet {
             writer.Write(guid);
             writer.Write(bitfield);
             writer.Write(asd);
-
+            Console.WriteLine(Convert.ToString(bitfield, 2).PadLeft(48, '0'));
             return Zlib.Compress(stream.ToArray());
         }
 
         public void Write(BinaryWriter writer, bool writePacketID = true) {
-            if(writePacketID) {
+            if (writePacketID) {
                 writer.Write(packetID);
             }
             var data = GetBytes();
