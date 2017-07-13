@@ -801,7 +801,6 @@ namespace Resources.Packet {
             writer.Write(guid);
             writer.Write(bitfield);
             writer.Write(asd);
-            Console.WriteLine(Convert.ToString(bitfield, 2).PadLeft(48, '0'));
             return Zlib.Compress(stream.ToArray());
         }
 
