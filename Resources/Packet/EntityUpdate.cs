@@ -516,8 +516,9 @@ namespace Resources.Packet {
                 }
             }
             viewportPitch = null;
+            physicsFlags = null;
             if(modeTimer != null && modeTimer != 0) {
-                mode = null;
+                modeTimer = null;
             }
             lastHitTime = null;
             if(roll != null && roll != 600) {
@@ -551,7 +552,6 @@ namespace Resources.Packet {
             unused31 = null;
             unused32 = null;
             XP = null;
-            //bitfield2 &= ~(1 << 35 - 32); //parent owner?
             unused36 = null;
             powerBase = null;
             unused38 = null;
@@ -828,7 +828,7 @@ namespace Resources.Packet {
         
         public void Write(BinaryWriter writer, bool writePacketID = true) {
             if(writePacketID) {
-                writer.Write((int)packetID);
+                writer.Write(packetID);
             }
             var data = GetBytes();
             writer.Write(data.Length);
@@ -836,11 +836,11 @@ namespace Resources.Packet {
         }
         public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
             byte[] data = GetBytes();
-            foreach(var player in players) {
-                if(player.Key != toSkip) {
-                    player.Value.writer.Write((int)packetID);
-                    player.Value.writer.Write(data.Length);
-                    player.Value.writer.Write(data);
+            foreach(var player in players.Values) {
+                if(player.entityData.guid != toSkip) {
+                    player.writer.Write(packetID);
+                    player.writer.Write(data.Length);
+                    player.writer.Write(data);
                 }
             }
         }
