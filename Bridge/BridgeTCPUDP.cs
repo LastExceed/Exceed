@@ -327,7 +327,7 @@ namespace Bridge {
                 case Database.PacketID.entityUpdate:
                     #region entityUpdate
                     var update = new EntityUpdate(creader);
-                    SendUDP(update.data);
+                    SendUDP(update.Data);
                     break;
                 #endregion
                 case Database.PacketID.entityAction:

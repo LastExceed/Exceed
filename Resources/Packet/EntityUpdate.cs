@@ -7,8 +7,6 @@ using System;
 
 namespace Resources.Packet {
     public class EntityUpdate {
-        public Database.PacketID packetID = Database.PacketID.entityUpdate;
-
         public ulong guid;
 
         public LongVector position;
@@ -60,14 +58,14 @@ namespace Resources.Packet {
         public Part.SkillDistribution skillDistribution;
         public int? manaCubes;
 
-        public byte[] data {
+        public byte[] Data {
             get {
                 var stream = new MemoryStream();
                 var writer = new BinaryWriter(stream);
                 
                 byte[] compressed = GetBytes();
 
-                writer.Write((int)packetID);
+                writer.Write((int)Database.PacketID.entityUpdate);
                 writer.Write(compressed.Length);
                 writer.Write(compressed);
                 return stream.ToArray();
@@ -573,264 +571,215 @@ namespace Resources.Packet {
                 position.Write(writer);
                 Tools.SetBit(ref bitfield, true, 0);
             }
-
             if(rotation != null) {
                 rotation.Write(writer);
                 Tools.SetBit(ref bitfield, true, 1);
             }
-
             if(velocity != null) {
                 velocity.Write(writer);
                 Tools.SetBit(ref bitfield, true, 2);
             }
-
             if(acceleration != null) {
                 acceleration.Write(writer);
                 Tools.SetBit(ref bitfield, true, 3);
             }
-
             if(extraVel != null) {
                 extraVel.Write(writer);
                 Tools.SetBit(ref bitfield, true, 4);
             }
-
             if(viewportPitch != null) {
                 writer.Write((float)viewportPitch);
                 Tools.SetBit(ref bitfield, true, 5);
             }
-
             if(physicsFlags != null) {
                 writer.Write((int)physicsFlags);
                 Tools.SetBit(ref bitfield, true, 6);
             }
-
             if(hostility != null) {
                 writer.Write((byte)hostility);
                 Tools.SetBit(ref bitfield, true, 7);
             }
-
             if(entityType != null) {
                 writer.Write((int)entityType);
                 Tools.SetBit(ref bitfield, true, 8);
             }
-
             if(mode != null) {
                 writer.Write((byte)mode);
                 Tools.SetBit(ref bitfield, true, 9);
             }
-
             if(modeTimer != null) {
                 writer.Write((int)modeTimer);
                 Tools.SetBit(ref bitfield, true, 10);
             }
-
             if(combo != null) {
                 writer.Write((int)combo);
                 Tools.SetBit(ref bitfield, true, 11);
             }
-
             if(lastHitTime != null) {
                 writer.Write((int)lastHitTime);
                 Tools.SetBit(ref bitfield, true, 12);
             }
-
             if(appearance != null) {
                 appearance.Write(writer);
                 Tools.SetBit(ref bitfield, true, 13);
             }
-
             if(entityFlags != null) {
                 writer.Write((short)entityFlags);
                 Tools.SetBit(ref bitfield, true, 14);
             }
-
             if(roll != null) {
                 writer.Write((int)roll);
                 Tools.SetBit(ref bitfield, true, 15);
             }
-
             if(stun != null) {
                 writer.Write((int)stun);
                 Tools.SetBit(ref bitfield, true, 16);
             }
-
             if(slow != null) {
                 writer.Write((int)slow);
                 Tools.SetBit(ref bitfield, true, 17);
             }
-
             if(ice != null) {
                 writer.Write((int)ice);
                 Tools.SetBit(ref bitfield, true, 18);
             }
-
             if(wind != null) {
                 writer.Write((int)wind);
                 Tools.SetBit(ref bitfield, true, 19);
             }
-
             if(showPatchTime != null) {
                 writer.Write((int)showPatchTime);
                 Tools.SetBit(ref bitfield, true, 20);
             }
-
             if(entityClass != null) {
                 writer.Write((byte)entityClass);
                 Tools.SetBit(ref bitfield, true, 21);
             }
-
             if(specialization != null) {
                 writer.Write((byte)specialization);
                 Tools.SetBit(ref bitfield, true, 22);
             }
-
             if(charge != null) {
                 writer.Write((float)charge);
                 Tools.SetBit(ref bitfield, true, 23);
             }
-
             if(unused24 != null) {
                 unused24.Write(writer);
                 Tools.SetBit(ref bitfield, true, 24);
             }
-
             if(unused25 != null) {
                 unused25.Write(writer);
                 Tools.SetBit(ref bitfield, true, 25);
             }
-
             if(rayHit != null) {
                 rayHit.Write(writer);
                 Tools.SetBit(ref bitfield, true, 26);
             }
-
             if(HP != null) {
                 writer.Write((float)HP);
                 Tools.SetBit(ref bitfield, true, 27);
             }
-
             if(MP != null) {
                 writer.Write((float)MP);
                 Tools.SetBit(ref bitfield, true, 28);
             }
-
             if(block != null) {
                 writer.Write((float)block);
                 Tools.SetBit(ref bitfield, true, 29);
             }
-
             if(multipliers != null) {
                 multipliers.Write(writer);
                 Tools.SetBit(ref bitfield, true, 30);
             }
-
             if(unused31 != null) {
                 writer.Write((byte)unused31);
                 Tools.SetBit(ref bitfield, true, 31);
             }
-
-
             if(unused32 != null) {
                 writer.Write((byte)unused32);
                 Tools.SetBit(ref bitfield, true, 32);
             }
-
             if(level != null) {
                 writer.Write((int)level);
                 Tools.SetBit(ref bitfield, true, 33);
             }
-
             if(XP != null) {
                 writer.Write((int)XP);
                 Tools.SetBit(ref bitfield, true, 34);
             }
-
             if(parentOwner != null) {
                 writer.Write((long)parentOwner);
                 Tools.SetBit(ref bitfield, true, 35);
             }
-
             if(unused36 != null) {
                 writer.Write((long)unused36);
                 Tools.SetBit(ref bitfield, true, 36);
             }
-
             if(powerBase != null) {
                 writer.Write((byte)powerBase);
                 Tools.SetBit(ref bitfield, true, 37);
             }
-
             if(unused38 != null) {
                 writer.Write((int)unused38);
                 Tools.SetBit(ref bitfield, true, 38);
             }
-
             if(unused39 != null) {
                 unused39.Write(writer);
                 Tools.SetBit(ref bitfield, true, 39);
             }
-
             if(spawnPos != null) {
                 spawnPos.Write(writer);
                 Tools.SetBit(ref bitfield, true, 40);
             }
-
             if(unused41 != null) {
                 unused41.Write(writer);
                 Tools.SetBit(ref bitfield, true, 41);
             }
-
             if(unused42 != null) {
                 writer.Write((byte)unused42);
                 Tools.SetBit(ref bitfield, true, 42);
             }
-
             if(consumable != null) {
                 consumable.Write(writer);
                 Tools.SetBit(ref bitfield, true, 43);
             }
-
             if(equipment != null) {
-                foreach(Packet.Part.Item item in equipment) {
+                foreach(var item in equipment) {
                     item.Write(writer);
                 }
                 Tools.SetBit(ref bitfield, true, 44);
             }
-
             if(name != null) {
                 byte[] nameBytes = Encoding.UTF8.GetBytes(name);
                 writer.Write(nameBytes);
                 writer.Write(new byte[16 - nameBytes.Length]);
                 Tools.SetBit(ref bitfield, true, 45);
             }
-
             if(skillDistribution != null) {
                 skillDistribution.Write(writer);
                 Tools.SetBit(ref bitfield, true, 46);
             }
-
             if(manaCubes != null) {
                 writer.Write((int)manaCubes);
                 Tools.SetBit(ref bitfield, true, 47);
             }
 
-            var asd = stream.ToArray();
+            var data = stream.ToArray();
 
             stream = new MemoryStream();
             writer = new BinaryWriter(stream);
-
             writer.Write(guid);
             writer.Write(bitfield);
-            writer.Write(asd);
+            writer.Write(data);
 
             return Zlib.Compress(stream.ToArray());
         }
         
         public void Write(BinaryWriter writer, bool writePacketID = true) {
-            if(writePacketID) {
-                writer.Write(packetID);
-            }
             var data = GetBytes();
+            if (writePacketID) {
+                writer.Write((int)Database.PacketID.entityUpdate);
+            }
             writer.Write(data.Length);
             writer.Write(data);
         }
@@ -838,7 +787,7 @@ namespace Resources.Packet {
             byte[] data = GetBytes();
             foreach(var player in players.Values) {
                 if(player.entityData.guid != toSkip) {
-                    player.writer.Write(packetID);
+                    player.writer.Write((int)Database.PacketID.entityUpdate);
                     player.writer.Write(data.Length);
                     player.writer.Write(data);
                 }

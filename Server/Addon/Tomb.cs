@@ -18,7 +18,7 @@ namespace Server.Addon {
                     head_size = 1
                 },
                 HP = 100,
-                name = "tombstone\0\0\0\0\0\0\0"
+                name = "tombstone"
             };
         }
 

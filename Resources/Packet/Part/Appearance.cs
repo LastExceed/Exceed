@@ -75,7 +75,17 @@ namespace Resources.Packet.Part {
             wing_offset.Write(writer);
         }
 
-        public Appearance() { }
+        public Appearance() {
+            hair_color = new ByteVector();
+            character_size = new FloatVector();
+            hand_rotation = new FloatVector();
+            body_offset = new FloatVector();
+            head_offset = new FloatVector();
+            hand_offset = new FloatVector();
+            foot_offset = new FloatVector();
+            back_offset = new FloatVector();
+            wing_offset = new FloatVector();
+        }
         public Appearance(BinaryReader reader) {
             unknownA = reader.ReadByte();
             unknownB = reader.ReadByte();
