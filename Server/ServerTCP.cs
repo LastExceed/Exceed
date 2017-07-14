@@ -35,7 +35,12 @@ namespace Server {
                 try {
                     packetID = player.reader.ReadInt32();
                     ProcessPacket(packetID, player);
-                } catch(IOException) {
+                } catch(IOException ex) {
+                    var s = ex.StackTrace;
+                    if (s.Substring(s.IndexOf("NetworkStream.") + 14, 4) != "Read")
+                    {
+                        throw;
+                    }
                     break;
                 }
             }
@@ -290,7 +295,8 @@ namespace Server {
 
             var pdc = new EntityUpdate() {
                 guid = player.entityData.guid,
-                hostility = 255 //workaround for DC because i dont like packet2
+                hostility = 255, //workaround for DC because i dont like packet2
+                HP = 0
             };
             pdc.Broadcast(players, 0);
         }

@@ -25,9 +25,12 @@ namespace Resources.Packet {
         }
 
         public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
-            foreach(var player in players.Values) {
+            foreach(Player player in new List<Player>(players.Values)) {
                 if(player.entityData.guid != toSkip) {
-                    Write(player.writer);
+                    try {
+                        this.Write(player.writer);
+                    }
+                    catch (IOException) { }
                 }
             }
         }

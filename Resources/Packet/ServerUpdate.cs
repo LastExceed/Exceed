@@ -110,9 +110,12 @@ namespace Resources.Packet {
             byte[] data = GetBytes();
             foreach(Player player in new List<Player>(players.Values)) {
                 if(player.entityData.guid != toSkip) {
-                    player.writer.Write(packetID);
-                    player.writer.Write(data.Length);
-                    player.writer.Write(data);
+                    try {
+                        player.writer.Write(packetID);
+                        player.writer.Write(data.Length);
+                        player.writer.Write(data);
+                    }
+                    catch (IOException) { }
                 }
             }
         }
