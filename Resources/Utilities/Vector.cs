@@ -1,7 +1,6 @@
 ﻿using System.IO;
 
-namespace Resources.Utilities
-{
+namespace Resources.Utilities {
     public class LongVector {
         public long x, y, z;
 
