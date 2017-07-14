@@ -4,11 +4,11 @@ using System.Net.Sockets;
 
 namespace Resources {
     public class Player {
-        //public bool busy = false;
         public TcpClient tcp;
         public BinaryWriter writer;
         public BinaryReader reader;
         public bool playing = false;
+        public bool available = true;
         public IPEndPoint Address { get; private set; }
         public Packet.EntityUpdate entityData = new Packet.EntityUpdate();
         public string username;

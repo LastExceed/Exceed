@@ -783,11 +783,13 @@ namespace Resources.Packet {
             byte[] data = this.Data;
             foreach(Player player in new List<Player>(players.Values)) {
                 if(player.entityData.guid != toSkip) {
+                    SpinWait.SpinUntil(() => player.available);
+                    player.available = false;
                     try
                     {
                         player.writer.Write(data);
-                    }
-                    catch (IOException) { }
+                    } catch { }
+                    player.available = true;
                 }
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using Resources.Packet.Part;
+using System.Threading;
 
 namespace Resources.Packet {
     public class ServerUpdate {
@@ -110,12 +111,14 @@ namespace Resources.Packet {
             byte[] data = GetBytes();
             foreach(Player player in new List<Player>(players.Values)) {
                 if(player.entityData.guid != toSkip) {
+                    SpinWait.SpinUntil(() => player.available);
+                    player.available = false;
                     try {
                         player.writer.Write(packetID);
                         player.writer.Write(data.Length);
                         player.writer.Write(data);
-                    }
-                    catch (IOException) { }
+                    } catch { }
+                    player.available = true;
                 }
             }
         }

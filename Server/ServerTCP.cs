@@ -67,7 +67,7 @@ namespace Server {
                     }
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
                     if(player.entityData.position != null) {
-                        entityUpdate.Filter(player.entityData);
+                        //entityUpdate.Filter(player.entityData);
                     }
                     if(!entityUpdate.IsEmpty()) {
                         entityUpdate.Broadcast(players, 0);

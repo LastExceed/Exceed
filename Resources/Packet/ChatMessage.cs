@@ -33,14 +33,16 @@ namespace Resources.Packet {
             byte[] mBytes = Encoding.Unicode.GetBytes(message);
             foreach(Player player in new List<Player>(players.Values)) {
                 if(player.entityData.guid != toSkip) {
+                    SpinWait.SpinUntil(() => player.available);
+                    player.available = false;
                     try
                     {
                         player.writer.Write(packetID);
                         player.writer.Write(sender);
                         player.writer.Write(mBytes.Length / 2);
                         player.writer.Write(mBytes);
-                    }
-                    catch (IOException) { }
+                    } catch { }
+                    player.available = true;
                 }
             }
         }

@@ -27,10 +27,13 @@ namespace Resources.Packet {
         public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
             foreach(Player player in new List<Player>(players.Values)) {
                 if(player.entityData.guid != toSkip) {
+                    SpinWait.SpinUntil(() => player.available);
+                    player.available = false;
                     try {
                         this.Write(player.writer);
                     }
                     catch (IOException) { }
+                    player.available = true;
                 }
             }
         }
