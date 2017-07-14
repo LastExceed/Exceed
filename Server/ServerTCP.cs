@@ -158,7 +158,8 @@ namespace Server {
                     serverUpdate8.passiveProcs.Add(passiveProc);
                     serverUpdate8.Broadcast(players, player.entityData.guid);
 
-                    switch(passiveProc.type) {
+                    switch (passiveProc.type)
+                    {
                         case (byte)Database.ProcType.warFrenzy:
                         case (byte)Database.ProcType.camouflage:
                         case (byte)Database.ProcType.fireSpark:
@@ -169,7 +170,8 @@ namespace Server {
                             break;
 
                         case (byte)Database.ProcType.manashield:
-                            var chatMessage6 = new ChatMessage() {
+                            var chatMessage6 = new ChatMessage()
+                            {
                                 message = "manashield: " + passiveProc.modifier,
                                 sender = 0
                             };
@@ -181,9 +183,10 @@ namespace Server {
                             break;
 
                         case (byte)Database.ProcType.poison:
-                            if(players.ContainsKey(passiveProc.target))//in case target is a tomb or sth
+                            if (players.ContainsKey(passiveProc.target))//in case target is a tomb or sth
                             {
-                                var poisonDmg = new Hit() {
+                                var poisonDmg = new Hit()
+                                {
                                     attacker = passiveProc.source,
                                     target = passiveProc.target,
                                     damage = passiveProc.modifier,
@@ -268,7 +271,7 @@ namespace Server {
                         mapSeed.Write(player.writer, true);
 
                         foreach(Player p in players.Values) {
-                            p.entityData.Write(player.writer, true);
+                            p.entityData.Write(player.writer);
                         }
                         players.Add(player.entityData.guid, player);
                         //Task.Delay(10000).ContinueWith(t => load_world_delayed(player)); //WIP, causes crash when player disconnects before executed

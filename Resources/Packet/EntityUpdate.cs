@@ -775,20 +775,14 @@ namespace Resources.Packet {
             return Zlib.Compress(stream.ToArray());
         }
         
-        public void Write(BinaryWriter writer, bool writePacketID = true) {
-            var data = GetBytes();
-            if (writePacketID) {
-                writer.Write((int)Database.PacketID.entityUpdate);
-            }
-            writer.Write(data.Length);
+        public void Write(BinaryWriter writer) {
+            var data = Data;
             writer.Write(data);
         }
         public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
-            byte[] data = GetBytes();
+            byte[] data = this.Data;
             foreach(var player in players.Values) {
                 if(player.entityData.guid != toSkip) {
-                    player.writer.Write((int)Database.PacketID.entityUpdate);
-                    player.writer.Write(data.Length);
                     player.writer.Write(data);
                 }
             }

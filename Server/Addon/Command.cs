@@ -21,7 +21,7 @@ namespace Server.Addon {
                             guid = 1000,
                             hostility = (byte)Database.Hostility.enemy
                         };
-                        xpDummy.Write(player.writer, true);
+                        xpDummy.Write(player.writer);
 
                         var kill = new Kill() {
                             killer = player.entityData.guid,

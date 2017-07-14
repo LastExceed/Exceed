@@ -161,7 +161,7 @@ namespace Bridge {
                 case Database.DatagramID.entityUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
-                    entityUpdate.Write(cwriter, true);
+                    entityUpdate.Write(cwriter);
                     break;
                 #endregion
                 case Database.DatagramID.attack:
@@ -315,7 +315,7 @@ namespace Bridge {
                         guid = disconnect.Guid,
                         hostility = 255 //workaround for DC because i dont like packet2
                     };
-                    pdc.Write(cwriter, true);
+                    pdc.Write(cwriter);
                     break;
                 #endregion
                 default:
