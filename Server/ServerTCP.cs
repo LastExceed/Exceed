@@ -31,11 +31,12 @@ namespace Server {
             Player player = new Player(listener.AcceptTcpClient()); //blocks until connection is received
             Task.Factory.StartNew(Listen); //for every connection a new thread is created to make sure that packets are received asap
             int packetID = -1;
-            while(true) {
+            while(player.tcp.Connected) {
                 try {
                     packetID = player.reader.ReadInt32();
                     ProcessPacket(packetID, player);
                 } catch(IOException ex) {
+                    Console.WriteLine("catch");
                     var s = ex.StackTrace;
                     if (s.Substring(s.IndexOf("NetworkStream.") + 14, 4) != "Read")
                     {
@@ -51,7 +52,6 @@ namespace Server {
                 case Database.PacketID.entityUpdate:
                     #region entity update
                     var entityUpdate = new EntityUpdate(player.reader);
-
                     string ACmessage = AntiCheat.Inspect(entityUpdate);
                     if(ACmessage != "ok") {
                         var kickMessage = new ChatMessage() {
@@ -60,16 +60,17 @@ namespace Server {
                         kickMessage.Write(player.writer, true);
                         Console.WriteLine(player.entityData.name + " kicked for illegal " + kickMessage.message);
                         Thread.Sleep(100); //thread is about to run out anyway so np
-                        //Kick(player);
+                        Kick(player);
+                        return;
                     }
                     if(entityUpdate.name != null) {
                         Announce.Join(entityUpdate.name, player.entityData.name, players);
                     }
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
-                    if(player.entityData.position != null) {
-                        //entityUpdate.Filter(player.entityData);
+                    if(!player.entityData.IsEmpty) {
+                        entityUpdate.Filter(player.entityData);
                     }
-                    if(!entityUpdate.IsEmpty()) {
+                    if(!entityUpdate.IsEmpty) {
                         entityUpdate.Broadcast(players, 0);
                         if(entityUpdate.HP == 0 && player.entityData.HP > 0) {
                             Tomb.Show(player).Broadcast(players, 0);
