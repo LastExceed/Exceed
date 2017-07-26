@@ -448,7 +448,7 @@ namespace Resources.Packet {
                     position = null;
                 }
             }
-            rotation = null;
+            //rotation = null;
             if(velocity != null) {
                 if(Math.Abs(velocity.x) < 1 &&
                     Math.Abs(velocity.y) < 1 &&
@@ -465,11 +465,11 @@ namespace Resources.Packet {
             }
             viewportPitch = null;
             physicsFlags = null;
-            if(modeTimer != null && modeTimer != 0) {
+            if(modeTimer != null && modeTimer > 100) {
                 modeTimer = null;
             }
             lastHitTime = null;
-            if(roll != null && roll != 600) {
+            if(roll != null && !(roll > 500)) {
                 roll = null;
             }
             if(stun != null && stun < previous.stun) {
@@ -489,9 +489,9 @@ namespace Resources.Packet {
             unused25 = null;
             if(rayHit != null) {
                 if(previous.mode == 0 ||
-                    (Math.Abs(rayHit.x - previous.rayHit.x) > 0.5 &&
-                     Math.Abs(rayHit.y - previous.rayHit.y) > 0.5 &&
-                     Math.Abs(rayHit.z - previous.rayHit.z) > 0.5)) {
+                    (Math.Abs(rayHit.x - previous.rayHit.x) > 0.5f &&
+                     Math.Abs(rayHit.y - previous.rayHit.y) > 0.5f &&
+                     Math.Abs(rayHit.z - previous.rayHit.z) > 0.5f)) {
                     rayHit = null;
                 }
             }

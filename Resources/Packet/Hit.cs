@@ -11,8 +11,8 @@ namespace Resources.Packet {
         public int critical;//bool?
         public int stuntime;
         public int paddingA;
-        public LongVector position;
-        public FloatVector direction;
+        public LongVector position = new LongVector();
+        public FloatVector direction = new FloatVector();
         public byte skill;
         public byte type;
         public byte showlight;

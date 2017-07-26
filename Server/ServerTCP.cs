@@ -23,8 +23,11 @@ namespace Server {
             listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
             Task.Factory.StartNew(Listen);
-            //ZoxModel arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("thing2.zox"));
-            //arena.Parse(worldUpdate, 8397006, 8396937, 127); //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
+            Task.Factory.StartNew(CheckLag);
+            //ZoxModel arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("Michael_Kazan1.zox"));
+            //arena.Parse(worldUpdate, 8396876, 8396907, 163+20); //8397006, 8396937, 127 //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
+            //arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("Michael_Kazan2.zox"));
+            //arena.Parse(worldUpdate, 8396876+126, 8396907, 163+20); //8397006, 8396937, 127 //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
         }
 
         public void Listen() {
@@ -34,15 +37,16 @@ namespace Server {
             while(player.tcp.Connected) {
                 try {
                     packetID = player.reader.ReadInt32();
+                    player.lagMeter.Restart();
+
                     ProcessPacket(packetID, player);
-                } catch(IOException ex) {
-                    Console.WriteLine("catch");
+                    player.lagMeter.Restart();
+                } catch(Exception ex) {
                     var s = ex.StackTrace;
-                    if (s.Substring(s.IndexOf("NetworkStream.") + 14, 4) != "Read")
-                    {
-                        throw;
+                    if (ex is IOException || ex is EndOfStreamException) {
+                        break;
                     }
-                    break;
+                    throw;
                 }
             }
             Kick(player);
@@ -66,6 +70,7 @@ namespace Server {
                     if(entityUpdate.name != null) {
                         Announce.Join(entityUpdate.name, player.entityData.name, players);
                     }
+
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
                     if(!player.entityData.IsEmpty) {
                         entityUpdate.Filter(player.entityData);
@@ -150,10 +155,12 @@ namespace Server {
                 case Database.PacketID.hit:
                     #region hit
                     var hit = new Hit(player.reader);
-
-                    var serverUpdate7 = new ServerUpdate();
-                    serverUpdate7.hits.Add(hit);
-                    serverUpdate7.Broadcast(players, player.entityData.guid);
+                    hit.damage *= 0.75f;
+                    if (players.ContainsKey(hit.target)) {
+                        var serverUpdate7 = new ServerUpdate();
+                        serverUpdate7.hits.Add(hit);
+                        serverUpdate7.Broadcast(players, player.entityData.guid);
+                    }
                     break;
                 #endregion
                 case Database.PacketID.passiveProc:
@@ -176,16 +183,20 @@ namespace Server {
                             break;
 
                         case (byte)Database.ProcType.manashield:
-                            var chatMessage6 = new ChatMessage()
+                            var chatMessage6m = new ChatMessage()
                             {
-                                message = "manashield: " + passiveProc.modifier,
+                                message = string.Format("manashield: {0}", passiveProc.modifier),
                                 sender = 0
                             };
-                            chatMessage6.Write(player.writer, true);
+                            chatMessage6m.Write(player.writer, true);
                             break;
 
                         case (byte)Database.ProcType.bulwalk:
-                            //client deals with this automatically
+                            var chatMessage6b = new ChatMessage() {
+                                message = string.Format("bulwalk: {0}% dmg reduction", 1.0f - passiveProc.modifier),
+                                sender = 0
+                            };
+                            chatMessage6b.Write(player.writer, true);
                             break;
 
                         case (byte)Database.ProcType.poison:
@@ -272,7 +283,7 @@ namespace Server {
                         join.Write(player.writer, true);
 
                         var mapSeed = new MapSeed() {
-                            seed = 8710 //seed is hardcoded for now, dont change
+                            seed = 225//8710 //seed is hardcoded for now, dont change
                         };
                         mapSeed.Write(player.writer, true);
 
@@ -280,7 +291,7 @@ namespace Server {
                             p.entityData.Write(player.writer);
                         }
                         players.Add(player.entityData.guid, player);
-                        //Task.Delay(10000).ContinueWith(t => load_world_delayed(player)); //WIP, causes crash when player disconnects before executed
+                        Task.Delay(10000).ContinueWith(t => Load_world_delayed(player)); //WIP, causes crash when player disconnects before executed
                     }
                     break;
                 #endregion
@@ -292,6 +303,7 @@ namespace Server {
         public void Kick(Player player) {
             players.Remove(player.entityData.guid);
             player.tcp.Close();
+            player.lagMeter.Stop();
             Announce.Leave(player.entityData.name, players);
 
             var pdc = new EntityUpdate() {
@@ -302,10 +314,26 @@ namespace Server {
             pdc.Broadcast(players, 0);
         }
 
-        public void Load_world_delayed(Player player) {
-            if(players.ContainsKey(player.entityData.guid)) {
-                worldUpdate.Write(player.writer, true);
+        public void CheckLag() {
+            const int lagLimit = 3000;
+            while (true) {
+                foreach (var player in new List<Player>(players.Values)) {
+                    if (player.lagMeter.ElapsedMilliseconds > lagLimit) {
+                        new ChatMessage() {
+                            message = "lag limit reached"
+                        }.Write(player.writer);
+                        Thread.Sleep(100);
+                        player.tcp.Client.Close();
+                    }
+                }
+                Thread.Sleep(lagLimit);
             }
+        }
+        public void Load_world_delayed(Player player) {
+            try {
+                worldUpdate.Write(player.writer, true);
+            } catch { }
+            
         }
         public void Poison(ServerUpdate poisonTick, int duration) {
             if(players.ContainsKey(poisonTick.hits[0].target)) {
