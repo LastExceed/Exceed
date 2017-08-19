@@ -6,6 +6,7 @@ namespace Bridge {
     public partial class Form1 : Form {
         public Form1() {
             InitializeComponent();
+            BridgeTCPUDP.form = this;
         }
 
         public void Log(string text) {
@@ -35,7 +36,7 @@ namespace Bridge {
 
         private void ButtonConnect_Click(object sender, EventArgs e) {
             DisableButtons();
-            Task.Factory.StartNew(() => BridgeTCPUDP.Connect(this));
+            Task.Factory.StartNew(BridgeTCPUDP.Connect);
         }
         public void ButtonDisconnect_Click(object sender, EventArgs e) {
             EnableButtons();
