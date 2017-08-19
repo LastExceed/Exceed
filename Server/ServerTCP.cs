@@ -24,10 +24,10 @@ namespace Server {
             listener.Start();
             Task.Factory.StartNew(Listen);
             Task.Factory.StartNew(CheckLag);
-            //ZoxModel arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("Michael_Kazan1.zox"));
-            //arena.Parse(worldUpdate, 8396876, 8396907, 163+20); //8397006, 8396937, 127 //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
-            //arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("Michael_Kazan2.zox"));
-            //arena.Parse(worldUpdate, 8396876+126, 8396907, 163+20); //8397006, 8396937, 127 //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
+            ZoxModel arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("michael_japanese_temple.zox"));
+            arena.Parse(worldUpdate, 8396876, 8396650, 200); //8397006, 8396937, 127 //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
+            //arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("Aster_Shipfrontpart.zox"));
+            //arena.Parse(worldUpdate, 8396876, 8396800, 200); //8397006, 8396937, 127 //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
         }
 
         public void Listen() {
@@ -128,22 +128,34 @@ namespace Server {
                             break;
 
                         case Database.ActionType.callPet:
-                            //var petItem = player.entityData.equipment[(int)Database.Equipment.pet];
+                            var petItem = player.entityData.equipment[(int)Database.Equipment.pet];
 
-                            //var pet = new EntityUpdate();
-                            //pet.guid = 2000 + player.entityData.guid;
-                            //pet.bitfield1 = 0b00001000_00000000_00100001_10000001;
-                            //pet.bitfield2 = 0b00000000_00000000_00110000_00001000;
-                            //pet.position = player.entityData.position;
-                            //pet.hostility = (int)Database.Hostility.NPC;
-                            //pet.entityType = 28;
-                            //pet.appearance = player.entityData.appearance;
-                            //pet.HP = 999;
-                            //pet.parentOwner = (long)player.entityData.guid;
-                            //pet.equipment = player.entityData.equipment;
-                            //pet.name = "doppelganger";
+                            var pet = new EntityUpdate() {
+                                guid = 2000 + player.entityData.guid,
+                                position = player.entityData.position,
+                                hostility = (int)Database.Hostility.pet,
+                                entityType = 28,
+                                appearance = player.entityData.appearance,
+                                HP = 999,
+                                parentOwner = 3000 + (long)player.entityData.guid,
+                                equipment = player.entityData.equipment,
+                                name = "doppelganger"
+                            };
+                            pet.Broadcast(players, 0);
 
-                            //pet.Send(players, 0);
+                            pet = new EntityUpdate() {
+                                guid = 3000 + player.entityData.guid,
+                                position = player.entityData.position,
+                                hostility = (int)Database.Hostility.pet,
+                                entityType = 28,
+                                mode = 106,
+                                appearance = player.entityData.appearance,
+                                HP = 999,
+                                parentOwner = (long)player.entityData.guid,
+                                equipment = player.entityData.equipment,
+                                name = "doppelganger"
+                            };
+                            pet.Broadcast(players, 0);
                             break;
 
                         default:

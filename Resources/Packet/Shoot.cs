@@ -24,7 +24,11 @@ namespace Resources.Packet {
         public float unknownC;
         public float unknownD;
 
-        public Shoot() { }
+        public Shoot() {
+            position = new LongVector();
+            unknownV = new IntVector();
+            velocity = new FloatVector();
+        }
 
         public Shoot(BinaryReader reader) {
             attacker = reader.ReadUInt64();

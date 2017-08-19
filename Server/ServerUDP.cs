@@ -4,10 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
-using Resources;
-using Resources.Datagram;
 using System.Text.RegularExpressions;
 using System.Timers;
+
+using Resources;
+using Resources.Datagram;
+using Resources.Packet;
+using Server.Addon;
 
 namespace Server {
     class ServerUDP {
@@ -29,13 +32,13 @@ namespace Server {
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e) {
-            int last = (int)(timer.Interval / 1000);
-            foreach(var item in connections) {
-                if(item.Value.playing) {
-                    DB.users.First(x => x.username == item.Value.username).playTime += last;
-                }
-            }
-            DB.SaveChanges();
+            //int last = (int)(timer.Interval / 1000);
+            //foreach(var item in connections) {
+            //    if(item.Value.playing) {
+            //        DB.users.First(x => x.username == item.Value.username).playTime += last;
+            //    }
+            //}
+            //DB.SaveChanges();
         }
 
         public void ListenTCP() {
@@ -45,49 +48,53 @@ namespace Server {
                 while(connections.ContainsKey(newGuid)) {//find lowest available guid
                     newGuid++;
                 }
+                player.entityData.guid = newGuid;
 
                 Database.LoginResponse response = Database.LoginResponse.fail;
 
                 #region secure login
-                player.writer.Write(encryptionKeys.Item2); // Send rsa encryption key
+                //player.writer.Write(encryptionKeys.Item2); // Send rsa encryption key
 
-                var username = Hashing.Decrypt(encryptionKeys.Item1, player.reader.ReadBytes(player.reader.ReadInt32())); // Read username
+                //var username = Hashing.Decrypt(encryptionKeys.Item1, player.reader.ReadBytes(player.reader.ReadInt32())); // Read username
 
-                var row = (from o in DB.users where o.username == username || o.Email == username select o).FirstOrDefault(); // Get user with username from db
-                
-                if(row != null) { // if row is not empty
-                    player.username = row.username;
+                //var row = (from o in DB.users where o.username == username || o.Email == username select o).FirstOrDefault(); // Get user with username from db
 
-                    var hashData = row.hash.Split('$'); // Split hash from db e.g. $CUBEHASH$Version$itterations$hash
-                    var hashBytes = Convert.FromBase64String(hashData[4]); //Get hasbytes = salt + hash
+                //if(row != null) { // if row is not empty
+                //    player.username = row.username;
 
-                    var salt = new byte[Hashing.saltSize];
-                    Array.Copy(hashBytes, 0, salt, 0, salt.Length); // extract salt
-                    var hash = new byte[Hashing.hashSize];
-                    Array.Copy(hashBytes, salt.Length, hash, 0, hash.Length);// extract hash
+                //    var hashData = row.hash.Split('$'); // Split hash from db e.g. $CUBEHASH$Version$itterations$hash
+                //    var hashBytes = Convert.FromBase64String(hashData[4]); //Get hasbytes = salt + hash
 
-                    player.writer.Write(salt); //send salt
+                //    var salt = new byte[Hashing.saltSize];
+                //    Array.Copy(hashBytes, 0, salt, 0, salt.Length); // extract salt
+                //    var hash = new byte[Hashing.hashSize];
+                //    Array.Copy(hashBytes, salt.Length, hash, 0, hash.Length);// extract hash
 
-                    var clientHash = Hashing.DecryptB(encryptionKeys.Item1, player.reader.ReadBytes(player.reader.ReadInt32())); // Get clientside hashed password
+                //    player.writer.Write(salt); //send salt
 
-                    if(hash.SequenceEqual(clientHash)) {
-                        if(row.banned.HasValue) {
-                            response = Database.LoginResponse.banned;
-                        } else {
-                            row.lastLoggin = DateTime.Now;
-                            connections.Add(newGuid, player);
-                            response = Database.LoginResponse.success;
-                        }
-                    }
-                } else {
-                    // Advance with random data so bridge dosen't get stuck
-                    var bytes = new byte[Hashing.saltSize];
-                    new Random().NextBytes(bytes);
-                    player.writer.Write(bytes);
-                    player.reader.ReadBytes(player.reader.ReadInt32());
-                }
+                //    var clientHash = Hashing.DecryptB(encryptionKeys.Item1, player.reader.ReadBytes(player.reader.ReadInt32())); // Get clientside hashed password
+
+                //    if(hash.SequenceEqual(clientHash)) {
+                //        if(row.banned.HasValue) {
+                //            response = Database.LoginResponse.banned;
+                //        } else {
+                //            row.lastLoggin = DateTime.Now;
+                //            connections.Add(newGuid, player);
+                //            response = Database.LoginResponse.success;
+                //        }
+                //    }
+                //} else {
+                //    // Advance with random data so bridge dosen't get stuck
+                //    var bytes = new byte[Hashing.saltSize];
+                //    new Random().NextBytes(bytes);
+                //    player.writer.Write(bytes);
+                //    player.reader.ReadBytes(player.reader.ReadInt32());
+                //}
                 #endregion
-
+                if (player.reader.ReadInt32() == 123) {
+                    response = Database.LoginResponse.success;
+                    connections.Add(newGuid, player);
+                }
                 player.writer.Write((byte)response);
             }
         }
@@ -109,7 +116,7 @@ namespace Server {
                 }
             }
         }
-
+        
         public void ProcessPacket(int packetID, Player player) {
             throw new NotImplementedException();
         }
@@ -117,7 +124,37 @@ namespace Server {
             switch((Database.DatagramID)datagram[0]) {
                 case Database.DatagramID.entityUpdate:
                     #region entityUpdate
-                    BroadcastUDP(datagram, player);
+                    var entityUpdate = new EntityUpdate(datagram);
+
+                    string ACmessage = AntiCheat.Inspect(entityUpdate);
+                    if (ACmessage != "ok") {
+                        //var kickMessage = new ChatMessage() {
+                        //    message = "illegal " + ACmessage
+                        //};
+                        //kickMessage.Write(player.writer, true);
+                        //Console.WriteLine(player.entityData.name + " kicked for illegal " + kickMessage.message);
+                        //Thread.Sleep(100); //thread is about to run out anyway so np
+                        //Kick(player);
+                        //return;
+                    }
+                    if (entityUpdate.name != null) {
+                        //Announce.Join(entityUpdate.name, player.entityData.name, players);
+                    }
+
+                    entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
+                    if (!player.entityData.IsEmpty) { //dont filter the first packet
+                        entityUpdate.Filter(player.entityData);
+                    }
+                    if (!entityUpdate.IsEmpty) {
+                        //entityUpdate.Broadcast(players, 0);
+                        BroadcastUDP(entityUpdate.Data, player);
+                        if (entityUpdate.HP == 0 && player.entityData.HP > 0) {
+                            BroadcastUDP(Tomb.Show(player).Data);
+                        } else if (player.entityData.HP == 0 && entityUpdate.HP > 0) {
+                            BroadcastUDP(Tomb.Hide(player).Data);
+                        }
+                        entityUpdate.Merge(player.entityData);
+                    }
                     break;
                 #endregion
                 case Database.DatagramID.attack:
@@ -205,9 +242,7 @@ namespace Server {
                     break;
                 #endregion
                 case Database.DatagramID.staticUpdate:
-                    break;
                 case Database.DatagramID.block:
-                    break;
                 case Database.DatagramID.particle:
                     break;
                 case Database.DatagramID.connect:
@@ -217,6 +252,12 @@ namespace Server {
                         Mapseed = 8710 //hardcoded for now
                     };
                     SendUDP(connect.data, player);
+
+                    foreach (Player p in connections.Values) {
+                        if (p.playing) {
+                            SendUDP(p.entityData.Data, player);
+                        }
+                    }
                     player.playing = true;
                     break;
                 #endregion

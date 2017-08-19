@@ -18,8 +18,9 @@ namespace Bridge {
         public static BinaryWriter swriter, cwriter;
         public static BinaryReader sreader, creader;
         public static ushort guid;
+        public static Form1 form;
 
-        public static void Connect(Form1 form) {
+        public static void Connect() {
             form.Log("connecting...");
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
@@ -52,18 +53,19 @@ namespace Bridge {
             form.Log("authenticating...");
 
             #region secure login transfer
-            string publicKey = sreader.ReadString();
+            //string publicKey = sreader.ReadString();
 
-            var username = Hashing.Encrypt(publicKey, form.textBoxUsername.Text);
-            swriter.Write(username.Length);
-            swriter.Write(username); //Send username
+            //var username = Hashing.Encrypt(publicKey, form.textBoxUsername.Text);
+            //swriter.Write(username.Length);
+            //swriter.Write(username); //Send username
 
-            var salt = sreader.ReadBytes(Hashing.saltSize); // get salt
+            //var salt = sreader.ReadBytes(Hashing.saltSize); // get salt
 
-            var hash = Hashing.Encrypt(publicKey, Hashing.Hash(form.textBoxPassword.Text, salt));
-            swriter.Write(hash.Length);
-            swriter.Write(hash); //send hashed password
+            //var hash = Hashing.Encrypt(publicKey, Hashing.Hash(form.textBoxPassword.Text, salt));
+            //swriter.Write(hash.Length);
+            //swriter.Write(hash); //send hashed password
             #endregion
+            swriter.Write(123);
 
             switch((Database.LoginResponse)sreader.ReadByte()) {
                 case Database.LoginResponse.success:
@@ -157,7 +159,8 @@ namespace Bridge {
         }
 
         public static void ProcessDatagram(byte[] datagram) {
-            switch((Database.DatagramID)datagram[0]) {
+            var serverUpdate = new ServerUpdate();
+            switch ((Database.DatagramID)datagram[0]) {
                 case Database.DatagramID.entityUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
@@ -178,7 +181,8 @@ namespace Bridge {
                         type = (byte)attack.Type,
                         showlight = (byte)(attack.ShowLight ? 1 : 0)
                     };
-                    hit.Write(cwriter, true);
+                    serverUpdate.hits.Add(hit);
+                    serverUpdate.Write(cwriter);
                     break;
                 #endregion
                 case Database.DatagramID.shoot:
@@ -192,7 +196,8 @@ namespace Bridge {
                         particles = shootDatagram.Particles,
                         projectile = (int)shootDatagram.Projectile
                     };
-                    shootPacket.Write(cwriter, true);
+                    serverUpdate.shoots.Add(shootPacket);
+                    serverUpdate.Write(cwriter);
                     break;
                 #endregion
                 case Database.DatagramID.proc:
@@ -205,7 +210,8 @@ namespace Bridge {
                         modifier = proc.Modifier,
                         duration = proc.Duration
                     };
-                    passiveProc.Write(cwriter, true);
+                    serverUpdate.passiveProcs.Add(passiveProc);
+                    serverUpdate.Write(cwriter);
                     break;
                 #endregion
                 case Database.DatagramID.chat:
@@ -217,6 +223,8 @@ namespace Bridge {
                         message = chat.Text
                     };
                     chatMessage.Write(cwriter, true);
+
+                    form.Log(chat.Sender + ": " + chat.Text + "\n");
                     break;
                 #endregion
                 case Database.DatagramID.time:
@@ -239,7 +247,8 @@ namespace Bridge {
                         index = interaction.Index,
                         type = (byte)Database.ActionType.staticInteraction
                     };
-                    entityAction.Write(cwriter, true);
+                    //serverUpdate..Add();
+                    //serverUpdate.Write(cwriter);
                     break;
                 #endregion
                 case Database.DatagramID.staticUpdate:
@@ -285,10 +294,8 @@ namespace Bridge {
                         type = (int)particleDatagram.Type,
                         spread = particleDatagram.Spread
                     };
-
-                    var particleServerUpdate = new ServerUpdate();
-                    particleServerUpdate.particles.Add(particleSubPacket);
-                    particleServerUpdate.Write(cwriter, true);
+                    serverUpdate.particles.Add(particleSubPacket);
+                    serverUpdate.Write(cwriter, true);
                     break;
                 #endregion
                 case Database.DatagramID.connect:
@@ -371,7 +378,7 @@ namespace Bridge {
                 #endregion
                 case Database.PacketID.passiveProc:
                     #region passiveProc
-                    /*var passiveProc = new PassiveProc(creader);
+                    var passiveProc = new PassiveProc(creader);
 
                     var proc = new Proc() {
                         Target = (ushort)passiveProc.target,
@@ -380,7 +387,7 @@ namespace Bridge {
                         Duration = passiveProc.duration
                     };
                     SendUDP(proc.data);
-                    */
+                    
                     break;
                 #endregion
                 case Database.PacketID.shoot:
@@ -402,7 +409,7 @@ namespace Bridge {
                     var chatMessage = new ChatMessage(creader);
 
                     var chat = new Chat(chatMessage.message) {
-                        Sender = (ushort)chatMessage.sender
+                        Sender = guid//client doesn't send this (ushort)chatMessage.sender
                     };
                     SendUDP(chat.data);
                     break;
