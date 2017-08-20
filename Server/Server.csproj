@@ -111,6 +111,9 @@
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>UserDB.Designer.cs</LastGenOutput>
     </EntityDeploy>
+    <None Include="server.p12">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="UserDB.edmx.diagram">
       <DependentUpon>UserDB.edmx</DependentUpon>
     </None>
