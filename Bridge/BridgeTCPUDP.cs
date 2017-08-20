@@ -19,6 +19,7 @@ namespace Bridge {
         public static BinaryReader sreader, creader;
         public static ushort guid;
         public static Form1 form;
+        public static bool connected = false;
 
         public static void Connect() {
             form.Log("connecting...");
@@ -44,7 +45,6 @@ namespace Bridge {
 
                 form.Log($"Connection failed: \n{ex.Message}\n");
                 form.EnableButtons();
-
                 return;
             }
 
@@ -109,24 +109,24 @@ namespace Bridge {
         }
 
         public static void ListenFromClientTCP() {
-            tcpFromClient.Start();
-            tcpToClient = tcpFromClient.AcceptTcpClient();
-            tcpFromClient.Stop();
-            tcpToClient.NoDelay = true;
-            creader = new BinaryReader(tcpToClient.GetStream());
-            cwriter = new BinaryWriter(tcpToClient.GetStream());
-            int packetID;
-            while(true) {
-                try {
-                    packetID = creader.ReadInt32();
-                } catch(IOException) {
-                    break;
+            while (connected) {
+                tcpFromClient.Start();
+                tcpToClient = tcpFromClient.AcceptTcpClient();
+                tcpFromClient.Stop();
+                tcpToClient.NoDelay = true;
+                creader = new BinaryReader(tcpToClient.GetStream());
+                cwriter = new BinaryWriter(tcpToClient.GetStream());
+                int packetID;
+                while (tcpToClient.Connected) {
+                    try {
+                        packetID = creader.ReadInt32();
+                    } catch (IOException) {
+                        break;
+                    }
+                    ProcessClientPacket(packetID);
                 }
-                ProcessClientPacket(packetID);
+                SendUDP(new Disconnect() { Guid = guid }.data);
             }
-
-            Task.Factory.StartNew(ListenFromClientTCP);
-            SendUDP(new Disconnect() { Guid = guid }.data);
         }
         public static void ListenFromServerTCP(Form1 form) {
             while(true) {
