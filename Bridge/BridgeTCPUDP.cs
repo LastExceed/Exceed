@@ -9,27 +9,31 @@ using Resources.Packet;
 using Resources.Packet.Part;
 using Resources.Datagram;
 using System.Windows.Forms;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
+using System.Diagnostics;
 
 namespace Bridge {
     static class BridgeTCPUDP {
         public static UdpClient udpToServer;
         public static TcpClient tcpToServer, tcpToClient;
         public static TcpListener tcpFromClient;
+        
+        public static Stream stream;
         public static BinaryWriter swriter, cwriter;
         public static BinaryReader sreader, creader;
+        public static X509Certificate cert = new X509Certificate("server.crt");
+
         public static ushort guid;
         public static Form1 form;
 
         public static void Connect() {
-            form.Log("connecting...");
+            form.Log("connecting...\r\n");
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
 
-            tcpToServer = new TcpClient() {
-                NoDelay = true
-            };
-
             try {
+                tcpToServer = new TcpClient() { NoDelay = true };
                 tcpToServer.Connect(serverIP, serverPort);
 
                 udpToServer = new UdpClient(tcpToServer.Client.LocalEndPoint as IPEndPoint);
@@ -47,24 +51,32 @@ namespace Bridge {
 
                 return;
             }
+            
+            if(cert != null) {
+                var s = new SslStream(tcpToServer.GetStream(),false,checkCert);
+                try {
+                    s.AuthenticateAsClient(cert.Issuer);
+                } catch (Exception e) {
+                    Debugger.Break();
+                }
+                stream = s;
+                form.Log("Secure Connection\r\n");
+            } else {
+                stream = tcpToServer.GetStream();
+                form.Log("Insecure Connection\r\n");
+            }
 
-            swriter = new BinaryWriter(tcpToServer.GetStream());
-            sreader = new BinaryReader(tcpToServer.GetStream());
+            swriter = new BinaryWriter(stream);
+            sreader = new BinaryReader(stream);
             form.Log("authenticating...");
 
-            #region secure login transfer
-            //string publicKey = sreader.ReadString();
-
-            //var username = Hashing.Encrypt(publicKey, form.textBoxUsername.Text);
-            //swriter.Write(username.Length);
-            //swriter.Write(username); //Send username
-
-            //var salt = sreader.ReadBytes(Hashing.saltSize); // get salt
-
-            //var hash = Hashing.Encrypt(publicKey, Hashing.Hash(form.textBoxPassword.Text, salt));
-            //swriter.Write(hash.Length);
-            //swriter.Write(hash); //send hashed password
+            #region secure login transfer            
+            /*
+            swriter.Write(form.textBoxUsername.Text); //Send username
+            swriter.Write(Hashing.Hash(form.textBoxPassword.Text, sreader.ReadBytes(Hashing.saltSize))); //send hashed password
+            */
             #endregion
+
             swriter.Write(123);
 
             switch((Database.LoginResponse)sreader.ReadByte()) {
@@ -86,6 +98,10 @@ namespace Bridge {
                     form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
                     break;
             }
+        }
+
+        private static bool checkCert(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
+            return certificate.GetCertHashString() == cert.GetCertHashString();
         }
 
         public static void Close() {
@@ -387,7 +403,7 @@ namespace Bridge {
                         Duration = passiveProc.duration
                     };
                     SendUDP(proc.data);
-                    
+
                     break;
                 #endregion
                 case Database.PacketID.shoot:
