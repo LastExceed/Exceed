@@ -195,8 +195,10 @@ namespace Server {
                 case Database.DatagramID.chat:
                     #region chat
                     var chat = new Chat(datagram);
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.Write(chat.Sender + ": ");
                     Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine(chat.Sender + ": " + chat.Text);
+                    Console.WriteLine(chat.Text);
                     //if(chat.Text.StartsWith("/")) {
                     //    var match = Regex.Match(chat.Text, @"(?P<command>(?<=\/)\w+) (?P<parameter>.+)");
                     //    var command = match.Groups["command"].Value;
@@ -288,7 +290,7 @@ namespace Server {
                     BroadcastUDP(datagram, player);
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(disconnect.Guid + " (" + connections[disconnect.Guid].entityData.name + ") is now lurking");
+                    Console.WriteLine(disconnect.Guid + " is now lurking");
                     break;
                 #endregion
                 default:

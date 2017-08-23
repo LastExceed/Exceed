@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -9,8 +10,17 @@ namespace Bridge {
             BridgeTCPUDP.form = this;
         }
 
-        public void Log(string text) {
-            richTextBoxChat.Invoke(new Action(() => richTextBoxChat.AppendText(text)));
+        public void Log(string text, Color color) {
+            if (InvokeRequired) {
+                Invoke((Action)(() => Log(text, color)));
+            } else {
+                richTextBoxChat.SelectionStart = richTextBoxChat.TextLength;
+                richTextBoxChat.SelectionLength = 0;
+
+                richTextBoxChat.SelectionColor = color;
+                richTextBoxChat.AppendText(text);
+                richTextBoxChat.SelectionColor = richTextBoxChat.ForeColor;
+            }
         }
 
         public void EnableButtons() {
@@ -40,7 +50,7 @@ namespace Bridge {
         }
         public void ButtonDisconnect_Click(object sender, EventArgs e) {
             EnableButtons();
-            Log("disconnected\n");
+            Log("disconnected\n", Color.Red);
             Task.Factory.StartNew(BridgeTCPUDP.Close);
         }
         
@@ -52,6 +62,10 @@ namespace Bridge {
 
         private void ButtonInfo_Click(object sender, EventArgs e) {
             new AboutBox().ShowDialog();
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e) {
+            Environment.Exit(0);
         }
     }
 }

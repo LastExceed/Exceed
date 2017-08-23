@@ -10,6 +10,7 @@ using Resources.Packet;
 using Resources.Packet.Part;
 using Resources.Datagram;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace Bridge {
     static class BridgeTCPUDP {
@@ -26,7 +27,7 @@ namespace Bridge {
         public static bool connected = false;
 
         public static void Connect() {
-            form.Log("connecting...");
+            form.Log("connecting...", Color.DarkGray);
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
 
@@ -36,7 +37,7 @@ namespace Bridge {
 
                 udpToServer = new UdpClient(tcpToServer.Client.LocalEndPoint as IPEndPoint);
                 udpToServer.Connect(serverIP, serverPort);
-                form.Log("connected\n");
+                form.Log("connected\n", Color.Green);
             } catch(Exception ex) {
                 tcpToServer.Close();
                 tcpToServer = null;
@@ -44,7 +45,7 @@ namespace Bridge {
                 udpToServer.Close();
                 udpToServer = null;
 
-                form.Log($"Connection failed: \n{ex.Message}\n");
+                form.Log($"Connection failed: \n{ex.Message}\n", Color.Red);
                 form.EnableButtons();
                 return;
             }
@@ -52,7 +53,7 @@ namespace Bridge {
             stream = tcpToServer.GetStream();
             swriter = new BinaryWriter(stream);
             sreader = new BinaryReader(stream);
-            form.Log("authenticating...");
+            form.Log("authenticating...", Color.DarkGray);
 
             #region secure login transfer            
             /*
@@ -65,7 +66,7 @@ namespace Bridge {
 
             switch((Database.LoginResponse)sreader.ReadByte()) {
                 case Database.LoginResponse.success:
-                    form.Log("success\n");
+                    form.Log("success\n", Color.Green);
                     connected = true;
                     new Thread(new ThreadStart(ListenFromClientTCP)).Start();
                     //Task.Factory.StartNew(ListenFromClientTCP);
@@ -80,7 +81,7 @@ namespace Bridge {
                     MessageBox.Show("You are banned");
                     goto default;
                 default:
-                    form.Log("failed\n");
+                    form.Log("failed\n", Color.Red);
                     form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
                     break;
             }
@@ -114,6 +115,7 @@ namespace Bridge {
                     return;
                 }
                 tcpListener.Stop();
+                form.Log("client connected\n", Color.Green);
                 tcpToClient.NoDelay = true;
                 creader = new BinaryReader(tcpToClient.GetStream());
                 cwriter = new BinaryWriter(tcpToClient.GetStream());
@@ -129,6 +131,7 @@ namespace Bridge {
                         break;
                     } catch (ObjectDisposedException) { }
                 }
+                form.Log("client disconnected\n", Color.Red);
             }
         }
         public static void ListenFromServerTCP() {
@@ -137,9 +140,9 @@ namespace Bridge {
                     ProcessServerPacket(sreader.ReadByte()); //we can use byte here because it doesn't contain vanilla packets
                 } catch(IOException) {
                     if (connected) {
-                        form.Log("Connection to Server lost\n");
-                        connected = false;
-                        form.buttonDisconnect.PerformClick();
+                        form.Log("Connection to Server lost\n", Color.Red);
+                        Close();
+                        form.EnableButtons();
                     }
                     break;
                 }
@@ -220,8 +223,8 @@ namespace Bridge {
                         message = chat.Text
                     };
                     chatMessage.Write(cwriter, true);
-
-                    form.Log(chat.Sender + ": " + chat.Text + "\n");
+                    form.Log(chat.Sender + ": ", Color.Cyan);
+                    form.Log(chat.Text + "\n", Color.White);
                     break;
                 #endregion
                 case Database.DatagramID.time:

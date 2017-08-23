@@ -242,6 +242,7 @@
             this.MinimumSize = new System.Drawing.Size(511, 255);
             this.Name = "Form1";
             this.Text = "Exceed Bridge";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.groupBoxAccount.ResumeLayout(false);
             this.groupBoxAccount.PerformLayout();
             this.groupBoxServer.ResumeLayout(false);
