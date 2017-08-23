@@ -1,5 +1,7 @@
 ﻿namespace Resources {
     static public class Database {
+        public const int mapseed = 8710; //hardcoded for now
+
         public enum PacketID : int {
             entityUpdate,
             multiEntityUpdate,

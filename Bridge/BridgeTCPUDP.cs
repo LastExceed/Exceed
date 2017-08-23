@@ -2,34 +2,31 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Threading;
 
 using Resources;
 using Resources.Packet;
 using Resources.Packet.Part;
 using Resources.Datagram;
-using System.Windows.Forms;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
-using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Bridge {
     static class BridgeTCPUDP {
         public static UdpClient udpToServer;
         public static TcpClient tcpToServer, tcpToClient;
-        public static TcpListener tcpFromClient;
-        
+        public static TcpListener tcpListener = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345); //hardcoded because client port can't be changed
+
         public static Stream stream;
         public static BinaryWriter swriter, cwriter;
         public static BinaryReader sreader, creader;
-        public static X509Certificate cert = new X509Certificate("server.crt");
 
         public static ushort guid;
         public static Form1 form;
         public static bool connected = false;
 
         public static void Connect() {
-            form.Log("connecting...\r\n");
+            form.Log("connecting...");
             string serverIP = form.textBoxServerIP.Text;
             int serverPort = (int)form.numericUpDownPort.Value;
 
@@ -52,20 +49,7 @@ namespace Bridge {
                 return;
             }
             
-            if(cert != null) {
-                var s = new SslStream(tcpToServer.GetStream(),false,checkCert);
-                try {
-                    s.AuthenticateAsClient(cert.Issuer);
-                } catch (Exception e) {
-                    Debugger.Break();
-                }
-                stream = s;
-                form.Log("Secure Connection\r\n");
-            } else {
-                stream = tcpToServer.GetStream();
-                form.Log("Insecure Connection\r\n");
-            }
-
+            stream = tcpToServer.GetStream();
             swriter = new BinaryWriter(stream);
             sreader = new BinaryReader(stream);
             form.Log("authenticating...");
@@ -82,10 +66,12 @@ namespace Bridge {
             switch((Database.LoginResponse)sreader.ReadByte()) {
                 case Database.LoginResponse.success:
                     form.Log("success\n");
-                    tcpFromClient = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345); //hardcoded because clients port can't be changed
-                    Task.Factory.StartNew(ListenFromClientTCP);
+                    connected = true;
+                    new Thread(new ThreadStart(ListenFromClientTCP)).Start();
+                    //Task.Factory.StartNew(ListenFromClientTCP);
+                    Task.Factory.StartNew(ListenFromServerTCP);
                     Task.Factory.StartNew(ListenFromServerUDP);
-                    Task.Factory.StartNew(() => ListenFromServerTCP(form));
+
                     break;
                 case Database.LoginResponse.fail:
                     MessageBox.Show("Wrong Username/Password");
@@ -99,16 +85,10 @@ namespace Bridge {
                     break;
             }
         }
-
-        private static bool checkCert(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
-            return certificate.GetCertHashString() == cert.GetCertHashString();
-        }
-
         public static void Close() {
+            connected = false;
             LingerOption lingerOption = new LingerOption(true, 0);
-            try {
-                udpToServer.Close();
-            } catch { }
+            udpToServer.Close();
             try {
                 tcpToServer.LingerState = lingerOption;
                 tcpToServer.Client.Close();
@@ -120,58 +100,59 @@ namespace Bridge {
                 tcpToClient.Close();
             } catch { }
             try {
-                tcpFromClient.Stop();
+                tcpListener.Stop();
             } catch { }
         }
 
         public static void ListenFromClientTCP() {
             while (connected) {
-                tcpFromClient.Start();
-                tcpToClient = tcpFromClient.AcceptTcpClient();
-                tcpFromClient.Stop();
+                tcpListener.Start();
+                try {
+                    tcpToClient = tcpListener.AcceptTcpClient();
+                } catch (SocketException) {
+                    //WSAcancellationblabla
+                    return;
+                }
+                tcpListener.Stop();
                 tcpToClient.NoDelay = true;
                 creader = new BinaryReader(tcpToClient.GetStream());
                 cwriter = new BinaryWriter(tcpToClient.GetStream());
                 int packetID;
-                while (tcpToClient.Connected) {
+                while (true) {
                     try {
                         packetID = creader.ReadInt32();
+                        ProcessClientPacket(packetID);
                     } catch (IOException) {
+                        if (connected) {
+                            SendUDP(new Disconnect() { Guid = guid }.data);
+                        }
                         break;
-                    }
-                    ProcessClientPacket(packetID);
+                    } catch (ObjectDisposedException) { }
                 }
-                SendUDP(new Disconnect() { Guid = guid }.data);
             }
         }
-        public static void ListenFromServerTCP(Form1 form) {
+        public static void ListenFromServerTCP() {
             while(true) {
                 try {
                     ProcessServerPacket(sreader.ReadByte()); //we can use byte here because it doesn't contain vanilla packets
                 } catch(IOException) {
-                    form.Log("Connection to Server lost");
-                    form.buttonDisconnect.Enabled = false;
-                    form.buttonConnect.Enabled = true;
-                    form.groupBoxServer.Enabled = true;
-                    form.groupBoxAccount.Enabled = true;
-                    break;
-                } catch(SocketException) {
+                    if (connected) {
+                        form.Log("Connection to Server lost\n");
+                        connected = false;
+                        form.buttonDisconnect.PerformClick();
+                    }
                     break;
                 }
             }
-
-
         }
         public static void ListenFromServerUDP() {
             IPEndPoint source = null;
-            while(true) {
-                try {
+            try {
+                while (true) {
                     byte[] datagram = udpToServer.Receive(ref source);
                     ProcessDatagram(datagram);
-                } catch(SocketException) {
-                    break;
                 }
-            }
+            } catch (SocketException) { }
         }
 
         public static void ProcessDatagram(byte[] datagram) {
@@ -336,7 +317,8 @@ namespace Bridge {
                     var disconnect = new Disconnect(datagram);
                     var pdc = new Resources.Packet.EntityUpdate() {
                         guid = disconnect.Guid,
-                        hostility = 255 //workaround for DC because i dont like packet2
+                        hostility = 255, //workaround for DC because i dont like packet2
+                        HP = 0
                     };
                     pdc.Write(cwriter);
                     break;
@@ -349,8 +331,8 @@ namespace Bridge {
             switch((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entityUpdate
-                    var update = new EntityUpdate(creader);
-                    SendUDP(update.Data);
+                    var entityUpdate = new EntityUpdate(creader);
+                    SendUDP(entityUpdate.Data);
                     break;
                 #endregion
                 case Database.PacketID.entityAction:
@@ -366,7 +348,7 @@ namespace Bridge {
                         case Database.ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
                             var serverUpdate = new ServerUpdate();
                             serverUpdate.pickups.Add(new Pickup() { guid = guid, item = entityAction.item });
-                            serverUpdate.Write(cwriter, true);
+                            serverUpdate.Write(cwriter);
                             break;
                         case Database.ActionType.callPet:
                             break;

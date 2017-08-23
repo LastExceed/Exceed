@@ -24,10 +24,8 @@ namespace Server {
             listener.Start();
             Task.Factory.StartNew(Listen);
             Task.Factory.StartNew(CheckLag);
-            ZoxModel arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("michael_japanese_temple.zox"));
-            arena.Parse(worldUpdate, 8396876, 8396650, 200); //8397006, 8396937, 127 //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
-            //arena = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("Aster_Shipfrontpart.zox"));
-            //arena.Parse(worldUpdate, 8396876, 8396800, 200); //8397006, 8396937, 127 //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
+            ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_SpanishGalleon1670.zox"));
+            model.Parse(worldUpdate, 8396876, 8396500, 220); //8397006, 8396937, 127 //near spawn || 8286952, 8344462, 204 //position of liuk's biome intersection
         }
 
         public void Listen() {
@@ -295,7 +293,7 @@ namespace Server {
                         join.Write(player.writer, true);
 
                         var mapSeed = new MapSeed() {
-                            seed = 225//8710 //seed is hardcoded for now, dont change
+                            seed = Database.mapseed
                         };
                         mapSeed.Write(player.writer, true);
 

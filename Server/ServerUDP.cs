@@ -11,7 +11,7 @@ using Resources;
 using Resources.Datagram;
 using Resources.Packet;
 using Server.Addon;
-using System.Security.Cryptography.X509Certificates;
+using System.IO;
 
 namespace Server {
     class ServerUDP {
@@ -20,10 +20,8 @@ namespace Server {
         Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
         public testEntities DB = new testEntities();
         public Timer timer = new Timer(1000 * 10);
-        public X509Certificate2 cert;
 
-        public ServerUDP(int port, X509Certificate2 cert = null) {
-            this.cert = cert;
+        public ServerUDP(int port) {
             timer.Elapsed += Timer_Elapsed;
             timer.Enabled = true;
             udpListener = new UdpClient(new IPEndPoint(IPAddress.Any, port));
@@ -44,66 +42,86 @@ namespace Server {
         }
 
         public void ListenTCP() {
-            while(true) {
-                Player player = new Player(tcpListener.AcceptTcpClient(), cert);
-                ushort newGuid = 1;
-                while(connections.ContainsKey(newGuid)) {//find lowest available guid
-                    newGuid++;
-                }
-                player.entityData.guid = newGuid;
+            Player player = new Player(tcpListener.AcceptTcpClient());
+            Task.Factory.StartNew(ListenTCP);
+            ushort newGuid = 1;
+            while(connections.ContainsKey(newGuid)) {//find lowest available guid
+                newGuid++;
+            }
+            player.entityData.guid = newGuid;
 
-                Database.LoginResponse response = Database.LoginResponse.fail;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(newGuid + " connected");
 
-                #region secure login
-                /*
-                string username = player.reader.ReadString(); // Read username
+            Database.LoginResponse response = Database.LoginResponse.fail;
 
-                var row = DB.users.FirstOrDefault(x => x.username == username || x.Email == username); // Get user with username from db
+            #region secure login
+            /*
+            string username = player.reader.ReadString(); // Read username
 
-                if(row != null) {
-                    player.username = row.username;
+            var row = DB.users.FirstOrDefault(x => x.username == username || x.Email == username); // Get user with username from db
 
-                    var hashData = row.hash.Split('$'); // Split hash from db e.g. $CUBEHASH$Version$itterations$hash
-                    byte[] hashBytes = Convert.FromBase64String(hashData[4]); //Get hasbytes = salt + hash
+            if(row != null) {
+                player.username = row.username;
 
-                    byte[] salt = new byte[Hashing.saltSize];
-                    Array.Copy(hashBytes, 0, salt, 0, salt.Length); // extract salt
-                    byte[] hash = new byte[Hashing.hashSize];
-                    Array.Copy(hashBytes, salt.Length, hash, 0, hash.Length);// extract hash
+                var hashData = row.hash.Split('$'); // Split hash from db e.g. $CUBEHASH$Version$itterations$hash
+                byte[] hashBytes = Convert.FromBase64String(hashData[4]); //Get hasbytes = salt + hash
 
-                    player.writer.Write(salt); //send salt
+                byte[] salt = new byte[Hashing.saltSize];
+                Array.Copy(hashBytes, 0, salt, 0, salt.Length); // extract salt
+                byte[] hash = new byte[Hashing.hashSize];
+                Array.Copy(hashBytes, salt.Length, hash, 0, hash.Length);// extract hash
 
-                    byte[] clientHash = player.reader.ReadBytes(Hashing.hashSize); // Get clientside hashed password
+                player.writer.Write(salt); //send salt
 
-                    if(hash.SequenceEqual(clientHash)) {
-                        if(row.banned.HasValue) {
-                            response = Database.LoginResponse.banned;
-                        } else {
-                            row.lastLoggin = DateTime.Now;
-                            connections.Add(newGuid, player);
-                            response = Database.LoginResponse.success;
-                        }
+                byte[] clientHash = player.reader.ReadBytes(Hashing.hashSize); // Get clientside hashed password
+
+                if(hash.SequenceEqual(clientHash)) {
+                    if(row.banned.HasValue) {
+                        response = Database.LoginResponse.banned;
+                    } else {
+                        row.lastLoggin = DateTime.Now;
+                        connections.Add(newGuid, player);
+                        response = Database.LoginResponse.success;
                     }
-                } else {
-                    // Advance with random data so bridge dosen't get stuck
-                    byte[] bytes = new byte[Hashing.saltSize];
-                    new Random().NextBytes(bytes);
-                    player.writer.Write(bytes);
-                    player.reader.ReadBytes(Hashing.hashSize);
-                }*/
-                #endregion
-                if (player.reader.ReadInt32() == 123) {
-                    response = Database.LoginResponse.success;
-                    connections.Add(newGuid, player);
                 }
-                player.writer.Write((byte)response);
+            } else {
+                // Advance with random data so bridge dosen't get stuck
+                byte[] bytes = new byte[Hashing.saltSize];
+                new Random().NextBytes(bytes);
+                player.writer.Write(bytes);
+                player.reader.ReadBytes(Hashing.hashSize);
+            }*/
+            #endregion
+            if (player.reader.ReadInt32() == 123) {
+                response = Database.LoginResponse.success;
+                connections.Add(newGuid, player);
+            }
+            player.writer.Write((byte)response);
+
+            while (true) {
+                try {
+                    player.reader.ReadByte(); //replace with handling requests for playerlist ect
+                } catch (IOException) {
+                    connections.Remove((ushort)player.entityData.guid);
+                    var disconnect = new Disconnect() {
+                        Guid = (ushort)player.entityData.guid
+                    };
+                    BroadcastUDP(disconnect.data);
+
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(newGuid + " disconnected");
+                    break;
+                }
             }
         }
         public void ListenUDP() {
             IPEndPoint source = null;
             while(true) {
                 byte[] datagram = udpListener.Receive(ref source);
-                ProcessDatagram(datagram, connections.First(x => x.Value.Address.Equals(source)).Value);
+                try {
+                    ProcessDatagram(datagram, connections.First(x => x.Value.Address.Equals(source)).Value);
+                } catch (InvalidOperationException) {  }
             }
         }
 
@@ -160,7 +178,8 @@ namespace Server {
                 #endregion
                 case Database.DatagramID.attack:
                     #region attack
-                    BroadcastUDP(datagram, player); //pass to all players except source
+                    var attack = new Attack(datagram);
+                    SendUDP(datagram, connections[attack.Target]);
                     break;
                 #endregion
                 case Database.DatagramID.shoot:
@@ -176,81 +195,78 @@ namespace Server {
                 case Database.DatagramID.chat:
                     #region chat
                     var chat = new Chat(datagram);
-                    if(chat.Text.StartsWith("/")) {
-                        var match = Regex.Match(chat.Text, @"(?P<command>(?<=\/)\w+) (?P<parameter>.+)");
-                        var command = match.Groups["command"].Value;
-                        var parameter = match.Groups["parameter"].Value;
-                        switch(match.Groups["command"].Value) {
-                            case "spawn":
-                                break;
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine(chat.Sender + ": " + chat.Text);
+                    //if(chat.Text.StartsWith("/")) {
+                    //    var match = Regex.Match(chat.Text, @"(?P<command>(?<=\/)\w+) (?P<parameter>.+)");
+                    //    var command = match.Groups["command"].Value;
+                    //    var parameter = match.Groups["parameter"].Value;
+                    //    switch(match.Groups["command"].Value) {
+                    //        case "spawn":
+                    //            break;
 
-                            case "reload_world":
-                                break;
+                    //        case "reload_world":
+                    //            break;
 
-                            case "xp":
-                                /*
-                                try {
-                                    int amount = Convert.ToInt32(parameter);
+                    //        case "xp":
+                    //            /*
+                    //            try {
+                    //                int amount = Convert.ToInt32(parameter);
 
-                                    var xpDummy = new DynamicUpdate() {
-                                        guid = 1000,
-                                        hostility = (byte)Database.Hostility.enemy
-                                    };
+                    //                var xpDummy = new DynamicUpdate() {
+                    //                    guid = 1000,
+                    //                    hostility = (byte)Database.Hostility.enemy
+                    //                };
 
-                                    BroadcastUDP(xpDummy.GetData());
+                    //                BroadcastUDP(xpDummy.GetData());
 
-                                    var kill = new Kill() {
-                                        killer = player.entityData.guid,
-                                        victim = 1000,
-                                        xp = amount
-                                    };
-                                    var serverUpdate = new ServerUpdate();
-                                    serverUpdate.kills.Add(kill);
-                                    serverUpdate.Write(player.writer, true);
+                    //                var kill = new Kill() {
+                    //                    killer = player.entityData.guid,
+                    //                    victim = 1000,
+                    //                    xp = amount
+                    //                };
+                    //                var serverUpdate = new ServerUpdate();
+                    //                serverUpdate.kills.Add(kill);
+                    //                serverUpdate.Write(player.writer, true);
                                     
-                                    break;
-                                } catch(Exception) {
-                                    SendUDP(new Chat("Wrong Syntax").data, player);
-                                }
-                                */
-                                break;
-                            case "time":
-                                try {
-                                    int index = parameter.IndexOf(":");
-                                    int hour = int.Parse(parameter.Substring(0, index));
-                                    int minute = int.Parse(parameter.Substring(index + 1));
+                    //                break;
+                    //            } catch(Exception) {
+                    //                SendUDP(new Chat("Wrong Syntax").data, player);
+                    //            }
+                    //            */
+                    //            break;
+                    //        case "time":
+                    //            try {
+                    //                int index = parameter.IndexOf(":");
+                    //                int hour = int.Parse(parameter.Substring(0, index));
+                    //                int minute = int.Parse(parameter.Substring(index + 1));
 
-                                    var time = new InGameTime() {
-                                        Time = (hour * 60 + minute) * 60000
-                                    };
-                                    SendUDP(time.data, player);
-                                } catch(Exception) {
-                                    SendUDP(new Chat("Wrong Syntax").data, player);
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                    //                var time = new InGameTime() {
+                    //                    Time = (hour * 60 + minute) * 60000
+                    //                };
+                    //                SendUDP(time.data, player);
+                    //            } catch(Exception) {
+                    //                SendUDP(new Chat("Wrong Syntax").data, player);
+                    //            }
+                    //            break;
+                    //        default:
+                    //            break;
+                    //    }
+                    //}
+
                     BroadcastUDP(datagram, null, true); //pass to all players
                     break;
                 #endregion
-                case Database.DatagramID.time:
-                    break; // Ignore time
                 case Database.DatagramID.interaction:
                     #region interaction
                     BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
-                case Database.DatagramID.staticUpdate:
-                case Database.DatagramID.block:
-                case Database.DatagramID.particle:
-                    break;
                 case Database.DatagramID.connect:
                     #region connect
                     var connect = new Connect(datagram) {
                         Guid = (ushort)player.entityData.guid,
-                        Mapseed = 8710 //hardcoded for now
+                        Mapseed = Database.mapseed
                     };
                     SendUDP(connect.data, player);
 
@@ -260,6 +276,9 @@ namespace Server {
                         }
                     }
                     player.playing = true;
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine(connect.Guid + " is now playing");
                     break;
                 #endregion
                 case Database.DatagramID.disconnect:
@@ -267,6 +286,9 @@ namespace Server {
                     var disconnect = new Disconnect(datagram);
                     connections[disconnect.Guid].playing = false;
                     BroadcastUDP(datagram, player);
+
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine(disconnect.Guid + " (" + connections[disconnect.Guid].entityData.name + ") is now lurking");
                     break;
                 #endregion
                 default:
