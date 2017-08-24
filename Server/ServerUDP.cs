@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Timers;
 
 using Resources;
@@ -12,6 +11,7 @@ using Resources.Datagram;
 using Resources.Packet;
 using Server.Addon;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace Server {
     class ServerUDP {
@@ -20,10 +20,13 @@ namespace Server {
         Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
         public testEntities DB = new testEntities();
         public Timer timer = new Timer(1000 * 10);
+        ServerUpdate worldUpdate = new ServerUpdate();
 
         public ServerUDP(int port) {
-            timer.Elapsed += Timer_Elapsed;
-            timer.Enabled = true;
+            //timer.Elapsed += Timer_Elapsed;
+            //timer.Enabled = true;
+            ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/newdii_arena.zox"));
+            model.Parse(worldUpdate, 8286952, 8344462, 204); //8397006, 8396937, 127 //near spawn
             udpListener = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             Task.Factory.StartNew(ListenUDP);
             tcpListener = new TcpListener(IPAddress.Any, port);
@@ -162,7 +165,7 @@ namespace Server {
 
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
                     if(!player.entityData.IsEmpty) { //dont filter the first packet
-                        entityUpdate.Filter(player.entityData);
+                        //entityUpdate.Filter(player.entityData);
                     }
                     if(!entityUpdate.IsEmpty) {
                         //entityUpdate.Broadcast(players, 0);
@@ -189,74 +192,55 @@ namespace Server {
                 #endregion
                 case Database.DatagramID.proc:
                     #region proc
+                    var proc = new Proc(datagram);
+
+                    switch (proc.Type) {
+                        case Database.ProcType.bulwalk:
+                            SendUDP(new Chat(string.Format("bulwalk: {0}% dmg reduction", 1.0f - proc.Modifier)).data, player);
+                            break;
+                        case Database.ProcType.poison:
+                            var poisonTick = new Attack() {
+                                Damage = proc.Modifier,
+                               Target = proc.Target
+                            };
+                            Poison(connections[proc.Target], poisonTick);
+                            break;
+                        case Database.ProcType.manashield:
+                            SendUDP(new Chat(string.Format("manashield: {0}", proc.Modifier)).data, player);
+                            break;
+                        case Database.ProcType.warFrenzy:
+                        case Database.ProcType.camouflage:
+                        case Database.ProcType.fireSpark:
+                        case Database.ProcType.intuition:
+                        case Database.ProcType.elusivenes:
+                        case Database.ProcType.swiftness:
+                            break;
+                        default:
+
+                            break;
+                    }
                     BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
                 case Database.DatagramID.chat:
                     #region chat
                     var chat = new Chat(datagram);
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write(chat.Sender + ": ");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine(chat.Text);
-                    //if(chat.Text.StartsWith("/")) {
-                    //    var match = Regex.Match(chat.Text, @"(?P<command>(?<=\/)\w+) (?P<parameter>.+)");
-                    //    var command = match.Groups["command"].Value;
-                    //    var parameter = match.Groups["parameter"].Value;
-                    //    switch(match.Groups["command"].Value) {
-                    //        case "spawn":
-                    //            break;
-
-                    //        case "reload_world":
-                    //            break;
-
-                    //        case "xp":
-                    //            /*
-                    //            try {
-                    //                int amount = Convert.ToInt32(parameter);
-
-                    //                var xpDummy = new DynamicUpdate() {
-                    //                    guid = 1000,
-                    //                    hostility = (byte)Database.Hostility.enemy
-                    //                };
-
-                    //                BroadcastUDP(xpDummy.GetData());
-
-                    //                var kill = new Kill() {
-                    //                    killer = player.entityData.guid,
-                    //                    victim = 1000,
-                    //                    xp = amount
-                    //                };
-                    //                var serverUpdate = new ServerUpdate();
-                    //                serverUpdate.kills.Add(kill);
-                    //                serverUpdate.Write(player.writer, true);
-                                    
-                    //                break;
-                    //            } catch(Exception) {
-                    //                SendUDP(new Chat("Wrong Syntax").data, player);
-                    //            }
-                    //            */
-                    //            break;
-                    //        case "time":
-                    //            try {
-                    //                int index = parameter.IndexOf(":");
-                    //                int hour = int.Parse(parameter.Substring(0, index));
-                    //                int minute = int.Parse(parameter.Substring(index + 1));
-
-                    //                var time = new InGameTime() {
-                    //                    Time = (hour * 60 + minute) * 60000
-                    //                };
-                    //                SendUDP(time.data, player);
-                    //            } catch(Exception) {
-                    //                SendUDP(new Chat("Wrong Syntax").data, player);
-                    //            }
-                    //            break;
-                    //        default:
-                    //            break;
-                    //    }
-                    //}
-
-                    BroadcastUDP(datagram, null, true); //pass to all players
+                    if (chat.Text.StartsWith("/")) {
+                        string parameter = "";
+                        string command = chat.Text.Substring(1);
+                        if (chat.Text.Contains(" ")) {
+                            int spaceIndex = command.IndexOf(" ");
+                            parameter = command.Substring(spaceIndex + 1);
+                            command = command.Substring(0, spaceIndex);
+                        }
+                        Command.UDP(command, parameter, player, this); //wip
+                    } else {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write(chat.Sender + ": ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine(chat.Text);
+                        BroadcastUDP(datagram, null, true); //pass to all players
+                    }
                     break;
                 #endregion
                 case Database.DatagramID.interaction:
@@ -278,7 +262,8 @@ namespace Server {
                         }
                     }
                     player.playing = true;
-
+                    Task.Delay(1100).ContinueWith(t => Spawn(player));
+                    Task.Delay(10000).ContinueWith(t => Load_world_delayed(player)); //WIP, causes crash when player disconnects before executed
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine(connect.Guid + " is now playing");
                     break;
@@ -297,6 +282,32 @@ namespace Server {
                     Console.WriteLine("unknown DatagramID: " + datagram[0]);
                     break;
             }
+        }
+
+        public void Load_world_delayed(Player player) {
+            try {
+                worldUpdate.Write(player.writer, true);
+            } catch { }
+
+        }
+        public void Spawn(Player player) {
+            var entityUpdate = new EntityUpdate() {
+                guid = player.entityData.guid,
+                position = new Resources.Utilities.LongVector() {
+                    x = (long)65536 * 8286952,
+                    y = (long)65536 * 8344462,
+                    z = (long)65536 * 204
+                }
+            };
+            SendUDP(entityUpdate.Data, player);
+        }
+        public void Poison(Player target, Attack attack, byte iteration = 0) {
+            if (iteration < 7 && connections.ContainsValue(target) && target.playing) {
+                SendUDP(attack.data, target);
+                iteration++;
+                Task.Delay(500).ContinueWith(t => Poison(target, attack, iteration));
+            }
+
         }
     }
 }

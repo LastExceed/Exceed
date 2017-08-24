@@ -2,10 +2,11 @@
 using Resources;
 using Resources.Packet;
 using Resources.Packet.Part;
+using Resources.Datagram;
 
 namespace Server.Addon {
     class Command {
-        public static void Execute(string command, string parameter, Player player) {
+        public static void TCP(string command, string parameter, Player player) {
             switch (command) {
                 case "spawn":
                     break;
@@ -46,6 +47,33 @@ namespace Server.Addon {
                             time = (hour * 60 + minute) * 60000
                         };
                         time.Write(player.writer, true);
+                    } catch (Exception) {
+                        //invalid syntax
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        public static void UDP(string command, string parameter, Player player, ServerUDP server) {
+            switch (command) {
+                case "spawn":
+                    break;
+
+                case "reload_world":
+                    break;
+
+                case "time":
+                    try {
+                        int index = parameter.IndexOf(":");
+                        int hour = Convert.ToInt32(parameter.Substring(0, index));
+                        int minute = Convert.ToInt32(parameter.Substring(index + 1));
+
+                        var inGameTime = new InGameTime() {
+                            Time = (hour * 60 + minute) * 60000
+                        };
+                        server.SendUDP(inGameTime.data, player);
                     } catch (Exception) {
                         //invalid syntax
                     }

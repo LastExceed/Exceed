@@ -255,7 +255,7 @@ namespace Server {
                             parameter = command.Substring(spaceIndex + 1);
                             command = command.Substring(0, spaceIndex);
                         }
-                        Command.Execute(command, parameter, player); //wip
+                        Command.TCP(command, parameter, player); //wip
                     } else {
                         chatMessage.Broadcast(players, 0);
                         Console.ForegroundColor = ConsoleColor.Cyan;

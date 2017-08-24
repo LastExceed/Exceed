@@ -3,7 +3,6 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
-using System.Threading;
 
 using Resources;
 using Resources.Packet;
@@ -11,20 +10,21 @@ using Resources.Packet.Part;
 using Resources.Datagram;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Collections.Generic;
+using ReadWriteProcessMemory;
 
 namespace Bridge {
     static class BridgeTCPUDP {
         public static UdpClient udpToServer;
         public static TcpClient tcpToServer, tcpToClient;
         public static TcpListener tcpListener = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345); //hardcoded because client port can't be changed
-
-        public static Stream stream;
         public static BinaryWriter swriter, cwriter;
         public static BinaryReader sreader, creader;
-
         public static ushort guid;
         public static Form1 form;
         public static bool connected = false;
+        public static Dictionary<ulong, EntityUpdate> players = new Dictionary<ulong, EntityUpdate>();
+        public static ProcessMemory cubeWorld;
 
         public static void Connect() {
             form.Log("connecting...", Color.DarkGray);
@@ -50,7 +50,7 @@ namespace Bridge {
                 return;
             }
             
-            stream = tcpToServer.GetStream();
+            Stream stream = tcpToServer.GetStream();
             swriter = new BinaryWriter(stream);
             sreader = new BinaryReader(stream);
             form.Log("authenticating...", Color.DarkGray);
@@ -68,11 +68,9 @@ namespace Bridge {
                 case Database.LoginResponse.success:
                     form.Log("success\n", Color.Green);
                     connected = true;
-                    new Thread(new ThreadStart(ListenFromClientTCP)).Start();
-                    //Task.Factory.StartNew(ListenFromClientTCP);
+                    Task.Factory.StartNew(ListenFromClientTCP);
                     Task.Factory.StartNew(ListenFromServerTCP);
                     Task.Factory.StartNew(ListenFromServerUDP);
-
                     break;
                 case Database.LoginResponse.fail:
                     MessageBox.Show("Wrong Username/Password");
@@ -111,10 +109,13 @@ namespace Bridge {
                 try {
                     tcpToClient = tcpListener.AcceptTcpClient();
                 } catch (SocketException) {
+                    Console.Beep();
                     //WSAcancellationblabla
                     return;
                 }
                 tcpListener.Stop();
+                cubeWorld = new ProcessMemory("Cube");
+
                 form.Log("client connected\n", Color.Green);
                 tcpToClient.NoDelay = true;
                 creader = new BinaryReader(tcpToClient.GetStream());
@@ -125,11 +126,12 @@ namespace Bridge {
                         packetID = creader.ReadInt32();
                         ProcessClientPacket(packetID);
                     } catch (IOException) {
+                        Console.Beep();
                         if (connected) {
                             SendUDP(new Disconnect() { Guid = guid }.data);
                         }
                         break;
-                    } catch (ObjectDisposedException) { }
+                    } catch (ObjectDisposedException) { Console.Beep(); }
                 }
                 form.Log("client disconnected\n", Color.Red);
             }
@@ -137,8 +139,9 @@ namespace Bridge {
         public static void ListenFromServerTCP() {
             while(true) {
                 try {
-                    ProcessServerPacket(sreader.ReadByte()); //we can use byte here because it doesn't contain vanilla packets
+                    ProcessServerPacket(sreader.ReadInt32()); //we can use byte here because it doesn't contain vanilla packets
                 } catch(IOException) {
+                    Console.Beep();
                     if (connected) {
                         form.Log("Connection to Server lost\n", Color.Red);
                         Close();
@@ -153,9 +156,19 @@ namespace Bridge {
             try {
                 while (true) {
                     byte[] datagram = udpToServer.Receive(ref source);
-                    ProcessDatagram(datagram);
+                    try {
+                        ProcessDatagram(datagram);
+                    } catch (IOException) {
+                        Console.Beep();
+                        return;
+                    }
                 }
-            } catch (SocketException) { }
+            } catch (SocketException) {
+                //when UDPclient is closed
+            } catch (IOException) {
+                //when bridge tries to pass a packet to
+                //the client while the client disconnects
+            }
         }
 
         public static void ProcessDatagram(byte[] datagram) {
@@ -164,7 +177,21 @@ namespace Bridge {
                 case Database.DatagramID.entityUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
-                    entityUpdate.Write(cwriter);
+
+                    if (entityUpdate.guid == guid) {
+                        int xAddress = cubeWorld.ReadInt(cubeWorld.ReadInt(cubeWorld.baseAddress + 0x0036b1c8) + 0x39C) + 0x10;
+                        cubeWorld.WriteLong(xAddress, entityUpdate.position.x);
+                        cubeWorld.WriteLong(xAddress + 8, entityUpdate.position.y);
+                        cubeWorld.WriteLong(xAddress + 16, entityUpdate.position.z);
+                    } else {
+                        entityUpdate.Write(cwriter);
+                    }
+
+                    if (players.ContainsKey(entityUpdate.guid)) {
+                        entityUpdate.Merge(players[entityUpdate.guid]);
+                    } else {
+                        players.Add(entityUpdate.guid, entityUpdate);
+                    }
                     break;
                 #endregion
                 case Database.DatagramID.attack:
@@ -176,7 +203,7 @@ namespace Bridge {
                         damage = attack.Damage,
                         critical = attack.Critical ? 1 : 0,
                         stuntime = attack.Stuntime,
-                        position = new Resources.Utilities.LongVector(),
+                        position = players[attack.Target].position,
                         skill = attack.Skill,
                         type = (byte)attack.Type,
                         showlight = (byte)(attack.ShowLight ? 1 : 0)
@@ -234,7 +261,7 @@ namespace Bridge {
                     var time = new Time() {
                         time = igt.Time
                     };
-                    time.Write(cwriter, true);
+                    time.Write(cwriter);
                     break;
                 #endregion
                 case Database.DatagramID.interaction:
@@ -335,6 +362,11 @@ namespace Bridge {
                 case Database.PacketID.entityUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(creader);
+                    if (players.ContainsKey(entityUpdate.guid)) {
+                        entityUpdate.Merge(players[entityUpdate.guid]);
+                    } else {
+                        players.Add(entityUpdate.guid, entityUpdate);
+                    }
                     SendUDP(entityUpdate.Data);
                     break;
                 #endregion
@@ -446,6 +478,13 @@ namespace Bridge {
         }
         public static void ProcessServerPacket(int packetID) {
             switch(packetID) {
+                case 4:
+                    int count = sreader.ReadInt32();
+                    byte[] buffer = sreader.ReadBytes(count);
+                    cwriter.Write(4);
+                    cwriter.Write(count);
+                    cwriter.Write(buffer);
+                    break;
                 default:
                     //Unknown package
                     break;
