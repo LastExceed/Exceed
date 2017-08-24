@@ -78,6 +78,8 @@ namespace Server.Addon {
                         //invalid syntax
                     }
                     break;
+                case "set":
+                    break;
 
                 default:
                     break;

@@ -24,7 +24,6 @@ namespace Bridge {
         public static Form1 form;
         public static bool connected = false;
         public static Dictionary<ulong, EntityUpdate> players = new Dictionary<ulong, EntityUpdate>();
-        public static ProcessMemory cubeWorld;
 
         public static void Connect() {
             form.Log("connecting...", Color.DarkGray);
@@ -87,7 +86,9 @@ namespace Bridge {
         public static void Close() {
             connected = false;
             LingerOption lingerOption = new LingerOption(true, 0);
-            udpToServer.Close();
+            try {
+                udpToServer.Close();
+            } catch { }
             try {
                 tcpToServer.LingerState = lingerOption;
                 tcpToServer.Client.Close();
@@ -109,12 +110,12 @@ namespace Bridge {
                 try {
                     tcpToClient = tcpListener.AcceptTcpClient();
                 } catch (SocketException) {
-                    Console.Beep();
                     //WSAcancellationblabla
                     return;
                 }
                 tcpListener.Stop();
-                cubeWorld = new ProcessMemory("Cube");
+                CwRam.memory = new ProcessMemory("Cube");
+                form.Invoke(new Action(() => form.panelItemEditor.Enabled = true));
 
                 form.Log("client connected\n", Color.Green);
                 tcpToClient.NoDelay = true;
@@ -126,12 +127,11 @@ namespace Bridge {
                         packetID = creader.ReadInt32();
                         ProcessClientPacket(packetID);
                     } catch (IOException) {
-                        Console.Beep();
                         if (connected) {
                             SendUDP(new Disconnect() { Guid = guid }.data);
                         }
                         break;
-                    } catch (ObjectDisposedException) { Console.Beep(); }
+                    } catch (ObjectDisposedException) { }
                 }
                 form.Log("client disconnected\n", Color.Red);
             }
@@ -141,7 +141,6 @@ namespace Bridge {
                 try {
                     ProcessServerPacket(sreader.ReadInt32()); //we can use byte here because it doesn't contain vanilla packets
                 } catch(IOException) {
-                    Console.Beep();
                     if (connected) {
                         form.Log("Connection to Server lost\n", Color.Red);
                         Close();
@@ -159,7 +158,6 @@ namespace Bridge {
                     try {
                         ProcessDatagram(datagram);
                     } catch (IOException) {
-                        Console.Beep();
                         return;
                     }
                 }
@@ -179,10 +177,9 @@ namespace Bridge {
                     var entityUpdate = new EntityUpdate(datagram);
 
                     if (entityUpdate.guid == guid) {
-                        int xAddress = cubeWorld.ReadInt(cubeWorld.ReadInt(cubeWorld.baseAddress + 0x0036b1c8) + 0x39C) + 0x10;
-                        cubeWorld.WriteLong(xAddress, entityUpdate.position.x);
-                        cubeWorld.WriteLong(xAddress + 8, entityUpdate.position.y);
-                        cubeWorld.WriteLong(xAddress + 16, entityUpdate.position.z);
+                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x10, entityUpdate.position.x);
+                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x18, entityUpdate.position.y);
+                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x20, entityUpdate.position.z);
                     } else {
                         entityUpdate.Write(cwriter);
                     }
