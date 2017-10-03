@@ -16,7 +16,7 @@ namespace Resources.Packet.Part {
         public int time; //for open/close doors ect
         public int unknown;
         public int paddingC;
-        public ulong guid; //of player who interacts with it
+        public long guid; //of player who interacts with it
 
         public StaticEntity() { }
 
@@ -34,7 +34,7 @@ namespace Resources.Packet.Part {
             time = reader.ReadInt32();
             unknown = reader.ReadInt32();
             paddingC = reader.ReadInt32();
-            guid = reader.ReadUInt64();
+            guid = reader.ReadInt64();
         }
 
         public void Write(BinaryWriter writer) {

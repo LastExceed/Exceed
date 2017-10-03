@@ -7,12 +7,15 @@ namespace Resources.Packet {
     public class ChatMessage {
         public const int packetID = 10;
 
-        public ulong sender;
+        public long sender;
         public string message;
 
         public ChatMessage() { }
 
-        public ChatMessage(BinaryReader reader) {
+        public ChatMessage(BinaryReader reader, bool readSender = false) {
+            if (readSender) {
+                sender = reader.ReadInt64();
+            }
             int length = reader.ReadInt32();
             byte[] mBytes = reader.ReadBytes(length * 2);
             message = Encoding.Unicode.GetString(mBytes);
@@ -29,7 +32,7 @@ namespace Resources.Packet {
             writer.Write(mBytes);
         }
 
-        public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
+        public void Broadcast(Dictionary<long, Player> players, long toSkip) {
             byte[] mBytes = Encoding.Unicode.GetBytes(message);
             foreach(Player player in new List<Player>(players.Values)) {
                 if(player.entityData.guid != toSkip) {

@@ -23,7 +23,7 @@ namespace Bridge {
         public static ushort guid;
         public static Form1 form;
         public static bool connected = false;
-        public static Dictionary<ulong, EntityUpdate> players = new Dictionary<ulong, EntityUpdate>();
+        public static Dictionary<long, EntityUpdate> players = new Dictionary<long, EntityUpdate>();
 
         public static void Connect() {
             form.Log("connecting...", Color.DarkGray);
@@ -37,7 +37,8 @@ namespace Bridge {
                 udpToServer = new UdpClient(tcpToServer.Client.LocalEndPoint as IPEndPoint);
                 udpToServer.Connect(serverIP, serverPort);
                 form.Log("connected\n", Color.Green);
-            } catch(Exception ex) {
+            }
+            catch (StackOverflowException ex) {
                 tcpToServer.Close();
                 tcpToServer = null;
 
@@ -48,7 +49,7 @@ namespace Bridge {
                 form.EnableButtons();
                 return;
             }
-            
+
             Stream stream = tcpToServer.GetStream();
             swriter = new BinaryWriter(stream);
             sreader = new BinaryReader(stream);
@@ -61,9 +62,10 @@ namespace Bridge {
             */
             #endregion
 
-            swriter.Write(123);
+            swriter.Write(123);//placeholder for login procedure
+            swriter.Write(Database.bridgeVersion);
 
-            switch((Database.LoginResponse)sreader.ReadByte()) {
+            switch ((Database.LoginResponse)sreader.ReadByte()) {
                 case Database.LoginResponse.success:
                     form.Log("success\n", Color.Green);
                     connected = true;
@@ -77,6 +79,9 @@ namespace Bridge {
                 case Database.LoginResponse.banned:
                     MessageBox.Show("You are banned");
                     goto default;
+                case Database.LoginResponse.outdated:
+                    MessageBox.Show("your bridge is outdated");
+                    goto default;
                 default:
                     form.Log("failed\n", Color.Red);
                     form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
@@ -88,28 +93,34 @@ namespace Bridge {
             LingerOption lingerOption = new LingerOption(true, 0);
             try {
                 udpToServer.Close();
-            } catch { }
+            }
+            catch { }
             try {
                 tcpToServer.LingerState = lingerOption;
                 tcpToServer.Client.Close();
                 tcpToServer.Close();
-            } catch { }
+            }
+            catch { }
             try {
                 tcpToClient.LingerState = lingerOption;
                 tcpToClient.Client.Close();
                 tcpToClient.Close();
-            } catch { }
+            }
+            catch { }
             try {
                 tcpListener.Stop();
-            } catch { }
+            }
+            catch { }
         }
 
         public static void ListenFromClientTCP() {
             while (connected) {
+                //SendUDP(new byte[1] { 99 });
                 tcpListener.Start();
                 try {
                     tcpToClient = tcpListener.AcceptTcpClient();
-                } catch (SocketException) {
+                }
+                catch (SocketException) {
                     //WSAcancellationblabla
                     return;
                 }
@@ -126,21 +137,24 @@ namespace Bridge {
                     try {
                         packetID = creader.ReadInt32();
                         ProcessClientPacket(packetID);
-                    } catch (IOException) {
+                    }
+                    catch (IOException) {
                         if (connected) {
                             SendUDP(new Disconnect() { Guid = guid }.data);
                         }
                         break;
-                    } catch (ObjectDisposedException) { }
+                    }
+                    catch (ObjectDisposedException) { }
                 }
                 form.Log("client disconnected\n", Color.Red);
             }
         }
         public static void ListenFromServerTCP() {
-            while(true) {
+            while (true) {
                 try {
                     ProcessServerPacket(sreader.ReadInt32()); //we can use byte here because it doesn't contain vanilla packets
-                } catch(IOException) {
+                }
+                catch (IOException) {
                     if (connected) {
                         form.Log("Connection to Server lost\n", Color.Red);
                         Close();
@@ -157,13 +171,16 @@ namespace Bridge {
                     byte[] datagram = udpToServer.Receive(ref source);
                     try {
                         ProcessDatagram(datagram);
-                    } catch (IOException) {
+                    }
+                    catch (IOException) {
                         return;
                     }
                 }
-            } catch (SocketException) {
+            }
+            catch (SocketException) {
                 //when UDPclient is closed
-            } catch (IOException) {
+            }
+            catch (IOException) {
                 //when bridge tries to pass a packet to
                 //the client while the client disconnects
             }
@@ -180,13 +197,15 @@ namespace Bridge {
                         CwRam.memory.WriteLong(CwRam.EntityStart + 0x10, entityUpdate.position.x);
                         CwRam.memory.WriteLong(CwRam.EntityStart + 0x18, entityUpdate.position.y);
                         CwRam.memory.WriteLong(CwRam.EntityStart + 0x20, entityUpdate.position.z);
-                    } else {
+                    }
+                    else {
                         entityUpdate.Write(cwriter);
                     }
 
                     if (players.ContainsKey(entityUpdate.guid)) {
                         entityUpdate.Merge(players[entityUpdate.guid]);
-                    } else {
+                    }
+                    else {
                         players.Add(entityUpdate.guid, entityUpdate);
                     }
                     break;
@@ -218,7 +237,9 @@ namespace Bridge {
                         velocity = shootDatagram.Velocity,
                         scale = shootDatagram.Scale,
                         particles = shootDatagram.Particles,
-                        projectile = (int)shootDatagram.Projectile
+                        projectile = (int)shootDatagram.Projectile,
+                        chunkX = (int)shootDatagram.Position.x / 0x1000000,
+                        chunkY = (int)shootDatagram.Position.y / 0x1000000
                     };
                     serverUpdate.shoots.Add(shootPacket);
                     serverUpdate.Write(cwriter);
@@ -241,12 +262,18 @@ namespace Bridge {
                 case Database.DatagramID.chat:
                     #region chat
                     var chat = new Chat(datagram);
-
                     var chatMessage = new ChatMessage() {
                         sender = chat.Sender,
                         message = chat.Text
                     };
-                    chatMessage.Write(cwriter, true);
+                    try {
+                        chatMessage.Write(cwriter, true);
+                    }
+                    catch (Exception ex) {
+                        if (!(ex is NullReferenceException || ex is ObjectDisposedException)) {
+                            throw;
+                        }
+                    }
                     form.Log(chat.Sender + ": ", Color.Cyan);
                     form.Log(chat.Text + "\n", Color.White);
                     break;
@@ -342,12 +369,13 @@ namespace Bridge {
                 case Database.DatagramID.disconnect:
                     #region disconnect
                     var disconnect = new Disconnect(datagram);
-                    var pdc = new Resources.Packet.EntityUpdate() {
+                    var pdc = new EntityUpdate() {
                         guid = disconnect.Guid,
                         hostility = 255, //workaround for DC because i dont like packet2
                         HP = 0
                     };
                     pdc.Write(cwriter);
+                    players.Remove(disconnect.Guid);
                     break;
                 #endregion
                 default:
@@ -355,22 +383,26 @@ namespace Bridge {
             }
         }
         public static void ProcessClientPacket(int packetID) {
-            switch((Database.PacketID)packetID) {
+            switch ((Database.PacketID)packetID) {
                 case Database.PacketID.entityUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(creader);
                     if (players.ContainsKey(entityUpdate.guid)) {
+                        entityUpdate.Filter(players[entityUpdate.guid]);
                         entityUpdate.Merge(players[entityUpdate.guid]);
-                    } else {
+                    }
+                    else {
                         players.Add(entityUpdate.guid, entityUpdate);
                     }
-                    SendUDP(entityUpdate.Data);
+                    if (!entityUpdate.IsEmpty) {
+                        SendUDP(entityUpdate.Data);
+                    }
                     break;
                 #endregion
                 case Database.PacketID.entityAction:
                     #region entity action
                     EntityAction entityAction = new EntityAction(creader);
-                    switch((Database.ActionType)entityAction.type) {
+                    switch ((Database.ActionType)entityAction.type) {
                         case Database.ActionType.talk:
                             break;
                         case Database.ActionType.staticInteraction:
@@ -378,11 +410,24 @@ namespace Bridge {
                         case Database.ActionType.pickup:
                             break;
                         case Database.ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
-                            var serverUpdate = new ServerUpdate();
-                            serverUpdate.pickups.Add(new Pickup() { guid = guid, item = entityAction.item });
-                            serverUpdate.Write(cwriter);
+                            if (form.radioButtonDestroy.Checked) {
+                                new ChatMessage() { message = "item destroyed" }.Write(cwriter);
+                            }
+                            else {
+                                var serverUpdate = new ServerUpdate();
+                                var pickup = new Pickup() { guid = guid, item = entityAction.item };
+                                serverUpdate.pickups.Add(pickup);
+                                if (form.radioButtonDuplicate.Checked) {
+                                    serverUpdate.pickups.Add(pickup);
+                                }
+                                serverUpdate.Write(cwriter);
+                            }
                             break;
                         case Database.ActionType.callPet:
+                            var petCall = new PetCall() {
+                                Guid = guid
+                            };
+                            SendUDP(petCall.data);
                             break;
                         default:
                             //unknown type
@@ -438,10 +483,72 @@ namespace Bridge {
                     #region chat
                     var chatMessage = new ChatMessage(creader);
 
-                    var chat = new Chat(chatMessage.message) {
-                        Sender = guid//client doesn't send this (ushort)chatMessage.sender
-                    };
-                    SendUDP(chat.data);
+                    if (chatMessage.message.ToLower() == @"/set") {
+                        var rnd = new Random();
+                        byte materialA, materialW;
+                        List<byte> list;
+                        switch (players[guid].entityClass) {
+                            case 1:
+                                materialA = 1;
+                                materialW = 1;
+                                list = new List<byte> { 0, 13, 15 };
+                                break;
+                            case 2:
+                                materialA = 26;
+                                materialW = 2;
+                                list = new List<byte> { 6, 7, 8 };
+                                break;
+                            case 3:
+                                materialA = 25;
+                                materialW = 2;
+                                list = new List<byte> { 10, 11, 12 }; ;
+                                break;
+                            case 4:
+                                materialA = 27;
+                                materialW = 1;
+                                list = new List<byte> { 3, 4, 5 };
+                                break;
+                            default:
+                                materialA = 0;
+                                materialW = 0;
+                                list = new List<byte> { };
+                                break;
+                        }
+
+                        var serverUpdate = new ServerUpdate();
+                        foreach (var i in list) {
+                            serverUpdate.pickups.Add(new Pickup() {
+                                guid = guid,
+                                item = new Item() {
+                                    type = 3,
+                                    subtype = i,
+                                    modifier = rnd.Next(0, 0x7fffffff),
+                                    rarity = 4,
+                                    material = materialW,
+                                    level = (short)players[guid].level
+                                }
+                            });
+                        }
+                        for (byte i = 4; i < 8; i++) {
+                            serverUpdate.pickups.Add(new Pickup() {
+                                guid = guid,
+                                item = new Item() {
+                                    type = i,
+                                    modifier = rnd.Next(),
+                                    rarity = 4,
+                                    material = materialA,
+                                    level = (short)players[guid].level
+                                }
+                            });
+                        }
+                        serverUpdate.Write(cwriter);
+                    }
+                    else {
+                        var chat = new Chat(chatMessage.message) {
+                            Sender = guid//client doesn't send this //(ushort)chatMessage.sender
+                        };
+                        SendUDP(chat.data);
+                    }
                     break;
                 #endregion
                 case Database.PacketID.chunk:
@@ -457,10 +564,11 @@ namespace Bridge {
                 case Database.PacketID.version:
                     #region version
                     var version = new ProtocolVersion(creader);
-                    if(version.version != 3) {
+                    if (version.version != 3) {
                         version.version = 3;
                         version.Write(cwriter, true);
-                    } else {
+                    }
+                    else {
                         var connect = new Connect();
                         SendUDP(connect.data);
                     }
@@ -474,7 +582,7 @@ namespace Bridge {
             }
         }
         public static void ProcessServerPacket(int packetID) {
-            switch(packetID) {
+            switch (packetID) {
                 case 4:
                     int count = sreader.ReadInt32();
                     byte[] buffer = sreader.ReadBytes(count);

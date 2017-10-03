@@ -5,7 +5,7 @@ using Resources.Packet;
 
 namespace Server.Addon {
     class Announce {
-        public static void Join(string current, string previous, Dictionary<ulong, Player> players) {
+        public static void Join(string current, string previous, Dictionary<long, Player> players) {
             if (current != previous) {
                 if (previous == null) {
                     var chatMessage = new ChatMessage() {
@@ -27,7 +27,7 @@ namespace Server.Addon {
             }
         }
 
-        public static void Leave(string name, Dictionary<ulong, Player> players) {
+        public static void Leave(string name, Dictionary<long, Player> players) {
             var chatMessage = new ChatMessage() {
                 message = name + " left"
             };

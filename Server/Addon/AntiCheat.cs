@@ -36,7 +36,7 @@ namespace Server.Addon {
             if(toInspect.multipliers != null) {
                 if(toInspect.multipliers.HP != 100 ||
                     toInspect.multipliers.attackSpeed != 1 ||
-                    toInspect.multipliers.damge != 1 ||
+                    toInspect.multipliers.damage != 1 ||
                     toInspect.multipliers.armor != 1 ||
                     toInspect.multipliers.resi != 1) {
                     return "multipliers";

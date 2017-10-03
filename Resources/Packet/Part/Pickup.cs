@@ -2,13 +2,13 @@
 
 namespace Resources.Packet.Part {
     public class Pickup {
-        public ulong guid;
+        public long guid;
         public Item item;
 
         public Pickup() { }
 
         public Pickup(BinaryReader reader) {
-            guid = reader.ReadUInt64();
+            guid = reader.ReadInt64();
             item = new Item(reader);
         }
 

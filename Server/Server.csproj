@@ -74,6 +74,7 @@
     <Compile Include="Addon\Announce.cs" />
     <Compile Include="Addon\AntiCheat.cs" />
     <Compile Include="Addon\Command.cs" />
+    <Compile Include="Addon\Query.cs" />
     <Compile Include="Addon\Teleport.cs" />
     <Compile Include="Addon\ZoxModel.cs" />
     <Compile Include="Addon\Tomb.cs" />

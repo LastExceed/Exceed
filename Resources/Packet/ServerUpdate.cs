@@ -21,8 +21,80 @@ namespace Resources.Packet {
         public List<PassiveProc> passiveProcs = new List<PassiveProc>();
         public List<Mission> missions = new List<Mission>();
 
-        public void Read(BinaryReader reader) {
-            //todo
+        public ServerUpdate() {
+
+        }
+
+        public ServerUpdate(BinaryReader reader) {
+            byte[] uncompressed = Zlib.Decompress(reader.ReadBytes(reader.ReadInt32()));
+
+            MemoryStream stream = new MemoryStream(uncompressed);
+            BinaryReader r = new BinaryReader(stream);
+
+            var count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                blockDeltas.Add(new BlockDelta(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                hits.Add(new Hit(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                particles.Add(new Particle(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                sounds.Add(new Sound(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                shoots.Add(new Shoot(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                statics.Add(new StaticEntity(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                chunkItems.Add(new ChunkItems(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                p48s.Add(new P48(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                pickups.Add(new Pickup(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                kills.Add(new Kill(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                damages.Add(new Damage(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                passiveProcs.Add(new PassiveProc(r));
+            }
+
+            count = r.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                missions.Add(new Mission(r));
+            }
         }
 
         public byte[] GetBytes() {
@@ -107,7 +179,7 @@ namespace Resources.Packet {
             writer.Write(data);
         }
 
-        public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
+        public void Broadcast(Dictionary<long, Player> players, long toSkip) {
             byte[] data = GetBytes();
             foreach(Player player in new List<Player>(players.Values)) {
                 if(player.entityData.guid != toSkip) {

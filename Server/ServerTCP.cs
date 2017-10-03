@@ -15,8 +15,8 @@ using Resources.Packet.Part;
 namespace Server {
     public class ServerTCP {
         public TcpListener listener;
-        Dictionary<ulong, Player> players = new Dictionary<ulong, Player>();
-        ulong guidCounter = 1;
+        Dictionary<long, Player> players = new Dictionary<long, Player>();
+        long guidCounter = 1;
         ServerUpdate worldUpdate = new ServerUpdate();
 
         public ServerTCP(int port) {

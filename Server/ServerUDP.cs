@@ -25,8 +25,54 @@ namespace Server {
         public ServerUDP(int port) {
             //timer.Elapsed += Timer_Elapsed;
             //timer.Enabled = true;
-            ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/newdii_arena.zox"));
-            model.Parse(worldUpdate, 8286952, 8344462, 204); //8397006, 8396937, 127 //near spawn
+            ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Fulcnix_exceedspawn.zox"));
+            model.Parse(worldUpdate, 8286883, 8344394, 200); 
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern2.zox"));
+            model.Parse(worldUpdate, 8287010, 8344432, 200);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern1.zox"));
+            model.Parse(worldUpdate, 8286919, 8344315, 212); 
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/aster_arena.zox"));
+            model.Parse(worldUpdate, 8286775, 8344392, 207);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/michael_project1.zox"));
+            model.Parse(worldUpdate, 8286898, 8344375, 213); 
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
+            model.Parse(worldUpdate, 8286885, 8344505, 208); 
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
+            model.Parse(worldUpdate, 8286885, 8344629, 208); 
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Tiecz_MountainArena.zox"));
+            model.Parse(worldUpdate, 8286885, 8344759, 208);
+            //8397006, 8396937, 127 //near spawn
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay11.zox"));
+            model.Parse(worldUpdate, 8286770, 8344262, 207);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay12.zox"));
+            model.Parse(worldUpdate, 8286770, 8344136, 207);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay13.zox"));
+            model.Parse(worldUpdate, 8286770, 8344010, 207);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay14.zox"));
+            model.Parse(worldUpdate, 8286770, 8344010, 333);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay01.zox"));
+            model.Parse(worldUpdate, 8286644, 8344010, 333);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay02.zox"));
+            model.Parse(worldUpdate, 8286118, 8344010, 333);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay03.zox"));
+            model.Parse(worldUpdate, 8285992, 8344010, 333);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay04.zox"));
+            model.Parse(worldUpdate, 8285992, 8344136, 333);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay05.zox"));
+            model.Parse(worldUpdate, 8285992, 8344262, 333);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay06.zox"));
+            model.Parse(worldUpdate, 8286118, 8344262, 333);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay07.zox"));
+            model.Parse(worldUpdate, 8286118, 8344136, 333);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay08.zox"));
+            model.Parse(worldUpdate, 8286244, 8344136, 333);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay09.zox"));
+            model.Parse(worldUpdate, 8286244, 8344262, 333);
+            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay10.zox"));
+            model.Parse(worldUpdate, 8286770, 8344262, 333);
+
+            Console.WriteLine("loading completed");
+
             udpListener = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             Task.Factory.StartNew(ListenUDP);
             tcpListener = new TcpListener(IPAddress.Any, port);
@@ -96,15 +142,22 @@ namespace Server {
                 player.reader.ReadBytes(Hashing.hashSize);
             }*/
             #endregion
+
             if (player.reader.ReadInt32() == 123) {
-                response = Database.LoginResponse.success;
-                connections.Add(newGuid, player);
+                if (player.reader.ReadInt32() == Database.bridgeVersion) {
+                    response = Database.LoginResponse.success;
+                    connections.Add(newGuid, player);
+                }
+                else {
+                    response = Database.LoginResponse.outdated;
+                }
             }
             player.writer.Write((byte)response);
 
             while (true) {
                 try {
-                    player.reader.ReadByte(); //replace with handling requests for playerlist ect
+                    byte packetID = player.reader.ReadByte();
+                    ProcessPacket(packetID, player);
                 } catch (IOException) {
                     connections.Remove((ushort)player.entityData.guid);
                     var disconnect = new Disconnect() {
@@ -139,8 +192,25 @@ namespace Server {
             }
         }
 
-        public void ProcessPacket(int packetID, Player player) {
-            throw new NotImplementedException();
+        public void ProcessPacket(byte packetID, Player player) {
+            switch (packetID) {
+                case 0://query
+                    var query = new Query() {
+                        name = "Exceed Official",
+                        slots = 65535,
+                        players = new Dictionary<ushort, string>()
+                    };
+                    foreach (var connection in connections.Values) {
+                        if (connection.playing) {
+                            query.players.Add((ushort)connection.entityData.guid, connection.entityData.name);
+                        }
+                    }
+                    player.writer.Write(JsonConvert.SerializeObject(query));
+                    break;
+                default:
+                    Console.WriteLine("unknown packet: " + packetID);
+                    break;
+            }
         }
         public void ProcessDatagram(byte[] datagram, Player player) {
             switch((Database.DatagramID)datagram[0]) {
@@ -187,6 +257,7 @@ namespace Server {
                 #endregion
                 case Database.DatagramID.shoot:
                     #region shoot
+                    var shoot = new Resources.Datagram.Shoot(datagram);
                     BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
@@ -226,7 +297,7 @@ namespace Server {
                     #region chat
                     var chat = new Chat(datagram);
                     if (chat.Text.StartsWith("/")) {
-                        string parameter = "";
+                        string parameter = string.Empty;
                         string command = chat.Text.Substring(1);
                         if (chat.Text.Contains(" ")) {
                             int spaceIndex = command.IndexOf(" ");
@@ -245,6 +316,7 @@ namespace Server {
                 #endregion
                 case Database.DatagramID.interaction:
                     #region interaction
+                    var interaction = new Interaction(datagram);
                     BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
@@ -262,8 +334,8 @@ namespace Server {
                         }
                     }
                     player.playing = true;
-                    Task.Delay(1100).ContinueWith(t => Spawn(player));
-                    Task.Delay(10000).ContinueWith(t => Load_world_delayed(player)); //WIP, causes crash when player disconnects before executed
+                    Task.Delay(100).ContinueWith(t => Spawn(player));
+                    Task.Delay(100).ContinueWith(t => Load_world_delayed(player)); //WIP, causes crash when player disconnects before executed
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine(connect.Guid + " is now playing");
                     break;
@@ -278,6 +350,23 @@ namespace Server {
                     Console.WriteLine(disconnect.Guid + " is now lurking");
                     break;
                 #endregion
+                case Database.DatagramID.petCall:
+                    var petCall = new PetCall(datagram);
+                    var arrowRain = new Resources.Datagram.Shoot {
+                        //Position = connections[petCall.Guid].entityData.position,
+                        Scale = 1
+                    };
+                    arrowRain.Position.x = connections[petCall.Guid].entityData.position.x - 0x30000;
+                    arrowRain.Position.y = connections[petCall.Guid].entityData.position.y - 0x30000;
+                    arrowRain.Position.z = connections[petCall.Guid].entityData.position.z + 0x80000;
+                    for (int i = 0; i < 7; i++) {
+                        for (int j = 0; j < 7; j++) {
+                            BroadcastUDP(arrowRain.data);
+                            arrowRain.Position.x += 0x10000;
+                        }
+                        arrowRain.Position.x += 0x10000;
+                    }
+                    break;
                 default:
                     Console.WriteLine("unknown DatagramID: " + datagram[0]);
                     break;
@@ -294,9 +383,9 @@ namespace Server {
             var entityUpdate = new EntityUpdate() {
                 guid = player.entityData.guid,
                 position = new Resources.Utilities.LongVector() {
-                    x = (long)65536 * 8286952,
-                    y = (long)65536 * 8344462,
-                    z = (long)65536 * 204
+                    x = 543093329157,
+                    y = 546862296355,
+                    z = 14423162
                 }
             };
             SendUDP(entityUpdate.Data, player);

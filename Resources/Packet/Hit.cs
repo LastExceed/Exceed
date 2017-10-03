@@ -5,8 +5,8 @@ namespace Resources.Packet {
     public class Hit {
         public const int packetID = 7;
 
-        public ulong attacker;
-        public ulong target;
+        public long attacker;
+        public long target;
         public float damage;
         public int critical;//bool?
         public int stuntime;
@@ -21,8 +21,8 @@ namespace Resources.Packet {
         public Hit() { }
 
         public Hit(BinaryReader reader) {
-            attacker = reader.ReadUInt64();
-            target = reader.ReadUInt64();
+            attacker = reader.ReadInt64();
+            target = reader.ReadInt64();
             damage = reader.ReadSingle();
             critical = reader.ReadInt32();
             stuntime = reader.ReadInt32();

@@ -5,14 +5,14 @@ namespace Resources.Packet {
         public const int packetID = 16;
 
         public int unknown;
-        public ulong guid;
+        public long guid;
         public byte[] junk;
 
         public Join() { }
 
         public Join(BinaryReader reader) {
             unknown = reader.ReadInt32();
-            guid = reader.ReadUInt64();
+            guid = reader.ReadInt64();
             junk = reader.ReadBytes(0x1168);
         }
 

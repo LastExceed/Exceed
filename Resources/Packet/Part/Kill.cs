@@ -2,16 +2,16 @@
 
 namespace Resources.Packet.Part {
     public class Kill {
-        public ulong killer;
-        public ulong victim;
+        public long killer;
+        public long victim;
         public int unknown;
         public int xp;
 
         public Kill() { }
 
         public Kill(BinaryReader reader) {
-            killer = reader.ReadUInt64();
-            victim = reader.ReadUInt64();
+            killer = reader.ReadInt64();
+            victim = reader.ReadInt64();
             unknown = reader.ReadInt32();
             xp = reader.ReadInt32();
         }

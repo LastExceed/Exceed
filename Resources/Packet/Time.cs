@@ -24,7 +24,7 @@ namespace Resources.Packet {
             writer.Write(time);
         }
 
-        public void Broadcast(Dictionary<ulong, Player> players, ulong toSkip) {
+        public void Broadcast(Dictionary<ulong, Player> players, long toSkip) {
             foreach(Player player in new List<Player>(players.Values)) {
                 if(player.entityData.guid != toSkip) {
                     SpinWait.SpinUntil(() => player.available);

@@ -38,43 +38,6 @@ namespace Resources.Packet.Part {
         public FloatVector back_offset;
         public FloatVector wing_offset;
 
-        public void Write(BinaryWriter writer) {
-            writer.Write(unknownA);
-            writer.Write(unknownB);
-            hair_color.Write(writer);
-            writer.Write(flags);
-            writer.Write(unknownC);
-            character_size.Write(writer);
-            writer.Write(head_model);
-            writer.Write(hair_model);
-            writer.Write(hand_model);
-            writer.Write(foot_model);
-            writer.Write(body_model);
-            writer.Write(tail_model);
-            writer.Write(shoulder2_model);
-            writer.Write(wings_model);
-            writer.Write(head_size);
-            writer.Write(body_size);
-            writer.Write(hand_size);
-            writer.Write(foot_size);
-            writer.Write(shoulder2_size);
-            writer.Write(weapon_size);
-            writer.Write(tail_size);
-            writer.Write(shoulder_size);
-            writer.Write(wings_size);
-            writer.Write(body_rotation);
-            hand_rotation.Write(writer);
-            writer.Write(feet_rotation);
-            writer.Write(wing_rotation);
-            writer.Write(tail_rotation);
-            body_offset.Write(writer);
-            head_offset.Write(writer);
-            hand_offset.Write(writer);
-            foot_offset.Write(writer);
-            back_offset.Write(writer);
-            wing_offset.Write(writer);
-        }
-
         public Appearance() {
             hair_color = new ByteVector();
             character_size = new FloatVector();
@@ -121,6 +84,44 @@ namespace Resources.Packet.Part {
             foot_offset = new FloatVector(reader);
             back_offset = new FloatVector(reader);
             wing_offset = new FloatVector(reader);
+
+        }
+
+        public void Write(BinaryWriter writer) {
+            writer.Write(unknownA);
+            writer.Write(unknownB);
+            hair_color.Write(writer);
+            writer.Write(flags);
+            writer.Write(unknownC);
+            character_size.Write(writer);
+            writer.Write(head_model);
+            writer.Write(hair_model);
+            writer.Write(hand_model);
+            writer.Write(foot_model);
+            writer.Write(body_model);
+            writer.Write(tail_model);
+            writer.Write(shoulder2_model);
+            writer.Write(wings_model);
+            writer.Write(head_size);
+            writer.Write(body_size);
+            writer.Write(hand_size);
+            writer.Write(foot_size);
+            writer.Write(shoulder2_size);
+            writer.Write(weapon_size);
+            writer.Write(tail_size);
+            writer.Write(shoulder_size);
+            writer.Write(wings_size);
+            writer.Write(body_rotation);
+            hand_rotation.Write(writer);
+            writer.Write(feet_rotation);
+            writer.Write(wing_rotation);
+            writer.Write(tail_rotation);
+            body_offset.Write(writer);
+            head_offset.Write(writer);
+            hand_offset.Write(writer);
+            foot_offset.Write(writer);
+            back_offset.Write(writer);
+            wing_offset.Write(writer);
         }
     }
 }

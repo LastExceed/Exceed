@@ -16,8 +16,8 @@ namespace Resources.Datagram {
             set { data[3] = value; }
         }
         public string Text {
-            get { return Encoding.UTF8.GetString(data, 4, Length); }
-            set { Encoding.UTF8.GetBytes(value).CopyTo(data, 4); }
+            get { return Encoding.ASCII.GetString(data, 4, Length); }
+            set { Encoding.ASCII.GetBytes(value).CopyTo(data, 4); }
         }
 
 

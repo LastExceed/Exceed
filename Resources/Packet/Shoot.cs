@@ -5,7 +5,7 @@ namespace Resources.Packet {
     public class Shoot {
         public const int packetID = 9;
 
-        public ulong attacker;
+        public long attacker;
         public int chunkX;
         public int chunkY;
         public int unknownA;
@@ -31,7 +31,7 @@ namespace Resources.Packet {
         }
 
         public Shoot(BinaryReader reader) {
-            attacker = reader.ReadUInt64();
+            attacker = reader.ReadInt64();
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
             unknownA = reader.ReadInt32();

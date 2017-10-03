@@ -4,8 +4,8 @@ namespace Resources.Packet {
     public class PassiveProc {
         public const int packetID = 8;
 
-        public ulong source;
-        public ulong target;
+        public long source;
+        public long target;
         public byte type;
         //3pad
         public float modifier;
@@ -16,8 +16,8 @@ namespace Resources.Packet {
         public PassiveProc() { }
 
         public PassiveProc(BinaryReader reader) {
-            source = reader.ReadUInt64();
-            target = reader.ReadUInt64();
+            source = reader.ReadInt64();
+            target = reader.ReadInt64();
             type = reader.ReadByte();
             reader.ReadBytes(3);//pad
             modifier = reader.ReadSingle();

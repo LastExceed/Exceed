@@ -26,7 +26,7 @@ namespace Bridge {
         }
 
         public void EnableButtons() {
-            if(InvokeRequired) {
+            if (InvokeRequired) {
                 Invoke((Action)EnableButtons);
             } else {
                 buttonDisconnect.Enabled = false;
@@ -36,7 +36,7 @@ namespace Bridge {
             }
         }
         public void DisableButtons() {
-            if(InvokeRequired) {
+            if (InvokeRequired) {
                 Invoke((Action)DisableButtons);
             } else {
                 buttonDisconnect.Enabled = true;
@@ -55,9 +55,9 @@ namespace Bridge {
             Log("disconnected\n", Color.Red);
             Task.Factory.StartNew(BridgeTCPUDP.Close);
         }
-        
+
         private void TextBoxPassword_KeyDown(object sender, KeyEventArgs e) {
-            if(e.KeyCode == Keys.Enter) {
+            if (e.KeyCode == Keys.Enter) {
                 buttonConnect.PerformClick();
             }
         }
@@ -243,11 +243,6 @@ namespace Bridge {
                 CwRam.memory.WriteByte(CwRam.SlotStart + 3, 5);
             }
         }
-
-        private void CheckBoxStayOnTop_CheckedChanged(object sender, EventArgs e) {
-            TopMost = checkBoxStayOnTop.Checked;
-        }
-
         private void CheckBoxHighlight_Click(object sender, EventArgs e) {
             if (checkBoxHighlight.Checked) {
                 listBoxSlots.Enabled = false;
@@ -262,6 +257,86 @@ namespace Bridge {
                 comboBoxTypeC.Enabled = true;
                 listBoxSlots.Enabled = true;
             }
+        }
+
+        private void CheckBoxStayOnTop_CheckedChanged(object sender, EventArgs e) {
+            TopMost = checkBoxStayOnTop.Checked;
+        }
+        private void TabControl1_SelectedIndexChanged(object sender, EventArgs e) {
+            if (tabControl1.SelectedIndex == 2) {
+                comboBoxClass.SelectedIndex = CwRam.memory.ReadByte(CwRam.EntityStart + 0x0140);
+                radioButton1.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 0);
+                radioButton2.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 1);
+
+                numericUpDownCharacterLevel.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x0190);
+                numericUpDownXP.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x0194);
+                numericUpDownMoney.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x1304);
+                numericUpDownPlatinum.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x1308);
+
+                numericUpDownPetmaster.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 0 * 4);
+                numericUpDownRiding.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 1 * 4);
+                numericUpDownClimbing.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 2 * 4);
+                numericUpDownGliding.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 3 * 4);
+                numericUpDownSwimming.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 4 * 4);
+                numericUpDownSailing.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 5 * 4);
+                numericUpDownSkill1.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 6 * 4);
+                numericUpDownSkill2.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 7 * 4);
+                numericUpDownSkill3.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 8 * 4);
+            }
+        }
+
+        //character editor
+        private void NumericUpDownCharacterLevel_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.EntityStart + 0x0190, (int)numericUpDownCharacterLevel.Value);
+        }
+        private void NumericUpDownXP_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.EntityStart + 0x0194, (int)numericUpDownXP.Value);
+        }
+        private void NumericUpDownMoney_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.EntityStart + 0x1304, (int)numericUpDownMoney.Value);
+        }
+        private void NumericUpDownPlatinum_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.EntityStart + 0x1308, (int)numericUpDownPlatinum.Value);
+        }
+
+        private void NumericUpDownSkill1_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.SkillStart + 6 * 4, (int)numericUpDownSkill1.Value);
+        }
+        private void NumericUpDownSkill2_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.SkillStart + 7 * 4, (int)numericUpDownSkill2.Value);
+        }
+        private void NumericUpDownSkill3_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.SkillStart + 8 * 4, (int)numericUpDownSkill3.Value);
+        }
+        private void NumericUpDownPetmaster_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.SkillStart + 0 * 4, (int)numericUpDownPetmaster.Value);
+        }
+        private void NumericUpDownRiding_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.SkillStart + 1 * 4, (int)numericUpDownRiding.Value);
+        }
+        private void NumericUpDownClimbing_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.SkillStart + 2 * 4, (int)numericUpDownClimbing.Value);
+        }
+        private void NumericUpDownGliding_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.SkillStart + 3 * 4, (int)numericUpDownGliding.Value);
+        }
+        private void NumericUpDownSwimming_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.SkillStart + 4 * 4, (int)numericUpDownSwimming.Value);
+        }
+        private void NumericUpDownSailing_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.SkillStart + 5 * 4, (int)numericUpDownSailing.Value);
+        }
+
+        private void ComboBoxClass_SelectedIndexChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteByte(CwRam.EntityStart + 0x0140, (byte)comboBoxClass.SelectedIndex);
+        }
+        private void RadioButton1_CheckedChanged(object sender, EventArgs e) {
+            if (radioButton1.Checked) {
+                CwRam.memory.WriteByte(CwRam.EntityStart + 0x0141, 0);
+            } else {
+                CwRam.memory.WriteByte(CwRam.EntityStart + 0x0141, 1);
+            }
+            
         }
     }
 }
