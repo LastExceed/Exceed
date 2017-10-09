@@ -395,6 +395,7 @@ namespace Bridge {
                         players.Add(entityUpdate.guid, entityUpdate);
                     }
                     if (!entityUpdate.IsEmpty) {
+                        Console.WriteLine(entityUpdate.roll);
                         SendUDP(entityUpdate.Data);
                     }
                     break;
@@ -574,10 +575,8 @@ namespace Bridge {
                     }
                     break;
                 #endregion
-                case Database.PacketID.serverFull:
-                    break;
                 default:
-                    //unknown packet id
+                    form.Log("unknown client packet\n", Color.Magenta);
                     break;
             }
         }

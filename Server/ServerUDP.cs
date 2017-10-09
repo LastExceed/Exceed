@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
 using System.Timers;
+using System.IO;
 
 using Resources;
 using Resources.Datagram;
 using Resources.Packet;
 using Server.Addon;
-using System.IO;
 using Newtonsoft.Json;
 
 namespace Server {
@@ -27,49 +27,49 @@ namespace Server {
             //timer.Enabled = true;
             ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Fulcnix_exceedspawn.zox"));
             model.Parse(worldUpdate, 8286883, 8344394, 200); 
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern2.zox"));
-            model.Parse(worldUpdate, 8287010, 8344432, 200);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern1.zox"));
-            model.Parse(worldUpdate, 8286919, 8344315, 212); 
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/aster_arena.zox"));
-            model.Parse(worldUpdate, 8286775, 8344392, 207);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/michael_project1.zox"));
-            model.Parse(worldUpdate, 8286898, 8344375, 213); 
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
-            model.Parse(worldUpdate, 8286885, 8344505, 208); 
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
-            model.Parse(worldUpdate, 8286885, 8344629, 208); 
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Tiecz_MountainArena.zox"));
-            model.Parse(worldUpdate, 8286885, 8344759, 208);
-            //8397006, 8396937, 127 //near spawn
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay11.zox"));
-            model.Parse(worldUpdate, 8286770, 8344262, 207);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay12.zox"));
-            model.Parse(worldUpdate, 8286770, 8344136, 207);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay13.zox"));
-            model.Parse(worldUpdate, 8286770, 8344010, 207);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay14.zox"));
-            model.Parse(worldUpdate, 8286770, 8344010, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay01.zox"));
-            model.Parse(worldUpdate, 8286644, 8344010, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay02.zox"));
-            model.Parse(worldUpdate, 8286118, 8344010, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay03.zox"));
-            model.Parse(worldUpdate, 8285992, 8344010, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay04.zox"));
-            model.Parse(worldUpdate, 8285992, 8344136, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay05.zox"));
-            model.Parse(worldUpdate, 8285992, 8344262, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay06.zox"));
-            model.Parse(worldUpdate, 8286118, 8344262, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay07.zox"));
-            model.Parse(worldUpdate, 8286118, 8344136, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay08.zox"));
-            model.Parse(worldUpdate, 8286244, 8344136, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay09.zox"));
-            model.Parse(worldUpdate, 8286244, 8344262, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay10.zox"));
-            model.Parse(worldUpdate, 8286770, 8344262, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern2.zox"));
+            //model.Parse(worldUpdate, 8287010, 8344432, 200);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern1.zox"));
+            //model.Parse(worldUpdate, 8286919, 8344315, 212); 
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/aster_arena.zox"));
+            //model.Parse(worldUpdate, 8286775, 8344392, 207);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/michael_project1.zox"));
+            //model.Parse(worldUpdate, 8286898, 8344375, 213); 
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
+            //model.Parse(worldUpdate, 8286885, 8344505, 208); 
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
+            //model.Parse(worldUpdate, 8286885, 8344629, 208); 
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Tiecz_MountainArena.zox"));
+            //model.Parse(worldUpdate, 8286885, 8344759, 208);
+            ////8397006, 8396937, 127 //near spawn
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay11.zox"));
+            //model.Parse(worldUpdate, 8286770, 8344262, 207);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay12.zox"));
+            //model.Parse(worldUpdate, 8286770, 8344136, 207);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay13.zox"));
+            //model.Parse(worldUpdate, 8286770, 8344010, 207);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay14.zox"));
+            //model.Parse(worldUpdate, 8286770, 8344010, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay01.zox"));
+            //model.Parse(worldUpdate, 8286644, 8344010, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay02.zox"));
+            //model.Parse(worldUpdate, 8286118, 8344010, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay03.zox"));
+            //model.Parse(worldUpdate, 8285992, 8344010, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay04.zox"));
+            //model.Parse(worldUpdate, 8285992, 8344136, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay05.zox"));
+            //model.Parse(worldUpdate, 8285992, 8344262, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay06.zox"));
+            //model.Parse(worldUpdate, 8286118, 8344262, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay07.zox"));
+            //model.Parse(worldUpdate, 8286118, 8344136, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay08.zox"));
+            //model.Parse(worldUpdate, 8286244, 8344136, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay09.zox"));
+            //model.Parse(worldUpdate, 8286244, 8344262, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay10.zox"));
+            //model.Parse(worldUpdate, 8286770, 8344262, 333);
 
             Console.WriteLine("loading completed");
 
@@ -351,22 +351,75 @@ namespace Server {
                     break;
                 #endregion
                 case Database.DatagramID.petCall:
+                    #region petCall
+                    byte skill = 3;
                     var petCall = new PetCall(datagram);
-                    var arrowRain = new Resources.Datagram.Shoot {
-                        //Position = connections[petCall.Guid].entityData.position,
-                        Scale = 1
-                    };
-                    arrowRain.Position.x = connections[petCall.Guid].entityData.position.x - 0x30000;
-                    arrowRain.Position.y = connections[petCall.Guid].entityData.position.y - 0x30000;
-                    arrowRain.Position.z = connections[petCall.Guid].entityData.position.z + 0x80000;
-                    for (int i = 0; i < 7; i++) {
-                        for (int j = 0; j < 7; j++) {
-                            BroadcastUDP(arrowRain.data);
-                            arrowRain.Position.x += 0x10000;
-                        }
-                        arrowRain.Position.x += 0x10000;
+                    switch (skill) {
+                        case 1:
+                            #region arrow rain
+                            var arrowRain = new Resources.Datagram.Shoot {
+                                Scale = 1
+                            };
+                            var ed = connections[petCall.Guid].entityData;
+                            var pos = new Resources.Utilities.LongVector() {
+                                x = ed.position.x + (long)ed.rayHit.x * 0x10000,
+                                y = ed.position.y + (long)ed.rayHit.y * 0x10000,
+                                z = ed.position.z + (long)ed.rayHit.z * 0x10000
+                            };
+                            pos.x += 0x30000;
+                            pos.y += 0x30000;
+                            pos.z += 0x80000;
+                            for (int i = 0; i < 7; i++) {
+                                for (int j = 0; j < 7; j++) {
+                                    arrowRain.Position = pos;
+                                    BroadcastUDP(arrowRain.data);
+                                    pos.x += 0x10000;
+                                }
+                                pos.x -= 0x70000;
+                                pos.y += 0x10000;
+                            }
+                            break;
+                        #endregion
+                        case 2:
+                            #region bladestorm
+                            //boomerang projectiles despawn instantly, idk why
+                            var bladeStorm = new Resources.Datagram.Shoot {
+                                Scale = 1,
+                                Projectile = Database.Projectile.boomerang,
+                                Position = connections[petCall.Guid].entityData.position
+                            };
+                            var vel = new Resources.Utilities.FloatVector();
+                            for (int i = 0; i < 16; i++) {
+                                vel.x = 20 * (float)Math.Sin(Math.PI / 8 * i);
+                                vel.y = 20 * (float)Math.Cos(Math.PI / 8 * i);
+                                bladeStorm.Velocity = vel;
+                                BroadcastUDP(bladeStorm.data);
+                            }
+                            #endregion
+                            break;
+                        case 3:
+                            #region shrapnel
+                            var shrapnel = new Resources.Datagram.Shoot {
+                                Scale = 1,
+                                Position = connections[petCall.Guid].entityData.position
+                            };
+                            vel = new Resources.Utilities.FloatVector() {
+                                z = 2
+                            };
+                            int density = 0x10000;
+                            for (int i = 0; i < density; i++) {
+                                vel.x = 30 * (float)Math.Sin(Math.PI / (density / 2) * i);
+                                vel.y = 30 * (float)Math.Cos(Math.PI / (density / 2) * i);
+                                shrapnel.Velocity = vel;
+                                BroadcastUDP(shrapnel.data);
+                            }
+                            #endregion
+                            break;
+                        default:
+                            break;
                     }
                     break;
+                #endregion
                 default:
                     Console.WriteLine("unknown DatagramID: " + datagram[0]);
                     break;
