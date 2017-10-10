@@ -7,10 +7,10 @@ using System.Net;
 using System.Timers;
 using System.IO;
 
+using Server.Addon;
 using Resources;
 using Resources.Datagram;
 using Resources.Packet;
-using Server.Addon;
 using Newtonsoft.Json;
 
 namespace Server {
@@ -344,7 +344,7 @@ namespace Server {
                     #region disconnect
                     var disconnect = new Disconnect(datagram);
                     connections[disconnect.Guid].playing = false;
-                    BroadcastUDP(datagram, player);
+                    BroadcastUDP(datagram, player, true);
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine(disconnect.Guid + " is now lurking");

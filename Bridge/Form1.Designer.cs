@@ -48,7 +48,7 @@
             this.radioButtonDuplicate = new System.Windows.Forms.RadioButton();
             this.radioButtonNormal = new System.Windows.Forms.RadioButton();
             this.labelPlayers = new System.Windows.Forms.Label();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.listBoxPlayers = new System.Windows.Forms.ListBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.panelItemEditor = new System.Windows.Forms.Panel();
             this.listBoxItem = new System.Windows.Forms.ListBox();
@@ -94,7 +94,7 @@
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.groupBoxClass = new System.Windows.Forms.GroupBox();
             this.comboBoxClass = new System.Windows.Forms.ComboBox();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.radioButtonSubclass1 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.numericUpDownSkill1 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownSailing = new System.Windows.Forms.NumericUpDown();
@@ -123,7 +123,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.checkBoxStayOnTop = new System.Windows.Forms.CheckBox();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.hTimer = new System.Windows.Forms.Timer(this.components);
             this.richTextBoxChat = new System.Windows.Forms.RichTextBox();
             this.groupBoxAccount.SuspendLayout();
@@ -306,7 +305,7 @@
             this.tabPage1.Controls.Add(this.groupBoxAccount);
             this.tabPage1.Controls.Add(this.groupBox1);
             this.tabPage1.Controls.Add(this.labelPlayers);
-            this.tabPage1.Controls.Add(this.listBox1);
+            this.tabPage1.Controls.Add(this.listBoxPlayers);
             this.tabPage1.Controls.Add(this.buttonDisconnect);
             this.tabPage1.Controls.Add(this.buttonConnect);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
@@ -380,18 +379,18 @@
             this.labelPlayers.TabIndex = 5;
             this.labelPlayers.Text = "players";
             // 
-            // listBox1
+            // listBoxPlayers
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Items.AddRange(new object[] {
+            this.listBoxPlayers.FormattingEnabled = true;
+            this.listBoxPlayers.Items.AddRange(new object[] {
             "################",
             "SampleName",
             "Someone",
             "ThisDoesntWork"});
-            this.listBox1.Location = new System.Drawing.Point(142, 13);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(84, 173);
-            this.listBox1.TabIndex = 4;
+            this.listBoxPlayers.Location = new System.Drawing.Point(142, 13);
+            this.listBoxPlayers.Name = "listBoxPlayers";
+            this.listBoxPlayers.Size = new System.Drawing.Size(84, 173);
+            this.listBoxPlayers.TabIndex = 4;
             // 
             // tabPage2
             // 
@@ -1111,7 +1110,7 @@
             // groupBoxClass
             // 
             this.groupBoxClass.Controls.Add(this.comboBoxClass);
-            this.groupBoxClass.Controls.Add(this.radioButton1);
+            this.groupBoxClass.Controls.Add(this.radioButtonSubclass1);
             this.groupBoxClass.Controls.Add(this.radioButton2);
             this.groupBoxClass.Location = new System.Drawing.Point(25, 9);
             this.groupBoxClass.Name = "groupBoxClass";
@@ -1137,15 +1136,15 @@
             // 
             // radioButton1
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(4, 34);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(72, 17);
-            this.radioButton1.TabIndex = 3;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "subclass1";
-            this.radioButton1.UseVisualStyleBackColor = true;
-            this.radioButton1.CheckedChanged += new System.EventHandler(this.RadioButton1_CheckedChanged);
+            this.radioButtonSubclass1.AutoSize = true;
+            this.radioButtonSubclass1.Location = new System.Drawing.Point(4, 34);
+            this.radioButtonSubclass1.Name = "radioButton1";
+            this.radioButtonSubclass1.Size = new System.Drawing.Size(72, 17);
+            this.radioButtonSubclass1.TabIndex = 3;
+            this.radioButtonSubclass1.TabStop = true;
+            this.radioButtonSubclass1.Text = "subclass1";
+            this.radioButtonSubclass1.UseVisualStyleBackColor = true;
+            this.radioButtonSubclass1.CheckedChanged += new System.EventHandler(this.RadioButtonSubclass1_CheckedChanged);
             // 
             // radioButton2
             // 
@@ -1520,11 +1519,6 @@
             this.checkBoxStayOnTop.UseVisualStyleBackColor = true;
             this.checkBoxStayOnTop.CheckedChanged += new System.EventHandler(this.CheckBoxStayOnTop_CheckedChanged);
             // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
-            // 
             // hTimer
             // 
             this.hTimer.Interval = 250;
@@ -1665,7 +1659,6 @@
         public System.Windows.Forms.ListBox listBoxSlots;
         public System.Windows.Forms.ListBox listBoxItem;
         public System.Windows.Forms.CheckBox checkBoxStayOnTop;
-        public System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         public System.Windows.Forms.Panel panelItemEditor;
         public System.Windows.Forms.Timer hTimer;
         public System.Windows.Forms.TabPage tabPage5;
@@ -1680,7 +1673,7 @@
         public System.Windows.Forms.NumericUpDown numericUpDownPlatinum;
         public System.Windows.Forms.NumericUpDown numericUpDownMoney;
         public System.Windows.Forms.RadioButton radioButton2;
-        public System.Windows.Forms.RadioButton radioButton1;
+        public System.Windows.Forms.RadioButton radioButtonSubclass1;
         public System.Windows.Forms.ComboBox comboBoxClass;
         public System.Windows.Forms.NumericUpDown numericUpDownXP;
         public System.Windows.Forms.NumericUpDown numericUpDownCharacterLevel;
@@ -1688,7 +1681,7 @@
         public System.Windows.Forms.Label label5;
         public System.Windows.Forms.Label label2;
         public System.Windows.Forms.Label label1;
-        public System.Windows.Forms.ListBox listBox1;
+        public System.Windows.Forms.ListBox listBoxPlayers;
         public System.Windows.Forms.RichTextBox richTextBoxChat;
         public System.Windows.Forms.Label labelPlayers;
         public System.Windows.Forms.GroupBox groupBoxClass;

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Collections.Generic;
 using ReadWriteProcessMemory;
+using Newtonsoft.Json;
 
 namespace Bridge {
     static class BridgeTCPUDP {
@@ -72,6 +73,7 @@ namespace Bridge {
                     Task.Factory.StartNew(ListenFromClientTCP);
                     Task.Factory.StartNew(ListenFromServerTCP);
                     Task.Factory.StartNew(ListenFromServerUDP);
+                    swriter.Write((byte)0);//request query
                     break;
                 case Database.LoginResponse.fail:
                     MessageBox.Show("Wrong Username/Password");
@@ -582,6 +584,20 @@ namespace Bridge {
         }
         public static void ProcessServerPacket(int packetID) {
             switch (packetID) {
+                case 0:
+                    var query = JsonConvert.DeserializeObject<Query>(sreader.ReadString());
+                    foreach (var item in query.players) {
+                        if (!players.ContainsKey(item.Key)) {
+                            players.Add(item.Key, new EntityUpdate());
+                        }
+                        players[item.Key].guid = item.Key;
+                        players[item.Key].name = item.Value;
+                    }
+                    form.Invoke(new Action(form.listBoxPlayers.Items.Clear));
+                    foreach (var playerData in players.Values) {
+                        form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(playerData.name)));
+                    }
+                    break;
                 case 4:
                     int count = sreader.ReadInt32();
                     byte[] buffer = sreader.ReadBytes(count);
@@ -594,7 +610,7 @@ namespace Bridge {
                     break;
             }
         }
-
+        
         public static void SendUDP(byte[] data) {
             udpToServer.Send(data, data.Length);
         }
