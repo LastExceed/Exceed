@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -267,7 +266,7 @@ namespace Bridge {
             if (tabControl1.SelectedIndex == 2) {
                 comboBoxClass.SelectedIndex = CwRam.memory.ReadByte(CwRam.EntityStart + 0x0140);
                 radioButtonSubclass1.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 0);
-                radioButton2.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 1);
+                radioButtonSubclass2.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 1);
 
                 numericUpDownCharacterLevel.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x0190);
                 numericUpDownXP.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x0194);

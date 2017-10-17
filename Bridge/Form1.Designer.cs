@@ -95,7 +95,7 @@
             this.groupBoxClass = new System.Windows.Forms.GroupBox();
             this.comboBoxClass = new System.Windows.Forms.ComboBox();
             this.radioButtonSubclass1 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.radioButtonSubclass2 = new System.Windows.Forms.RadioButton();
             this.numericUpDownSkill1 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownSailing = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownPetmaster = new System.Windows.Forms.NumericUpDown();
@@ -1111,7 +1111,7 @@
             // 
             this.groupBoxClass.Controls.Add(this.comboBoxClass);
             this.groupBoxClass.Controls.Add(this.radioButtonSubclass1);
-            this.groupBoxClass.Controls.Add(this.radioButton2);
+            this.groupBoxClass.Controls.Add(this.radioButtonSubclass2);
             this.groupBoxClass.Location = new System.Drawing.Point(25, 9);
             this.groupBoxClass.Name = "groupBoxClass";
             this.groupBoxClass.Size = new System.Drawing.Size(80, 73);
@@ -1148,14 +1148,14 @@
             // 
             // radioButton2
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(4, 49);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(72, 17);
-            this.radioButton2.TabIndex = 4;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "subclass2";
-            this.radioButton2.UseVisualStyleBackColor = true;
+            this.radioButtonSubclass2.AutoSize = true;
+            this.radioButtonSubclass2.Location = new System.Drawing.Point(4, 49);
+            this.radioButtonSubclass2.Name = "radioButton2";
+            this.radioButtonSubclass2.Size = new System.Drawing.Size(72, 17);
+            this.radioButtonSubclass2.TabIndex = 4;
+            this.radioButtonSubclass2.TabStop = true;
+            this.radioButtonSubclass2.Text = "subclass2";
+            this.radioButtonSubclass2.UseVisualStyleBackColor = true;
             // 
             // numericUpDownSkill1
             // 
@@ -1672,7 +1672,7 @@
         public System.Windows.Forms.NumericUpDown numericUpDownPetmaster;
         public System.Windows.Forms.NumericUpDown numericUpDownPlatinum;
         public System.Windows.Forms.NumericUpDown numericUpDownMoney;
-        public System.Windows.Forms.RadioButton radioButton2;
+        public System.Windows.Forms.RadioButton radioButtonSubclass2;
         public System.Windows.Forms.RadioButton radioButtonSubclass1;
         public System.Windows.Forms.ComboBox comboBoxClass;
         public System.Windows.Forms.NumericUpDown numericUpDownXP;
