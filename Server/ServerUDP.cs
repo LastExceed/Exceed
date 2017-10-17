@@ -12,21 +12,22 @@ using Resources;
 using Resources.Datagram;
 using Resources.Packet;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace Server {
     class ServerUDP {
         UdpClient udpListener;
         TcpListener tcpListener;
         Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
-        public testEntities DB = new testEntities();
-        public Timer timer = new Timer(1000 * 10);
+        //public testEntities DB = new testEntities();
+        //public Timer timer = new Timer(1000 * 10);
         ServerUpdate worldUpdate = new ServerUpdate();
 
         public ServerUDP(int port) {
             //timer.Elapsed += Timer_Elapsed;
             //timer.Enabled = true;
-            ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Fulcnix_exceedspawn.zox"));
-            model.Parse(worldUpdate, 8286883, 8344394, 200); 
+            //ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Fulcnix_exceedspawn.zox"));
+            //model.Parse(worldUpdate, 8286883, 8344394, 200); 
             //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern2.zox"));
             //model.Parse(worldUpdate, 8287010, 8344432, 200);
             //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern1.zox"));
@@ -74,10 +75,10 @@ namespace Server {
             Console.WriteLine("loading completed");
 
             udpListener = new UdpClient(new IPEndPoint(IPAddress.Any, port));
-            Task.Factory.StartNew(ListenUDP);
+            new Thread(new ThreadStart(ListenUDP)).Start();
             tcpListener = new TcpListener(IPAddress.Any, port);
             tcpListener.Start();
-            Task.Factory.StartNew(ListenTCP);
+            new Thread(new ThreadStart(ListenTCP)).Start();
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e) {
@@ -92,7 +93,7 @@ namespace Server {
 
         public void ListenTCP() {
             Player player = new Player(tcpListener.AcceptTcpClient());
-            Task.Factory.StartNew(ListenTCP);
+            new Thread(new ThreadStart(ListenTCP)).Start();
             ushort newGuid = 1;
             while(connections.ContainsKey(newGuid)) {//find lowest available guid
                 newGuid++;
