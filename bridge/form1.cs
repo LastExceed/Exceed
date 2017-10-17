@@ -265,8 +265,8 @@ namespace Bridge {
         private void TabControl1_SelectedIndexChanged(object sender, EventArgs e) {
             if (tabControl1.SelectedIndex == 2) {
                 comboBoxClass.SelectedIndex = CwRam.memory.ReadByte(CwRam.EntityStart + 0x0140);
-                radioButton1.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 0);
-                radioButton2.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 1);
+                radioButtonSubclass1.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 0);
+                radioButtonSubclass2.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 1);
 
                 numericUpDownCharacterLevel.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x0190);
                 numericUpDownXP.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x0194);
@@ -330,8 +330,9 @@ namespace Bridge {
         private void ComboBoxClass_SelectedIndexChanged(object sender, EventArgs e) {
             CwRam.memory.WriteByte(CwRam.EntityStart + 0x0140, (byte)comboBoxClass.SelectedIndex);
         }
-        private void RadioButton1_CheckedChanged(object sender, EventArgs e) {
-            if (radioButton1.Checked) {
+
+        private void RadioButtonSubclass1_CheckedChanged(object sender, EventArgs e) {
+            if (radioButtonSubclass1.Checked) {
                 CwRam.memory.WriteByte(CwRam.EntityStart + 0x0141, 0);
             } else {
                 CwRam.memory.WriteByte(CwRam.EntityStart + 0x0141, 1);
