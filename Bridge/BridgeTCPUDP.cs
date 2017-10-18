@@ -3,16 +3,16 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
+using System.Threading.Tasks;
+using System.Drawing;
+using System.Collections.Generic;
 
 using Resources;
 using Resources.Packet;
 using Resources.Packet.Part;
 using Resources.Datagram;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Collections.Generic;
+
 using ReadWriteProcessMemory;
-using Newtonsoft.Json;
 
 namespace Bridge {
     static class BridgeTCPUDP {
@@ -585,7 +585,7 @@ namespace Bridge {
         public static void ProcessServerPacket(int packetID) {
             switch (packetID) {
                 case 0:
-                    var query = JsonConvert.DeserializeObject<Query>(sreader.ReadString());
+                    var query = new Query(sreader);
                     foreach (var item in query.players) {
                         if (!players.ContainsKey(item.Key)) {
                             players.Add(item.Key, new EntityUpdate());

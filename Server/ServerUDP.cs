@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
 using System.Timers;
 using System.IO;
 
 using Server.Addon;
+
 using Resources;
 using Resources.Datagram;
 using Resources.Packet;
-using Newtonsoft.Json;
-using System.Threading;
 
 namespace Server {
     class ServerUDP {
@@ -196,17 +196,14 @@ namespace Server {
         public void ProcessPacket(byte packetID, Player player) {
             switch (packetID) {
                 case 0://query
-                    var query = new Query() {
-                        name = "Exceed Official",
-                        slots = 65535,
-                        players = new Dictionary<ushort, string>()
-                    };
-                    foreach (var connection in connections.Values) {
-                        if (connection.playing) {
+                    var query = new Query("Exceed Official", 65535);
+
+                    foreach(var connection in connections.Values) {
+                        if(connection.playing) {
                             query.players.Add((ushort)connection.entityData.guid, connection.entityData.name);
                         }
                     }
-                    player.writer.Write(JsonConvert.SerializeObject(query));
+                    query.Write(player.writer);
                     break;
                 default:
                     Console.WriteLine("unknown packet: " + packetID);
@@ -273,7 +270,7 @@ namespace Server {
                         case Database.ProcType.poison:
                             var poisonTick = new Attack() {
                                 Damage = proc.Modifier,
-                               Target = proc.Target
+                                Target = proc.Target
                             };
                             Poison(connections[proc.Target], poisonTick);
                             break;
