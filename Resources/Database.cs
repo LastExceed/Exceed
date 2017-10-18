@@ -39,6 +39,13 @@
             disconnect,
             petCall //temp
         }
+        public enum LoginResponse : byte {
+            success,
+            fail,
+            banned,
+            outdated
+        }
+
         public enum DamageType : byte {
             _placeholder,
             block,
@@ -71,21 +78,6 @@
             pet,
             neutral
         }
-        public enum Equipment : byte {
-            unknown,
-            neck,
-            chest,
-            feet,
-            hands,
-            shoulder,
-            leftWeapon,
-            rightWeapon,
-            leftRing,
-            rightRing,
-            lamp,
-            special,
-            pet
-        }
         public enum StaticRotation : byte {
             south,
             east,
@@ -114,11 +106,79 @@
         public enum ParticleType : byte {
             //TODO
         }
-        public enum LoginResponse : byte {
-            success,
-            fail,
-            banned,
-            outdated
+
+        public enum Equipment : byte {
+            unknown,
+            neck,
+            chest,
+            feet,
+            hands,
+            shoulder,
+            leftWeapon,
+            rightWeapon,
+            leftRing,
+            rightRing,
+            lamp,
+            special,
+            pet
+        }
+        public enum ItemType : byte {
+            empty,
+            food,	
+            formula,	
+            weapon,
+            chest,
+            gloves,
+            boots,
+            shoulder,
+            amulet,
+            ring,
+            spirit,
+            nugget,
+            coin,
+            platinumCoin,
+            leftovers,
+            beak,
+            painting,
+            vase,
+            candle,
+            pet,
+            petFood,
+            quest,
+            unknown,
+            special,
+            lamp
+    }
+        public enum WeaponSubtype : byte {
+            sword,
+            axe,
+            mace,
+            dagger,
+            fist,
+            longsword,
+            bow,
+            crossbow,
+            boomerand,
+            arrow,
+            staff,
+            wand,
+            bracelet,
+            shield,
+            quiver,
+            greatsword,
+            greataxe,
+            greatmace,
+            pitchfork,
+            pickaxe,
+            torch,
+        }
+        public enum ItemRarity : byte {
+            normal,
+            uncommon,
+            rare,
+            epic,
+            legendary,
+            mythic,
         }
     }
 }

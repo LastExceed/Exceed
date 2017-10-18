@@ -592,7 +592,7 @@
             "Rare",
             "Epic",
             "Legendary",
-            "Mystic"});
+            "Mythic"});
             this.comboBoxRarity.Location = new System.Drawing.Point(91, 84);
             this.comboBoxRarity.Name = "comboBoxRarity";
             this.comboBoxRarity.Size = new System.Drawing.Size(75, 21);
@@ -1134,11 +1134,11 @@
             this.comboBoxClass.TabIndex = 2;
             this.comboBoxClass.SelectedIndexChanged += new System.EventHandler(this.ComboBoxClass_SelectedIndexChanged);
             // 
-            // radioButton1
+            // radioButtonSubclass1
             // 
             this.radioButtonSubclass1.AutoSize = true;
             this.radioButtonSubclass1.Location = new System.Drawing.Point(4, 34);
-            this.radioButtonSubclass1.Name = "radioButton1";
+            this.radioButtonSubclass1.Name = "radioButtonSubclass1";
             this.radioButtonSubclass1.Size = new System.Drawing.Size(72, 17);
             this.radioButtonSubclass1.TabIndex = 3;
             this.radioButtonSubclass1.TabStop = true;
@@ -1146,11 +1146,11 @@
             this.radioButtonSubclass1.UseVisualStyleBackColor = true;
             this.radioButtonSubclass1.CheckedChanged += new System.EventHandler(this.RadioButtonSubclass1_CheckedChanged);
             // 
-            // radioButton2
+            // radioButtonSubclass2
             // 
             this.radioButtonSubclass2.AutoSize = true;
             this.radioButtonSubclass2.Location = new System.Drawing.Point(4, 49);
-            this.radioButtonSubclass2.Name = "radioButton2";
+            this.radioButtonSubclass2.Name = "radioButtonSubclass2";
             this.radioButtonSubclass2.Size = new System.Drawing.Size(72, 17);
             this.radioButtonSubclass2.TabIndex = 4;
             this.radioButtonSubclass2.TabStop = true;
