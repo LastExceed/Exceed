@@ -1,7 +1,7 @@
 ﻿namespace Resources {
     static public class Database {
         public const int mapseed = 8710; //hardcoded for now
-        public const int bridgeVersion = 2;
+        public const int bridgeVersion = 3;
 
         public enum PacketID : int {
             entityUpdate,

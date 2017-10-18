@@ -19,8 +19,6 @@ namespace Server {
         UdpClient udpListener;
         TcpListener tcpListener;
         Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
-        //public testEntities DB = new testEntities();
-        //public Timer timer = new Timer(1000 * 10);
         ServerUpdate worldUpdate = new ServerUpdate();
 
         public ServerUDP(int port) {
@@ -104,45 +102,6 @@ namespace Server {
             Console.WriteLine(newGuid + " connected");
 
             Database.LoginResponse response = Database.LoginResponse.fail;
-
-            #region secure login
-            /*
-            string username = player.reader.ReadString(); // Read username
-
-            var row = DB.users.FirstOrDefault(x => x.username == username || x.Email == username); // Get user with username from db
-
-            if(row != null) {
-                player.username = row.username;
-
-                var hashData = row.hash.Split('$'); // Split hash from db e.g. $CUBEHASH$Version$itterations$hash
-                byte[] hashBytes = Convert.FromBase64String(hashData[4]); //Get hasbytes = salt + hash
-
-                byte[] salt = new byte[Hashing.saltSize];
-                Array.Copy(hashBytes, 0, salt, 0, salt.Length); // extract salt
-                byte[] hash = new byte[Hashing.hashSize];
-                Array.Copy(hashBytes, salt.Length, hash, 0, hash.Length);// extract hash
-
-                player.writer.Write(salt); //send salt
-
-                byte[] clientHash = player.reader.ReadBytes(Hashing.hashSize); // Get clientside hashed password
-
-                if(hash.SequenceEqual(clientHash)) {
-                    if(row.banned.HasValue) {
-                        response = Database.LoginResponse.banned;
-                    } else {
-                        row.lastLoggin = DateTime.Now;
-                        connections.Add(newGuid, player);
-                        response = Database.LoginResponse.success;
-                    }
-                }
-            } else {
-                // Advance with random data so bridge dosen't get stuck
-                byte[] bytes = new byte[Hashing.saltSize];
-                new Random().NextBytes(bytes);
-                player.writer.Write(bytes);
-                player.reader.ReadBytes(Hashing.hashSize);
-            }*/
-            #endregion
 
             if (player.reader.ReadInt32() == 123) {
                 if (player.reader.ReadInt32() == Database.bridgeVersion) {

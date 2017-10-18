@@ -6,15 +6,13 @@ namespace Resources {
     public class Zlib {
         public static byte[] Compress(byte[] buffer) {
             byte[] compressed;
-
             using (var input = new MemoryStream(buffer))
             using (var compressStream = new MemoryStream())
-            using (var compressor = new ZlibStream(compressStream, CompressionMode.Compress, CompressionLevel.Default, true)) {
+            using (var compressor = new ZlibStream(compressStream, CompressionMode.Compress, CompressionLevel.BestCompression, true)) {
                 input.CopyTo(compressor);
                 compressor.Close();
                 compressed = compressStream.ToArray();
             }
-
             return compressed;
         }
 
