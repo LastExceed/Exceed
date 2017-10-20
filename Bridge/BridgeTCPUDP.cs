@@ -127,7 +127,10 @@ namespace Bridge {
                     return;
                 }
                 tcpListener.Stop();
+
                 CwRam.memory = new ProcessMemory("Cube");
+                form.DisplayCharacterTab(true);
+
                 form.Invoke(new Action(() => form.panelItemEditor.Enabled = true));
 
                 form.Log("client connected\n", Color.Green);
@@ -135,6 +138,7 @@ namespace Bridge {
                 creader = new BinaryReader(tcpToClient.GetStream());
                 cwriter = new BinaryWriter(tcpToClient.GetStream());
                 int packetID;
+
                 while (true) {
                     try {
                         packetID = creader.ReadInt32();
@@ -150,6 +154,8 @@ namespace Bridge {
                 }
                 form.Log("client disconnected\n", Color.Red);
             }
+
+            form.DisplayCharacterTab(false);
         }
         public static void ListenFromServerTCP() {
             while (true) {

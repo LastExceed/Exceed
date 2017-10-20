@@ -41,7 +41,7 @@
             this.numericUpDownPort = new System.Windows.Forms.NumericUpDown();
             this.buttonDisconnect = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.bridge = new System.Windows.Forms.TabPage();
             this.linkLabelTutorial = new System.Windows.Forms.LinkLabel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.radioButtonDestroy = new System.Windows.Forms.RadioButton();
@@ -49,7 +49,7 @@
             this.radioButtonNormal = new System.Windows.Forms.RadioButton();
             this.labelPlayers = new System.Windows.Forms.Label();
             this.listBoxPlayers = new System.Windows.Forms.ListBox();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.itemEditor = new System.Windows.Forms.TabPage();
             this.panelItemEditor = new System.Windows.Forms.Panel();
             this.listBoxItem = new System.Windows.Forms.ListBox();
             this.tabControlItemEditor = new System.Windows.Forms.TabControl();
@@ -91,7 +91,7 @@
             this.numericUpDownY = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownX = new System.Windows.Forms.NumericUpDown();
             this.listBoxSlots = new System.Windows.Forms.ListBox();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.character = new System.Windows.Forms.TabPage();
             this.groupBoxClass = new System.Windows.Forms.GroupBox();
             this.comboBoxClass = new System.Windows.Forms.ComboBox();
             this.radioButtonSubclass1 = new System.Windows.Forms.RadioButton();
@@ -129,9 +129,9 @@
             this.groupBoxServer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPort)).BeginInit();
             this.tabControl1.SuspendLayout();
-            this.tabPage1.SuspendLayout();
+            this.bridge.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
+            this.itemEditor.SuspendLayout();
             this.panelItemEditor.SuspendLayout();
             this.tabControlItemEditor.SuspendLayout();
             this.tabPage4.SuspendLayout();
@@ -149,7 +149,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).BeginInit();
-            this.tabPage5.SuspendLayout();
+            this.character.SuspendLayout();
             this.groupBoxClass.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkill1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSailing)).BeginInit();
@@ -288,9 +288,9 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Controls.Add(this.tabPage5);
+            this.tabControl1.Controls.Add(this.bridge);
+            this.tabControl1.Controls.Add(this.itemEditor);
+            this.tabControl1.Controls.Add(this.character);
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -298,23 +298,23 @@
             this.tabControl1.TabIndex = 11;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.TabControl1_SelectedIndexChanged);
             // 
-            // tabPage1
+            // bridge
             // 
-            this.tabPage1.Controls.Add(this.linkLabelTutorial);
-            this.tabPage1.Controls.Add(this.groupBoxServer);
-            this.tabPage1.Controls.Add(this.groupBoxAccount);
-            this.tabPage1.Controls.Add(this.groupBox1);
-            this.tabPage1.Controls.Add(this.labelPlayers);
-            this.tabPage1.Controls.Add(this.listBoxPlayers);
-            this.tabPage1.Controls.Add(this.buttonDisconnect);
-            this.tabPage1.Controls.Add(this.buttonConnect);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(226, 186);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Bridge";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.bridge.Controls.Add(this.linkLabelTutorial);
+            this.bridge.Controls.Add(this.groupBoxServer);
+            this.bridge.Controls.Add(this.groupBoxAccount);
+            this.bridge.Controls.Add(this.groupBox1);
+            this.bridge.Controls.Add(this.labelPlayers);
+            this.bridge.Controls.Add(this.listBoxPlayers);
+            this.bridge.Controls.Add(this.buttonDisconnect);
+            this.bridge.Controls.Add(this.buttonConnect);
+            this.bridge.Location = new System.Drawing.Point(4, 22);
+            this.bridge.Name = "bridge";
+            this.bridge.Padding = new System.Windows.Forms.Padding(3);
+            this.bridge.Size = new System.Drawing.Size(226, 186);
+            this.bridge.TabIndex = 0;
+            this.bridge.Text = "Bridge";
+            this.bridge.UseVisualStyleBackColor = true;
             // 
             // linkLabelTutorial
             // 
@@ -392,16 +392,16 @@
             this.listBoxPlayers.Size = new System.Drawing.Size(84, 173);
             this.listBoxPlayers.TabIndex = 4;
             // 
-            // tabPage2
+            // itemEditor
             // 
-            this.tabPage2.Controls.Add(this.panelItemEditor);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(226, 186);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "ItemEditor";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.itemEditor.Controls.Add(this.panelItemEditor);
+            this.itemEditor.Location = new System.Drawing.Point(4, 22);
+            this.itemEditor.Name = "itemEditor";
+            this.itemEditor.Padding = new System.Windows.Forms.Padding(3);
+            this.itemEditor.Size = new System.Drawing.Size(226, 186);
+            this.itemEditor.TabIndex = 1;
+            this.itemEditor.Text = "ItemEditor";
+            this.itemEditor.UseVisualStyleBackColor = true;
             // 
             // panelItemEditor
             // 
@@ -1070,42 +1070,42 @@
             this.listBoxSlots.TabIndex = 0;
             this.listBoxSlots.SelectedIndexChanged += new System.EventHandler(this.ListBoxSlots_SelectedIndexChanged);
             // 
-            // tabPage5
+            // character
             // 
-            this.tabPage5.Controls.Add(this.groupBoxClass);
-            this.tabPage5.Controls.Add(this.numericUpDownSkill1);
-            this.tabPage5.Controls.Add(this.numericUpDownSailing);
-            this.tabPage5.Controls.Add(this.numericUpDownPetmaster);
-            this.tabPage5.Controls.Add(this.numericUpDownRiding);
-            this.tabPage5.Controls.Add(this.numericUpDownClimbing);
-            this.tabPage5.Controls.Add(this.numericUpDownGliding);
-            this.tabPage5.Controls.Add(this.numericUpDownMoney);
-            this.tabPage5.Controls.Add(this.numericUpDownSkill3);
-            this.tabPage5.Controls.Add(this.numericUpDownSwimming);
-            this.tabPage5.Controls.Add(this.numericUpDownCharacterLevel);
-            this.tabPage5.Controls.Add(this.numericUpDownSkill2);
-            this.tabPage5.Controls.Add(this.numericUpDownPlatinum);
-            this.tabPage5.Controls.Add(this.numericUpDownXP);
-            this.tabPage5.Controls.Add(this.label12);
-            this.tabPage5.Controls.Add(this.label11);
-            this.tabPage5.Controls.Add(this.label10);
-            this.tabPage5.Controls.Add(this.labelPetMaster);
-            this.tabPage5.Controls.Add(this.label3);
-            this.tabPage5.Controls.Add(this.label4);
-            this.tabPage5.Controls.Add(this.label7);
-            this.tabPage5.Controls.Add(this.label8);
-            this.tabPage5.Controls.Add(this.label9);
-            this.tabPage5.Controls.Add(this.label6);
-            this.tabPage5.Controls.Add(this.label5);
-            this.tabPage5.Controls.Add(this.label2);
-            this.tabPage5.Controls.Add(this.label1);
-            this.tabPage5.Location = new System.Drawing.Point(4, 22);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(226, 186);
-            this.tabPage5.TabIndex = 2;
-            this.tabPage5.Text = "character";
-            this.tabPage5.UseVisualStyleBackColor = true;
+            this.character.Controls.Add(this.groupBoxClass);
+            this.character.Controls.Add(this.numericUpDownSkill1);
+            this.character.Controls.Add(this.numericUpDownSailing);
+            this.character.Controls.Add(this.numericUpDownPetmaster);
+            this.character.Controls.Add(this.numericUpDownRiding);
+            this.character.Controls.Add(this.numericUpDownClimbing);
+            this.character.Controls.Add(this.numericUpDownGliding);
+            this.character.Controls.Add(this.numericUpDownMoney);
+            this.character.Controls.Add(this.numericUpDownSkill3);
+            this.character.Controls.Add(this.numericUpDownSwimming);
+            this.character.Controls.Add(this.numericUpDownCharacterLevel);
+            this.character.Controls.Add(this.numericUpDownSkill2);
+            this.character.Controls.Add(this.numericUpDownPlatinum);
+            this.character.Controls.Add(this.numericUpDownXP);
+            this.character.Controls.Add(this.label12);
+            this.character.Controls.Add(this.label11);
+            this.character.Controls.Add(this.label10);
+            this.character.Controls.Add(this.labelPetMaster);
+            this.character.Controls.Add(this.label3);
+            this.character.Controls.Add(this.label4);
+            this.character.Controls.Add(this.label7);
+            this.character.Controls.Add(this.label8);
+            this.character.Controls.Add(this.label9);
+            this.character.Controls.Add(this.label6);
+            this.character.Controls.Add(this.label5);
+            this.character.Controls.Add(this.label2);
+            this.character.Controls.Add(this.label1);
+            this.character.Location = new System.Drawing.Point(4, 22);
+            this.character.Name = "character";
+            this.character.Padding = new System.Windows.Forms.Padding(3);
+            this.character.Size = new System.Drawing.Size(226, 186);
+            this.character.TabIndex = 2;
+            this.character.Text = "Character";
+            this.character.UseVisualStyleBackColor = true;
             // 
             // groupBoxClass
             // 
@@ -1557,11 +1557,11 @@
             this.groupBoxServer.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPort)).EndInit();
             this.tabControl1.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage1.PerformLayout();
+            this.bridge.ResumeLayout(false);
+            this.bridge.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.tabPage2.ResumeLayout(false);
+            this.itemEditor.ResumeLayout(false);
             this.panelItemEditor.ResumeLayout(false);
             this.tabControlItemEditor.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
@@ -1581,8 +1581,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownZ)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).EndInit();
-            this.tabPage5.ResumeLayout(false);
-            this.tabPage5.PerformLayout();
+            this.character.ResumeLayout(false);
+            this.character.PerformLayout();
             this.groupBoxClass.ResumeLayout(false);
             this.groupBoxClass.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkill1)).EndInit();
@@ -1616,8 +1616,8 @@
         public System.Windows.Forms.Label labelPort;
         public System.Windows.Forms.NumericUpDown numericUpDownPort;
         public System.Windows.Forms.TabControl tabControl1;
-        public System.Windows.Forms.TabPage tabPage1;
-        public System.Windows.Forms.TabPage tabPage2;
+        public System.Windows.Forms.TabPage bridge;
+        public System.Windows.Forms.TabPage itemEditor;
         public System.Windows.Forms.TabControl tabControlItemEditor;
         public System.Windows.Forms.TabPage tabPage4;
         public System.Windows.Forms.Label labelLevel;
@@ -1661,7 +1661,7 @@
         public System.Windows.Forms.CheckBox checkBoxStayOnTop;
         public System.Windows.Forms.Panel panelItemEditor;
         public System.Windows.Forms.Timer hTimer;
-        public System.Windows.Forms.TabPage tabPage5;
+        public System.Windows.Forms.TabPage character;
         public System.Windows.Forms.NumericUpDown numericUpDownSkill3;
         public System.Windows.Forms.NumericUpDown numericUpDownSkill2;
         public System.Windows.Forms.NumericUpDown numericUpDownSkill1;
