@@ -177,4 +177,12 @@
         legendary,
         mythic,
     }
+
+    public enum EntityClass {
+        None,
+        Warrior,
+        Ranger,
+        Mage,
+        Rogue
+    }
 }

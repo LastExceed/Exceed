@@ -8,7 +8,7 @@ namespace Server.Addon {
             return new EntityUpdate() {
                 guid = player.entityData.guid + 1000,
                 position = player.entityData.position,
-                hostility = (byte)Database.Hostility.neutral,
+                hostility = (byte)Hostility.neutral,
                 entityType = -1,
                 appearance = new Appearance() {
                     character_size = new Resources.Utilities.FloatVector() {
@@ -25,7 +25,7 @@ namespace Server.Addon {
         public static EntityUpdate Hide(Player player) {
             var tomb = new EntityUpdate() {
                 guid = player.entityData.guid + 1000,
-                hostility = (byte)Database.Hostility.neutral,
+                hostility = (byte)Hostility.neutral,
                 entityType = -1,
                 HP = 0
             };

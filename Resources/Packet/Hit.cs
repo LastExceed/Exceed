@@ -14,7 +14,7 @@ namespace Resources.Packet {
         public LongVector position = new LongVector();
         public FloatVector direction = new FloatVector();
         public byte skill;
-        public byte type;
+        public DamageType type;
         public byte showlight;
         public byte paddingB;
 
@@ -30,7 +30,7 @@ namespace Resources.Packet {
             position = new LongVector(reader);
             direction = new FloatVector(reader);
             skill = reader.ReadByte();
-            type = reader.ReadByte();
+            type = (DamageType)reader.ReadByte();
             showlight = reader.ReadByte();
             paddingB = reader.ReadByte();
         }
@@ -48,7 +48,7 @@ namespace Resources.Packet {
             position.Write(writer);
             direction.Write(writer);
             writer.Write(skill);
-            writer.Write(type);
+            writer.Write((byte)type);
             writer.Write(showlight);
             writer.Write(paddingB);
         }
