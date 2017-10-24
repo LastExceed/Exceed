@@ -2,8 +2,8 @@
 
 namespace Resources.Datagram {
     public class Connect {
-        public Database.DatagramID DatagramID {
-            get { return (Database.DatagramID)data[0]; }
+        public DatagramID DatagramID {
+            get { return (DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
         }
         public ushort Guid {
@@ -19,7 +19,7 @@ namespace Resources.Datagram {
 
         public Connect() {
             data = new byte[7];
-            DatagramID = Database.DatagramID.connect;
+            DatagramID = DatagramID.connect;
         }
         public Connect(byte[] data) {
             this.data = data;

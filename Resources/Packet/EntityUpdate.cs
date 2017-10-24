@@ -271,7 +271,7 @@ namespace Resources.Packet {
 
                 stream = new MemoryStream();
                 writer = new BinaryWriter(stream);
-                writer.Write((int)Database.PacketID.entityUpdate);
+                writer.Write((int)PacketID.entityUpdate);
                 writer.Write(compressed.Length);
                 writer.Write(compressed);
                 return stream.ToArray();

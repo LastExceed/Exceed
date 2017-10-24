@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace Resources.Packet {
     public class EntityAction {
@@ -10,7 +9,7 @@ namespace Resources.Packet {
         public int chunkY;
         public int index;
         public int unknown;
-        public byte type;
+        public ActionType type;
         //3 pad
 
         public EntityAction() { }
@@ -21,7 +20,7 @@ namespace Resources.Packet {
             chunkY = reader.ReadInt32();
             index = reader.ReadInt32();
             unknown = reader.ReadInt32();
-            type = reader.ReadByte();
+            type = (ActionType)reader.ReadByte();
             reader.ReadBytes(3); //pad
         }
 
@@ -34,7 +33,7 @@ namespace Resources.Packet {
             writer.Write(chunkY);
             writer.Write(index);
             writer.Write(unknown);
-            writer.Write(type);
+            writer.Write((byte)type);
             writer.Write(new byte[3]);
         }
     }

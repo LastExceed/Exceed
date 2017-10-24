@@ -3,8 +3,8 @@ using System;
 
 namespace Resources.Datagram {
     public class StaticUpdate {
-        public Database.DatagramID DatagramID {
-            get { return (Database.DatagramID)data[0]; }
+        public DatagramID DatagramID {
+            get { return (DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
         }
         public ushort Id {
@@ -53,12 +53,12 @@ namespace Resources.Datagram {
             get { return BitConverter.ToUInt16(data, 41); }
             set { BitConverter.GetBytes(value).CopyTo(data, 41); }
         }
-        public Database.StaticUpdateType Type {
-            get { return (Database.StaticUpdateType)data[43]; }
+        public StaticUpdateType Type {
+            get { return (StaticUpdateType)data[43]; }
             set { data[43] = (byte)value; }
         }
-        public Database.StaticRotation Direction {
-            get { return (Database.StaticRotation)data[44]; }
+        public StaticRotation Direction {
+            get { return (StaticRotation)data[44]; }
             set { data[44] = (byte)value; }
         }
         public bool Closed {
@@ -70,7 +70,7 @@ namespace Resources.Datagram {
 
         public StaticUpdate() {
             data = new byte[45];
-            DatagramID = Database.DatagramID.staticUpdate;
+            DatagramID = DatagramID.staticUpdate;
         }
 
         public StaticUpdate(byte[] data) {

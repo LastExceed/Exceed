@@ -3,8 +3,8 @@ using System;
 
 namespace Resources.Datagram {
     public class Shoot {
-        public Database.DatagramID DatagramID {
-            get { return (Database.DatagramID)data[0]; }
+        public DatagramID DatagramID {
+            get { return (DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
         }
         public LongVector Position {
@@ -45,8 +45,8 @@ namespace Resources.Datagram {
             get { return BitConverter.ToSingle(data, 41); }
             set { BitConverter.GetBytes(value).CopyTo(data, 41); }
         }
-        public Database.Projectile Projectile {
-            get { return (Database.Projectile)data[45]; }
+        public Projectile Projectile {
+            get { return (Projectile)data[45]; }
             set { data[45] = (byte)value; }
         }
 
@@ -54,7 +54,7 @@ namespace Resources.Datagram {
          
         public Shoot() {
             data = new byte[46];
-            DatagramID = Database.DatagramID.shoot;
+            DatagramID = DatagramID.shoot;
         }
 
         public Shoot(byte[] data) {

@@ -2,8 +2,8 @@
 
 namespace Resources.Datagram {
     public class Attack {
-        public Database.DatagramID DatagramID {
-            get { return (Database.DatagramID)data[0]; }
+        public DatagramID DatagramID {
+            get { return (DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
         }
         public ushort Target {
@@ -22,8 +22,8 @@ namespace Resources.Datagram {
             get { return data[11]; }
             set { data[11] = value; }
         }
-        public Database.DamageType Type {
-            get { return (Database.DamageType)(data[12]); }
+        public DamageType Type {
+            get { return (DamageType)(data[12]); }
             set { data[12] = (byte)value; }
         }
         public bool ShowLight {
@@ -39,7 +39,7 @@ namespace Resources.Datagram {
 
         public Attack() {
             data = new byte[14];
-            DatagramID = Database.DatagramID.attack;
+            DatagramID = DatagramID.attack;
         }
 
         public Attack(byte[] data) {

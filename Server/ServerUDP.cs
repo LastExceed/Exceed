@@ -97,23 +97,22 @@ namespace Server {
                 newGuid++;
             }
             player.entityData.guid = newGuid;
-
+            
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(newGuid + " connected");
-
-            Database.LoginResponse response = Database.LoginResponse.fail;
-
+            LoginResponse response = LoginResponse.fail;
+            
             if (player.reader.ReadInt32() == 123) {
                 if (player.reader.ReadInt32() == Database.bridgeVersion) {
-                    response = Database.LoginResponse.success;
+                    response = LoginResponse.success;
                     connections.Add(newGuid, player);
                 }
                 else {
-                    response = Database.LoginResponse.outdated;
+                    response = LoginResponse.outdated;
                 }
             }
             player.writer.Write((byte)response);
-
+            
             while (true) {
                 try {
                     byte packetID = player.reader.ReadByte();
@@ -170,8 +169,8 @@ namespace Server {
             }
         }
         public void ProcessDatagram(byte[] datagram, Player player) {
-            switch((Database.DatagramID)datagram[0]) {
-                case Database.DatagramID.entityUpdate:
+            switch((DatagramID)datagram[0]) {
+                case DatagramID.entityUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
 
@@ -206,42 +205,42 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case Database.DatagramID.attack:
+                case DatagramID.attack:
                     #region attack
                     var attack = new Attack(datagram);
                     SendUDP(datagram, connections[attack.Target]);
                     break;
                 #endregion
-                case Database.DatagramID.shoot:
+                case DatagramID.shoot:
                     #region shoot
                     var shoot = new Resources.Datagram.Shoot(datagram);
                     BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
-                case Database.DatagramID.proc:
+                case DatagramID.proc:
                     #region proc
                     var proc = new Proc(datagram);
 
                     switch (proc.Type) {
-                        case Database.ProcType.bulwalk:
+                        case ProcType.bulwalk:
                             SendUDP(new Chat(string.Format("bulwalk: {0}% dmg reduction", 1.0f - proc.Modifier)).data, player);
                             break;
-                        case Database.ProcType.poison:
+                        case ProcType.poison:
                             var poisonTick = new Attack() {
                                 Damage = proc.Modifier,
                                 Target = proc.Target
                             };
                             Poison(connections[proc.Target], poisonTick);
                             break;
-                        case Database.ProcType.manashield:
+                        case ProcType.manashield:
                             SendUDP(new Chat(string.Format("manashield: {0}", proc.Modifier)).data, player);
                             break;
-                        case Database.ProcType.warFrenzy:
-                        case Database.ProcType.camouflage:
-                        case Database.ProcType.fireSpark:
-                        case Database.ProcType.intuition:
-                        case Database.ProcType.elusivenes:
-                        case Database.ProcType.swiftness:
+                        case ProcType.warFrenzy:
+                        case ProcType.camouflage:
+                        case ProcType.fireSpark:
+                        case ProcType.intuition:
+                        case ProcType.elusivenes:
+                        case ProcType.swiftness:
                             break;
                         default:
 
@@ -250,7 +249,7 @@ namespace Server {
                     BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
-                case Database.DatagramID.chat:
+                case DatagramID.chat:
                     #region chat
                     var chat = new Chat(datagram);
                     if (chat.Text.StartsWith("/")) {
@@ -271,13 +270,13 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case Database.DatagramID.interaction:
+                case DatagramID.interaction:
                     #region interaction
                     var interaction = new Interaction(datagram);
                     BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
-                case Database.DatagramID.connect:
+                case DatagramID.connect:
                     #region connect
                     var connect = new Connect(datagram) {
                         Guid = (ushort)player.entityData.guid,
@@ -297,7 +296,7 @@ namespace Server {
                     Console.WriteLine(connect.Guid + " is now playing");
                     break;
                 #endregion
-                case Database.DatagramID.disconnect:
+                case DatagramID.disconnect:
                     #region disconnect
                     var disconnect = new Disconnect(datagram);
                     connections[disconnect.Guid].playing = false;
@@ -307,7 +306,7 @@ namespace Server {
                     Console.WriteLine(disconnect.Guid + " is now lurking");
                     break;
                 #endregion
-                case Database.DatagramID.petCall:
+                case DatagramID.petCall:
                     #region petCall
                     byte skill = 3;
                     var petCall = new PetCall(datagram);
@@ -342,7 +341,7 @@ namespace Server {
                             //boomerang projectiles despawn instantly, idk why
                             var bladeStorm = new Resources.Datagram.Shoot {
                                 Scale = 1,
-                                Projectile = Database.Projectile.boomerang,
+                                Projectile = Projectile.boomerang,
                                 Position = connections[petCall.Guid].entityData.position
                             };
                             var vel = new Resources.Utilities.FloatVector();

@@ -2,8 +2,8 @@
 
 namespace Resources.Datagram {
     public class Block {
-        public Database.DatagramID DatagramID {
-            get { return (Database.DatagramID)data[0]; }
+        public DatagramID DatagramID {
+            get { return (DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
         }
         public short Length {
@@ -19,7 +19,7 @@ namespace Resources.Datagram {
         public byte[] data;
         public Block() {
             data = new byte[3];
-            DatagramID = Database.DatagramID.block;
+            DatagramID = DatagramID.block;
         }
 
         public Block(byte[] data) {

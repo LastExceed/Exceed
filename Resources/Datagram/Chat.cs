@@ -3,8 +3,8 @@ using System.Text;
 
 namespace Resources.Datagram {
     public class Chat {
-        public Database.DatagramID DatagramID {
-            get { return (Database.DatagramID)data[0]; }
+        public DatagramID DatagramID {
+            get { return (DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
         }
         public ushort Sender {
@@ -26,7 +26,7 @@ namespace Resources.Datagram {
         public Chat(string message) {
             if(message.Length <= 255) {
                 data = new byte[4 + message.Length];
-                DatagramID = Database.DatagramID.chat;
+                DatagramID = DatagramID.chat;
                 Length = (byte)message.Length;
                 Text = message;
             } else {
