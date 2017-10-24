@@ -10,6 +10,7 @@ namespace Bridge {
 
         public Form1() {
             InitializeComponent();
+            DisplayCharacterTab(false);
             BridgeTCPUDP.form = CwRam.form = this;
         }
         public void Log(string text, Color color) {
@@ -115,6 +116,23 @@ namespace Bridge {
         private void NumericUpDownUnknown_ValueChanged(object sender, EventArgs e) {
             CwRam.memory.WriteInt(CwRam.ItemStart + 8, (int)numericUpDownUnknown.Value);
         }
+
+        /// <summary>
+        /// Used to prevent null reference exception
+        /// </summary>
+        /// <param name="display"></param>
+        internal void DisplayCharacterTab(bool display) {
+            if(InvokeRequired) {
+                Invoke((Action)(() => DisplayCharacterTab(display)));
+            } else {
+                if(display) {
+                    character.Parent = tabControl1;
+                } else {
+                    character.Parent = null;
+                }
+            }
+        }
+
         private void NumericUpDownRarity_ValueChanged(object sender, EventArgs e) {
             buffer = (byte)numericUpDownRarity.Value;
             CwRam.memory.WriteByte(CwRam.ItemStart + 12, buffer);
