@@ -98,21 +98,18 @@ namespace Server {
             }
             player.entityData.guid = newGuid;
             
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(newGuid + " connected");
-            LoginResponse response = LoginResponse.fail;
-            
-            if (player.reader.ReadInt32() == 123) {
-                if (player.reader.ReadInt32() == Database.bridgeVersion) {
-                    response = LoginResponse.success;
-                    connections.Add(newGuid, player);
-                }
-                else {
-                    response = LoginResponse.outdated;
-                }
+            if (player.reader.ReadInt32() != Database.bridgeVersion) {
+                player.writer.Write((byte)VersionResponse.outdated);
+                return;
             }
-            player.writer.Write((byte)response);
-            
+            else {
+                player.MAC = player.reader.ReadString();
+                //TODO: check if banned
+                player.writer.Write((byte)VersionResponse.success);
+                connections.Add(newGuid, player);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(newGuid + " connected");
+            }
             while (true) {
                 try {
                     byte packetID = player.reader.ReadByte();

@@ -35,7 +35,7 @@
         disconnect,
         petCall //temp
     }
-    public enum LoginResponse : byte {
+    public enum VersionResponse : byte {
         success,
         fail,
         banned,

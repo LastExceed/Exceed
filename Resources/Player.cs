@@ -14,7 +14,7 @@ namespace Resources {
         public bool available = true;
         public IPEndPoint Address { get; private set; }
         public EntityUpdate entityData = new EntityUpdate();
-        public string username;
+        public string MAC;
         public Stopwatch lagMeter;
 
         public Player(TcpClient client) {

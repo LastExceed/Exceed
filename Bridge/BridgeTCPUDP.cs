@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.NetworkInformation;
 
 using Resources;
 using Resources.Packet;
@@ -56,18 +58,11 @@ namespace Bridge {
             sreader = new BinaryReader(stream);
             form.Log("authenticating...", Color.DarkGray);
 
-            #region secure login transfer            
-            /*
-            swriter.Write(form.textBoxUsername.Text); //Send username
-            swriter.Write(Hashing.Hash(form.textBoxPassword.Text, sreader.ReadBytes(Hashing.saltSize))); //send hashed password
-            */
-            #endregion
-
-            swriter.Write(123);//placeholder for login procedure
             swriter.Write(Database.bridgeVersion);
+            swriter.Write(NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault());
 
-            switch ((LoginResponse)sreader.ReadByte()) {
-                case LoginResponse.success:
+            switch ((VersionResponse)sreader.ReadByte()) {
+                case VersionResponse.success:
                     form.Log("success\n", Color.Green);
                     connected = true;
                     Task.Factory.StartNew(ListenFromClientTCP);
@@ -75,13 +70,13 @@ namespace Bridge {
                     Task.Factory.StartNew(ListenFromServerUDP);
                     swriter.Write((byte)0);//request query
                     break;
-                case LoginResponse.fail:
+                case VersionResponse.fail:
                     MessageBox.Show("Wrong Username/Password");
                     goto default;
-                case LoginResponse.banned:
+                case VersionResponse.banned:
                     MessageBox.Show("You are banned");
                     goto default;
-                case LoginResponse.outdated:
+                case VersionResponse.outdated:
                     MessageBox.Show("your bridge is outdated");
                     goto default;
                 default:
