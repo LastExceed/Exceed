@@ -386,7 +386,8 @@
             "################",
             "SampleName",
             "Someone",
-            "ThisDoesntWork"});
+            "ThisDoesntWork",
+            "GottaFixThis"});
             this.listBoxPlayers.Location = new System.Drawing.Point(142, 13);
             this.listBoxPlayers.Name = "listBoxPlayers";
             this.listBoxPlayers.Size = new System.Drawing.Size(84, 173);

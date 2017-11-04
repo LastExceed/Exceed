@@ -124,7 +124,6 @@ namespace Bridge {
                 tcpListener.Stop();
 
                 CwRam.memory = new ProcessMemory("Cube");
-                form.DisplayCharacterTab(true);
 
                 form.Invoke(new Action(() => form.panelItemEditor.Enabled = true));
 
@@ -149,8 +148,6 @@ namespace Bridge {
                 }
                 form.Log("client disconnected\n", Color.Red);
             }
-
-            form.DisplayCharacterTab(false);
         }
         public static void ListenFromServerTCP() {
             while (true) {
