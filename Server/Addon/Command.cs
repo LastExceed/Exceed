@@ -20,7 +20,7 @@ namespace Server.Addon {
 
                         var xpDummy = new EntityUpdate() {
                             guid = 1000,
-                            hostility = (byte)Database.Hostility.enemy
+                            hostility = (byte)Hostility.enemy
                         };
                         xpDummy.Write(player.writer);
 

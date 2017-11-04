@@ -6,7 +6,7 @@ namespace Resources.Packet {
 
         public long source;
         public long target;
-        public byte type;
+        public ProcType type;
         //3pad
         public float modifier;
         public int duration;
@@ -18,7 +18,7 @@ namespace Resources.Packet {
         public PassiveProc(BinaryReader reader) {
             source = reader.ReadInt64();
             target = reader.ReadInt64();
-            type = reader.ReadByte();
+            type = (ProcType)reader.ReadByte();
             reader.ReadBytes(3);//pad
             modifier = reader.ReadSingle();
             duration = reader.ReadInt32();
@@ -32,7 +32,7 @@ namespace Resources.Packet {
             }
             writer.Write(source);
             writer.Write(target);
-            writer.Write(type);
+            writer.Write((byte)type);
             writer.Write(new byte[3]);
             writer.Write(modifier);
             writer.Write(duration);

@@ -2,8 +2,8 @@
 
 namespace Resources.Datagram {
     public class InGameTime {
-        public Database.DatagramID DatagramID {
-            get { return (Database.DatagramID)data[0]; }
+        public DatagramID DatagramID {
+            get { return (DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
         }
         public int Time {
@@ -15,7 +15,7 @@ namespace Resources.Datagram {
 
         public InGameTime() {
             data = new byte[5];
-            DatagramID = Database.DatagramID.time;
+            DatagramID = DatagramID.time;
         }
 
         public InGameTime(byte[] data) {

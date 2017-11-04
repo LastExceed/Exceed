@@ -2,8 +2,8 @@
 
 namespace Resources.Datagram {
     public class Disconnect {
-        public Database.DatagramID DatagramID {
-            get { return (Database.DatagramID)data[0]; }
+        public DatagramID DatagramID {
+            get { return (DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
         }
         public ushort Guid {
@@ -15,7 +15,7 @@ namespace Resources.Datagram {
 
         public Disconnect() {
             data = new byte[3];
-            DatagramID = Database.DatagramID.disconnect;
+            DatagramID = DatagramID.disconnect;
         }
         public Disconnect(byte[] data) {
             this.data = data;

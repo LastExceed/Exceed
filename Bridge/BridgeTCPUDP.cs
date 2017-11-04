@@ -3,14 +3,17 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
+using System.Threading.Tasks;
+using System.Drawing;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.NetworkInformation;
 
 using Resources;
 using Resources.Packet;
 using Resources.Packet.Part;
 using Resources.Datagram;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Collections.Generic;
+
 using ReadWriteProcessMemory;
 
 namespace Bridge {
@@ -55,31 +58,25 @@ namespace Bridge {
             sreader = new BinaryReader(stream);
             form.Log("authenticating...", Color.DarkGray);
 
-            #region secure login transfer            
-            /*
-            swriter.Write(form.textBoxUsername.Text); //Send username
-            swriter.Write(Hashing.Hash(form.textBoxPassword.Text, sreader.ReadBytes(Hashing.saltSize))); //send hashed password
-            */
-            #endregion
-
-            swriter.Write(123);//placeholder for login procedure
             swriter.Write(Database.bridgeVersion);
+            swriter.Write(NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault());
 
-            switch ((Database.LoginResponse)sreader.ReadByte()) {
-                case Database.LoginResponse.success:
+            switch ((VersionResponse)sreader.ReadByte()) {
+                case VersionResponse.success:
                     form.Log("success\n", Color.Green);
                     connected = true;
                     Task.Factory.StartNew(ListenFromClientTCP);
                     Task.Factory.StartNew(ListenFromServerTCP);
                     Task.Factory.StartNew(ListenFromServerUDP);
+                    swriter.Write((byte)0);//request query
                     break;
-                case Database.LoginResponse.fail:
+                case VersionResponse.fail:
                     MessageBox.Show("Wrong Username/Password");
                     goto default;
-                case Database.LoginResponse.banned:
+                case VersionResponse.banned:
                     MessageBox.Show("You are banned");
                     goto default;
-                case Database.LoginResponse.outdated:
+                case VersionResponse.outdated:
                     MessageBox.Show("your bridge is outdated");
                     goto default;
                 default:
@@ -125,7 +122,9 @@ namespace Bridge {
                     return;
                 }
                 tcpListener.Stop();
+
                 CwRam.memory = new ProcessMemory("Cube");
+
                 form.Invoke(new Action(() => form.panelItemEditor.Enabled = true));
 
                 form.Log("client connected\n", Color.Green);
@@ -133,6 +132,7 @@ namespace Bridge {
                 creader = new BinaryReader(tcpToClient.GetStream());
                 cwriter = new BinaryWriter(tcpToClient.GetStream());
                 int packetID;
+
                 while (true) {
                     try {
                         packetID = creader.ReadInt32();
@@ -188,8 +188,8 @@ namespace Bridge {
 
         public static void ProcessDatagram(byte[] datagram) {
             var serverUpdate = new ServerUpdate();
-            switch ((Database.DatagramID)datagram[0]) {
-                case Database.DatagramID.entityUpdate:
+            switch ((DatagramID)datagram[0]) {
+                case DatagramID.entityUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
 
@@ -210,7 +210,7 @@ namespace Bridge {
                     }
                     break;
                 #endregion
-                case Database.DatagramID.attack:
+                case DatagramID.attack:
                     #region attack
                     var attack = new Attack(datagram);
 
@@ -221,14 +221,14 @@ namespace Bridge {
                         stuntime = attack.Stuntime,
                         position = players[attack.Target].position,
                         skill = attack.Skill,
-                        type = (byte)attack.Type,
+                        type = attack.Type,
                         showlight = (byte)(attack.ShowLight ? 1 : 0)
                     };
                     serverUpdate.hits.Add(hit);
                     serverUpdate.Write(cwriter);
                     break;
                 #endregion
-                case Database.DatagramID.shoot:
+                case DatagramID.shoot:
                     #region shoot
                     var shootDatagram = new Resources.Datagram.Shoot(datagram);
 
@@ -237,7 +237,7 @@ namespace Bridge {
                         velocity = shootDatagram.Velocity,
                         scale = shootDatagram.Scale,
                         particles = shootDatagram.Particles,
-                        projectile = (int)shootDatagram.Projectile,
+                        projectile = shootDatagram.Projectile,
                         chunkX = (int)shootDatagram.Position.x / 0x1000000,
                         chunkY = (int)shootDatagram.Position.y / 0x1000000
                     };
@@ -245,13 +245,13 @@ namespace Bridge {
                     serverUpdate.Write(cwriter);
                     break;
                 #endregion
-                case Database.DatagramID.proc:
+                case DatagramID.proc:
                     #region proc
                     var proc = new Proc(datagram);
 
                     var passiveProc = new PassiveProc() {
                         target = proc.Target,
-                        type = (byte)proc.Type,
+                        type = proc.Type,
                         modifier = proc.Modifier,
                         duration = proc.Duration
                     };
@@ -259,7 +259,7 @@ namespace Bridge {
                     serverUpdate.Write(cwriter);
                     break;
                 #endregion
-                case Database.DatagramID.chat:
+                case DatagramID.chat:
                     #region chat
                     var chat = new Chat(datagram);
                     var chatMessage = new ChatMessage() {
@@ -278,7 +278,7 @@ namespace Bridge {
                     form.Log(chat.Text + "\n", Color.White);
                     break;
                 #endregion
-                case Database.DatagramID.time:
+                case DatagramID.time:
                     #region time
                     var igt = new InGameTime(datagram);
 
@@ -288,7 +288,7 @@ namespace Bridge {
                     time.Write(cwriter);
                     break;
                 #endregion
-                case Database.DatagramID.interaction:
+                case DatagramID.interaction:
                     #region interaction
                     var interaction = new Interaction(datagram);
 
@@ -296,13 +296,13 @@ namespace Bridge {
                         chunkX = interaction.ChunkX,
                         chunkY = interaction.ChunkY,
                         index = interaction.Index,
-                        type = (byte)Database.ActionType.staticInteraction
+                        type = ActionType.staticInteraction
                     };
                     //serverUpdate..Add();
                     //serverUpdate.Write(cwriter);
                     break;
                 #endregion
-                case Database.DatagramID.staticUpdate:
+                case DatagramID.staticUpdate:
                     #region staticUpdate
                     var staticUpdate = new StaticUpdate(datagram);
 
@@ -323,11 +323,11 @@ namespace Bridge {
                     staticServerUpdate.Write(cwriter, true);
                     break;
                 #endregion
-                case Database.DatagramID.block:
+                case DatagramID.block:
                     //var block = new Block(datagram);
                     //TODO
                     break;
-                case Database.DatagramID.particle:
+                case DatagramID.particle:
                     #region particle
                     var particleDatagram = new Resources.Datagram.Particle(datagram);
 
@@ -349,7 +349,7 @@ namespace Bridge {
                     serverUpdate.Write(cwriter, true);
                     break;
                 #endregion
-                case Database.DatagramID.connect:
+                case DatagramID.connect:
                     #region connect
                     var connect = new Connect(datagram);
                     guid = connect.Guid;
@@ -366,7 +366,7 @@ namespace Bridge {
                     mapseed.Write(cwriter, true);
                     break;
                 #endregion
-                case Database.DatagramID.disconnect:
+                case DatagramID.disconnect:
                     #region disconnect
                     var disconnect = new Disconnect(datagram);
                     var pdc = new EntityUpdate() {
@@ -383,8 +383,8 @@ namespace Bridge {
             }
         }
         public static void ProcessClientPacket(int packetID) {
-            switch ((Database.PacketID)packetID) {
-                case Database.PacketID.entityUpdate:
+            switch ((PacketID)packetID) {
+                case PacketID.entityUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(creader);
                     if (players.ContainsKey(entityUpdate.guid)) {
@@ -395,21 +395,22 @@ namespace Bridge {
                         players.Add(entityUpdate.guid, entityUpdate);
                     }
                     if (!entityUpdate.IsEmpty) {
+                        Console.WriteLine(entityUpdate.roll);
                         SendUDP(entityUpdate.Data);
                     }
                     break;
                 #endregion
-                case Database.PacketID.entityAction:
+                case PacketID.entityAction:
                     #region entity action
                     EntityAction entityAction = new EntityAction(creader);
-                    switch ((Database.ActionType)entityAction.type) {
-                        case Database.ActionType.talk:
+                    switch (entityAction.type) {
+                        case ActionType.talk:
                             break;
-                        case Database.ActionType.staticInteraction:
+                        case ActionType.staticInteraction:
                             break;
-                        case Database.ActionType.pickup:
+                        case ActionType.pickup:
                             break;
-                        case Database.ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
+                        case ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
                             if (form.radioButtonDestroy.Checked) {
                                 new ChatMessage() { message = "item destroyed" }.Write(cwriter);
                             }
@@ -423,7 +424,7 @@ namespace Bridge {
                                 serverUpdate.Write(cwriter);
                             }
                             break;
-                        case Database.ActionType.callPet:
+                        case ActionType.callPet:
                             var petCall = new PetCall() {
                                 Guid = guid
                             };
@@ -435,7 +436,7 @@ namespace Bridge {
                     }
                     break;
                 #endregion
-                case Database.PacketID.hit:
+                case PacketID.hit:
                     #region hit
                     var hit = new Hit(creader);
 
@@ -444,20 +445,20 @@ namespace Bridge {
                         Damage = hit.damage,
                         Stuntime = hit.stuntime,
                         Skill = hit.skill,
-                        Type = (Database.DamageType)hit.type,
+                        Type = hit.type,
                         ShowLight = hit.showlight == 1,
                         Critical = hit.critical == 1
                     };
                     SendUDP(attack.data);
                     break;
                 #endregion
-                case Database.PacketID.passiveProc:
+                case PacketID.passiveProc:
                     #region passiveProc
                     var passiveProc = new PassiveProc(creader);
 
                     var proc = new Proc() {
                         Target = (ushort)passiveProc.target,
-                        Type = (Database.ProcType)passiveProc.type,
+                        Type = passiveProc.type,
                         Modifier = passiveProc.modifier,
                         Duration = passiveProc.duration
                     };
@@ -465,7 +466,7 @@ namespace Bridge {
 
                     break;
                 #endregion
-                case Database.PacketID.shoot:
+                case PacketID.shoot:
                     #region shoot
                     var shootPacket = new Resources.Packet.Shoot(creader);
 
@@ -474,12 +475,12 @@ namespace Bridge {
                         Velocity = shootPacket.velocity,
                         Scale = shootPacket.scale,
                         Particles = shootPacket.particles,
-                        Projectile = (Database.Projectile)shootPacket.projectile
+                        Projectile = shootPacket.projectile
                     };
                     SendUDP(shootDatagram.data);
                     break;
                 #endregion
-                case Database.PacketID.chat:
+                case PacketID.chat:
                     #region chat
                     var chatMessage = new ChatMessage(creader);
 
@@ -487,23 +488,23 @@ namespace Bridge {
                         var rnd = new Random();
                         byte materialA, materialW;
                         List<byte> list;
-                        switch (players[guid].entityClass) {
-                            case 1:
+                        switch ((EntityClass)players[guid].entityClass) {
+                            case EntityClass.Warrior:
                                 materialA = 1;
                                 materialW = 1;
                                 list = new List<byte> { 0, 13, 15 };
                                 break;
-                            case 2:
+                            case EntityClass.Ranger:
                                 materialA = 26;
                                 materialW = 2;
                                 list = new List<byte> { 6, 7, 8 };
                                 break;
-                            case 3:
+                            case EntityClass.Mage:
                                 materialA = 25;
                                 materialW = 2;
                                 list = new List<byte> { 10, 11, 12 }; ;
                                 break;
-                            case 4:
+                            case EntityClass.Rogue:
                                 materialA = 27;
                                 materialW = 1;
                                 list = new List<byte> { 3, 4, 5 };
@@ -551,17 +552,17 @@ namespace Bridge {
                     }
                     break;
                 #endregion
-                case Database.PacketID.chunk:
+                case PacketID.chunk:
                     #region chunk
                     var chunk = new Chunk(creader);
                     break;
                 #endregion
-                case Database.PacketID.sector:
+                case PacketID.sector:
                     #region sector
                     var sector = new Sector(creader);
                     break;
                 #endregion
-                case Database.PacketID.version:
+                case PacketID.version:
                     #region version
                     var version = new ProtocolVersion(creader);
                     if (version.version != 3) {
@@ -574,15 +575,27 @@ namespace Bridge {
                     }
                     break;
                 #endregion
-                case Database.PacketID.serverFull:
-                    break;
                 default:
-                    //unknown packet id
+                    form.Log("unknown client packet\n", Color.Magenta);
                     break;
             }
         }
         public static void ProcessServerPacket(int packetID) {
             switch (packetID) {
+                case 0:
+                    var query = new Query(sreader);
+                    foreach (var item in query.players) {
+                        if (!players.ContainsKey(item.Key)) {
+                            players.Add(item.Key, new EntityUpdate());
+                        }
+                        players[item.Key].guid = item.Key;
+                        players[item.Key].name = item.Value;
+                    }
+                    form.Invoke(new Action(form.listBoxPlayers.Items.Clear));
+                    foreach (var playerData in players.Values) {
+                        form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(playerData.name)));
+                    }
+                    break;
                 case 4:
                     int count = sreader.ReadInt32();
                     byte[] buffer = sreader.ReadBytes(count);
@@ -595,7 +608,7 @@ namespace Bridge {
                     break;
             }
         }
-
+        
         public static void SendUDP(byte[] data) {
             udpToServer.Send(data, data.Length);
         }

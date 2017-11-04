@@ -4,8 +4,8 @@ using System.Drawing;
 
 namespace Resources.Datagram {
     public class Particle {
-        public Database.DatagramID DatagramID {
-            get { return (Database.DatagramID)data[0]; }
+        public DatagramID DatagramID {
+            get { return (DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
         }
         public LongVector Position {
@@ -53,8 +53,8 @@ namespace Resources.Datagram {
             get { return BitConverter.ToUInt16(data, 45); }
             set { BitConverter.GetBytes(value).CopyTo(data, 45); }
         }
-        public Database.ParticleType Type {
-            get { return (Database.ParticleType)data[47]; }
+        public ParticleType Type {
+            get { return (ParticleType)data[47]; }
             set { data[47] = (byte)value; }
         }
         public float Spread {

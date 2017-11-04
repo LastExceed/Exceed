@@ -2,8 +2,8 @@
 
 namespace Resources.Datagram {
     public class Interaction {
-        public Database.DatagramID DatagramID {
-            get { return (Database.DatagramID)data[0]; }
+        public DatagramID DatagramID {
+            get { return (DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
         }
 
@@ -24,7 +24,7 @@ namespace Resources.Datagram {
 
         public Interaction() {
             data = new byte[7];
-            DatagramID = Database.DatagramID.interaction;
+            DatagramID = DatagramID.interaction;
         }
         public Interaction(byte[] data) {
             this.data = data;

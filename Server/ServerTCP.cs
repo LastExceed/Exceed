@@ -50,8 +50,8 @@ namespace Server {
             Kick(player);
         }
         public void ProcessPacket(int packetID, Player player) {
-            switch((Database.PacketID)packetID) {
-                case Database.PacketID.entityUpdate:
+            switch((PacketID)packetID) {
+                case PacketID.entityUpdate:
                     #region entity update
                     var entityUpdate = new EntityUpdate(player.reader);
                     string ACmessage = AntiCheat.Inspect(entityUpdate);
@@ -84,14 +84,14 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case Database.PacketID.entityAction:
+                case PacketID.entityAction:
                     #region action
                     EntityAction entityAction = new EntityAction(player.reader);
-                    switch((Database.ActionType)entityAction.type) {
-                        case Database.ActionType.talk:
+                    switch(entityAction.type) {
+                        case ActionType.talk:
                             break;
 
-                        case Database.ActionType.staticInteraction:
+                        case ActionType.staticInteraction:
                             //var staticEntity = new StaticEntity();
                             //staticEntity.chunkX = entityAction.chunkX;
                             //staticEntity.chunkY = entityAction.chunkY;
@@ -111,10 +111,10 @@ namespace Server {
                             //serverUpdate.Send(players, 0);
                             break;
 
-                        case Database.ActionType.pickup: //shouldn't occur since item drops are disabled
+                        case ActionType.pickup: //shouldn't occur since item drops are disabled
                             break;
 
-                        case Database.ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
+                        case ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
                             var pickup = new Pickup() {
                                 guid = player.entityData.guid,
                                 item = entityAction.item
@@ -125,13 +125,13 @@ namespace Server {
                             serverUpdate6.Write(player.writer, true);
                             break;
 
-                        case Database.ActionType.callPet:
-                            var petItem = player.entityData.equipment[(int)Database.Equipment.pet];
+                        case ActionType.callPet:
+                            var petItem = player.entityData.equipment[(int)Equipment.pet];
 
                             var pet = new EntityUpdate() {
                                 guid = 2000 + player.entityData.guid,
                                 position = player.entityData.position,
-                                hostility = (int)Database.Hostility.pet,
+                                hostility = (int)Hostility.pet,
                                 entityType = 28,
                                 appearance = player.entityData.appearance,
                                 HP = 999,
@@ -144,7 +144,7 @@ namespace Server {
                             pet = new EntityUpdate() {
                                 guid = 3000 + player.entityData.guid,
                                 position = player.entityData.position,
-                                hostility = (int)Database.Hostility.pet,
+                                hostility = (int)Hostility.pet,
                                 entityType = 28,
                                 mode = 106,
                                 appearance = player.entityData.appearance,
@@ -162,7 +162,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case Database.PacketID.hit:
+                case PacketID.hit:
                     #region hit
                     var hit = new Hit(player.reader);
                     hit.damage *= 0.75f;
@@ -173,7 +173,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case Database.PacketID.passiveProc:
+                case PacketID.passiveProc:
                     #region passiveProc
                     var passiveProc = new PassiveProc(player.reader);
 
@@ -183,16 +183,16 @@ namespace Server {
 
                     switch (passiveProc.type)
                     {
-                        case (byte)Database.ProcType.warFrenzy:
-                        case (byte)Database.ProcType.camouflage:
-                        case (byte)Database.ProcType.fireSpark:
-                        case (byte)Database.ProcType.intuition:
-                        case (byte)Database.ProcType.elusivenes:
-                        case (byte)Database.ProcType.swiftness:
+                        case ProcType.warFrenzy:
+                        case ProcType.camouflage:
+                        case ProcType.fireSpark:
+                        case ProcType.intuition:
+                        case ProcType.elusivenes:
+                        case ProcType.swiftness:
                             //nothing particular yet
                             break;
 
-                        case (byte)Database.ProcType.manashield:
+                        case ProcType.manashield:
                             var chatMessage6m = new ChatMessage()
                             {
                                 message = string.Format("manashield: {0}", passiveProc.modifier),
@@ -201,7 +201,7 @@ namespace Server {
                             chatMessage6m.Write(player.writer, true);
                             break;
 
-                        case (byte)Database.ProcType.bulwalk:
+                        case ProcType.bulwalk:
                             var chatMessage6b = new ChatMessage() {
                                 message = string.Format("bulwalk: {0}% dmg reduction", 1.0f - passiveProc.modifier),
                                 sender = 0
@@ -209,7 +209,7 @@ namespace Server {
                             chatMessage6b.Write(player.writer, true);
                             break;
 
-                        case (byte)Database.ProcType.poison:
+                        case ProcType.poison:
                             if (players.ContainsKey(passiveProc.target))//in case target is a tomb or sth
                             {
                                 var poisonDmg = new Hit()
@@ -218,7 +218,7 @@ namespace Server {
                                     target = passiveProc.target,
                                     damage = passiveProc.modifier,
                                     position = players[passiveProc.target].entityData.position,
-                                    type = (byte)Database.DamageType.normal
+                                    type = DamageType.normal
                                 };
                                 var poisonTick = new ServerUpdate();
                                 poisonTick.hits.Add(poisonDmg);
@@ -232,7 +232,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case Database.PacketID.shoot:
+                case PacketID.shoot:
                     #region shoot
                     var shoot = new Shoot(player.reader);
 
@@ -241,7 +241,7 @@ namespace Server {
                     serverUpdate9.Broadcast(players, player.entityData.guid);
                     break;
                 #endregion
-                case Database.PacketID.chat:
+                case PacketID.chat:
                     #region chat
                     var chatMessage = new ChatMessage(player.reader) {
                         sender = player.entityData.guid
@@ -265,17 +265,17 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case Database.PacketID.chunk:
+                case PacketID.chunk:
                     #region chunk
                     var chunk = new Chunk(player.reader);
                     break;
                 #endregion
-                case Database.PacketID.sector:
+                case PacketID.sector:
                     #region sector
                     var sector = new Chunk(player.reader);
                     break;
                 #endregion
-                case Database.PacketID.version:
+                case PacketID.version:
                     #region version
                     var version = new ProtocolVersion(player.reader);
                     if(version.version != 3) {

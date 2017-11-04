@@ -19,7 +19,7 @@ namespace Resources.Packet {
         public float mana;
         public float particles;
         public int skill;
-        public int projectile;
+        public Projectile projectile;
         public int paddingB;
         public float unknownC;
         public float unknownD;
@@ -45,7 +45,7 @@ namespace Resources.Packet {
             mana = reader.ReadSingle();
             particles = reader.ReadSingle();
             skill = reader.ReadInt32();
-            projectile = reader.ReadInt32();
+            projectile = (Projectile)reader.ReadInt32();
             paddingB = reader.ReadInt32();
             unknownC = reader.ReadSingle();
             unknownD = reader.ReadSingle();
@@ -69,7 +69,7 @@ namespace Resources.Packet {
             writer.Write(mana);
             writer.Write(particles);
             writer.Write(skill);
-            writer.Write(projectile);
+            writer.Write((int)projectile);
             writer.Write(paddingB);
             writer.Write(unknownC);
             writer.Write(unknownD);

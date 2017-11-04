@@ -1,83 +1,82 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
 using System.Timers;
+using System.IO;
+
+using Server.Addon;
 
 using Resources;
 using Resources.Datagram;
 using Resources.Packet;
-using Server.Addon;
-using System.IO;
-using Newtonsoft.Json;
 
 namespace Server {
     class ServerUDP {
         UdpClient udpListener;
         TcpListener tcpListener;
         Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
-        public testEntities DB = new testEntities();
-        public Timer timer = new Timer(1000 * 10);
         ServerUpdate worldUpdate = new ServerUpdate();
 
         public ServerUDP(int port) {
             //timer.Elapsed += Timer_Elapsed;
             //timer.Enabled = true;
-            ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Fulcnix_exceedspawn.zox"));
-            model.Parse(worldUpdate, 8286883, 8344394, 200); 
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern2.zox"));
-            model.Parse(worldUpdate, 8287010, 8344432, 200);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern1.zox"));
-            model.Parse(worldUpdate, 8286919, 8344315, 212); 
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/aster_arena.zox"));
-            model.Parse(worldUpdate, 8286775, 8344392, 207);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/michael_project1.zox"));
-            model.Parse(worldUpdate, 8286898, 8344375, 213); 
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
-            model.Parse(worldUpdate, 8286885, 8344505, 208); 
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
-            model.Parse(worldUpdate, 8286885, 8344629, 208); 
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Tiecz_MountainArena.zox"));
-            model.Parse(worldUpdate, 8286885, 8344759, 208);
-            //8397006, 8396937, 127 //near spawn
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay11.zox"));
-            model.Parse(worldUpdate, 8286770, 8344262, 207);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay12.zox"));
-            model.Parse(worldUpdate, 8286770, 8344136, 207);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay13.zox"));
-            model.Parse(worldUpdate, 8286770, 8344010, 207);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay14.zox"));
-            model.Parse(worldUpdate, 8286770, 8344010, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay01.zox"));
-            model.Parse(worldUpdate, 8286644, 8344010, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay02.zox"));
-            model.Parse(worldUpdate, 8286118, 8344010, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay03.zox"));
-            model.Parse(worldUpdate, 8285992, 8344010, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay04.zox"));
-            model.Parse(worldUpdate, 8285992, 8344136, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay05.zox"));
-            model.Parse(worldUpdate, 8285992, 8344262, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay06.zox"));
-            model.Parse(worldUpdate, 8286118, 8344262, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay07.zox"));
-            model.Parse(worldUpdate, 8286118, 8344136, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay08.zox"));
-            model.Parse(worldUpdate, 8286244, 8344136, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay09.zox"));
-            model.Parse(worldUpdate, 8286244, 8344262, 333);
-            model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay10.zox"));
-            model.Parse(worldUpdate, 8286770, 8344262, 333);
+            //ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Fulcnix_exceedspawn.zox"));
+            //model.Parse(worldUpdate, 8286883, 8344394, 200); 
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern2.zox"));
+            //model.Parse(worldUpdate, 8287010, 8344432, 200);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern1.zox"));
+            //model.Parse(worldUpdate, 8286919, 8344315, 212); 
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/aster_arena.zox"));
+            //model.Parse(worldUpdate, 8286775, 8344392, 207);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/michael_project1.zox"));
+            //model.Parse(worldUpdate, 8286898, 8344375, 213); 
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
+            //model.Parse(worldUpdate, 8286885, 8344505, 208); 
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
+            //model.Parse(worldUpdate, 8286885, 8344629, 208); 
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Tiecz_MountainArena.zox"));
+            //model.Parse(worldUpdate, 8286885, 8344759, 208);
+            ////8397006, 8396937, 127 //near spawn
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay11.zox"));
+            //model.Parse(worldUpdate, 8286770, 8344262, 207);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay12.zox"));
+            //model.Parse(worldUpdate, 8286770, 8344136, 207);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay13.zox"));
+            //model.Parse(worldUpdate, 8286770, 8344010, 207);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay14.zox"));
+            //model.Parse(worldUpdate, 8286770, 8344010, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay01.zox"));
+            //model.Parse(worldUpdate, 8286644, 8344010, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay02.zox"));
+            //model.Parse(worldUpdate, 8286118, 8344010, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay03.zox"));
+            //model.Parse(worldUpdate, 8285992, 8344010, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay04.zox"));
+            //model.Parse(worldUpdate, 8285992, 8344136, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay05.zox"));
+            //model.Parse(worldUpdate, 8285992, 8344262, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay06.zox"));
+            //model.Parse(worldUpdate, 8286118, 8344262, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay07.zox"));
+            //model.Parse(worldUpdate, 8286118, 8344136, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay08.zox"));
+            //model.Parse(worldUpdate, 8286244, 8344136, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay09.zox"));
+            //model.Parse(worldUpdate, 8286244, 8344262, 333);
+            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay10.zox"));
+            //model.Parse(worldUpdate, 8286770, 8344262, 333);
 
             Console.WriteLine("loading completed");
 
             udpListener = new UdpClient(new IPEndPoint(IPAddress.Any, port));
-            Task.Factory.StartNew(ListenUDP);
+            new Thread(new ThreadStart(ListenUDP)).Start();
             tcpListener = new TcpListener(IPAddress.Any, port);
             tcpListener.Start();
-            Task.Factory.StartNew(ListenTCP);
+            new Thread(new ThreadStart(ListenTCP)).Start();
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e) {
@@ -92,68 +91,25 @@ namespace Server {
 
         public void ListenTCP() {
             Player player = new Player(tcpListener.AcceptTcpClient());
-            Task.Factory.StartNew(ListenTCP);
+            new Thread(new ThreadStart(ListenTCP)).Start();
             ushort newGuid = 1;
             while(connections.ContainsKey(newGuid)) {//find lowest available guid
                 newGuid++;
             }
             player.entityData.guid = newGuid;
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(newGuid + " connected");
-
-            Database.LoginResponse response = Database.LoginResponse.fail;
-
-            #region secure login
-            /*
-            string username = player.reader.ReadString(); // Read username
-
-            var row = DB.users.FirstOrDefault(x => x.username == username || x.Email == username); // Get user with username from db
-
-            if(row != null) {
-                player.username = row.username;
-
-                var hashData = row.hash.Split('$'); // Split hash from db e.g. $CUBEHASH$Version$itterations$hash
-                byte[] hashBytes = Convert.FromBase64String(hashData[4]); //Get hasbytes = salt + hash
-
-                byte[] salt = new byte[Hashing.saltSize];
-                Array.Copy(hashBytes, 0, salt, 0, salt.Length); // extract salt
-                byte[] hash = new byte[Hashing.hashSize];
-                Array.Copy(hashBytes, salt.Length, hash, 0, hash.Length);// extract hash
-
-                player.writer.Write(salt); //send salt
-
-                byte[] clientHash = player.reader.ReadBytes(Hashing.hashSize); // Get clientside hashed password
-
-                if(hash.SequenceEqual(clientHash)) {
-                    if(row.banned.HasValue) {
-                        response = Database.LoginResponse.banned;
-                    } else {
-                        row.lastLoggin = DateTime.Now;
-                        connections.Add(newGuid, player);
-                        response = Database.LoginResponse.success;
-                    }
-                }
-            } else {
-                // Advance with random data so bridge dosen't get stuck
-                byte[] bytes = new byte[Hashing.saltSize];
-                new Random().NextBytes(bytes);
-                player.writer.Write(bytes);
-                player.reader.ReadBytes(Hashing.hashSize);
-            }*/
-            #endregion
-
-            if (player.reader.ReadInt32() == 123) {
-                if (player.reader.ReadInt32() == Database.bridgeVersion) {
-                    response = Database.LoginResponse.success;
-                    connections.Add(newGuid, player);
-                }
-                else {
-                    response = Database.LoginResponse.outdated;
-                }
+            
+            if (player.reader.ReadInt32() != Database.bridgeVersion) {
+                player.writer.Write((byte)VersionResponse.outdated);
+                return;
             }
-            player.writer.Write((byte)response);
-
+            else {
+                player.MAC = player.reader.ReadString();
+                //TODO: check if banned
+                player.writer.Write((byte)VersionResponse.success);
+                connections.Add(newGuid, player);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(newGuid + " connected");
+            }
             while (true) {
                 try {
                     byte packetID = player.reader.ReadByte();
@@ -195,17 +151,14 @@ namespace Server {
         public void ProcessPacket(byte packetID, Player player) {
             switch (packetID) {
                 case 0://query
-                    var query = new Query() {
-                        name = "Exceed Official",
-                        slots = 65535,
-                        players = new Dictionary<ushort, string>()
-                    };
-                    foreach (var connection in connections.Values) {
-                        if (connection.playing) {
+                    var query = new Query("Exceed Official", 65535);
+
+                    foreach(var connection in connections.Values) {
+                        if(connection.playing) {
                             query.players.Add((ushort)connection.entityData.guid, connection.entityData.name);
                         }
                     }
-                    player.writer.Write(JsonConvert.SerializeObject(query));
+                    query.Write(player.writer);
                     break;
                 default:
                     Console.WriteLine("unknown packet: " + packetID);
@@ -213,8 +166,8 @@ namespace Server {
             }
         }
         public void ProcessDatagram(byte[] datagram, Player player) {
-            switch((Database.DatagramID)datagram[0]) {
-                case Database.DatagramID.entityUpdate:
+            switch((DatagramID)datagram[0]) {
+                case DatagramID.entityUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
 
@@ -249,42 +202,42 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case Database.DatagramID.attack:
+                case DatagramID.attack:
                     #region attack
                     var attack = new Attack(datagram);
                     SendUDP(datagram, connections[attack.Target]);
                     break;
                 #endregion
-                case Database.DatagramID.shoot:
+                case DatagramID.shoot:
                     #region shoot
                     var shoot = new Resources.Datagram.Shoot(datagram);
                     BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
-                case Database.DatagramID.proc:
+                case DatagramID.proc:
                     #region proc
                     var proc = new Proc(datagram);
 
                     switch (proc.Type) {
-                        case Database.ProcType.bulwalk:
+                        case ProcType.bulwalk:
                             SendUDP(new Chat(string.Format("bulwalk: {0}% dmg reduction", 1.0f - proc.Modifier)).data, player);
                             break;
-                        case Database.ProcType.poison:
+                        case ProcType.poison:
                             var poisonTick = new Attack() {
                                 Damage = proc.Modifier,
-                               Target = proc.Target
+                                Target = proc.Target
                             };
                             Poison(connections[proc.Target], poisonTick);
                             break;
-                        case Database.ProcType.manashield:
+                        case ProcType.manashield:
                             SendUDP(new Chat(string.Format("manashield: {0}", proc.Modifier)).data, player);
                             break;
-                        case Database.ProcType.warFrenzy:
-                        case Database.ProcType.camouflage:
-                        case Database.ProcType.fireSpark:
-                        case Database.ProcType.intuition:
-                        case Database.ProcType.elusivenes:
-                        case Database.ProcType.swiftness:
+                        case ProcType.warFrenzy:
+                        case ProcType.camouflage:
+                        case ProcType.fireSpark:
+                        case ProcType.intuition:
+                        case ProcType.elusivenes:
+                        case ProcType.swiftness:
                             break;
                         default:
 
@@ -293,7 +246,7 @@ namespace Server {
                     BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
-                case Database.DatagramID.chat:
+                case DatagramID.chat:
                     #region chat
                     var chat = new Chat(datagram);
                     if (chat.Text.StartsWith("/")) {
@@ -314,13 +267,13 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case Database.DatagramID.interaction:
+                case DatagramID.interaction:
                     #region interaction
                     var interaction = new Interaction(datagram);
                     BroadcastUDP(datagram, player); //pass to all players except source
                     break;
                 #endregion
-                case Database.DatagramID.connect:
+                case DatagramID.connect:
                     #region connect
                     var connect = new Connect(datagram) {
                         Guid = (ushort)player.entityData.guid,
@@ -340,33 +293,86 @@ namespace Server {
                     Console.WriteLine(connect.Guid + " is now playing");
                     break;
                 #endregion
-                case Database.DatagramID.disconnect:
+                case DatagramID.disconnect:
                     #region disconnect
                     var disconnect = new Disconnect(datagram);
                     connections[disconnect.Guid].playing = false;
-                    BroadcastUDP(datagram, player);
+                    BroadcastUDP(datagram, player, true);
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine(disconnect.Guid + " is now lurking");
                     break;
                 #endregion
-                case Database.DatagramID.petCall:
+                case DatagramID.petCall:
+                    #region petCall
+                    byte skill = 3;
                     var petCall = new PetCall(datagram);
-                    var arrowRain = new Resources.Datagram.Shoot {
-                        //Position = connections[petCall.Guid].entityData.position,
-                        Scale = 1
-                    };
-                    arrowRain.Position.x = connections[petCall.Guid].entityData.position.x - 0x30000;
-                    arrowRain.Position.y = connections[petCall.Guid].entityData.position.y - 0x30000;
-                    arrowRain.Position.z = connections[petCall.Guid].entityData.position.z + 0x80000;
-                    for (int i = 0; i < 7; i++) {
-                        for (int j = 0; j < 7; j++) {
-                            BroadcastUDP(arrowRain.data);
-                            arrowRain.Position.x += 0x10000;
-                        }
-                        arrowRain.Position.x += 0x10000;
+                    switch (skill) {
+                        case 1:
+                            #region arrow rain
+                            var arrowRain = new Resources.Datagram.Shoot {
+                                Scale = 1
+                            };
+                            var ed = connections[petCall.Guid].entityData;
+                            var pos = new Resources.Utilities.LongVector() {
+                                x = ed.position.x + (long)ed.rayHit.x * 0x10000,
+                                y = ed.position.y + (long)ed.rayHit.y * 0x10000,
+                                z = ed.position.z + (long)ed.rayHit.z * 0x10000
+                            };
+                            pos.x += 0x30000;
+                            pos.y += 0x30000;
+                            pos.z += 0x80000;
+                            for (int i = 0; i < 7; i++) {
+                                for (int j = 0; j < 7; j++) {
+                                    arrowRain.Position = pos;
+                                    BroadcastUDP(arrowRain.data);
+                                    pos.x += 0x10000;
+                                }
+                                pos.x -= 0x70000;
+                                pos.y += 0x10000;
+                            }
+                            break;
+                        #endregion
+                        case 2:
+                            #region bladestorm
+                            //boomerang projectiles despawn instantly, idk why
+                            var bladeStorm = new Resources.Datagram.Shoot {
+                                Scale = 1,
+                                Projectile = Projectile.boomerang,
+                                Position = connections[petCall.Guid].entityData.position
+                            };
+                            var vel = new Resources.Utilities.FloatVector();
+                            for (int i = 0; i < 16; i++) {
+                                vel.x = 20 * (float)Math.Sin(Math.PI / 8 * i);
+                                vel.y = 20 * (float)Math.Cos(Math.PI / 8 * i);
+                                bladeStorm.Velocity = vel;
+                                BroadcastUDP(bladeStorm.data);
+                            }
+                            #endregion
+                            break;
+                        case 3:
+                            #region shrapnel
+                            var shrapnel = new Resources.Datagram.Shoot {
+                                Scale = 1,
+                                Position = connections[petCall.Guid].entityData.position
+                            };
+                            vel = new Resources.Utilities.FloatVector() {
+                                z = 2
+                            };
+                            int density = 0x10000;
+                            for (int i = 0; i < density; i++) {
+                                vel.x = 30 * (float)Math.Sin(Math.PI / (density / 2) * i);
+                                vel.y = 30 * (float)Math.Cos(Math.PI / (density / 2) * i);
+                                shrapnel.Velocity = vel;
+                                BroadcastUDP(shrapnel.data);
+                            }
+                            #endregion
+                            break;
+                        default:
+                            break;
                     }
                     break;
+                #endregion
                 default:
                     Console.WriteLine("unknown DatagramID: " + datagram[0]);
                     break;
