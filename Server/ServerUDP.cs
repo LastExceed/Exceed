@@ -22,8 +22,6 @@ namespace Server {
         ServerUpdate worldUpdate = new ServerUpdate();
 
         public ServerUDP(int port) {
-            //timer.Elapsed += Timer_Elapsed;
-            //timer.Enabled = true;
             //ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Fulcnix_exceedspawn.zox"));
             //model.Parse(worldUpdate, 8286883, 8344394, 200); 
             //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern2.zox"));
@@ -77,16 +75,6 @@ namespace Server {
             tcpListener = new TcpListener(IPAddress.Any, port);
             tcpListener.Start();
             new Thread(new ThreadStart(ListenTCP)).Start();
-        }
-
-        private void Timer_Elapsed(object sender, ElapsedEventArgs e) {
-            //int last = (int)(timer.Interval / 1000);
-            //foreach(var item in connections) {
-            //    if(item.Value.playing) {
-            //        DB.users.First(x => x.username == item.Value.username).playTime += last;
-            //    }
-            //}
-            //DB.SaveChanges();
         }
 
         public void ListenTCP() {
