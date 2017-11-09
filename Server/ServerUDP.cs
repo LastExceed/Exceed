@@ -192,7 +192,9 @@ namespace Server {
                 case DatagramID.attack:
                     #region attack
                     var attack = new Attack(datagram);
-                    SendUDP(datagram, connections[attack.Target]);
+                    if (connections.ContainsKey(attack.Target)) {//in case the target is a tombstone
+                        SendUDP(datagram, connections[attack.Target]);
+                    }
                     break;
                 #endregion
                 case DatagramID.shoot:

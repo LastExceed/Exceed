@@ -65,7 +65,7 @@ namespace Bridge {
                 case VersionResponse.success:
                     form.Log("success\n", Color.Green);
                     connected = true;
-                    SendUDP(new byte[1] { 255});
+                    SendUDP(new byte[1] { (byte)DatagramID.dummy});//to allow incoming UDP packets
                     new Thread(new ThreadStart(ListenFromClientTCP)).Start();
                     new Thread(new ThreadStart(ListenFromServerTCP)).Start();
                     new Thread(new ThreadStart(ListenFromServerUDP)).Start();
