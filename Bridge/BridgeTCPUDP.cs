@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,9 +65,9 @@ namespace Bridge {
                 case VersionResponse.success:
                     form.Log("success\n", Color.Green);
                     connected = true;
-                    Task.Factory.StartNew(ListenFromClientTCP);
-                    Task.Factory.StartNew(ListenFromServerTCP);
-                    Task.Factory.StartNew(ListenFromServerUDP);
+                    new Thread(new ThreadStart(ListenFromClientTCP)).Start();
+                    new Thread(new ThreadStart(ListenFromServerTCP)).Start();
+                    new Thread(new ThreadStart(ListenFromServerUDP)).Start();
                     swriter.Write((byte)0);//request query
                     break;
                 case VersionResponse.fail:
