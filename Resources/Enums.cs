@@ -33,7 +33,8 @@
         particle,
         connect,
         disconnect,
-        petCall //temp
+        petCall, //temp
+        dummy = 255 //for establishing connection
     }
     public enum VersionResponse : byte {
         success,

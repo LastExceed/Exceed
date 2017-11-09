@@ -292,7 +292,7 @@ namespace Server {
                 #endregion
                 case DatagramID.petCall:
                     #region petCall
-                    byte skill = 3;
+                    byte skill = 0;
                     var petCall = new PetCall(datagram);
                     switch (skill) {
                         case 1:
@@ -335,8 +335,8 @@ namespace Server {
                                 bladeStorm.Velocity = vel;
                                 BroadcastUDP(bladeStorm.data);
                             }
-                            #endregion
                             break;
+                        #endregion
                         case 3:
                             #region shrapnel
                             var shrapnel = new Resources.Datagram.Shoot {
@@ -353,13 +353,15 @@ namespace Server {
                                 shrapnel.Velocity = vel;
                                 BroadcastUDP(shrapnel.data);
                             }
-                            #endregion
                             break;
+                        #endregion
                         default:
                             break;
                     }
                     break;
                 #endregion
+                case DatagramID.dummy:
+                    break;
                 default:
                     Console.WriteLine("unknown DatagramID: " + datagram[0]);
                     break;
