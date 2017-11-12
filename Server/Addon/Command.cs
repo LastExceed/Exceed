@@ -57,8 +57,17 @@ namespace Server.Addon {
             }
         }
         public static void UDP(string command, string parameter, Player player, ServerUDP server) {
-            switch (command) {
+            switch (command.ToLower()) {
                 case "spawn":
+                    var entityUpdate = new EntityUpdate() {
+                        guid = player.entityData.guid,
+                        position = new Resources.Utilities.LongVector() {
+                            x = 543093329157,
+                            y = 546862296355,
+                            z = 14423162
+                        }
+                    };
+                    server.SendUDP(entityUpdate.Data, player);
                     break;
 
                 case "reload_world":

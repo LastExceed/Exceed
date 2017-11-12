@@ -382,12 +382,6 @@
             // listBoxPlayers
             // 
             this.listBoxPlayers.FormattingEnabled = true;
-            this.listBoxPlayers.Items.AddRange(new object[] {
-            "################",
-            "SampleName",
-            "Someone",
-            "ThisDoesntWork",
-            "GottaFixThis"});
             this.listBoxPlayers.Location = new System.Drawing.Point(142, 13);
             this.listBoxPlayers.Name = "listBoxPlayers";
             this.listBoxPlayers.Size = new System.Drawing.Size(84, 173);
@@ -408,7 +402,6 @@
             // 
             this.panelItemEditor.Controls.Add(this.listBoxItem);
             this.panelItemEditor.Controls.Add(this.tabControlItemEditor);
-            this.panelItemEditor.Enabled = false;
             this.panelItemEditor.Location = new System.Drawing.Point(0, 0);
             this.panelItemEditor.Name = "panelItemEditor";
             this.panelItemEditor.Size = new System.Drawing.Size(229, 188);

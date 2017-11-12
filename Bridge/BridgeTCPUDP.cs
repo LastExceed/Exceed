@@ -124,10 +124,6 @@ namespace Bridge {
                 }
                 tcpListener.Stop();
 
-                CwRam.memory = new ProcessMemory("Cube");
-
-                form.Invoke(new Action(() => form.panelItemEditor.Enabled = true));
-
                 form.Log("client connected\n", Color.Green);
                 tcpToClient.NoDelay = true;
                 creader = new BinaryReader(tcpToClient.GetStream());
@@ -208,6 +204,7 @@ namespace Bridge {
                     }
                     else {
                         players.Add(entityUpdate.guid, entityUpdate);
+                        form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(entityUpdate.name)));
                     }
                     break;
                 #endregion
@@ -275,8 +272,14 @@ namespace Bridge {
                             throw;
                         }
                     }
-                    form.Log(chat.Sender + ": ", Color.Cyan);
-                    form.Log(chat.Text + "\n", Color.White);
+                    if (chat.Sender == 0) {
+                        form.Log(chat.Text + "\n", Color.Magenta);
+                    }
+                    else {
+                        form.Log(players[chat.Sender].name + ": ", Color.Cyan);
+                        form.Log(chat.Text + "\n", Color.White);
+                    }
+                    
                     break;
                 #endregion
                 case DatagramID.time:
@@ -376,6 +379,7 @@ namespace Bridge {
                         HP = 0
                     };
                     pdc.Write(cwriter);
+                    form.Invoke(new Action(() => form.listBoxPlayers.Items.Remove(players[disconnect.Guid].name)));
                     players.Remove(disconnect.Guid);
                     break;
                 #endregion

@@ -376,24 +376,12 @@ namespace Server {
             } catch { }
 
         }
-        public void Spawn(Player player) {
-            var entityUpdate = new EntityUpdate() {
-                guid = player.entityData.guid,
-                position = new Resources.Utilities.LongVector() {
-                    x = 543093329157,
-                    y = 546862296355,
-                    z = 14423162
-                }
-            };
-            SendUDP(entityUpdate.Data, player);
-        }
         public void Poison(Player target, Attack attack, byte iteration = 0) {
             if (iteration < 7 && connections.ContainsValue(target) && target.playing) {
                 SendUDP(attack.data, target);
                 iteration++;
                 Task.Delay(500).ContinueWith(t => Poison(target, attack, iteration));
             }
-
         }
     }
 }
