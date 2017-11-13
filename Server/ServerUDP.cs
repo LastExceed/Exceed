@@ -276,7 +276,6 @@ namespace Server {
                         }
                     }
                     player.playing = true;
-                    Task.Delay(100).ContinueWith(t => Spawn(player));
                     Task.Delay(100).ContinueWith(t => Load_world_delayed(player)); //WIP, causes crash when player disconnects before executed
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine(connect.Guid + " is now playing");
