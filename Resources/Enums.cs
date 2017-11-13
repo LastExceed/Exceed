@@ -36,11 +36,10 @@
         petCall, //temp
         dummy = 255 //for establishing connection
     }
-    public enum VersionResponse : byte {
+    public enum AuthResponse : byte {
         success,
-        fail,
-        banned,
-        outdated
+        unknownUser,
+        wrongPassword
     }
 
     public enum DamageType : byte {

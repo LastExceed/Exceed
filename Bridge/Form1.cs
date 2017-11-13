@@ -10,16 +10,22 @@ namespace Bridge {
         bool isReady = true;
         byte buffer, memorize;
 
-        public Form1() {
+        public Form1(string[] args) {
             InitializeComponent();
             BridgeTCPUDP.form = CwRam.form = this;
-            try {
-                CwRam.memory = new ProcessMemory("Cube");
+            if (args.Length > 0 && args[0] == "-noattach") {
+                MessageBox.Show("attaching skipped");
             }
-            catch (IndexOutOfRangeException) {
-                MessageBox.Show("process not found. Either CubeWorld isn't running or the executable Cube.exe has been renamed");
-                Environment.Exit(0);
+            else {
+                try {
+                    CwRam.memory = new ProcessMemory("Cube");
+                }
+                catch (IndexOutOfRangeException) {
+                    MessageBox.Show("CubeWorld process not found. Please start the game first");
+                    Environment.Exit(0);
+                }
             }
+            
         }
         public void Log(string text, Color color) {
             if (InvokeRequired) {

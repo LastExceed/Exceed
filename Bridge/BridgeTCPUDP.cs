@@ -14,8 +14,6 @@ using Resources.Packet;
 using Resources.Packet.Part;
 using Resources.Datagram;
 
-using ReadWriteProcessMemory;
-
 namespace Bridge {
     static class BridgeTCPUDP {
         public static UdpClient udpToServer;
@@ -39,6 +37,7 @@ namespace Bridge {
 
                 udpToServer = new UdpClient(tcpToServer.Client.LocalEndPoint as IPEndPoint);
                 udpToServer.Connect(serverIP, serverPort);
+
                 form.Log("connected\n", Color.Green);
             }
             catch (StackOverflowException ex) {
@@ -56,35 +55,42 @@ namespace Bridge {
             Stream stream = tcpToServer.GetStream();
             swriter = new BinaryWriter(stream);
             sreader = new BinaryReader(stream);
-            form.Log("authenticating...", Color.DarkGray);
 
+            form.Log("checking version...", Color.DarkGray);
             swriter.Write(Database.bridgeVersion);
+            if (!sreader.ReadBoolean()) {
+                form.Log("mismatch\n", Color.Red);
+                form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
+                return;
+            }
+            form.Log("match\n", Color.Green);
+            form.Log("logging in...", Color.DarkGray);
+            swriter.Write(form.textBoxUsername.Text);
+            swriter.Write(form.textBoxPassword.Text);
             swriter.Write(NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault());
-
-            switch ((VersionResponse)sreader.ReadByte()) {
-                case VersionResponse.success:
-                    form.Log("success\n", Color.Green);
-                    connected = true;
-                    SendUDP(new byte[1] { (byte)DatagramID.dummy});//to allow incoming UDP packets
-                    new Thread(new ThreadStart(ListenFromClientTCP)).Start();
-                    new Thread(new ThreadStart(ListenFromServerTCP)).Start();
-                    new Thread(new ThreadStart(ListenFromServerUDP)).Start();
-                    swriter.Write((byte)0);//request query
+            switch ((AuthResponse)sreader.ReadByte()) {
+                case AuthResponse.success:
+                    if (sreader.ReadBoolean()) {//if banned
+                        form.Log("you are banned\n", Color.Red);
+                        goto default;
+                    }
                     break;
-                case VersionResponse.fail:
-                    MessageBox.Show("Wrong Username/Password");
+                case AuthResponse.unknownUser:
+                    form.Log("unknown username\n", Color.Red);
                     goto default;
-                case VersionResponse.banned:
-                    MessageBox.Show("You are banned");
-                    goto default;
-                case VersionResponse.outdated:
-                    MessageBox.Show("your bridge is outdated");
+                case AuthResponse.wrongPassword:
+                    form.Log("wrong password\n", Color.Red);
                     goto default;
                 default:
-                    form.Log("failed\n", Color.Red);
                     form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
-                    break;
+                    return;
             }
+            form.Log("success\n", Color.Green);
+            connected = true;
+            swriter.Write((byte)0);//request query
+            new Thread(new ThreadStart(ListenFromServerTCP)).Start();
+            new Thread(new ThreadStart(ListenFromServerUDP)).Start();
+            ListenFromClientTCP();
         }
         public static void Close() {
             connected = false;
@@ -113,7 +119,6 @@ namespace Bridge {
 
         public static void ListenFromClientTCP() {
             while (connected) {
-                //SendUDP(new byte[1] { 99 });
                 tcpListener.Start();
                 try {
                     tcpToClient = tcpListener.AcceptTcpClient();
@@ -162,6 +167,7 @@ namespace Bridge {
             }
         }
         public static void ListenFromServerUDP() {
+            SendUDP(new byte[1] { (byte)DatagramID.dummy });//to allow incoming UDP packets
             IPEndPoint source = null;
             try {
                 while (true) {

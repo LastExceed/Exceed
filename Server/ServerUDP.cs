@@ -86,17 +86,36 @@ namespace Server {
             player.entityData.guid = newGuid;
             
             if (player.reader.ReadInt32() != Database.bridgeVersion) {
-                player.writer.Write((byte)VersionResponse.outdated);
+                player.writer.Write(false);
                 return;
             }
-            else {
-                player.MAC = player.reader.ReadString();
-                //TODO: check if banned
-                player.writer.Write((byte)VersionResponse.success);
-                connections.Add(newGuid, player);
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(newGuid + " connected");
+            player.writer.Write(true);
+
+            string username = player.reader.ReadString();
+            if (username != "public_test_id") {
+                player.writer.Write((byte)AuthResponse.unknownUser);
+                return;
             }
+            string password = player.reader.ReadString();
+            if (password != "apple") {
+                player.writer.Write((byte)AuthResponse.wrongPassword);
+                return;
+            }
+
+            player.writer.Write((byte)AuthResponse.success);
+
+            player.MAC = player.reader.ReadString();
+            if (player.MAC == "abc0") {
+                player.writer.Write(true);
+                return;
+            }
+
+            player.writer.Write(false);
+
+            connections.Add(newGuid, player);
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(newGuid + " connected");
+            
             while (true) {
                 try {
                     byte packetID = player.reader.ReadByte();
