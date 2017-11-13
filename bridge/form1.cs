@@ -1,5 +1,7 @@
-﻿using System;
+﻿using ReadWriteProcessMemory;
+using System;
 using System.Drawing;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -11,6 +13,13 @@ namespace Bridge {
         public Form1() {
             InitializeComponent();
             BridgeTCPUDP.form = CwRam.form = this;
+            try {
+                CwRam.memory = new ProcessMemory("Cube");
+            }
+            catch (IndexOutOfRangeException) {
+                MessageBox.Show("process not found. Either CubeWorld isn't running or the executable Cube.exe has been renamed");
+                Environment.Exit(0);
+            }
         }
         public void Log(string text, Color color) {
             if (InvokeRequired) {
@@ -48,7 +57,7 @@ namespace Bridge {
 
         private void ButtonConnect_Click(object sender, EventArgs e) {
             DisableButtons();
-            Task.Factory.StartNew(BridgeTCPUDP.Connect);
+            new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
         }
         public void ButtonDisconnect_Click(object sender, EventArgs e) {
             EnableButtons();
