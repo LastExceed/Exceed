@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Resources.Datagram {
-    public class PetCall {
+    public class OtherAction {
         public DatagramID DatagramID {
             get { return (DatagramID)data[0]; }
             private set { data[0] = (byte)value; }
@@ -14,11 +14,11 @@ namespace Resources.Datagram {
 
         public byte[] data;
 
-        public PetCall() {
+        public OtherAction() {
             data = new byte[3];
             DatagramID = DatagramID.petCall;
         }
-        public PetCall(byte[] data) {
+        public OtherAction(byte[] data) {
             this.data = data;
         }
     }

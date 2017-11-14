@@ -9,6 +9,7 @@ namespace Bridge {
     public partial class Form1 : Form {
         bool isReady = true;
         byte buffer, memorize;
+        public static GlobalHotkey ghk;
 
         public Form1(string[] args) {
             InitializeComponent();
@@ -25,12 +26,22 @@ namespace Bridge {
                     Environment.Exit(0);
                 }
             }
-            
+            ghk = new GlobalHotkey(Constants.CTRL, Keys.Space, this);
+            ghk.Register();
         }
+        protected override void WndProc(ref Message m) {
+            if (m.Msg == Constants.WM_HOTKEY_MSG_ID) {
+                BridgeTCPUDP.SpecialMove();
+            }
+            base.WndProc(ref m);
+
+        }
+
         public void Log(string text, Color color) {
             if (InvokeRequired) {
                 Invoke((Action)(() => Log(text, color)));
-            } else {
+            }
+            else {
                 richTextBoxChat.SelectionStart = richTextBoxChat.TextLength;
                 richTextBoxChat.SelectionLength = 0;
 
@@ -43,7 +54,8 @@ namespace Bridge {
         public void EnableButtons() {
             if (InvokeRequired) {
                 Invoke((Action)EnableButtons);
-            } else {
+            }
+            else {
                 buttonDisconnect.Enabled = false;
                 buttonConnect.Enabled = true;
                 groupBoxServer.Enabled = true;
@@ -53,7 +65,8 @@ namespace Bridge {
         public void DisableButtons() {
             if (InvokeRequired) {
                 Invoke((Action)DisableButtons);
-            } else {
+            }
+            else {
                 buttonDisconnect.Enabled = true;
                 buttonConnect.Enabled = false;
                 groupBoxServer.Enabled = false;
@@ -104,7 +117,8 @@ namespace Bridge {
             isReady = false;
             if (buffer < 26) {
                 comboBoxType.SelectedIndex = buffer;
-            } else {
+            }
+            else {
                 comboBoxType.SelectedIndex = -1;
             }
             isReady = true;
@@ -138,7 +152,8 @@ namespace Bridge {
             isReady = false;
             if (buffer < 6) {
                 comboBoxRarity.SelectedIndex = buffer;
-            } else {
+            }
+            else {
                 comboBoxRarity.SelectedIndex = -1;
             }
             isReady = true;
@@ -150,9 +165,11 @@ namespace Bridge {
             isReady = false;
             if (buffer < 29) {
                 comboBoxMaterial.SelectedIndex = buffer;
-            } else if (buffer > 127 && buffer < 132) {
+            }
+            else if (buffer > 127 && buffer < 132) {
                 comboBoxMaterial.SelectedIndex = buffer - 99;
-            } else {
+            }
+            else {
                 comboBoxMaterial.SelectedIndex = -1;
             }
             isReady = true;
@@ -231,9 +248,11 @@ namespace Bridge {
             isReady = false;
             if (buffer < 29) {
                 comboBoxTypeC.SelectedIndex = buffer;
-            } else if (buffer > 127 && buffer < 132) {
+            }
+            else if (buffer > 127 && buffer < 132) {
                 comboBoxTypeC.SelectedIndex = buffer - 99;
-            } else {
+            }
+            else {
                 comboBoxTypeC.SelectedIndex = -1;
             }
             isReady = true;
@@ -255,7 +274,8 @@ namespace Bridge {
         private void HTimer_Tick(object sender, EventArgs e) {
             if (CwRam.memory.ReadByte(CwRam.SlotStart + 3) == 5) {
                 CwRam.memory.WriteByte(CwRam.SlotStart + 3, 131);
-            } else {
+            }
+            else {
                 CwRam.memory.WriteByte(CwRam.SlotStart + 3, 5);
             }
         }
@@ -266,7 +286,8 @@ namespace Bridge {
                 comboBoxTypeC.Enabled = false;
                 memorize = CwRam.memory.ReadByte(CwRam.SlotStart + 3);
                 hTimer.Enabled = true;
-            } else {
+            }
+            else {
                 hTimer.Enabled = false;
                 CwRam.memory.WriteByte(CwRam.SlotStart + 3, memorize);
                 numericUpDownTypeC.Enabled = true;
@@ -350,10 +371,11 @@ namespace Bridge {
         private void RadioButtonSubclass1_CheckedChanged(object sender, EventArgs e) {
             if (radioButtonSubclass1.Checked) {
                 CwRam.memory.WriteByte(CwRam.EntityStart + 0x0141, 0);
-            } else {
+            }
+            else {
                 CwRam.memory.WriteByte(CwRam.EntityStart + 0x0141, 1);
             }
-            
+
         }
     }
 }

@@ -164,6 +164,10 @@ namespace Server {
                             query.players.Add((ushort)connection.entityData.guid, connection.entityData.name);
                         }
                     }
+                    query.players.Add(456, "Vendic");
+                    query.players.Add(457, "Elfami");
+                    query.players.Add(458, "Blackrock");
+                    query.players.Add(459, "Fulcnix");
                     query.Write(player.writer);
                     break;
                 default:
@@ -211,6 +215,7 @@ namespace Server {
                 case DatagramID.attack:
                     #region attack
                     var attack = new Attack(datagram);
+                    player.lastTarget = attack.Target;
                     if (connections.ContainsKey(attack.Target)) {//in case the target is a tombstone
                         SendUDP(datagram, connections[attack.Target]);
                     }
@@ -268,7 +273,7 @@ namespace Server {
                         Command.UDP(command, parameter, player, this); //wip
                     } else {
                         Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.Write(chat.Sender + ": ");
+                        Console.Write(connections[chat.Sender].entityData.name + ": ");
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.WriteLine(chat.Text);
                         BroadcastUDP(datagram, null, true); //pass to all players
@@ -312,15 +317,15 @@ namespace Server {
                 #endregion
                 case DatagramID.petCall:
                     #region petCall
-                    byte skill = 0;
-                    var petCall = new PetCall(datagram);
+                    byte skill = 4;
+                    var otherAction = new OtherAction(datagram);
                     switch (skill) {
                         case 1:
                             #region arrow rain
                             var arrowRain = new Resources.Datagram.Shoot {
                                 Scale = 1
                             };
-                            var ed = connections[petCall.Guid].entityData;
+                            var ed = connections[otherAction.Guid].entityData;
                             var pos = new Resources.Utilities.LongVector() {
                                 x = ed.position.x + (long)ed.rayHit.x * 0x10000,
                                 y = ed.position.y + (long)ed.rayHit.y * 0x10000,
@@ -346,7 +351,7 @@ namespace Server {
                             var bladeStorm = new Resources.Datagram.Shoot {
                                 Scale = 1,
                                 Projectile = Projectile.boomerang,
-                                Position = connections[petCall.Guid].entityData.position
+                                Position = connections[otherAction.Guid].entityData.position
                             };
                             var vel = new Resources.Utilities.FloatVector();
                             for (int i = 0; i < 16; i++) {
@@ -361,7 +366,7 @@ namespace Server {
                             #region shrapnel
                             var shrapnel = new Resources.Datagram.Shoot {
                                 Scale = 1,
-                                Position = connections[petCall.Guid].entityData.position
+                                Position = connections[otherAction.Guid].entityData.position
                             };
                             vel = new Resources.Utilities.FloatVector() {
                                 z = 2
@@ -373,6 +378,16 @@ namespace Server {
                                 shrapnel.Velocity = vel;
                                 BroadcastUDP(shrapnel.data);
                             }
+                            break;
+                        #endregion
+                        case 4:
+                            #region blink
+                            var teleport = new EntityUpdate {
+                                guid = player.entityData.guid,
+                                position = connections[player.lastTarget].entityData.position,
+                                manaCubes = 3
+                            };
+                            SendUDP(teleport.Data, player);
                             break;
                         #endregion
                         default:
