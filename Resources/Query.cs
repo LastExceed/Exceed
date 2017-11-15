@@ -22,6 +22,7 @@ namespace Resources {
         }
 
         public void Write(BinaryWriter writer) {
+            writer.Write(0);
             writer.Write(name);
             writer.Write(slots);
             writer.Write(players.Count);

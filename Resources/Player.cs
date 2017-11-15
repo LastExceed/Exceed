@@ -7,7 +7,6 @@ using Resources.Packet;
 namespace Resources {
     public class Player {
         public TcpClient tcp;
-        //public Stream stream;
         public BinaryWriter writer;
         public BinaryReader reader;
         public bool playing = false;
@@ -15,6 +14,7 @@ namespace Resources {
         public IPEndPoint Address { get; private set; }
         public EntityUpdate entityData = new EntityUpdate();
         public string MAC;
+        public ushort lastTarget;
         public Stopwatch lagMeter;
 
         public Player(TcpClient client) {
@@ -22,7 +22,6 @@ namespace Resources {
             tcp.NoDelay = true;
 
             Stream stream = tcp.GetStream();
-
             writer = new BinaryWriter(stream);
             reader = new BinaryReader(stream);
 

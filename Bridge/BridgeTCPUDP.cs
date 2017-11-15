@@ -25,6 +25,7 @@ namespace Bridge {
         public static Form1 form;
         public static bool connected = false;
         public static Dictionary<long, EntityUpdate> players = new Dictionary<long, EntityUpdate>();
+        public static ushort lastTarget;
 
         public static void Connect() {
             form.Log("connecting...", Color.DarkGray);
@@ -285,7 +286,6 @@ namespace Bridge {
                         form.Log(players[chat.Sender].name + ": ", Color.Cyan);
                         form.Log(chat.Text + "\n", Color.White);
                     }
-                    
                     break;
                 #endregion
                 case DatagramID.time:
@@ -436,7 +436,7 @@ namespace Bridge {
                             }
                             break;
                         case ActionType.callPet:
-                            var petCall = new PetCall() {
+                            var petCall = new OtherAction() {
                                 Guid = guid
                             };
                             SendUDP(petCall.data);
@@ -450,7 +450,6 @@ namespace Bridge {
                 case PacketID.hit:
                     #region hit
                     var hit = new Hit(creader);
-
                     var attack = new Attack() {
                         Target = (ushort)hit.target,
                         Damage = hit.damage,
@@ -461,6 +460,7 @@ namespace Bridge {
                         Critical = hit.critical == 1
                     };
                     SendUDP(attack.data);
+                    lastTarget = attack.Target;
                     break;
                 #endregion
                 case PacketID.passiveProc:
@@ -608,18 +608,41 @@ namespace Bridge {
                     }
                     break;
                 case 4:
-                    int count = sreader.ReadInt32();
-                    byte[] buffer = sreader.ReadBytes(count);
-                    cwriter.Write(4);
-                    cwriter.Write(count);
-                    cwriter.Write(buffer);
+                    new ServerUpdate(sreader).Write(cwriter);
                     break;
                 default:
-                    //Unknown package
+                    MessageBox.Show("unknown server packet received");
                     break;
             }
         }
-        
+
+        public static void SpecialMove() {
+            switch ((EntityClass)players[guid].entityClass) {
+                case EntityClass.Rogue:
+                    if (players.ContainsKey(lastTarget)) {
+                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x10, players[guid].position.x);
+                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x18, players[guid].position.y);
+                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x20, players[guid].position.z);
+                    }
+                    break;
+                case EntityClass.Warrior:
+                    CwRam.memory.WriteInt(CwRam.EntityStart + 0x6C, 0);//skill timer
+                    CwRam.memory.WriteInt(CwRam.EntityStart + 0x68, 91);//skill
+                    break;
+                case EntityClass.Mage:
+                    CwRam.memory.WriteInt(CwRam.EntityStart + 0x6C, 0);//skill timer
+                    CwRam.memory.WriteInt(CwRam.EntityStart + 0x68, 89);//skill
+                    break;
+                case EntityClass.Ranger:
+                    break;
+                default:
+                    break;
+            }
+
+            CwRam.memory.WriteInt(CwRam.EntityStart + 0x1164, 3);
+
+        }
+
         public static void SendUDP(byte[] data) {
             udpToServer.Send(data, data.Length);
         }
