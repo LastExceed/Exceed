@@ -11,7 +11,8 @@ namespace Resources {
         public BinaryReader reader;
         public bool playing = false;
         public bool available = true;
-        public IPEndPoint Address { get; private set; }
+        public bool admin = false;
+        public IPEndPoint IpEndPoint { get; private set; }
         public EntityUpdate entityData = new EntityUpdate();
         public string MAC;
         public ushort lastTarget;
@@ -25,7 +26,7 @@ namespace Resources {
             writer = new BinaryWriter(stream);
             reader = new BinaryReader(stream);
 
-            Address = tcp.Client.RemoteEndPoint as IPEndPoint;
+            IpEndPoint = tcp.Client.RemoteEndPoint as IPEndPoint;
             lagMeter = new Stopwatch();
             lagMeter.Start();
         }

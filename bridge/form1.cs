@@ -11,7 +11,7 @@ namespace Bridge {
         byte buffer, memorize;
         public static GlobalHotkey ghk;
 
-        public Form1() {
+        public Form1(string[]args) {
             InitializeComponent();
             BridgeTCPUDP.form = CwRam.form = this;
             if (args.Length > 0 && args[0] == "-noattach") {

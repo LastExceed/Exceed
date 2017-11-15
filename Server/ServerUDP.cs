@@ -12,15 +12,38 @@ using Server.Addon;
 using Resources;
 using Resources.Datagram;
 using Resources.Packet;
+using Newtonsoft.Json;
 
 namespace Server {
     class ServerUDP {
         UdpClient udpListener;
         TcpListener tcpListener;
-        Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
         ServerUpdate worldUpdate = new ServerUpdate();
+        Dictionary<ushort, Player> connections = new Dictionary<ushort, Player>();
+        List<string[]> bans; //MAC|IP
+        Dictionary<string, string> accounts;
+        const string bansFilePath = "bans.json";
+        const string accountsFilePath = "accounts.json";
 
         public ServerUDP(int port) {
+            if (File.Exists(bansFilePath)) {
+                bans = JsonConvert.DeserializeObject<List<string[]>>(File.ReadAllText(bansFilePath));
+            }
+            else {
+                Console.WriteLine("no bans file found");
+                bans = new List<string[]>();
+                File.WriteAllText(bansFilePath, JsonConvert.SerializeObject(bans));
+            }
+            if (File.Exists(accountsFilePath)) {
+                accounts = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(accountsFilePath));
+            }
+            else {
+                Console.WriteLine("no accounts file found");
+                accounts = new Dictionary<string, string>();
+                File.WriteAllText(accountsFilePath, JsonConvert.SerializeObject(accounts));
+            }
+
+            #region models
             //ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Fulcnix_exceedspawn.zox"));
             //model.Parse(worldUpdate, 8286883, 8344394, 200); 
             //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern2.zox"));
@@ -66,6 +89,7 @@ namespace Server {
             //model.Parse(worldUpdate, 8286244, 8344262, 333);
             //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay10.zox"));
             //model.Parse(worldUpdate, 8286770, 8344262, 333);
+            #endregion
 
             Console.WriteLine("loading completed");
 
@@ -79,11 +103,9 @@ namespace Server {
         public void ListenTCP() {
             Player player = new Player(tcpListener.AcceptTcpClient());
             new Thread(new ThreadStart(ListenTCP)).Start();
-            ushort newGuid = 1;
-            while(connections.ContainsKey(newGuid)) {//find lowest available guid
-                newGuid++;
+            if (true) {
+
             }
-            player.entityData.guid = newGuid;
             
             if (player.reader.ReadInt32() != Database.bridgeVersion) {
                 player.writer.Write(false);
@@ -92,26 +114,32 @@ namespace Server {
             player.writer.Write(true);
 
             string username = player.reader.ReadString();
-            if (username != "public_test_id") {
+            if (!accounts.ContainsKey(username)) {
                 player.writer.Write((byte)AuthResponse.unknownUser);
                 return;
             }
             string password = player.reader.ReadString();
-            if (password != "apple") {
+            if (accounts[username] != password) {
                 player.writer.Write((byte)AuthResponse.wrongPassword);
                 return;
             }
-
             player.writer.Write((byte)AuthResponse.success);
+            player.admin = username == "BLACKROCK";
 
             player.MAC = player.reader.ReadString();
-            if (player.MAC == "abc0") {
+            string[] banEntry = bans.FirstOrDefault(x => x[(byte)BanEntry.mac] == player.MAC || x[(byte)BanEntry.ip] == player.IpEndPoint.Address.ToString());
+            if (banEntry != null) {
                 player.writer.Write(true);
+                player.writer.Write(banEntry[(byte)BanEntry.reason]);
                 return;
             }
+            player.writer.Write(false);//not banned
 
-            player.writer.Write(false);
-
+            ushort newGuid = 1;
+            while (connections.ContainsKey(newGuid)) {//find lowest available guid
+                newGuid++;
+            }
+            player.entityData.guid = newGuid;
             connections.Add(newGuid, player);
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(newGuid + " connected");
@@ -138,13 +166,13 @@ namespace Server {
             while(true) {
                 byte[] datagram = udpListener.Receive(ref source);
                 try {
-                    ProcessDatagram(datagram, connections.First(x => x.Value.Address.Equals(source)).Value);
+                    ProcessDatagram(datagram, connections.First(x => x.Value.IpEndPoint.Equals(source)).Value);
                 } catch (InvalidOperationException) {  }
             }
         }
 
         public void SendUDP(byte[] data, Player target) {
-            udpListener.Send(data, data.Length, target.Address);
+            udpListener.Send(data, data.Length, target.IpEndPoint);
         }
         public void BroadcastUDP(byte[] data, Player toSkip = null, bool includeNotPlaying = false) {
             foreach(var player in connections.Values) {
@@ -415,6 +443,18 @@ namespace Server {
                 iteration++;
                 Task.Delay(500).ContinueWith(t => Poison(target, attack, iteration));
             }
+        }
+
+        public void Ban(ushort guid) {
+            var player = connections[guid];
+            var banEntry = new string[4];
+            banEntry[(byte)BanEntry.name] = player.entityData.name;
+            banEntry[(byte)BanEntry.ip] = player.entityData.name;
+            banEntry[(byte)BanEntry.mac] = player.MAC;
+            banEntry[(byte)BanEntry.reason] = "ban_message_default";
+            bans.Add(banEntry);
+            player.tcp.Close();
+            File.WriteAllText(bansFilePath, JsonConvert.SerializeObject(bans));
         }
     }
 }

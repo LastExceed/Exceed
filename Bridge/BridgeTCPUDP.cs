@@ -72,6 +72,7 @@ namespace Bridge {
             switch ((AuthResponse)sreader.ReadByte()) {
                 case AuthResponse.success:
                     if (sreader.ReadBoolean()) {//if banned
+                        MessageBox.Show(sreader.ReadString());//ban message
                         form.Log("you are banned\n", Color.Red);
                         goto default;
                     }
@@ -617,30 +618,42 @@ namespace Bridge {
         }
 
         public static void SpecialMove() {
+            bool spec = players[guid].specialization == 1;
             switch ((EntityClass)players[guid].entityClass) {
-                case EntityClass.Rogue:
+                case EntityClass.Rogue when spec:
                     if (players.ContainsKey(lastTarget)) {
                         CwRam.memory.WriteLong(CwRam.EntityStart + 0x10, players[guid].position.x);
                         CwRam.memory.WriteLong(CwRam.EntityStart + 0x18, players[guid].position.y);
                         CwRam.memory.WriteLong(CwRam.EntityStart + 0x20, players[guid].position.z);
                     }
                     break;
-                case EntityClass.Warrior:
+                case EntityClass.Rogue:
+                    break;
+
+                case EntityClass.Warrior when spec:
                     CwRam.memory.WriteInt(CwRam.EntityStart + 0x6C, 0);//skill timer
                     CwRam.memory.WriteInt(CwRam.EntityStart + 0x68, 91);//skill
                     break;
-                case EntityClass.Mage:
+                case EntityClass.Warrior:
+                    break;
+
+                case EntityClass.Mage when spec:
                     CwRam.memory.WriteInt(CwRam.EntityStart + 0x6C, 0);//skill timer
                     CwRam.memory.WriteInt(CwRam.EntityStart + 0x68, 89);//skill
                     break;
+                case EntityClass.Mage:
+                    break;
+
+                case EntityClass.Ranger when spec:
+                    MessageBox.Show("ranger");
+                    break;
                 case EntityClass.Ranger:
                     break;
+
                 default:
                     break;
             }
-
-            CwRam.memory.WriteInt(CwRam.EntityStart + 0x1164, 3);
-
+            CwRam.memory.WriteInt(CwRam.EntityStart + 0x1164, 3);//mana cubes
         }
 
         public static void SendUDP(byte[] data) {

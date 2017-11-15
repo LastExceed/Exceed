@@ -73,6 +73,13 @@ namespace Server.Addon {
                 case "reload_world":
                     break;
 
+                case "ban":
+                    ushort guid = 0;
+                    if (!player.admin || ushort.TryParse(parameter, out guid)) {
+                        break;
+                    }
+                    break;
+
                 case "time":
                     try {
                         int index = parameter.IndexOf(":");
