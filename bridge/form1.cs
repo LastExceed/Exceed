@@ -246,7 +246,7 @@ namespace Bridge {
             CwRam.memory.WriteUShort(CwRam.ItemStart + 276, (ushort)numericUpDownVisible.Value);
         }
 
-        private void HTimer_Tick(object sender, EventArgs e) {
+        private void TimerHighlight_Tick(object sender, EventArgs e) {
             if (CwRam.memory.ReadByte(CwRam.SlotStart + 3) == 5) {
                 CwRam.memory.WriteByte(CwRam.SlotStart + 3, 131);
             } else {
@@ -259,9 +259,9 @@ namespace Bridge {
                 numericUpDownTypeC.Enabled = false;
                 comboBoxTypeC.Enabled = false;
                 memorize = CwRam.memory.ReadByte(CwRam.SlotStart + 3);
-                hTimer.Enabled = true;
+                TimerHighlight.Enabled = true;
             } else {
-                hTimer.Enabled = false;
+                TimerHighlight.Enabled = false;
                 CwRam.memory.WriteByte(CwRam.SlotStart + 3, memorize);
                 numericUpDownTypeC.Enabled = true;
                 comboBoxTypeC.Enabled = true;
