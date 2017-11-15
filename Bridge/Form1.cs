@@ -10,22 +10,16 @@ namespace Bridge {
         bool isReady = true;
         byte buffer, memorize;
 
-        public Form1(string[] args) {
+        public Form1() {
             InitializeComponent();
             BridgeTCPUDP.form = CwRam.form = this;
-            if (args.Length > 0 && args[0] == "-noattach") {
-                MessageBox.Show("attaching skipped");
+            try {
+                CwRam.memory = new ProcessMemory("Cube");
             }
-            else {
-                try {
-                    CwRam.memory = new ProcessMemory("Cube");
-                }
-                catch (IndexOutOfRangeException) {
-                    MessageBox.Show("CubeWorld process not found. Please start the game first");
-                    Environment.Exit(0);
-                }
+            catch (IndexOutOfRangeException) {
+                MessageBox.Show("process not found. Either CubeWorld isn't running or the executable Cube.exe has been renamed");
+                Environment.Exit(0);
             }
-            
         }
         public void Log(string text, Color color) {
             if (InvokeRequired) {
@@ -252,7 +246,7 @@ namespace Bridge {
             CwRam.memory.WriteUShort(CwRam.ItemStart + 276, (ushort)numericUpDownVisible.Value);
         }
 
-        private void HTimer_Tick(object sender, EventArgs e) {
+        private void TimerHighlight_Tick(object sender, EventArgs e) {
             if (CwRam.memory.ReadByte(CwRam.SlotStart + 3) == 5) {
                 CwRam.memory.WriteByte(CwRam.SlotStart + 3, 131);
             } else {
@@ -265,9 +259,9 @@ namespace Bridge {
                 numericUpDownTypeC.Enabled = false;
                 comboBoxTypeC.Enabled = false;
                 memorize = CwRam.memory.ReadByte(CwRam.SlotStart + 3);
-                hTimer.Enabled = true;
+                TimerHighlight.Enabled = true;
             } else {
-                hTimer.Enabled = false;
+                TimerHighlight.Enabled = false;
                 CwRam.memory.WriteByte(CwRam.SlotStart + 3, memorize);
                 numericUpDownTypeC.Enabled = true;
                 comboBoxTypeC.Enabled = true;

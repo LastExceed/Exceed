@@ -123,7 +123,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.checkBoxStayOnTop = new System.Windows.Forms.CheckBox();
-            this.hTimer = new System.Windows.Forms.Timer(this.components);
+            this.TimerHighlight = new System.Windows.Forms.Timer(this.components);
             this.richTextBoxChat = new System.Windows.Forms.RichTextBox();
             this.groupBoxAccount.SuspendLayout();
             this.groupBoxServer.SuspendLayout();
@@ -1515,8 +1515,8 @@
             // 
             // hTimer
             // 
-            this.hTimer.Interval = 250;
-            this.hTimer.Tick += new System.EventHandler(this.HTimer_Tick);
+            this.TimerHighlight.Interval = 250;
+            this.TimerHighlight.Tick += new System.EventHandler(this.TimerHighlight_Tick);
             // 
             // richTextBoxChat
             // 
@@ -1654,7 +1654,7 @@
         public System.Windows.Forms.ListBox listBoxItem;
         public System.Windows.Forms.CheckBox checkBoxStayOnTop;
         public System.Windows.Forms.Panel panelItemEditor;
-        public System.Windows.Forms.Timer hTimer;
+        public System.Windows.Forms.Timer TimerHighlight;
         public System.Windows.Forms.TabPage character;
         public System.Windows.Forms.NumericUpDown numericUpDownSkill3;
         public System.Windows.Forms.NumericUpDown numericUpDownSkill2;
