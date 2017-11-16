@@ -41,7 +41,7 @@ namespace Bridge {
 
                 form.Log("connected\n", Color.Green);
             }
-            catch (StackOverflowException ex) {
+            catch (SocketException ex) {//connection refused
                 tcpToServer.Close();
                 tcpToServer = null;
 
@@ -89,6 +89,7 @@ namespace Bridge {
             }
             form.Log("success\n", Color.Green);
             connected = true;
+            
             swriter.Write((byte)0);//request query
             new Thread(new ThreadStart(ListenFromServerTCP)).Start();
             new Thread(new ThreadStart(ListenFromServerUDP)).Start();
@@ -121,15 +122,23 @@ namespace Bridge {
 
         public static void ListenFromClientTCP() {
             while (connected) {
-                tcpListener.Start();
+                bool WSAcancellation = false;
                 try {
+                    tcpListener.Start();
+                    WSAcancellation = true;
                     tcpToClient = tcpListener.AcceptTcpClient();
                 }
-                catch (SocketException) {
-                    //WSAcancellationblabla
+                catch (SocketException ex) {
+                    string message = "Probably Can't start listening for the client because the CubeWorld default port (12345) is already in use by another program. Do you have a CubeWorld server or another instance of the bridge already running on your computer?\n\nIf you don't know how to fix this, restarting your computer will likely help";
+                    if (WSAcancellation) {
+                        message = "Please try again. If the problem persists, please report this so I can fix it";
+                    }
+                    MessageBox.Show(ex.Message + "\n\n" + message, "Error");
                     return;
                 }
-                tcpListener.Stop();
+                finally {
+                    tcpListener.Stop();
+                }
 
                 form.Log("client connected\n", Color.Green);
                 tcpToClient.NoDelay = true;
@@ -617,39 +626,124 @@ namespace Bridge {
             }
         }
 
-        public static void SpecialMove() {
+        public static void OnHotkey(int hotkeyID) {
+            HotkeyID hotkey = (HotkeyID)hotkeyID;
+            if (hotkey == HotkeyID.teleport_to_town) {
+                CwRam.SetMode(Mode.teleport_to_city, 0);
+                return;
+            }
+
             bool spec = players[guid].specialization == 1;
+            bool space = hotkeyID == 1;
             switch ((EntityClass)players[guid].entityClass) {
                 case EntityClass.Rogue when spec:
+                    #region ninja
+                    if (hotkey == HotkeyID.ctrlSpace) {
+                        #region dash
+                        CwRam.SetMode(Mode.spin_run, 0);
+                        #endregion
+                        break;
+                    }
+                    #region blink
                     if (players.ContainsKey(lastTarget)) {
                         CwRam.memory.WriteLong(CwRam.EntityStart + 0x10, players[guid].position.x);
                         CwRam.memory.WriteLong(CwRam.EntityStart + 0x18, players[guid].position.y);
                         CwRam.memory.WriteLong(CwRam.EntityStart + 0x20, players[guid].position.z);
                     }
+                    #endregion
                     break;
+                #endregion
                 case EntityClass.Rogue:
+                    #region assassin
+                    if (hotkey == HotkeyID.ctrlSpace) {
+                        #region confusion
+                        //TODO
+                        #endregion
+                        break;
+                    }
+                    #region shadow step
+                    //TODO
+                    #endregion
                     break;
-
+                #endregion
                 case EntityClass.Warrior when spec:
-                    CwRam.memory.WriteInt(CwRam.EntityStart + 0x6C, 0);//skill timer
-                    CwRam.memory.WriteInt(CwRam.EntityStart + 0x68, 91);//skill
+                    #region guardian
+                    if (hotkey == HotkeyID.ctrlSpace) {
+                        #region taunt
+                        //tell server to tp target
+                        #endregion
+                        break;
+                    }
+                    #region steel wall
+                    CwRam.SetMode(Mode.boss_skill_block, 0);
+                    #endregion
                     break;
+                #endregion
                 case EntityClass.Warrior:
+                    #region berserk
+                    if (hotkey == HotkeyID.ctrlSpace) {
+                        #region boulder toss
+                        CwRam.SetMode(Mode.boulder_toss, 0);
+                        #endregion
+                        break;
+                    }
+                    #region earth shatter
+                    CwRam.SetMode(Mode.earth_shatter, 0);
+                    #endregion
                     break;
-
+                #endregion
                 case EntityClass.Mage when spec:
-                    CwRam.memory.WriteInt(CwRam.EntityStart + 0x6C, 0);//skill timer
-                    CwRam.memory.WriteInt(CwRam.EntityStart + 0x68, 89);//skill
+                    #region watermage
+                    if (hotkey == HotkeyID.ctrlSpace) {
+                        #region splash
+                        CwRam.SetMode(Mode.splash, 0);
+                        #endregion
+                        break;
+                    }
+                    #region ice wave
+                    //TODO
+                    #endregion
                     break;
+                #endregion
                 case EntityClass.Mage:
+                    #region firemage
+                    if (hotkey == HotkeyID.ctrlSpace) {
+                        #region lava
+                        CwRam.SetMode(Mode.lava, 0);
+                        #endregion
+                        break;
+                    }
+                    #region beam
+                    CwRam.SetMode(Mode.fireray, 0);
+                    #endregion
                     break;
-
+                #endregion
                 case EntityClass.Ranger when spec:
-                    MessageBox.Show("ranger");
+                    #region scout
+                    if (hotkey == HotkeyID.ctrlSpace) {
+                        #region shrapnel
+                        //TODO
+                        #endregion
+                        break;
+                    }
+                    #region smoke bomb
+                    //TODO
+                    #endregion
                     break;
+                #endregion
                 case EntityClass.Ranger:
+                    #region sniper
+                    if (hotkey == HotkeyID.ctrlSpace) {
+                        #region cursed arrow
+                        //TODO
+                        #endregion
+                        break;
+                    }
+                    #region arrow rain
+                    //TODO
+                    #endregion
                     break;
-
+                #endregion
                 default:
                     break;
             }

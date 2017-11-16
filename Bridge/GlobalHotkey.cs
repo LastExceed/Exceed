@@ -1,41 +1,11 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using Resources;
 
 namespace Bridge {
-    public class GlobalHotkey {
-        private int modifier;
-        private int key;
-        private IntPtr hWnd;
-        private int id;
-
-        public GlobalHotkey(int modifier, Keys key, Form form) {
-            this.modifier = modifier;
-            this.key = (int)key;
-            this.hWnd = form.Handle;
-            id = this.GetHashCode();
-        }
-
-        public bool Register() {
-            return RegisterHotKey(hWnd, id, modifier, key);
-        }
-
-        public bool Unregiser() {
-            return UnregisterHotKey(hWnd, id);
-        }
-
-        public override int GetHashCode() {
-            return modifier ^ key ^ hWnd.ToInt32();
-        }
-
-        [DllImport("user32.dll")]
-        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
-
-        [DllImport("user32.dll")]
-        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-    }
-
-    public static class Constants {
+    public static class HotkeyManager {
+        private static IntPtr hWnd;
         public const int NOMOD = 0x0000;
         public const int ALT = 0x0001;
         public const int CTRL = 0x0002;
@@ -43,5 +13,17 @@ namespace Bridge {
         public const int WIN = 0x0008;
         public const int WM_HOTKEY_MSG_ID = 0x0312;
 
+        public static void Init(Form form) {
+            hWnd = form.Handle;
+            RegisterHotKey(hWnd, (int)HotkeyID.teleport_to_town, CTRL, (int)Keys.H);
+            RegisterHotKey(hWnd, (int)HotkeyID.ctrlSpace, CTRL, (int)Keys.Space);
+            RegisterHotKey(hWnd, (int)HotkeyID.specialmove2, CTRL, (int)Keys.X);
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
+
+        [DllImport("user32.dll")]
+        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
     }
 }

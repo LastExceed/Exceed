@@ -1,4 +1,5 @@
 ﻿using ReadWriteProcessMemory;
+using Resources;
 
 namespace Bridge {
     static class CwRam {
@@ -17,6 +18,11 @@ namespace Bridge {
 
         public static int SkillStart {
             get { return EntityStart + 0x1138; }
+        }
+
+        public static void SetMode(Mode mode, int timer) {
+            CwRam.memory.WriteInt(CwRam.EntityStart + 0x6C, timer);//skill timer
+            CwRam.memory.WriteInt(CwRam.EntityStart + 0x68, (int)mode);//skill
         }
     }
 }
