@@ -1,5 +1,6 @@
 ﻿using ReadWriteProcessMemory;
 using Resources;
+using Resources.Utilities;
 
 namespace Bridge {
     static class CwRam {
@@ -23,6 +24,12 @@ namespace Bridge {
         public static void SetMode(Mode mode, int timer) {
             CwRam.memory.WriteInt(CwRam.EntityStart + 0x6C, timer);//skill timer
             CwRam.memory.WriteInt(CwRam.EntityStart + 0x68, (int)mode);//skill
+        }
+
+        public static void Teleport(LongVector destination) {
+            CwRam.memory.WriteLong(CwRam.EntityStart + 0x10, destination.x);
+            CwRam.memory.WriteLong(CwRam.EntityStart + 0x18, destination.y); 
+            CwRam.memory.WriteLong(CwRam.EntityStart + 0x20, destination.z);
         }
     }
 }

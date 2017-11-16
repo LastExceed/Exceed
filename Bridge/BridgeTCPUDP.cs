@@ -399,6 +399,32 @@ namespace Bridge {
                     players.Remove(disconnect.Guid);
                     break;
                 #endregion
+                case DatagramID.specialMove:
+                    var specialMove = new SpecialMove(datagram);
+                    switch (specialMove.Id) {
+                        case SpecialMoveID.taunt:
+                            if (players.ContainsKey(specialMove.Guid)) {
+                                CwRam.Teleport(players[specialMove.Guid].position);
+                            }
+                            break;
+                        case SpecialMoveID.cursedArrow:
+                            break;
+                        case SpecialMoveID.arrowRain:
+                            break;
+                        case SpecialMoveID.shrapnel:
+                            break;
+                        case SpecialMoveID.smokeBomb:
+                            break;
+                        case SpecialMoveID.iceWave:
+                            break;
+                        case SpecialMoveID.confusion:
+                            break;
+                        case SpecialMoveID.shadowStep:
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
                 default:
                     break;
             }
@@ -446,7 +472,7 @@ namespace Bridge {
                             }
                             break;
                         case ActionType.callPet:
-                            var petCall = new OtherAction() {
+                            var petCall = new SpecialMove() {
                                 Guid = guid
                             };
                             SendUDP(petCall.data);
@@ -646,9 +672,7 @@ namespace Bridge {
                     }
                     #region blink
                     if (players.ContainsKey(lastTarget)) {
-                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x10, players[guid].position.x);
-                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x18, players[guid].position.y);
-                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x20, players[guid].position.z);
+                        CwRam.Teleport(players[guid].position);
                     }
                     #endregion
                     break;
@@ -657,26 +681,41 @@ namespace Bridge {
                     #region assassin
                     if (hotkey == HotkeyID.ctrlSpace) {
                         #region confusion
-                        //TODO
+                        var specialMove = new SpecialMove() {
+                            Guid = guid,
+                            Id = SpecialMoveID.confusion,
+                        };
+                        SendUDP(specialMove.data);
                         #endregion
-                        break;
                     }
-                    #region shadow step
-                    //TODO
-                    #endregion
+                    else {
+                        #region shadow step
+                        var specialMove = new SpecialMove() {
+                            Guid = guid,
+                            Id = SpecialMoveID.shadowStep,
+                        };
+                        SendUDP(specialMove.data);
+                        #endregion
+                    }
                     break;
                 #endregion
                 case EntityClass.Warrior when spec:
                     #region guardian
                     if (hotkey == HotkeyID.ctrlSpace) {
                         #region taunt
-                        //tell server to tp target
+                        var specialMove = new SpecialMove() {
+                            Guid = lastTarget,
+                            Id = SpecialMoveID.taunt,
+                        };
+                        SendUDP(specialMove.data);
+                        Console.Beep();
                         #endregion
-                        break;
                     }
-                    #region steel wall
-                    CwRam.SetMode(Mode.boss_skill_block, 0);
-                    #endregion
+                    else {
+                        #region steel wall
+                        CwRam.SetMode(Mode.boss_skill_block, 0);
+                        #endregion
+                    }
                     break;
                 #endregion
                 case EntityClass.Warrior:
@@ -685,11 +724,12 @@ namespace Bridge {
                         #region boulder toss
                         CwRam.SetMode(Mode.boulder_toss, 0);
                         #endregion
-                        break;
                     }
-                    #region earth shatter
-                    CwRam.SetMode(Mode.earth_shatter, 0);
-                    #endregion
+                    else {
+                        #region earth shatter
+                        CwRam.SetMode(Mode.earth_shatter, 0);
+                        #endregion
+                    }
                     break;
                 #endregion
                 case EntityClass.Mage when spec:
@@ -698,11 +738,12 @@ namespace Bridge {
                         #region splash
                         CwRam.SetMode(Mode.splash, 0);
                         #endregion
-                        break;
                     }
-                    #region ice wave
-                    //TODO
-                    #endregion
+                    else {
+                        #region ice wave
+                        //TODO
+                        #endregion
+                    }
                     break;
                 #endregion
                 case EntityClass.Mage:
@@ -711,11 +752,12 @@ namespace Bridge {
                         #region lava
                         CwRam.SetMode(Mode.lava, 0);
                         #endregion
-                        break;
                     }
-                    #region beam
-                    CwRam.SetMode(Mode.fireray, 0);
-                    #endregion
+                    else {
+                        #region beam
+                        CwRam.SetMode(Mode.fireray, 0);
+                        #endregion
+                    }
                     break;
                 #endregion
                 case EntityClass.Ranger when spec:
@@ -724,11 +766,16 @@ namespace Bridge {
                         #region shrapnel
                         //TODO
                         #endregion
-                        break;
                     }
-                    #region smoke bomb
-                    //TODO
-                    #endregion
+                    else {
+                        #region smoke bomb
+                        var specialMove = new SpecialMove() {
+                            Guid = guid,
+                            Id = SpecialMoveID.smokeBomb,
+                        };
+                        SendUDP(specialMove.data);
+                        #endregion
+                    }
                     break;
                 #endregion
                 case EntityClass.Ranger:
@@ -737,11 +784,12 @@ namespace Bridge {
                         #region cursed arrow
                         //TODO
                         #endregion
-                        break;
                     }
-                    #region arrow rain
-                    //TODO
-                    #endregion
+                    else {
+                        #region arrow rain
+                        //TODO
+                        #endregion
+                    }
                     break;
                 #endregion
                 default:

@@ -9,7 +9,6 @@ namespace Bridge {
     public partial class Form1 : Form {
         bool isReady = true;
         byte buffer, memorize;
-        public static GlobalHotkey ghk;
 
         public Form1(string[]args) {
             InitializeComponent();
@@ -26,15 +25,13 @@ namespace Bridge {
                     Environment.Exit(0);
                 }
             }
-            ghk = new GlobalHotkey(Constants.CTRL, Keys.Space, this);
-            ghk.Register();
+            HotkeyManager.Init(this);
         }
         protected override void WndProc(ref Message m) {
-            if (m.Msg == Constants.WM_HOTKEY_MSG_ID) {
-                BridgeTCPUDP.SpecialMove();
+            if (m.Msg == HotkeyManager.WM_HOTKEY_MSG_ID) {
+                BridgeTCPUDP.OnHotkey(m.WParam.ToInt32());
             }
             base.WndProc(ref m);
-
         }
 
         public void Log(string text, Color color) {

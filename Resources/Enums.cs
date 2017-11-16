@@ -33,7 +33,7 @@
         particle,
         connect,
         disconnect,
-        petCall, //temp
+        specialMove, //temp
         dummy = 255 //for establishing connection
     }
     public enum AuthResponse : byte {
@@ -305,5 +305,15 @@
         ctrlSpace,
         specialmove2,
         teleport_to_town
+    }
+    public enum SpecialMoveID {
+        taunt,
+        cursedArrow,
+        arrowRain,
+        shrapnel,
+        smokeBomb,
+        iceWave,
+        confusion,
+        shadowStep
     }
 }
