@@ -299,12 +299,6 @@
         Mage,
         Rogue
     }
-    public enum BanEntry : byte{
-        name,
-        ip,
-        mac,
-        reason
-    }
     public enum HotkeyID : int{
         ctrlSpace,
         specialmove2,

@@ -1,29 +1,21 @@
 ﻿using System;
 
 namespace Resources.Datagram {
-    public class Block {
-        public DatagramID DatagramID {
-            get { return (DatagramID)data[0]; }
-            private set { data[0] = (byte)value; }
-        }
+    public class Block : Datagram {
         public short Length {
-            get { return BitConverter.ToInt16(data, 1); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 1); }
+            get => BitConverter.ToInt16(data, 1);
+            set => BitConverter.GetBytes(value).CopyTo(data, 1);
         }
-        /*
-        public var Compressed {
-            get { return data[3]; }
-            set { data[3] = value; }
-        }*/
+        public byte Compressed {
+            get => data[3];
+            set => data[3] = value;
+        }
 
-        public byte[] data;
         public Block() {
             data = new byte[3];
             DatagramID = DatagramID.block;
         }
 
-        public Block(byte[] data) {
-            this.data = data;
-        }
+        public Block(byte[] data) : base(data) { }
     }
 }

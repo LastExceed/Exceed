@@ -20,27 +20,27 @@ namespace Server {
         TcpListener tcpListener;
         ServerUpdate worldUpdate = new ServerUpdate();
         Dictionary<ushort, Player> players = new Dictionary<ushort, Player>();
-        List<string[]> bans; //MAC|IP
+        List<Ban> bans; //MAC|IP
         Dictionary<string, string> accounts;
+
         const string bansFilePath = "bans.json";
         const string accountsFilePath = "accounts.json";
 
         public ServerUDP(int port) {
             if (File.Exists(bansFilePath)) {
-                bans = JsonConvert.DeserializeObject<List<string[]>>(File.ReadAllText(bansFilePath));
-            }
+                bans = JsonConvert.DeserializeObject<List<Ban>>(File.ReadAllText(bansFilePath));
+            } 
             else {
                 Console.WriteLine("no bans file found");
-                bans = new List<string[]>();
-                File.WriteAllText(bansFilePath, JsonConvert.SerializeObject(bans));
+                bans = new List<Ban>();
             }
+
             if (File.Exists(accountsFilePath)) {
                 accounts = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(accountsFilePath));
-            }
+            } 
             else {
                 Console.WriteLine("no accounts file found");
                 accounts = new Dictionary<string, string>();
-                File.WriteAllText(accountsFilePath, JsonConvert.SerializeObject(accounts));
             }
 
             #region models
@@ -103,10 +103,7 @@ namespace Server {
         public void ListenTCP() {
             Player player = new Player(tcpListener.AcceptTcpClient());
             new Thread(new ThreadStart(ListenTCP)).Start();
-            if (true) {
 
-            }
-            
             if (player.reader.ReadInt32() != Database.bridgeVersion) {
                 player.writer.Write(false);
                 return;
@@ -127,10 +124,10 @@ namespace Server {
             player.admin = username == "BLACKROCK";
 
             player.MAC = player.reader.ReadString();
-            string[] banEntry = bans.FirstOrDefault(x => x[(byte)BanEntry.mac] == player.MAC || x[(byte)BanEntry.ip] == player.IpEndPoint.Address.ToString());
+            var banEntry = bans.FirstOrDefault(x => x.Mac == player.MAC || x.Ip == player.IpEndPoint.Address.ToString());
             if (banEntry != null) {
                 player.writer.Write(true);
-                player.writer.Write(banEntry[(byte)BanEntry.reason]);
+                player.writer.Write(banEntry.Reason);
                 return;
             }
             player.writer.Write(false);//not banned
@@ -376,7 +373,6 @@ namespace Server {
             try {
                 worldUpdate.Write(player.writer, true);
             } catch { }
-
         }
         public void Poison(Player target, Attack attack, byte iteration = 0) {
             if (iteration < 7 && players.ContainsValue(target) && target.playing) {
@@ -388,12 +384,7 @@ namespace Server {
 
         public void Ban(ushort guid) {
             var player = players[guid];
-            var banEntry = new string[4];
-            banEntry[(byte)BanEntry.name] = player.entityData.name;
-            banEntry[(byte)BanEntry.ip] = player.entityData.name;
-            banEntry[(byte)BanEntry.mac] = player.MAC;
-            banEntry[(byte)BanEntry.reason] = "ban_message_default";
-            bans.Add(banEntry);
+            bans.Add(new Ban(player.entityData.name, player.entityData.name, player.MAC));
             player.tcp.Close();
             File.WriteAllText(bansFilePath, JsonConvert.SerializeObject(bans));
         }
