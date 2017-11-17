@@ -100,7 +100,11 @@
         //TODO
     }
     public enum ParticleType : byte {
-        //TODO
+        normal,
+        fire,
+        unknown2,
+        noSpreadNoRotation,
+        noGravity
     }
     public enum Mode : byte{
         idle,

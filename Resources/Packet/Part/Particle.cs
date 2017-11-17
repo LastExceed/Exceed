@@ -9,7 +9,7 @@ namespace Resources.Packet.Part {
         public float alpha;
         public float size;
         public int count;
-        public int type;
+        public ParticleType type;
         public float spread;
         public int unknown;
 
@@ -22,7 +22,7 @@ namespace Resources.Packet.Part {
             alpha = reader.ReadSingle();
             size = reader.ReadSingle();
             count = reader.ReadInt32();
-            type = reader.ReadInt32();
+            type = (ParticleType)reader.ReadInt32();
             spread = reader.ReadSingle();
             unknown = reader.ReadInt32();
         }
@@ -34,7 +34,7 @@ namespace Resources.Packet.Part {
             writer.Write(alpha);
             writer.Write(size);
             writer.Write(count);
-            writer.Write(type);
+            writer.Write((int)type);
             writer.Write(spread);
             writer.Write(unknown);
         }

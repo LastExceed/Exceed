@@ -362,7 +362,7 @@ namespace Bridge {
                         alpha = particleDatagram.Color.A / 255,
                         size = particleDatagram.Size,
                         count = particleDatagram.Count,
-                        type = (int)particleDatagram.Type,
+                        type = particleDatagram.Type,
                         spread = particleDatagram.Spread
                     };
                     serverUpdate.particles.Add(particleSubPacket);
@@ -405,6 +405,7 @@ namespace Bridge {
                         case SpecialMoveID.taunt:
                             if (players.ContainsKey(specialMove.Guid)) {
                                 CwRam.Teleport(players[specialMove.Guid].position);
+                                CwRam.Freeze(5000);
                             }
                             break;
                         case SpecialMoveID.cursedArrow:
@@ -414,6 +415,22 @@ namespace Bridge {
                         case SpecialMoveID.shrapnel:
                             break;
                         case SpecialMoveID.smokeBomb:
+                            var smoke = new ServerUpdate();
+                            smoke.particles.Add(new Resources.Packet.Part.Particle() {
+                                count = 1000,
+                                spread = 5f,
+                                type = ParticleType.noGravity,
+                                size = 5f,
+                                velocity = new Resources.Utilities.FloatVector(),
+                                color = new Resources.Utilities.FloatVector() {
+                                    x = 1f,
+                                    y = 1f,
+                                    z = 1f
+                                },
+                                alpha = 1f,
+                                position = players[specialMove.Guid].position
+                            });
+                            smoke.Write(cwriter);
                             break;
                         case SpecialMoveID.iceWave:
                             break;
@@ -774,6 +791,23 @@ namespace Bridge {
                             Id = SpecialMoveID.smokeBomb,
                         };
                         SendUDP(specialMove.data);
+
+                        var fakeSmoke = new ServerUpdate();
+                        fakeSmoke.particles.Add(new Resources.Packet.Part.Particle() {
+                            count = 1000,
+                            spread = 5f,
+                            type = ParticleType.noGravity,
+                            size = 0.3f,
+                            velocity = new Resources.Utilities.FloatVector(),
+                            color = new Resources.Utilities.FloatVector() {
+                                x = 1f,
+                                y = 1f,
+                                z = 1f
+                            },
+                            alpha = 1f,
+                            position = players[specialMove.Guid].position
+                        });
+                        fakeSmoke.Write(cwriter);
                         #endregion
                     }
                     break;

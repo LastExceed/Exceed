@@ -192,10 +192,6 @@ namespace Server {
                             query.players.Add((ushort)connection.entityData.guid, connection.entityData.name);
                         }
                     }
-                    query.players.Add(456, "Vendic");
-                    query.players.Add(457, "Elfami");
-                    query.players.Add(458, "Blackrock");
-                    query.players.Add(459, "Fulcnix");
                     query.Write(player.writer);
                     break;
                 default:
@@ -348,8 +344,9 @@ namespace Server {
                     var specialMove = new SpecialMove(datagram);
                     switch (specialMove.Id) {
                         case SpecialMoveID.taunt:
-                            SendUDP(specialMove.data, players[specialMove.Guid]);
-                            Console.WriteLine(">>> " + specialMove.Guid);
+                            var targetGuid = specialMove.Guid;
+                            specialMove.Guid = (ushort)player.entityData.guid;
+                            SendUDP(specialMove.data, players[targetGuid]);
                             break;
                         case SpecialMoveID.cursedArrow:
                         case SpecialMoveID.arrowRain:

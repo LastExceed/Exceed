@@ -31,5 +31,13 @@ namespace Bridge {
             CwRam.memory.WriteLong(CwRam.EntityStart + 0x18, destination.y); 
             CwRam.memory.WriteLong(CwRam.EntityStart + 0x20, destination.z);
         }
+
+        public static void Freeze(int duration) {
+            CwRam.memory.WriteInt(CwRam.EntityStart + 0x134, duration);//ice spirit effect
+        }
+
+        public static void Fear(int duration) {
+            CwRam.memory.WriteInt(CwRam.EntityStart + 0x130, duration);//ice spirit effect
+        }
     }
 }
