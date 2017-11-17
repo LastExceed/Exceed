@@ -2,27 +2,20 @@
 using System.Text;
 
 namespace Resources.Datagram {
-    public class Chat {
-        public DatagramID DatagramID {
-            get { return (DatagramID)data[0]; }
-            private set { data[0] = (byte)value; }
-        }
+    public class Chat : Datagram {
         public ushort Sender {
-            get { return BitConverter.ToUInt16(data, 1); }
-            set { BitConverter.GetBytes(value).CopyTo(data, 1); }
+            get => BitConverter.ToUInt16(data, 1);
+            set => BitConverter.GetBytes(value).CopyTo(data, 1);
         }
         public byte Length {
-            get { return data[3]; }
-            set { data[3] = value; }
+            get => data[3];
+            set => data[3] = value;
         }
         public string Text {
-            get { return Encoding.ASCII.GetString(data, 4, Length); }
-            set { Encoding.ASCII.GetBytes(value).CopyTo(data, 4); }
+            get => Encoding.ASCII.GetString(data, 4, Length);
+            set => Encoding.ASCII.GetBytes(value).CopyTo(data, 4);
         }
 
-
-        public byte[] data;
-        
         public Chat(string message) {
             if(message.Length <= 255) {
                 data = new byte[4 + message.Length];
@@ -34,8 +27,6 @@ namespace Resources.Datagram {
             }
         }
 
-        public Chat(byte[] data) {
-            this.data = data;
-        }
+        public Chat(byte[] data) : base(data) { }
     }
 }
