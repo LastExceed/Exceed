@@ -13,17 +13,12 @@ namespace Bridge {
         public Form1(string[]args) {
             InitializeComponent();
             BridgeTCPUDP.form = CwRam.form = this;
-            if (args.Length > 0 && args[0] == "-noattach") {
-                MessageBox.Show("attaching skipped");
+            try {
+                CwRam.memory = new ProcessMemory("Cube");
             }
-            else {
-                try {
-                    CwRam.memory = new ProcessMemory("Cube");
-                }
-                catch (IndexOutOfRangeException) {
-                    MessageBox.Show("CubeWorld process not found. Please start the game first");
-                    Environment.Exit(0);
-                }
+            catch (IndexOutOfRangeException) {
+                MessageBox.Show("CubeWorld process not found. Please start the game first");
+                Environment.Exit(0);
             }
             HotkeyManager.Init(this);
         }
