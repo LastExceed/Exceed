@@ -71,9 +71,9 @@ namespace Bridge {
             new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
         }
         public void ButtonDisconnect_Click(object sender, EventArgs e) {
+            BridgeTCPUDP.Close();
             EnableButtons();
             Log("disconnected\n", Color.Red);
-            Task.Factory.StartNew(BridgeTCPUDP.Close);
         }
 
         private void TextBoxPassword_KeyDown(object sender, KeyEventArgs e) {

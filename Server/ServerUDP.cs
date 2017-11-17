@@ -165,9 +165,10 @@ namespace Server {
             IPEndPoint source = null;
             while(true) {
                 byte[] datagram = udpClient.Receive(ref source);
-                try {
-                    ProcessDatagram(datagram, players.First(x => x.Value.IpEndPoint.Equals(source)).Value);
-                } catch (InvalidOperationException) {  }
+                var player = players.FirstOrDefault(x => x.Value.IpEndPoint.Equals(source)).Value;
+                if (player != null) {
+                    ProcessDatagram(datagram, player);
+                }
             }
         }
 
@@ -182,24 +183,24 @@ namespace Server {
             }
         }
 
-        public void ProcessPacket(byte packetID, Player player) {
+        public void ProcessPacket(byte packetID, Player source) {
             switch (packetID) {
                 case 0://query
                     var query = new Query("Exceed Official", 65535);
 
-                    foreach(var connection in players.Values) {
-                        if(connection.playing) {
-                            query.players.Add((ushort)connection.entityData.guid, connection.entityData.name);
+                    foreach(var player in players.Values) {
+                        if(player.playing && player.entityData.name != null) {
+                            query.players.Add((ushort)player.entityData.guid, player.entityData.name);
                         }
                     }
-                    query.Write(player.writer);
+                    query.Write(source.writer);
                     break;
                 default:
                     Console.WriteLine("unknown packet: " + packetID);
                     break;
             }
         }
-        public void ProcessDatagram(byte[] datagram, Player player) {
+        public void ProcessDatagram(byte[] datagram, Player source) {
             switch ((DatagramID)datagram[0]) {
                 case DatagramID.entityUpdate:
                     #region entityUpdate
@@ -221,25 +222,25 @@ namespace Server {
                     }
 
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
-                    if(!player.entityData.IsEmpty) { //dont filter the first packet
+                    if(!source.entityData.IsEmpty) { //dont filter the first packet
                         //entityUpdate.Filter(player.entityData);
                     }
                     if(!entityUpdate.IsEmpty) {
                         //entityUpdate.Broadcast(players, 0);
-                        BroadcastUDP(entityUpdate.Data, player);
-                        if(entityUpdate.HP == 0 && player.entityData.HP > 0) {
-                            BroadcastUDP(Tomb.Show(player).Data);
-                        } else if(player.entityData.HP == 0 && entityUpdate.HP > 0) {
-                            BroadcastUDP(Tomb.Hide(player).Data);
+                        BroadcastUDP(entityUpdate.Data, source);
+                        if(entityUpdate.HP == 0 && source.entityData.HP > 0) {
+                            BroadcastUDP(Tomb.Show(source).Data);
+                        } else if(source.entityData.HP == 0 && entityUpdate.HP > 0) {
+                            BroadcastUDP(Tomb.Hide(source).Data);
                         }
-                        entityUpdate.Merge(player.entityData);
+                        entityUpdate.Merge(source.entityData);
                     }
                     break;
                 #endregion
                 case DatagramID.attack:
                     #region attack
                     var attack = new Attack(datagram);
-                    player.lastTarget = attack.Target;
+                    source.lastTarget = attack.Target;
                     if (players.ContainsKey(attack.Target)) {//in case the target is a tombstone
                         SendUDP(datagram, players[attack.Target]);
                     }
@@ -248,7 +249,7 @@ namespace Server {
                 case DatagramID.shoot:
                     #region shoot
                     var shoot = new Resources.Datagram.Shoot(datagram);
-                    BroadcastUDP(datagram, player); //pass to all players except source
+                    BroadcastUDP(datagram, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.proc:
@@ -257,7 +258,7 @@ namespace Server {
 
                     switch (proc.Type) {
                         case ProcType.bulwalk:
-                            SendUDP(new Chat(string.Format("bulwalk: {0}% dmg reduction", 1.0f - proc.Modifier)).data, player);
+                            SendUDP(new Chat(string.Format("bulwalk: {0}% dmg reduction", 1.0f - proc.Modifier)).data, source);
                             break;
                         case ProcType.poison:
                             var poisonTick = new Attack() {
@@ -267,7 +268,7 @@ namespace Server {
                             Poison(players[proc.Target], poisonTick);
                             break;
                         case ProcType.manashield:
-                            SendUDP(new Chat(string.Format("manashield: {0}", proc.Modifier)).data, player);
+                            SendUDP(new Chat(string.Format("manashield: {0}", proc.Modifier)).data, source);
                             break;
                         case ProcType.warFrenzy:
                         case ProcType.camouflage:
@@ -280,7 +281,7 @@ namespace Server {
 
                             break;
                     }
-                    BroadcastUDP(datagram, player); //pass to all players except source
+                    BroadcastUDP(datagram, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.chat:
@@ -294,7 +295,7 @@ namespace Server {
                             parameter = command.Substring(spaceIndex + 1);
                             command = command.Substring(0, spaceIndex);
                         }
-                        Command.UDP(command, parameter, player, this); //wip
+                        Command.UDP(command, parameter, source, this); //wip
                     } else {
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.Write(players[chat.Sender].entityData.name + ": ");
@@ -307,24 +308,24 @@ namespace Server {
                 case DatagramID.interaction:
                     #region interaction
                     var interaction = new Interaction(datagram);
-                    BroadcastUDP(datagram, player); //pass to all players except source
+                    BroadcastUDP(datagram, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.connect:
                     #region connect
                     var connect = new Connect(datagram) {
-                        Guid = (ushort)player.entityData.guid,
+                        Guid = (ushort)source.entityData.guid,
                         Mapseed = Database.mapseed
                     };
-                    SendUDP(connect.data, player);
+                    SendUDP(connect.data, source);
 
                     foreach(Player p in players.Values) {
                         if(p.playing) {
-                            SendUDP(p.entityData.Data, player);
+                            SendUDP(p.entityData.Data, source);
                         }
                     }
-                    player.playing = true;
-                    Task.Delay(100).ContinueWith(t => Load_world_delayed(player)); //WIP, causes crash when player disconnects before executed
+                    source.playing = true;
+                    Task.Delay(100).ContinueWith(t => Load_world_delayed(source)); //WIP, causes crash when player disconnects before executed
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine(connect.Guid + " is now playing");
                     break;
@@ -333,7 +334,8 @@ namespace Server {
                     #region disconnect
                     var disconnect = new Disconnect(datagram);
                     players[disconnect.Guid].playing = false;
-                    BroadcastUDP(datagram, player, true);
+                    BroadcastUDP(datagram, source, true);
+                    players[disconnect.Guid].entityData = new EntityUpdate();
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine(disconnect.Guid + " is now lurking");
@@ -345,7 +347,7 @@ namespace Server {
                     switch (specialMove.Id) {
                         case SpecialMoveID.taunt:
                             var targetGuid = specialMove.Guid;
-                            specialMove.Guid = (ushort)player.entityData.guid;
+                            specialMove.Guid = (ushort)source.entityData.guid;
                             SendUDP(specialMove.data, players[targetGuid]);
                             break;
                         case SpecialMoveID.cursedArrow:
@@ -355,88 +357,11 @@ namespace Server {
                         case SpecialMoveID.iceWave:
                         case SpecialMoveID.confusion:
                         case SpecialMoveID.shadowStep:
-                            BroadcastUDP(specialMove.data, player);
+                            BroadcastUDP(specialMove.data, source);
                             break;
                         default:
                             break;
                     }
-
-                    //byte skill = 4;
-                    //var otherAction = new SpecialMove(datagram);
-                    //switch (skill) {
-                    //    case 1:
-                    //        #region arrow rain
-                    //        var arrowRain = new Resources.Datagram.Shoot {
-                    //            Scale = 1
-                    //        };
-                    //        var ed = connections[otherAction.Guid].entityData;
-                    //        var pos = new Resources.Utilities.LongVector() {
-                    //            x = ed.position.x + (long)ed.rayHit.x * 0x10000,
-                    //            y = ed.position.y + (long)ed.rayHit.y * 0x10000,
-                    //            z = ed.position.z + (long)ed.rayHit.z * 0x10000
-                    //        };
-                    //        pos.x += 0x30000;
-                    //        pos.y += 0x30000;
-                    //        pos.z += 0x80000;
-                    //        for (int i = 0; i < 7; i++) {
-                    //            for (int j = 0; j < 7; j++) {
-                    //                arrowRain.Position = pos;
-                    //                BroadcastUDP(arrowRain.data);
-                    //                pos.x += 0x10000;
-                    //            }
-                    //            pos.x -= 0x70000;
-                    //            pos.y += 0x10000;
-                    //        }
-                    //        break;
-                    //    #endregion
-                    //    case 2:
-                    //        #region bladestorm
-                    //        //boomerang projectiles despawn instantly, idk why
-                    //        var bladeStorm = new Resources.Datagram.Shoot {
-                    //            Scale = 1,
-                    //            Projectile = Projectile.boomerang,
-                    //            Position = connections[otherAction.Guid].entityData.position
-                    //        };
-                    //        var vel = new Resources.Utilities.FloatVector();
-                    //        for (int i = 0; i < 16; i++) {
-                    //            vel.x = 20 * (float)Math.Sin(Math.PI / 8 * i);
-                    //            vel.y = 20 * (float)Math.Cos(Math.PI / 8 * i);
-                    //            bladeStorm.Velocity = vel;
-                    //            BroadcastUDP(bladeStorm.data);
-                    //        }
-                    //        break;
-                    //    #endregion
-                    //    case 3:
-                    //        #region shrapnel
-                    //        var shrapnel = new Resources.Datagram.Shoot {
-                    //            Scale = 1,
-                    //            Position = connections[otherAction.Guid].entityData.position
-                    //        };
-                    //        vel = new Resources.Utilities.FloatVector() {
-                    //            z = 2
-                    //        };
-                    //        int density = 0x10000;
-                    //        for (int i = 0; i < density; i++) {
-                    //            vel.x = 30 * (float)Math.Sin(Math.PI / (density / 2) * i);
-                    //            vel.y = 30 * (float)Math.Cos(Math.PI / (density / 2) * i);
-                    //            shrapnel.Velocity = vel;
-                    //            BroadcastUDP(shrapnel.data);
-                    //        }
-                    //        break;
-                    //    #endregion
-                    //    case 4:
-                    //        #region blink
-                    //        var teleport = new EntityUpdate {
-                    //            guid = player.entityData.guid,
-                    //            position = connections[player.lastTarget].entityData.position,
-                    //            manaCubes = 3
-                    //        };
-                    //        SendUDP(teleport.Data, player);
-                    //        break;
-                    //    #endregion
-                    //    default:
-                    //        break;
-                    //}
                     break;
                 #endregion
                 case DatagramID.dummy:

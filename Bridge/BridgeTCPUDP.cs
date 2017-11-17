@@ -97,6 +97,7 @@ namespace Bridge {
         }
         public static void Close() {
             connected = false;
+            form.Invoke(new Action(() => form.listBoxPlayers.Items.Clear()));
             LingerOption lingerOption = new LingerOption(true, 0);
             try {
                 udpToServer.Close();
@@ -118,6 +119,7 @@ namespace Bridge {
                 tcpListener.Stop();
             }
             catch { }
+            players.Clear();
         }
 
         public static void ListenFromClientTCP() {
@@ -129,11 +131,9 @@ namespace Bridge {
                     tcpToClient = tcpListener.AcceptTcpClient();
                 }
                 catch (SocketException ex) {
-                    string message = "Probably Can't start listening for the client because the CubeWorld default port (12345) is already in use by another program. Do you have a CubeWorld server or another instance of the bridge already running on your computer?\n\nIf you don't know how to fix this, restarting your computer will likely help";
-                    if (WSAcancellation) {
-                        message = "Please try again. If the problem persists, please report this so I can fix it";
+                    if (!WSAcancellation) {
+                        MessageBox.Show(ex.Message + "\n\nProbably Can't start listening for the client because the CubeWorld default port (12345) is already in use by another program. Do you have a CubeWorld server or another instance of the bridge already running on your computer?\n\nIf you don't know how to fix this, restarting your computer will likely help", "Error");
                     }
-                    MessageBox.Show(ex.Message + "\n\n" + message, "Error");
                     return;
                 }
                 finally {
@@ -208,9 +208,7 @@ namespace Bridge {
                     var entityUpdate = new EntityUpdate(datagram);
 
                     if (entityUpdate.guid == guid) {
-                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x10, entityUpdate.position.x);
-                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x18, entityUpdate.position.y);
-                        CwRam.memory.WriteLong(CwRam.EntityStart + 0x20, entityUpdate.position.z);
+                        CwRam.Teleport(entityUpdate.position);
                     }
                     else {
                         entityUpdate.Write(cwriter);
@@ -221,7 +219,10 @@ namespace Bridge {
                     }
                     else {
                         players.Add(entityUpdate.guid, entityUpdate);
-                        form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(entityUpdate.name)));
+                    }
+
+                    if (entityUpdate.name != null) {
+                        RefreshPlayerlist();
                     }
                     break;
                 #endregion
@@ -395,8 +396,8 @@ namespace Bridge {
                         HP = 0
                     };
                     pdc.Write(cwriter);
-                    form.Invoke(new Action(() => form.listBoxPlayers.Items.Remove(players[disconnect.Guid].name)));
                     players.Remove(disconnect.Guid);
+                    RefreshPlayerlist();
                     break;
                 #endregion
                 case DatagramID.specialMove:
@@ -458,9 +459,8 @@ namespace Bridge {
                     else {
                         players.Add(entityUpdate.guid, entityUpdate);
                     }
-                    if (!entityUpdate.IsEmpty) {
-                        Console.WriteLine(entityUpdate.roll);
-                        SendUDP(entityUpdate.Data);
+                    if (entityUpdate.name != null) {
+                        RefreshPlayerlist();
                     }
                     break;
                 #endregion
@@ -666,6 +666,13 @@ namespace Bridge {
                 default:
                     MessageBox.Show("unknown server packet received");
                     break;
+            }
+        }
+
+        public static void RefreshPlayerlist() {
+            form.Invoke((Action)form.listBoxPlayers.Items.Clear);
+            foreach (var player in players.Values) {
+                form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(player.name)));
             }
         }
 
