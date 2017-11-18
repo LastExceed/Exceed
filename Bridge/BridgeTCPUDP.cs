@@ -38,20 +38,14 @@ namespace Bridge {
 
                 udpToServer = new UdpClient(tcpToServer.Client.LocalEndPoint as IPEndPoint);
                 udpToServer.Connect(serverIP, serverPort);
-
-                form.Log("connected\n", Color.Green);
             }
-            catch (SocketException ex) {//connection refused
-                tcpToServer.Close();
-                tcpToServer = null;
-
-                udpToServer.Close();
-                udpToServer = null;
-
-                form.Log($"Connection failed: \n{ex.Message}\n", Color.Red);
+            catch (SocketException) {//connection refused
+                Close();
+                form.Log("failed\n", Color.Red);
                 form.EnableButtons();
                 return;
             }
+            form.Log("connected\n", Color.Green);
 
             Stream stream = tcpToServer.GetStream();
             swriter = new BinaryWriter(stream);
@@ -101,18 +95,21 @@ namespace Bridge {
             LingerOption lingerOption = new LingerOption(true, 0);
             try {
                 udpToServer.Close();
+                udpToServer = null;
             }
             catch { }
             try {
                 tcpToServer.LingerState = lingerOption;
                 tcpToServer.Client.Close();
                 tcpToServer.Close();
+                udpToServer = null;
             }
             catch { }
             try {
                 tcpToClient.LingerState = lingerOption;
                 tcpToClient.Client.Close();
                 tcpToClient.Close();
+                udpToServer = null;
             }
             catch { }
             try {
@@ -236,7 +233,7 @@ namespace Bridge {
                         critical = attack.Critical ? 1 : 0,
                         stuntime = attack.Stuntime,
                         position = players[attack.Target].position,
-                        skill = attack.Skill,
+                        isYellow = attack.Skill,
                         type = attack.Type,
                         showlight = (byte)(attack.ShowLight ? 1 : 0)
                     };
@@ -462,6 +459,7 @@ namespace Bridge {
                     if (entityUpdate.name != null) {
                         RefreshPlayerlist();
                     }
+                    SendUDP(entityUpdate.Data);
                     break;
                 #endregion
                 case PacketID.entityAction:
@@ -507,7 +505,7 @@ namespace Bridge {
                         Target = (ushort)hit.target,
                         Damage = hit.damage,
                         Stuntime = hit.stuntime,
-                        Skill = hit.skill,
+                        Skill = hit.isYellow,
                         Type = hit.type,
                         ShowLight = hit.showlight == 1,
                         Critical = hit.critical == 1
@@ -803,7 +801,7 @@ namespace Bridge {
                         fakeSmoke.particles.Add(new Resources.Packet.Part.Particle() {
                             count = 1000,
                             spread = 5f,
-                            type = ParticleType.noGravity,
+                            type = ParticleType.noSpreadNoRotation,
                             size = 0.3f,
                             velocity = new Resources.Utilities.FloatVector(),
                             color = new Resources.Utilities.FloatVector() {

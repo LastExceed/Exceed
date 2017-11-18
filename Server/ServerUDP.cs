@@ -258,11 +258,20 @@ namespace Server {
                             SendUDP(new Chat(string.Format("bulwalk: {0}% dmg reduction", 1.0f - proc.Modifier)).data, source);
                             break;
                         case ProcType.poison:
-                            var poisonTick = new Attack() {
+                            var poisonTickDamage = new Attack() {
                                 Damage = proc.Modifier,
                                 Target = proc.Target
                             };
-                            Poison(players[proc.Target], poisonTick);
+                            var target = players[poisonTickDamage.Target];
+                            Func<bool> tick = () => {
+                                bool f = players.ContainsKey(poisonTickDamage.Target);
+                                if (f) {
+                                    SendUDP(poisonTickDamage.data, target);
+                                }
+                                return !f;
+                            };
+                            Tools.DoLater(tick, 500, 7);
+                            //Poison(players[proc.Target], poisonTickDamage);
                             break;
                         case ProcType.manashield:
                             SendUDP(new Chat(string.Format("manashield: {0}", proc.Modifier)).data, source);
@@ -316,13 +325,13 @@ namespace Server {
                     };
                     SendUDP(connect.data, source);
 
-                    foreach(Player p in players.Values) {
-                        if(p.playing) {
-                            SendUDP(p.entityData.Data, source);
+                    foreach(Player player in players.Values) {
+                        if(player.playing) {
+                            SendUDP(player.entityData.Data, source);
                         }
                     }
                     source.playing = true;
-                    Task.Delay(100).ContinueWith(t => Load_world_delayed(source)); //WIP, causes crash when player disconnects before executed
+                    //Task.Delay(100).ContinueWith(t => Load_world_delayed(source)); //WIP, causes crash when player disconnects before executed
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine(connect.Guid + " is now playing");
                     break;
@@ -373,13 +382,6 @@ namespace Server {
             try {
                 worldUpdate.Write(player.writer, true);
             } catch { }
-        }
-        public void Poison(Player target, Attack attack, byte iteration = 0) {
-            if (iteration < 7 && players.ContainsValue(target) && target.playing) {
-                SendUDP(attack.data, target);
-                iteration++;
-                Task.Delay(500).ContinueWith(t => Poison(target, attack, iteration));
-            }
         }
 
         public void Ban(ushort guid) {
