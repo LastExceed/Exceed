@@ -156,6 +156,7 @@ namespace Bridge {
                     }
                     catch (ObjectDisposedException) { }
                 }
+                players.Clear();
                 form.Log("client disconnected\n", Color.Red);
             }
         }
@@ -206,6 +207,7 @@ namespace Bridge {
 
                     if (entityUpdate.guid == guid) {
                         CwRam.Teleport(entityUpdate.position);
+                        break;
                     }
                     else {
                         entityUpdate.Write(cwriter);
@@ -730,7 +732,6 @@ namespace Bridge {
                             Id = SpecialMoveID.taunt,
                         };
                         SendUDP(specialMove.data);
-                        Console.Beep();
                         #endregion
                     }
                     else {

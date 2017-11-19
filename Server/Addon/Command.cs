@@ -56,18 +56,18 @@ namespace Server.Addon {
                     break;
             }
         }
-        public static void UDP(string command, string parameter, Player player, ServerUDP server) {
+        public static void UDP(string command, string parameter, Player source, ServerUDP server) {
             switch (command.ToLower()) {
                 case "spawn":
                     var entityUpdate = new EntityUpdate() {
-                        guid = player.entityData.guid,
+                        guid = source.entityData.guid,
                         position = new Resources.Utilities.LongVector() {
                             x = 543093329157,
                             y = 546862296355,
                             z = 14423162
                         }
                     };
-                    server.SendUDP(entityUpdate.Data, player);
+                    server.SendUDP(entityUpdate.Data, source);
                     break;
 
                 case "reload_world":
@@ -75,7 +75,7 @@ namespace Server.Addon {
 
                 case "ban":
                     ushort guid = 0;
-                    if (!player.admin || ushort.TryParse(parameter, out guid)) {
+                    if (!source.admin || ushort.TryParse(parameter, out guid)) {
                         break;
                     }
                     break;
@@ -89,7 +89,7 @@ namespace Server.Addon {
                         var inGameTime = new InGameTime() {
                             Time = (hour * 60 + minute) * 60000
                         };
-                        server.SendUDP(inGameTime.data, player);
+                        server.SendUDP(inGameTime.data, source);
                     } catch (Exception) {
                         //invalid syntax
                     }

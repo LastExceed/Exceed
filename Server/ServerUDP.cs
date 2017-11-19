@@ -20,7 +20,7 @@ namespace Server {
         TcpListener tcpListener;
         ServerUpdate worldUpdate = new ServerUpdate();
         Dictionary<ushort, Player> players = new Dictionary<ushort, Player>();
-        List<Ban> bans; //MAC|IP
+        List<Ban> bans; //MAC|IP 
         Dictionary<string, string> accounts;
 
         const string bansFilePath = "bans.json";
@@ -339,9 +339,9 @@ namespace Server {
                 case DatagramID.disconnect:
                     #region disconnect
                     var disconnect = new Disconnect(datagram);
-                    players[disconnect.Guid].playing = false;
+                    source.playing = false;
                     BroadcastUDP(datagram, source, true);
-                    players[disconnect.Guid].entityData = new EntityUpdate();
+                    source.entityData = new EntityUpdate() {guid = source.entityData.guid};
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine(disconnect.Guid + " is now lurking");

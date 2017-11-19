@@ -172,6 +172,7 @@
             this.textBoxPassword.Name = "textBoxPassword";
             this.textBoxPassword.Size = new System.Drawing.Size(127, 20);
             this.textBoxPassword.TabIndex = 1;
+            this.textBoxPassword.Text = "apple";
             this.textBoxPassword.UseSystemPasswordChar = true;
             // 
             // textBoxServerIP
@@ -188,6 +189,7 @@
             this.textBoxUsername.Name = "textBoxUsername";
             this.textBoxUsername.Size = new System.Drawing.Size(127, 20);
             this.textBoxUsername.TabIndex = 0;
+            this.textBoxUsername.Text = "public_test_id";
             // 
             // groupBoxAccount
             // 
@@ -1513,7 +1515,7 @@
             this.checkBoxStayOnTop.UseVisualStyleBackColor = true;
             this.checkBoxStayOnTop.CheckedChanged += new System.EventHandler(this.CheckBoxStayOnTop_CheckedChanged);
             // 
-            // hTimer
+            // TimerHighlight
             // 
             this.TimerHighlight.Interval = 250;
             this.TimerHighlight.Tick += new System.EventHandler(this.TimerHighlight_Tick);
