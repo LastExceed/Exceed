@@ -548,64 +548,21 @@ namespace Bridge {
                     #region chat
                     var chatMessage = new ChatMessage(creader);
 
-                    if (chatMessage.message.ToLower() == @"/set") {
-                        var rnd = new Random();
-                        byte materialA, materialW;
-                        List<byte> list;
-                        switch ((EntityClass)players[guid].entityClass) {
-                            case EntityClass.Warrior:
-                                materialA = 1;
-                                materialW = 1;
-                                list = new List<byte> { 0, 13, 15 };
-                                break;
-                            case EntityClass.Ranger:
-                                materialA = 26;
-                                materialW = 2;
-                                list = new List<byte> { 6, 7, 8 };
-                                break;
-                            case EntityClass.Mage:
-                                materialA = 25;
-                                materialW = 2;
-                                list = new List<byte> { 10, 11, 12 }; ;
-                                break;
-                            case EntityClass.Rogue:
-                                materialA = 27;
-                                materialW = 1;
-                                list = new List<byte> { 3, 4, 5 };
-                                break;
-                            default:
-                                materialA = 0;
-                                materialW = 0;
-                                list = new List<byte> { };
-                                break;
-                        }
-
+                    if (chatMessage.message.ToLower() == @"/plane") {
+                        Console.Beep();
                         var serverUpdate = new ServerUpdate();
-                        foreach (var i in list) {
-                            serverUpdate.pickups.Add(new Pickup() {
-                                guid = guid,
-                                item = new Item() {
-                                    type = 3,
-                                    subtype = i,
-                                    modifier = rnd.Next(0, 0x7fffffff),
-                                    rarity = 4,
-                                    material = materialW,
-                                    level = (short)players[guid].level
-                                }
-                            });
-                        }
-                        for (byte i = 4; i < 8; i++) {
-                            serverUpdate.pickups.Add(new Pickup() {
-                                guid = guid,
-                                item = new Item() {
-                                    type = i,
-                                    modifier = rnd.Next(),
-                                    rarity = 4,
-                                    material = materialA,
-                                    level = (short)players[guid].level
-                                }
-                            });
-                        }
+                        //var model = VoxModel.Parse("chr_sword.vox");
+                        //foreach (var voxel in model) {
+                        //    serverUpdate.blockDeltas.Add(new BlockDelta() {
+                        //        position = new Resources.Utilities.IntVector() {
+                        //            x = 8286946 + voxel.position.x,
+                        //            y = 8344456 + voxel.position.y,
+                        //            z = 220 + voxel.position.z,
+                        //        },
+                        //        color = voxel.color,
+                        //        type = 1
+                        //    });
+                        //}
                         serverUpdate.Write(cwriter);
                     }
                     else {
