@@ -37,9 +37,11 @@ namespace Resources {
             var reader = new BinaryReader(stream);
             var fileHeader = new string(reader.ReadChars(4));
             var fileVersion = reader.ReadInt32();
-            if (fileHeader != "VOX " || fileVersion != 150) {
-                Console.WriteLine(fileHeader + fileVersion);
-                throw new FieldAccessException("target file either isn't a VOX file or doesn't match version 150");
+            if (fileHeader != "VOX ") {
+                throw new FieldAccessException("target file is either corrupt or not a VOX file");
+            }
+            else if (fileVersion != 150) {
+                throw new FieldAccessException($"unexpected file version: {fileVersion} (expecting 150)");
             }
             while (stream.Position < stream.Length) {
                 var chunkName = new string(reader.ReadChars(4));
