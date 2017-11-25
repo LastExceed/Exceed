@@ -11,7 +11,6 @@ using System.Net.NetworkInformation;
 
 using Resources;
 using Resources.Packet;
-using Resources.Packet.Part;
 using Resources.Datagram;
 
 namespace Bridge {
@@ -326,7 +325,7 @@ namespace Bridge {
                     #region staticUpdate
                     var staticUpdate = new StaticUpdate(datagram);
 
-                    var staticEntity = new StaticEntity() {
+                    var staticEntity = new ServerUpdate.StaticEntity() {
                         chunkX = (int)(staticUpdate.Position.x / (65536 * 256)),
                         chunkY = (int)(staticUpdate.Position.y / (65536 * 256)),
                         id = staticUpdate.Id,
@@ -351,7 +350,7 @@ namespace Bridge {
                     #region particle
                     var particleDatagram = new Resources.Datagram.Particle(datagram);
 
-                    var particleSubPacket = new Resources.Packet.Part.Particle() {
+                    var particleSubPacket = new ServerUpdate.Particle() {
                         position = particleDatagram.Position,
                         velocity = particleDatagram.Velocity,
                         color = new Resources.Utilities.FloatVector() {
@@ -416,7 +415,7 @@ namespace Bridge {
                             break;
                         case SpecialMoveID.smokeBomb:
                             var smoke = new ServerUpdate();
-                            smoke.particles.Add(new Resources.Packet.Part.Particle() {
+                            smoke.particles.Add(new ServerUpdate.Particle() {
                                 count = 1000,
                                 spread = 5f,
                                 type = ParticleType.noGravity,
@@ -480,7 +479,7 @@ namespace Bridge {
                             }
                             else {
                                 var serverUpdate = new ServerUpdate();
-                                var pickup = new Pickup() { guid = guid, item = entityAction.item };
+                                var pickup = new ServerUpdate.Pickup() { guid = guid, item = entityAction.item };
                                 serverUpdate.pickups.Add(pickup);
                                 if (form.radioButtonDuplicate.Checked) {
                                     serverUpdate.pickups.Add(pickup);
@@ -551,18 +550,18 @@ namespace Bridge {
                     if (chatMessage.message.ToLower() == @"/plane") {
                         Console.Beep();
                         var serverUpdate = new ServerUpdate();
-                        //var model = VoxModel.Parse("chr_sword.vox");
-                        //foreach (var voxel in model) {
-                        //    serverUpdate.blockDeltas.Add(new BlockDelta() {
-                        //        position = new Resources.Utilities.IntVector() {
-                        //            x = 8286946 + voxel.position.x,
-                        //            y = 8344456 + voxel.position.y,
-                        //            z = 220 + voxel.position.z,
-                        //        },
-                        //        color = voxel.color,
-                        //        type = 1
-                        //    });
-                        //}
+                        var model = VoxModel.Parse("sizetest.vox");
+                        foreach (var voxel in model) {
+                            serverUpdate.blockDeltas.Add(new ServerUpdate.BlockDelta() {
+                                position = new Resources.Utilities.IntVector() {
+                                    x = 8286946 + voxel.position.x,
+                                    y = 8344456 + voxel.position.y,
+                                    z = 220 + voxel.position.z,
+                                },
+                                color = voxel.color,
+                                type = 1
+                            });
+                        }
                         serverUpdate.Write(cwriter);
                     }
                     else {
@@ -756,10 +755,10 @@ namespace Bridge {
                         SendUDP(specialMove.data);
 
                         var fakeSmoke = new ServerUpdate();
-                        fakeSmoke.particles.Add(new Resources.Packet.Part.Particle() {
+                        fakeSmoke.particles.Add(new ServerUpdate.Particle() {
                             count = 1000,
                             spread = 5f,
-                            type = ParticleType.noSpreadNoRotation,
+                            type = ParticleType.noGravity,
                             size = 0.3f,
                             velocity = new Resources.Utilities.FloatVector(),
                             color = new Resources.Utilities.FloatVector() {

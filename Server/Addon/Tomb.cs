@@ -1,6 +1,5 @@
 ﻿using Resources;
 using Resources.Packet;
-using Resources.Packet.Part;
 
 namespace Server.Addon {
     class Tomb {
@@ -10,7 +9,7 @@ namespace Server.Addon {
                 position = player.entityData.position,
                 hostility = (byte)Hostility.neutral,
                 entityType = -1,
-                appearance = new Appearance() {
+                appearance = new EntityUpdate.Appearance() {
                     character_size = new Resources.Utilities.FloatVector() {
                         x = 1, y = 1, z = 1,
                     },

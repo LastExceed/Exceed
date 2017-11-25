@@ -1,7 +1,6 @@
 ﻿using System;
 using Resources;
 using Resources.Packet;
-using Resources.Packet.Part;
 using Resources.Datagram;
 
 namespace Server.Addon {
@@ -24,7 +23,7 @@ namespace Server.Addon {
                         };
                         xpDummy.Write(player.writer);
 
-                        var kill = new Kill() {
+                        var kill = new ServerUpdate.Kill() {
                             killer = player.entityData.guid,
                             victim = 1000,
                             xp = amount
@@ -56,7 +55,15 @@ namespace Server.Addon {
                     break;
             }
         }
-        public static void UDP(string command, string parameter, Player source, ServerUDP server) {
+        public static void Server(string text, Player source, ServerUDP server) {
+            string parameter = string.Empty;
+            string command = text.Substring(1);
+            if (command.Contains(" ")) {
+                int spaceIndex = command.IndexOf(" ");
+                parameter = command.Substring(spaceIndex + 1);
+                command = command.Substring(0, spaceIndex);
+            }
+
             switch (command.ToLower()) {
                 case "spawn":
                     var entityUpdate = new EntityUpdate() {
@@ -70,12 +77,13 @@ namespace Server.Addon {
                     server.SendUDP(entityUpdate.Data, source);
                     break;
 
-                case "reload_world":
+                case "load":
+                    server.worldUpdate.Write(source.writer);
                     break;
 
                 case "ban":
                     ushort guid = 0;
-                    if (!source.admin || ushort.TryParse(parameter, out guid)) {
+                    if (!source.admin || !ushort.TryParse(parameter, out guid)) {
                         break;
                     }
                     break;

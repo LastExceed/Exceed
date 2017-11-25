@@ -93,7 +93,7 @@ namespace Resources {
                         }
                         break;
                     default:
-                        throw new InvalidOperationException("unknown chunk: " + chunkName);
+                        reader.ReadBytes(ownContentBytes);
                         break;
                 }
             }

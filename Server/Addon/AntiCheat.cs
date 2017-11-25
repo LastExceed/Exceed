@@ -1,6 +1,5 @@
 ﻿using Resources;
 using Resources.Packet;
-using Resources.Packet.Part;
 
 namespace Server.Addon {
     class AntiCheat {

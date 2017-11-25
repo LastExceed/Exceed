@@ -4,7 +4,7 @@ namespace Resources.Packet {
     public class EntityAction {
         public const int packetID = 6;
 
-        public Part.Item item;
+        public Item item;
         public int chunkX;
         public int chunkY;
         public int index;
@@ -15,7 +15,7 @@ namespace Resources.Packet {
         public EntityAction() { }
 
         public EntityAction(BinaryReader reader) {
-            item = new Part.Item(reader);
+            item = new Item(reader);
             chunkX = reader.ReadInt32();
             chunkY = reader.ReadInt32();
             index = reader.ReadInt32();

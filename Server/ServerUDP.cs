@@ -18,7 +18,7 @@ namespace Server {
     class ServerUDP {
         UdpClient udpClient;
         TcpListener tcpListener;
-        ServerUpdate worldUpdate = new ServerUpdate();
+        public ServerUpdate worldUpdate = new ServerUpdate();
         Dictionary<ushort, Player> players = new Dictionary<ushort, Player>();
         List<Ban> bans; //MAC|IP 
         Dictionary<string, string> accounts;
@@ -44,6 +44,28 @@ namespace Server {
             }
 
             #region models
+            var rnd = new Random();
+            for (int i = 8286946; i < 8286946 + 512; i++) {
+                for (int j = 8344456; j < 8344456 + 512; j++) {
+                    var block = new ServerUpdate.BlockDelta() {
+                        color = new Resources.Utilities.ByteVector() {
+                            x = 0,
+                            y = 0,
+                            z = (byte)rnd.Next(0, 255),
+                        },
+                        type = 1,
+                        position = new Resources.Utilities.IntVector() {
+                            x = i,
+                            y = j,
+                            z = 208,
+                        },
+                    };
+                    worldUpdate.blockDeltas.Add(block);
+                }
+            }
+            //x = 543093329157,
+            //y = 546862296355,
+            //z = 14423162
             //ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Fulcnix_exceedspawn.zox"));
             //model.Parse(worldUpdate, 8286883, 8344394, 200); 
             //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern2.zox"));
@@ -139,7 +161,7 @@ namespace Server {
             player.entityData.guid = newGuid;
             players.Add(newGuid, player);
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(newGuid + " connected");
+            Console.WriteLine(player.IpEndPoint.Address + " connected");
             
             while (true) {
                 try {
@@ -294,14 +316,7 @@ namespace Server {
                     #region chat
                     var chat = new Chat(datagram);
                     if (chat.Text.StartsWith("/")) {
-                        string parameter = string.Empty;
-                        string command = chat.Text.Substring(1);
-                        if (chat.Text.Contains(" ")) {
-                            int spaceIndex = command.IndexOf(" ");
-                            parameter = command.Substring(spaceIndex + 1);
-                            command = command.Substring(0, spaceIndex);
-                        }
-                        Command.UDP(command, parameter, source, this); //wip
+                        Command.Server(chat.Text, source, this); //wip
                     } else {
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.Write(players[chat.Sender].entityData.name + ": ");
@@ -333,7 +348,7 @@ namespace Server {
                     source.playing = true;
                     //Task.Delay(100).ContinueWith(t => Load_world_delayed(source)); //WIP, causes crash when player disconnects before executed
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine(connect.Guid + " is now playing");
+                    Console.WriteLine(source.IpEndPoint.Address + " is now playing");
                     break;
                 #endregion
                 case DatagramID.disconnect:
@@ -344,7 +359,7 @@ namespace Server {
                     source.entityData = new EntityUpdate() {guid = source.entityData.guid};
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(disconnect.Guid + " is now lurking");
+                    Console.WriteLine(source.IpEndPoint.Address + " is now lurking");
                     break;
                 #endregion
                 case DatagramID.specialMove:

@@ -7,6 +7,195 @@ using System;
 
 namespace Resources.Packet {
     public class EntityUpdate {
+        public class Appearance {
+            public byte unknownA;
+            public byte unknownB;
+            public ByteVector hair_color;
+            public short flags;
+            public byte unknownC; //padding?
+            public FloatVector character_size;
+            public short head_model;
+            public short hair_model;
+            public short hand_model;
+            public short foot_model;
+            public short body_model;
+            public short tail_model;
+            public short shoulder2_model;
+            public short wings_model;
+            public float head_size;
+            public float body_size;
+            public float hand_size;
+            public float foot_size;
+            public float shoulder2_size;
+            public float weapon_size;
+            public float tail_size;
+            public float shoulder_size;
+            public float wings_size;
+            public float body_rotation;
+            public FloatVector hand_rotation;
+            public float feet_rotation;
+            public float wing_rotation;
+            public float tail_rotation;
+            public FloatVector body_offset;
+            public FloatVector head_offset;
+            public FloatVector hand_offset;
+            public FloatVector foot_offset;
+            public FloatVector back_offset;
+            public FloatVector wing_offset;
+
+            public Appearance() {
+                hair_color = new ByteVector();
+                character_size = new FloatVector();
+                hand_rotation = new FloatVector();
+                body_offset = new FloatVector();
+                head_offset = new FloatVector();
+                hand_offset = new FloatVector();
+                foot_offset = new FloatVector();
+                back_offset = new FloatVector();
+                wing_offset = new FloatVector();
+            }
+            public Appearance(BinaryReader reader) {
+                unknownA = reader.ReadByte();
+                unknownB = reader.ReadByte();
+                hair_color = new ByteVector(reader);
+                flags = reader.ReadInt16();
+                unknownC = reader.ReadByte();
+                character_size = new FloatVector(reader);
+                head_model = reader.ReadInt16();
+                hair_model = reader.ReadInt16();
+                hand_model = reader.ReadInt16();
+                foot_model = reader.ReadInt16();
+                body_model = reader.ReadInt16();
+                tail_model = reader.ReadInt16();
+                shoulder2_model = reader.ReadInt16();
+                wings_model = reader.ReadInt16();
+                head_size = reader.ReadSingle();
+                body_size = reader.ReadSingle();
+                hand_size = reader.ReadSingle();
+                foot_size = reader.ReadSingle();
+                shoulder2_size = reader.ReadSingle();
+                weapon_size = reader.ReadSingle();
+                tail_size = reader.ReadSingle();
+                shoulder_size = reader.ReadSingle();
+                wings_size = reader.ReadSingle();
+                body_rotation = reader.ReadSingle();
+                hand_rotation = new FloatVector(reader);
+                feet_rotation = reader.ReadSingle();
+                wing_rotation = reader.ReadSingle();
+                tail_rotation = reader.ReadSingle();
+                body_offset = new FloatVector(reader);
+                head_offset = new FloatVector(reader);
+                hand_offset = new FloatVector(reader);
+                foot_offset = new FloatVector(reader);
+                back_offset = new FloatVector(reader);
+                wing_offset = new FloatVector(reader);
+
+            }
+
+            public void Write(BinaryWriter writer) {
+                writer.Write(unknownA);
+                writer.Write(unknownB);
+                hair_color.Write(writer);
+                writer.Write(flags);
+                writer.Write(unknownC);
+                character_size.Write(writer);
+                writer.Write(head_model);
+                writer.Write(hair_model);
+                writer.Write(hand_model);
+                writer.Write(foot_model);
+                writer.Write(body_model);
+                writer.Write(tail_model);
+                writer.Write(shoulder2_model);
+                writer.Write(wings_model);
+                writer.Write(head_size);
+                writer.Write(body_size);
+                writer.Write(hand_size);
+                writer.Write(foot_size);
+                writer.Write(shoulder2_size);
+                writer.Write(weapon_size);
+                writer.Write(tail_size);
+                writer.Write(shoulder_size);
+                writer.Write(wings_size);
+                writer.Write(body_rotation);
+                hand_rotation.Write(writer);
+                writer.Write(feet_rotation);
+                writer.Write(wing_rotation);
+                writer.Write(tail_rotation);
+                body_offset.Write(writer);
+                head_offset.Write(writer);
+                hand_offset.Write(writer);
+                foot_offset.Write(writer);
+                back_offset.Write(writer);
+                wing_offset.Write(writer);
+            }
+        }
+        public class Multipliers {
+            public float HP;
+            public float attackSpeed;
+            public float damage;
+            public float armor;
+            public float resi;
+
+            public void Write(BinaryWriter writer) {
+                writer.Write(HP);
+                writer.Write(attackSpeed);
+                writer.Write(damage);
+                writer.Write(armor);
+                writer.Write(resi);
+            }
+
+            public Multipliers() { }
+            public Multipliers(BinaryReader reader) {
+                HP = reader.ReadSingle();
+                attackSpeed = reader.ReadSingle();
+                damage = reader.ReadSingle();
+                armor = reader.ReadSingle();
+                resi = reader.ReadSingle();
+            }
+        }
+        public class SkillDistribution {
+            public int petmaster;
+            public int petriding;
+            public int sailing;
+            public int climbing;
+            public int hangGliding;
+            public int swimming;
+            public int ability1;
+            public int ability2;
+            public int ability3;
+            public int ability4;
+            public int ability5;
+
+            public void Write(BinaryWriter writer) {
+                writer.Write(petmaster);
+                writer.Write(petriding);
+                writer.Write(sailing);
+                writer.Write(climbing);
+                writer.Write(hangGliding);
+                writer.Write(swimming);
+                writer.Write(ability1);
+                writer.Write(ability2);
+                writer.Write(ability3);
+                writer.Write(ability4);
+                writer.Write(ability5);
+            }
+
+            public SkillDistribution() { }
+            public SkillDistribution(BinaryReader reader) {
+                petmaster = reader.ReadInt32();
+                petriding = reader.ReadInt32();
+                sailing = reader.ReadInt32();
+                climbing = reader.ReadInt32();
+                hangGliding = reader.ReadInt32();
+                swimming = reader.ReadInt32();
+                ability1 = reader.ReadInt32();
+                ability2 = reader.ReadInt32();
+                ability3 = reader.ReadInt32();
+                ability4 = reader.ReadInt32();
+                ability5 = reader.ReadInt32();
+            }
+        }
+
         public long guid;
         public LongVector position;
         public FloatVector rotation;
@@ -21,7 +210,7 @@ namespace Resources.Packet {
         public int? modeTimer;
         public int? combo;
         public int? lastHitTime;
-        public Part.Appearance appearance;
+        public Appearance appearance;
         public short? entityFlags;
         public int? roll;
         public int? stun;
@@ -38,7 +227,7 @@ namespace Resources.Packet {
         public float? HP;
         public float? MP;
         public float? block;
-        public Part.Multipliers multipliers;
+        public Multipliers multipliers;
         public byte? unused31;
         public byte? unused32;
         public int? level;
@@ -51,10 +240,10 @@ namespace Resources.Packet {
         public LongVector spawnPos;
         public IntVector unused41;
         public byte? unused42;
-        public Part.Item consumable;
-        public Part.Item[] equipment;
+        public Item consumable;
+        public Item[] equipment;
         public string name;
-        public Part.SkillDistribution skillDistribution;
+        public SkillDistribution skillDistribution;
         public int? manaCubes;
         public byte[] Data {
             get {
@@ -384,7 +573,7 @@ namespace Resources.Packet {
                 lastHitTime = r.ReadInt32();
             }
             if(Tools.GetBit(bitfield, 13)) {
-                appearance = new Part.Appearance(r);
+                appearance = new Appearance(r);
             }
             if(Tools.GetBit(bitfield, 14)) {
                 entityFlags = r.ReadInt16();
@@ -435,7 +624,7 @@ namespace Resources.Packet {
                 block = r.ReadSingle();
             }
             if(Tools.GetBit(bitfield, 30)) {
-                multipliers = new Part.Multipliers(r);
+                multipliers = new Multipliers(r);
             }
             if(Tools.GetBit(bitfield, 31)) {
                 unused31 = r.ReadByte();
@@ -474,12 +663,12 @@ namespace Resources.Packet {
                 unused42 = r.ReadByte();
             }
             if(Tools.GetBit(bitfield, 43)) {
-                consumable = new Part.Item(r);
+                consumable = new Item(r);
             }
             if(Tools.GetBit(bitfield, 44)) {
-                equipment = new Part.Item[13];
+                equipment = new Item[13];
                 for(int i = 0; i < 13; i++) {
-                    equipment[i] = new Part.Item(r);
+                    equipment[i] = new Item(r);
                 }
             }
             if(Tools.GetBit(bitfield, 45)) {
@@ -487,7 +676,7 @@ namespace Resources.Packet {
                 name = name.Substring(0, name.IndexOf("\0"));
             }
             if(Tools.GetBit(bitfield, 46)) {
-                skillDistribution = new Part.SkillDistribution(r);
+                skillDistribution = new SkillDistribution(r);
             }
             if(Tools.GetBit(bitfield, 47)) {
                 manaCubes = r.ReadInt32();

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Resources.Packet.Part {
+namespace Resources.Packet {
     public class Item {
         public byte type;
         public byte subtype;

@@ -10,7 +10,6 @@ using Server.Addon;
 
 using Resources;
 using Resources.Packet;
-using Resources.Packet.Part;
 
 namespace Server {
     public class ServerTCP {
@@ -115,7 +114,7 @@ namespace Server {
                             break;
 
                         case ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
-                            var pickup = new Pickup() {
+                            var pickup = new ServerUpdate.Pickup() {
                                 guid = player.entityData.guid,
                                 item = entityAction.item
                             };

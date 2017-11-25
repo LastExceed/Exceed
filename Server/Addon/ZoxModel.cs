@@ -1,7 +1,6 @@
 ﻿using System;
 using Resources.Utilities;
 using Resources.Packet;
-using Resources.Packet.Part;
 
 namespace Server.Addon {
     class ZoxModel {
@@ -16,7 +15,7 @@ namespace Server.Addon {
         public void Parse(ServerUpdate serverUpdate, int offsetX, int offsetY, int offsetZ) {
             for (uint x = 0; x < Frame1.Length; x++) {
                 byte[] colors = BitConverter.GetBytes(Frame1[x][3]); //3=red 2=green 1=blue 0=alpha
-                var blockDelta = new BlockDelta() {
+                var blockDelta = new ServerUpdate.BlockDelta() {
                     position = new IntVector() {
                         x = (int)(Frame1[x][0] + offsetX),
                         y = (int)(Frame1[x][2] + offsetY),
