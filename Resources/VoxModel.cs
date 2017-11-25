@@ -6,8 +6,7 @@ using System.IO;
 namespace Resources {
     public static class VoxModel {
         public class Voxel {
-            public ByteVector position;
-            public ByteVector color;
+            public IntVector position;
             public byte colorIndex;
         }
 
@@ -30,11 +29,10 @@ namespace Resources {
             0xff880000, 0xff770000, 0xff550000, 0xff440000, 0xff220000, 0xff110000, 0xffeeeeee, 0xffdddddd, 0xffbbbbbb, 0xffaaaaaa, 0xff888888, 0xff777777, 0xff555555, 0xff444444, 0xff222222, 0xff111111
         };
 
-        public static List<Voxel> Parse(string filePath) {
-            List<Voxel> voxels = new List<Voxel>();
-            uint[] palette = null;
+        public static List<Packet.ServerUpdate.BlockDelta> Parse(string filePath) {
             var stream = File.OpenRead(filePath);
             var reader = new BinaryReader(stream);
+
             var fileHeader = new string(reader.ReadChars(4));
             var fileVersion = reader.ReadInt32();
             if (fileHeader != "VOX ") {
@@ -43,6 +41,10 @@ namespace Resources {
             else if (fileVersion != 150) {
                 throw new FieldAccessException($"unexpected file version: {fileVersion} (expecting 150)");
             }
+
+            List<List<Voxel>> models = new List<List<Voxel>>();
+            uint[] palette = null;
+            var modelNumber = 0;
             while (stream.Position < stream.Length) {
                 var chunkName = new string(reader.ReadChars(4));
                 var ownContentBytes = reader.ReadInt32();
@@ -64,9 +66,10 @@ namespace Resources {
                         break;
                     case "XYZI":
                         var numVoxels = reader.ReadInt32();
+                        var model = new List<Voxel>();
                         for (int i = 0; i < numVoxels; i++) {
-                            voxels.Add(new Voxel() {
-                                position = new ByteVector() {
+                            model.Add(new Voxel() {
+                                position = new IntVector() {
                                     x = reader.ReadByte(),
                                     y = reader.ReadByte(),
                                     z = reader.ReadByte(),
@@ -74,6 +77,7 @@ namespace Resources {
                                 colorIndex = reader.ReadByte(),
                             });
                         }
+                        models.Add(model);
                         break;
                     case "RGBA":
                         palette = new uint[256];
@@ -92,6 +96,24 @@ namespace Resources {
                             }
                         }
                         break;
+                    case "nTRN":
+                        if (ownContentBytes < 43) {
+                            goto default;
+                        }
+
+                        reader.ReadBytes(38);
+                        var offsets = new string(reader.ReadChars(ownContentBytes - 38)).Split(' ');
+                        var x = short.Parse(offsets[0]);
+                        var y = short.Parse(offsets[1]);
+                        var z = short.Parse(offsets[2]);
+
+                        foreach (var voxel in models[modelNumber]) {
+                            voxel.position.x += x;
+                            voxel.position.y += y;
+                            voxel.position.z += z;
+                        }
+                        modelNumber++;
+                        break;
                     default:
                         reader.ReadBytes(ownContentBytes);
                         break;
@@ -100,15 +122,22 @@ namespace Resources {
             if (palette == null) {
                 palette = default_palette;
             }
-            foreach (var voxel in voxels) {
-                var colorBytes = BitConverter.GetBytes(palette[voxel.colorIndex]);
-                voxel.color = new ByteVector() {
-                    x = colorBytes[0],
-                    y = colorBytes[1],
-                    z = colorBytes[2],
-                };
+            var parsedModel = new List<Packet.ServerUpdate.BlockDelta>();
+            foreach (var model in models) {
+                foreach (var voxel in model) {
+                    var colorBytes = BitConverter.GetBytes(palette[voxel.colorIndex]);
+                    parsedModel.Add(new Packet.ServerUpdate.BlockDelta {
+                        position = voxel.position,
+                        color = new ByteVector() {
+                            x = colorBytes[0],
+                            y = colorBytes[1],
+                            z = colorBytes[2],
+                        },
+                        type = (byte)(colorBytes[2] == 255 && colorBytes[1] == 0 && colorBytes[0] == 0 ? 2 : 1)
+                    });
+                }
             }
-            return voxels;
+            return parsedModel;
         }
     }
 }

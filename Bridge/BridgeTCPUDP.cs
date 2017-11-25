@@ -549,19 +549,15 @@ namespace Bridge {
 
                     if (chatMessage.message.ToLower() == @"/plane") {
                         Console.Beep();
-                        var serverUpdate = new ServerUpdate();
-                        var model = VoxModel.Parse("sizetest.vox");
-                        foreach (var voxel in model) {
-                            serverUpdate.blockDeltas.Add(new ServerUpdate.BlockDelta() {
-                                position = new Resources.Utilities.IntVector() {
-                                    x = 8286946 + voxel.position.x,
-                                    y = 8344456 + voxel.position.y,
-                                    z = 220 + voxel.position.z,
-                                },
-                                color = voxel.color,
-                                type = 1
-                            });
+                        var serverUpdate = new ServerUpdate() {
+                            blockDeltas = VoxModel.Parse("sizetest.vox"),
+                        };
+                        foreach (var block in serverUpdate.blockDeltas) {
+                            block.position.x += 8286946;
+                            block.position.y += 8344456;
+                            block.position.z += 220;
                         }
+                        
                         serverUpdate.Write(cwriter);
                     }
                     else {
