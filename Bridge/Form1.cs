@@ -273,17 +273,21 @@ namespace Bridge {
         }
         private void CheckBoxHighlight_Click(object sender, EventArgs e) {
             if (checkBoxHighlight.Checked) {
+                listBoxItem.Enabled = false;
                 listBoxSlots.Enabled = false;
                 numericUpDownTypeC.Enabled = false;
                 comboBoxTypeC.Enabled = false;
                 memorize = CwRam.memory.ReadByte(CwRam.SlotStart + 3);
                 TimerHighlight.Enabled = true;
-            } else {
+
+            }
+            else {
                 TimerHighlight.Enabled = false;
                 CwRam.memory.WriteByte(CwRam.SlotStart + 3, memorize);
                 numericUpDownTypeC.Enabled = true;
                 comboBoxTypeC.Enabled = true;
                 listBoxSlots.Enabled = true;
+                listBoxItem.Enabled = true;
             }
         }
 
