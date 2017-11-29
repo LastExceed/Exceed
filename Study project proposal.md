@@ -1,9 +1,30 @@
-This project (namely "Exceed") is what I've been working on and learned programming with for the past months in my free time. 
-
 ### TL;DR:
-> A server for a game that improves current content brings new content without patching the client.
+There is this RPG called "CubeWorld" whose developer vanished. While the game itself works great, the vanilla server is near unusable. There is still an active community playing the game but it is slowly dieing due to the online experience being awful. I want to save this game so I started making my own server from scratch, and while doing so I discovered the huge potential of this game.
 
 ### DETAILED DESCRIPTION:
+This project (namely "Exceed") is what I've been working on and learned programming with for the past months in my free time. 
+CubeWorld came out in 2013 and was very hyped back then. For whatever reason the developer ("Wollay") disappeared, without ever releasing any updates. Even though the game is still in its first alpha version today, it is surprisingly well playable and actually still has an active community playing it. Among the game files there is a server (we call it "vanilla") that any player can host to play online with others. This server however is broken and overall bad in pretty much every way possible:
+1. It is unstable and constantly crashes
+2. It is slow and causes lots of lag
+3. It fries your CPU
+4. It uses ridiculous amounts of bandwidth
+5. It is restricted to 4 simultanous connections even though the game would work great with bigger numbers of players than that
+
+The one big handicap is: We don't have the source code of either the game client or the vanilla server and there is no API or anything like that, which makes custom patches (also known as "mods" in the gaming world) crazy difficult (you'd have to hack your stuff into the assembly and use dll injections, you could as well just make your own game). We did lots of reverse engineering anyway figured out the network protocol used for online game play. We also learned that almost everything is processed in the client and the server mostly only serves for passing data from A to B, which is why we decided to completely recreate the vanilla server from scratch rather than trying to fix it.
+
+Someone recreated the vanilla server, but while his server (called "CuWo") solves #1, #3 and #5, the problems #2 and #4 persist.
+
+I think we can do better than that. 
+
+
+
+I started making my own server (I call it "Exceed"), and I already managed to bring it into a playable state. 
+
+Currently Exceed is less stable than CuWo but way faster and efficient because I found a way to drastically reduce 
+
+
+
+
 Exceed is the attempt to save a dieing RPG (RolePlayGame) called "CubeWorld" whose developer vanished. All that is left is the game client and a broken, almost unusable server (called "vanilla"). We do not have the source code to either of those, but we do have the ability to read and understand the communication between the two, and thus the opportunity to reconstruct the server by simply copying what the vanilla server would respond to the clients requests. Someone else has done this before and created an open source server called "cuwo", but while its running stable and doesn't fry your CPU like the vanilla server does, It's still slow and requires ridiculous amounts of bandwidth, both problems that cannot be fixed in his server due to the way it operates, so I decided to reinvent the wheel once more:
 While building my own server and examining the networking protocol I realized that
 a) the vanilla server wastes lots of bandwidth with redundant traffic
