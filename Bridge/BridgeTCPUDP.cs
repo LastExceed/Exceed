@@ -550,7 +550,7 @@ namespace Bridge {
                     if (chatMessage.message.ToLower() == @"/plane") {
                         Console.Beep();
                         var serverUpdate = new ServerUpdate() {
-                            blockDeltas = VoxModel.Parse("sizetest.vox"),
+                            blockDeltas = VoxModel.Parse("model.vox"),
                         };
                         foreach (var block in serverUpdate.blockDeltas) {
                             block.position.x += 8286946;
