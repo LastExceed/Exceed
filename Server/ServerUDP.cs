@@ -29,7 +29,7 @@ namespace Server {
         public ServerUDP(int port) {
             if (File.Exists(bansFilePath)) {
                 bans = JsonConvert.DeserializeObject<List<Ban>>(File.ReadAllText(bansFilePath));
-            } 
+            }
             else {
                 Console.WriteLine("no bans file found");
                 bans = new List<Ban>();
@@ -37,7 +37,7 @@ namespace Server {
 
             if (File.Exists(accountsFilePath)) {
                 accounts = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(accountsFilePath));
-            } 
+            }
             else {
                 Console.WriteLine("no accounts file found");
                 accounts = new Dictionary<string, string>();
@@ -113,8 +113,6 @@ namespace Server {
             //model.Parse(worldUpdate, 8286770, 8344262, 333);
             #endregion
 
-            Console.WriteLine("loading completed");
-
             udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             new Thread(new ThreadStart(ListenUDP)).Start();
             tcpListener = new TcpListener(IPAddress.Any, port);
@@ -133,15 +131,15 @@ namespace Server {
             player.writer.Write(true);
 
             string username = player.reader.ReadString();
-            if (!accounts.ContainsKey(username)) {
-                player.writer.Write((byte)AuthResponse.unknownUser);
-                return;
-            }
+            //if (!accounts.ContainsKey(username)) {
+            //    player.writer.Write((byte)AuthResponse.unknownUser);
+            //    return;
+            //}
             string password = player.reader.ReadString();
-            if (accounts[username] != password) {
-                player.writer.Write((byte)AuthResponse.wrongPassword);
-                return;
-            }
+            //if (accounts[username] != password) {
+            //    player.writer.Write((byte)AuthResponse.wrongPassword);
+            //    return;
+            //}
             player.writer.Write((byte)AuthResponse.success);
             player.admin = username == "BLACKROCK";
 
@@ -162,12 +160,13 @@ namespace Server {
             players.Add(newGuid, player);
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(player.IpEndPoint.Address + " connected");
-            
+
             while (true) {
                 try {
                     byte packetID = player.reader.ReadByte();
                     ProcessPacket(packetID, player);
-                } catch (IOException) {
+                }
+                catch (IOException) {
                     players.Remove((ushort)player.entityData.guid);
                     var disconnect = new Disconnect() {
                         Guid = (ushort)player.entityData.guid
@@ -182,7 +181,7 @@ namespace Server {
         }
         public void ListenUDP() {
             IPEndPoint source = null;
-            while(true) {
+            while (true) {
                 byte[] datagram = udpClient.Receive(ref source);
                 var player = players.FirstOrDefault(x => x.Value.IpEndPoint.Equals(source)).Value;
                 if (player != null) {
@@ -195,8 +194,8 @@ namespace Server {
             udpClient.Send(data, data.Length, target.IpEndPoint);
         }
         public void BroadcastUDP(byte[] data, Player toSkip = null, bool includeNotPlaying = false) {
-            foreach(var player in players.Values) {
-                if(player != toSkip && (player.playing || includeNotPlaying)) {
+            foreach (var player in players.Values) {
+                if (player != toSkip && (player.playing || includeNotPlaying)) {
                     SendUDP(data, player);
                 }
             }
@@ -207,8 +206,8 @@ namespace Server {
                 case 0://query
                     var query = new Query("Exceed Official", 65535);
 
-                    foreach(var player in players.Values) {
-                        if(player.playing && player.entityData.name != null) {
+                    foreach (var player in players.Values) {
+                        if (player.playing && player.entityData.name != null) {
                             query.players.Add((ushort)player.entityData.guid, player.entityData.name);
                         }
                     }
@@ -226,7 +225,7 @@ namespace Server {
                     var entityUpdate = new EntityUpdate(datagram);
 
                     string ACmessage = AntiCheat.Inspect(entityUpdate);
-                    if(ACmessage != "ok") {
+                    if (ACmessage != "ok") {
                         //var kickMessage = new ChatMessage() {
                         //    message = "illegal " + ACmessage
                         //};
@@ -236,20 +235,21 @@ namespace Server {
                         //Kick(player);
                         //return;
                     }
-                    if(entityUpdate.name != null) {
+                    if (entityUpdate.name != null) {
                         //Announce.Join(entityUpdate.name, player.entityData.name, players);
                     }
 
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
-                    if(!source.entityData.IsEmpty) { //dont filter the first packet
+                    if (!source.entityData.IsEmpty) { //dont filter the first packet
                         //entityUpdate.Filter(player.entityData);
                     }
-                    if(!entityUpdate.IsEmpty) {
+                    if (!entityUpdate.IsEmpty) {
                         //entityUpdate.Broadcast(players, 0);
                         BroadcastUDP(entityUpdate.Data, source);
-                        if(entityUpdate.HP == 0 && source.entityData.HP > 0) {
+                        if (entityUpdate.HP == 0 && source.entityData.HP > 0) {
                             BroadcastUDP(Tomb.Show(source).Data);
-                        } else if(source.entityData.HP == 0 && entityUpdate.HP > 0) {
+                        }
+                        else if (source.entityData.HP == 0 && entityUpdate.HP > 0) {
                             BroadcastUDP(Tomb.Hide(source).Data);
                         }
                         entityUpdate.Merge(source.entityData);
@@ -317,7 +317,8 @@ namespace Server {
                     var chat = new Chat(datagram);
                     if (chat.Text.StartsWith("/")) {
                         Command.Server(chat.Text, source, this); //wip
-                    } else {
+                    }
+                    else {
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.Write(players[chat.Sender].entityData.name + ": ");
                         Console.ForegroundColor = ConsoleColor.White;
@@ -340,8 +341,8 @@ namespace Server {
                     };
                     SendUDP(connect.data, source);
 
-                    foreach(Player player in players.Values) {
-                        if(player.playing) {
+                    foreach (Player player in players.Values) {
+                        if (player.playing) {
                             SendUDP(player.entityData.Data, source);
                         }
                     }
@@ -356,7 +357,7 @@ namespace Server {
                     var disconnect = new Disconnect(datagram);
                     source.playing = false;
                     BroadcastUDP(datagram, source, true);
-                    source.entityData = new EntityUpdate() {guid = source.entityData.guid};
+                    source.entityData = new EntityUpdate() { guid = source.entityData.guid };
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine(source.IpEndPoint.Address + " is now lurking");
@@ -396,7 +397,8 @@ namespace Server {
         public void Load_world_delayed(Player player) {
             try {
                 worldUpdate.Write(player.writer, true);
-            } catch { }
+            }
+            catch { }
         }
 
         public void Ban(ushort guid) {

@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <Reference Include="Ionic.Zlib">
-      <HintPath>..\Resources\Ionic.Zlib.dll</HintPath>
+      <HintPath>..\Resources\CubeworldNetworking\Ionic.Zlib.dll</HintPath>
     </Reference>
   </ItemGroup>
 
