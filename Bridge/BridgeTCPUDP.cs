@@ -138,8 +138,9 @@ namespace Bridge {
 
                 form.Log("client connected\n", Color.Green);
                 tcpToClient.NoDelay = true;
-                creader = new BinaryReader(tcpToClient.GetStream());
-                cwriter = new BinaryWriter(tcpToClient.GetStream());
+                Stream stream = tcpToClient.GetStream();
+                creader = new BinaryReader(stream);
+                cwriter = new BinaryWriter(stream);
                 int packetID;
 
                 while (true) {
@@ -244,14 +245,14 @@ namespace Bridge {
                 #endregion
                 case DatagramID.shoot:
                     #region shoot
-                    var shootDatagram = new Resources.Datagram.Shoot(datagram);
+                    var shootDatagram = new Projectile(datagram);
 
-                    var shootPacket = new Resources.Packet.Shoot() {
+                    var shootPacket = new Shoot() {
                         position = shootDatagram.Position,
                         velocity = shootDatagram.Velocity,
                         scale = shootDatagram.Scale,
                         particles = shootDatagram.Particles,
-                        projectile = shootDatagram.Projectile,
+                        projectile = shootDatagram.Type,
                         chunkX = (int)shootDatagram.Position.x / 0x1000000,
                         chunkY = (int)shootDatagram.Position.y / 0x1000000
                     };
@@ -531,16 +532,16 @@ namespace Bridge {
                 #endregion
                 case PacketID.shoot:
                     #region shoot
-                    var shootPacket = new Resources.Packet.Shoot(creader);
+                    var shoot = new Shoot(creader);
 
-                    var shootDatagram = new Resources.Datagram.Shoot() {
-                        Position = shootPacket.position,
-                        Velocity = shootPacket.velocity,
-                        Scale = shootPacket.scale,
-                        Particles = shootPacket.particles,
-                        Projectile = shootPacket.projectile
+                    var projectile = new Projectile() {
+                        Position = shoot.position,
+                        Velocity = shoot.velocity,
+                        Scale = shoot.scale,
+                        Particles = shoot.particles,
+                        Type = shoot.projectile
                     };
-                    SendUDP(shootDatagram.data);
+                    SendUDP(projectile.data);
                     break;
                 #endregion
                 case PacketID.chat:

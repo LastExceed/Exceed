@@ -2,7 +2,7 @@
 using System;
 
 namespace Resources.Datagram {
-    public class Shoot : Datagram {
+    public class Projectile : Datagram {
         public LongVector Position {
             get => new LongVector() {
                 x = BitConverter.ToInt64(data, 1),
@@ -35,16 +35,16 @@ namespace Resources.Datagram {
             get => BitConverter.ToSingle(data, 41);
             set => BitConverter.GetBytes(value).CopyTo(data, 41);
         }
-        public Projectile Projectile {
-            get => (Projectile)data[45];
+        public ProjectileType Type {
+            get => (ProjectileType)data[45];
             set => data[45] = (byte)value;
         }
          
-        public Shoot() {
+        public Projectile() {
             data = new byte[46];
             DatagramID = DatagramID.shoot;
         }
 
-        public Shoot(byte[] data) : base(data) { }
+        public Projectile(byte[] data) : base(data) { }
     }
 }

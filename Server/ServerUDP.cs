@@ -225,7 +225,7 @@ namespace Server {
                     var entityUpdate = new EntityUpdate(datagram);
 
                     string ACmessage = AntiCheat.Inspect(entityUpdate);
-                    if (ACmessage != "ok") {
+                    if (ACmessage != null) {
                         //var kickMessage = new ChatMessage() {
                         //    message = "illegal " + ACmessage
                         //};
@@ -267,7 +267,7 @@ namespace Server {
                 #endregion
                 case DatagramID.shoot:
                     #region shoot
-                    var shoot = new Resources.Datagram.Shoot(datagram);
+                    var shoot = new Resources.Datagram.Projectile(datagram);
                     BroadcastUDP(datagram, source); //pass to all players except source
                     break;
                 #endregion
@@ -306,7 +306,7 @@ namespace Server {
                         case ProcType.swiftness:
                             break;
                         default:
-
+                            //unknown proc type
                             break;
                     }
                     BroadcastUDP(datagram, source); //pass to all players except source

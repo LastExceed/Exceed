@@ -75,7 +75,7 @@ namespace Server.Addon {
                     return "skill distribution";
                 }
             }
-            return "ok";
+            return null;
         }
     }
 }

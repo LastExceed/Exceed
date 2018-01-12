@@ -79,7 +79,7 @@
         north,
         west
     }
-    public enum Projectile : byte {
+    public enum ProjectileType : byte {
         arrow = 1,
         boomerang,
         unknown,
