@@ -4,10 +4,10 @@ using Resources.Utilities;
 
 namespace Server.Addon {
     class Tomb {
-        public static EntityUpdate Show(Player player) {
+        public static EntityUpdate Show(EntityUpdate entityData) {
             return new EntityUpdate() {
-                guid = player.entityData.guid + 1000,
-                position = player.entityData.position,
+                guid = entityData.guid + 1000,
+                position = entityData.position,
                 hostility = Hostility.neutral,
                 //entityType = (EntityType)(-1),
                 appearance = new EntityUpdate.Appearance() {
@@ -24,7 +24,7 @@ namespace Server.Addon {
 
         public static EntityUpdate Hide(Player player) {
             var tomb = new EntityUpdate() {
-                guid = player.entityData.guid + 1000,
+                guid = player.guid + 1000,
                 hostility = Hostility.neutral,
                 entityType = (EntityType)(-1),
                 HP = 0

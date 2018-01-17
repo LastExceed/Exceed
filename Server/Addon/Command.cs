@@ -25,7 +25,7 @@ namespace Server.Addon {
                         xpDummy.Write(player.writer);
 
                         var kill = new ServerUpdate.Kill() {
-                            killer = player.entityData.guid,
+                            killer = player.guid,
                             victim = 1000,
                             xp = amount
                         };
@@ -68,7 +68,7 @@ namespace Server.Addon {
             switch (command.ToLower()) {
                 case "spawn":
                     var entityUpdate = new EntityUpdate() {
-                        guid = source.entityData.guid,
+                        guid = source.guid,
                         position = new LongVector() {
                             x = 543093329157,
                             y = 546862296355,
