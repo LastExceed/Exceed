@@ -223,7 +223,6 @@ namespace Server {
                 case DatagramID.dynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
-                    Console.WriteLine(entityUpdate.guid);
                     string ACmessage = AntiCheat.Inspect(entityUpdate);
                     if (ACmessage != null) {
                         //var kickMessage = new ChatMessage() {

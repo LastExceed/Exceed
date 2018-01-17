@@ -205,7 +205,6 @@ namespace Bridge {
                 case DatagramID.dynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
-                    form.Log("#", Color.BlanchedAlmond);
                     if (entityUpdate.guid == guid) {
                         CwRam.Teleport(entityUpdate.position);
                         break;
