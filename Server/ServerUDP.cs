@@ -159,6 +159,7 @@ namespace Server {
             }
             player.guid = newGuid;
             players.Add(newGuid, player);
+            dynamicEntities.Add(newGuid, null);
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(player.IpEndPoint.Address + " connected");
 
@@ -341,11 +342,14 @@ namespace Server {
                         Guid = (ushort)source.guid,
                         Mapseed = Database.mapseed
                     };
+                    dynamicEntities[source.guid] = new EntityUpdate() {
+                        guid = source.guid,
+                    };
                     SendUDP(connect.data, source);
 
-                    foreach (Player player in players.Values) {
-                        if (player.playing) {
-                            SendUDP(dynamicEntities[player.guid].CreateDatagram(), source);
+                    foreach (EntityUpdate entity in dynamicEntities.Values) {
+                        if (entity != null && entity.guid != source.guid) {
+                            SendUDP(entity.CreateDatagram(), source);
                         }
                     }
                     source.playing = true;
