@@ -2,6 +2,7 @@
 using Resources;
 using Resources.Packet;
 using Resources.Datagram;
+using Resources.Utilities;
 
 namespace Server.Addon {
     class Command {
@@ -19,7 +20,7 @@ namespace Server.Addon {
 
                         var xpDummy = new EntityUpdate() {
                             guid = 1000,
-                            hostility = (byte)Hostility.enemy
+                            hostility = Hostility.enemy
                         };
                         xpDummy.Write(player.writer);
 
@@ -30,7 +31,7 @@ namespace Server.Addon {
                         };
                         var serverUpdate = new ServerUpdate();
                         serverUpdate.kills.Add(kill);
-                        serverUpdate.Write(player.writer, true);
+                        serverUpdate.Write(player.writer);
                         break;
                     } catch (Exception) {
                         //invalid syntax
@@ -45,7 +46,7 @@ namespace Server.Addon {
                         var time = new Time() {
                             time = (hour * 60 + minute) * 60000
                         };
-                        time.Write(player.writer, true);
+                        time.Write(player.writer);
                     } catch (Exception) {
                         //invalid syntax
                     }
@@ -68,7 +69,7 @@ namespace Server.Addon {
                 case "spawn":
                     var entityUpdate = new EntityUpdate() {
                         guid = source.entityData.guid,
-                        position = new Resources.Utilities.LongVector() {
+                        position = new LongVector() {
                             x = 543093329157,
                             y = 546862296355,
                             z = 14423162

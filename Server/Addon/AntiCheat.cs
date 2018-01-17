@@ -45,7 +45,7 @@ namespace Server.Addon {
                 return "level";
             }
             if(toInspect.consumable != null) {
-                if(toInspect.consumable.type == 1 &&
+                if(toInspect.consumable.type == ItemType.food &&
                     toInspect.consumable.subtype == 1 ||
                     toInspect.consumable.level > 647 ||
                     toInspect.consumable.rarity != 0) {
@@ -54,8 +54,8 @@ namespace Server.Addon {
             }
             if(toInspect.equipment != null) {
                 foreach(Item item in toInspect.equipment) {
-                    if(item.type != 0 && (item.level > 647 ||
-                        item.rarity > 4)) {
+                    if(item.type != 0 &&
+                       (item.level > 647 || (byte)item.rarity > 4)) {
                         return "equipment";
                     }
                 }

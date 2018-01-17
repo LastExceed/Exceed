@@ -133,7 +133,7 @@ namespace Resources {
                             y = colorBytes[1],
                             z = colorBytes[2],
                         },
-                        type = (byte)(colorBytes[2] == 255 && colorBytes[1] == 0 && colorBytes[0] == 0 ? 2 : 1)
+                        type = (BlockType)(colorBytes[2] == 255 && colorBytes[1] == 0 && colorBytes[0] == 0 ? 2 : 1)
                     });
                 }
             }

@@ -31,22 +31,16 @@ namespace Resources.Datagram {
                 BitConverter.GetBytes(value.z).CopyTo(data, 35);
             }
         }
-        /// <summary>
-        /// guid of player who interacts with it
-        /// </summary>
         public ushort User {
             get => BitConverter.ToUInt16(data, 39);
             set => BitConverter.GetBytes(value).CopyTo(data, 39);
         }
-        /// <summary>
-        /// for closing animation
-        /// </summary>
         public ushort Time {
             get => BitConverter.ToUInt16(data, 41);
             set => BitConverter.GetBytes(value).CopyTo(data, 41);
         }
-        public StaticUpdateType Type {
-            get => (StaticUpdateType)data[43];
+        public StaticEntityType Type {
+            get => (StaticEntityType)data[43];
             set => data[43] = (byte)value;
         }
         public StaticRotation Direction {
@@ -62,7 +56,6 @@ namespace Resources.Datagram {
             data = new byte[45];
             DatagramID = DatagramID.staticUpdate;
         }
-
         public StaticUpdate(byte[] data) : base(data) { }
     }
 }

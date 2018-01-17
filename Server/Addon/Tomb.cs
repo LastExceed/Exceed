@@ -1,5 +1,6 @@
 ﻿using Resources;
 using Resources.Packet;
+using Resources.Utilities;
 
 namespace Server.Addon {
     class Tomb {
@@ -7,10 +8,10 @@ namespace Server.Addon {
             return new EntityUpdate() {
                 guid = player.entityData.guid + 1000,
                 position = player.entityData.position,
-                hostility = (byte)Hostility.neutral,
-                entityType = -1,
+                hostility = Hostility.neutral,
+                //entityType = (EntityType)(-1),
                 appearance = new EntityUpdate.Appearance() {
-                    character_size = new Resources.Utilities.FloatVector() {
+                    character_size = new FloatVector() {
                         x = 1, y = 1, z = 1,
                     },
                     head_model = 2155,
@@ -24,8 +25,8 @@ namespace Server.Addon {
         public static EntityUpdate Hide(Player player) {
             var tomb = new EntityUpdate() {
                 guid = player.entityData.guid + 1000,
-                hostility = (byte)Hostility.neutral,
-                entityType = -1,
+                hostility = Hostility.neutral,
+                entityType = (EntityType)(-1),
                 HP = 0
             };
             return tomb;

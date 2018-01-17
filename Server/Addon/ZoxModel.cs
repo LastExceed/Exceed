@@ -1,4 +1,5 @@
 ﻿using System;
+using Resources;
 using Resources.Utilities;
 using Resources.Packet;
 
@@ -26,7 +27,7 @@ namespace Server.Addon {
                         y = colors[2],
                         z = colors[1]
                     },
-                    type = (byte)((colors[3] == 0 && colors[2] == 0 && colors[1] == 0xFF) ? 2 : 1),
+                    type = (colors[3] == 0 && colors[2] == 0 && colors[1] == 0xFF) ? BlockType.liquid : BlockType.solid,
                     unknown = 0
                 };
                 serverUpdate.blockDeltas.Add(blockDelta);

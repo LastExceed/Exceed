@@ -56,6 +56,7 @@ namespace Resources.Datagram {
 
         public Particle() {
             data = new byte[52];
+            DatagramID = DatagramID.particle;
         }
 
         public Particle(byte[] data) : base(data) { }

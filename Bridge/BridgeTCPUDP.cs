@@ -146,6 +146,7 @@ namespace Bridge {
                 while (true) {
                     try {
                         packetID = creader.ReadInt32();
+                        //MessageBox.Show("" + packetID);
                         ProcessClientPacket(packetID);
                     }
                     catch (IOException) {
@@ -201,7 +202,7 @@ namespace Bridge {
         public static void ProcessDatagram(byte[] datagram) {
             var serverUpdate = new ServerUpdate();
             switch ((DatagramID)datagram[0]) {
-                case DatagramID.entityUpdate:
+                case DatagramID.dynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
 
@@ -232,12 +233,12 @@ namespace Bridge {
                     var hit = new Hit() {
                         target = attack.Target,
                         damage = attack.Damage,
-                        critical = attack.Critical ? 1 : 0,
+                        critical = attack.Critical,
                         stuntime = attack.Stuntime,
                         position = players[attack.Target].position,
                         isYellow = attack.Skill,
                         type = attack.Type,
-                        showlight = (byte)(attack.ShowLight ? 1 : 0)
+                        showlight = attack.ShowLight,
                     };
                     serverUpdate.hits.Add(hit);
                     serverUpdate.Write(cwriter);
@@ -282,7 +283,7 @@ namespace Bridge {
                         message = chat.Text
                     };
                     try {
-                        chatMessage.Write(cwriter, true);
+                        chatMessage.Write(cwriter);
                     }
                     catch (Exception ex) {
                         if (!(ex is NullReferenceException || ex is ObjectDisposedException)) {
@@ -330,17 +331,17 @@ namespace Bridge {
                         chunkX = (int)(staticUpdate.Position.x / (65536 * 256)),
                         chunkY = (int)(staticUpdate.Position.y / (65536 * 256)),
                         id = staticUpdate.Id,
-                        type = (int)staticUpdate.Type,
+                        type = staticUpdate.Type,
                         position = staticUpdate.Position,
                         rotation = (int)staticUpdate.Direction,
                         size = staticUpdate.Size,
-                        closed = staticUpdate.Closed ? 1 : 0,
+                        closed = staticUpdate.Closed,
                         time = staticUpdate.Time,
                         guid = staticUpdate.User
                     };
                     var staticServerUpdate = new ServerUpdate();
                     staticServerUpdate.statics.Add(staticEntity);
-                    staticServerUpdate.Write(cwriter, true);
+                    staticServerUpdate.Write(cwriter);
                     break;
                 #endregion
                 case DatagramID.block:
@@ -349,7 +350,7 @@ namespace Bridge {
                     break;
                 case DatagramID.particle:
                     #region particle
-                    var particleDatagram = new Resources.Datagram.Particle(datagram);
+                    var particleDatagram = new Particle(datagram);
 
                     var particleSubPacket = new ServerUpdate.Particle() {
                         position = particleDatagram.Position,
@@ -366,7 +367,7 @@ namespace Bridge {
                         spread = particleDatagram.Spread
                     };
                     serverUpdate.particles.Add(particleSubPacket);
-                    serverUpdate.Write(cwriter, true);
+                    serverUpdate.Write(cwriter);
                     break;
                 #endregion
                 case DatagramID.connect:
@@ -378,12 +379,12 @@ namespace Bridge {
                         guid = guid,
                         junk = new byte[0x1168]
                     };
-                    join.Write(cwriter, true);
+                    join.Write(cwriter);
 
                     var mapseed = new MapSeed() {
                         seed = connect.Mapseed
                     };
-                    mapseed.Write(cwriter, true);
+                    mapseed.Write(cwriter);
                     break;
                 #endregion
                 case DatagramID.disconnect:
@@ -391,7 +392,7 @@ namespace Bridge {
                     var disconnect = new Disconnect(datagram);
                     var pdc = new EntityUpdate() {
                         guid = disconnect.Guid,
-                        hostility = 255, //workaround for DC because i dont like packet2
+                        hostility = (Hostility)255, //workaround for DC because i dont like packet2
                         HP = 0
                     };
                     pdc.Write(cwriter);
@@ -461,7 +462,7 @@ namespace Bridge {
                     if (entityUpdate.name != null) {
                         RefreshPlayerlist();
                     }
-                    SendUDP(entityUpdate.Data);
+                    SendUDP(entityUpdate.CreateDatagram());
                     break;
                 #endregion
                 case PacketID.entityAction:
@@ -471,6 +472,12 @@ namespace Bridge {
                         case ActionType.talk:
                             break;
                         case ActionType.staticInteraction:
+                            ChatMessage x = new ChatMessage() {
+                                message = "You can't use this, your hands are too small.",
+                                sender = 0
+                            };
+                            x.Write(cwriter);
+
                             break;
                         case ActionType.pickup:
                             break;
@@ -480,7 +487,10 @@ namespace Bridge {
                             }
                             else {
                                 var serverUpdate = new ServerUpdate();
-                                var pickup = new ServerUpdate.Pickup() { guid = guid, item = entityAction.item };
+                                var pickup = new ServerUpdate.Pickup() {
+                                    guid = guid,
+                                    item = entityAction.item
+                                };
                                 serverUpdate.pickups.Add(pickup);
                                 if (form.radioButtonDuplicate.Checked) {
                                     serverUpdate.pickups.Add(pickup);
@@ -509,8 +519,8 @@ namespace Bridge {
                         Stuntime = hit.stuntime,
                         Skill = hit.isYellow,
                         Type = hit.type,
-                        ShowLight = hit.showlight == 1,
-                        Critical = hit.critical == 1
+                        ShowLight = hit.showlight,
+                        Critical = hit.critical
                     };
                     SendUDP(attack.data);
                     lastTarget = attack.Target;
@@ -584,7 +594,7 @@ namespace Bridge {
                     var version = new ProtocolVersion(creader);
                     if (version.version != 3) {
                         version.version = 3;
-                        version.Write(cwriter, true);
+                        version.Write(cwriter);
                     }
                     else {
                         var connect = new Connect();

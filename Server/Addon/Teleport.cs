@@ -1,6 +1,7 @@
 ﻿using System;
 using Resources;
 using Resources.Packet;
+using Resources.Utilities;
 
 namespace Server.Addon {
     class Teleport {
@@ -9,8 +10,8 @@ namespace Server.Addon {
                 chunkX = BitConverter.ToInt32(BitConverter.GetBytes(x), 3),
                 chunkY = BitConverter.ToInt32(BitConverter.GetBytes(y), 3),
                 id = 0,
-                type = 18,
-                position = new Resources.Utilities.LongVector() {
+                type = (StaticEntityType)18,
+                position = new LongVector() {
                     x = x,
                     y = y,
                     z = z,
@@ -22,9 +23,9 @@ namespace Server.Addon {
 
             var serverUpdate = new ServerUpdate();
             serverUpdate.statics.Add(staticEntity);
-            serverUpdate.Write(player.writer, true);
+            serverUpdate.Write(player.writer);
             staticEntity.guid = 0;
-            serverUpdate.Write(player.writer, true);
+            serverUpdate.Write(player.writer);
         }
     }
 }

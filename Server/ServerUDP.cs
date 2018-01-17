@@ -53,7 +53,7 @@ namespace Server {
                             y = 0,
                             z = (byte)rnd.Next(0, 255),
                         },
-                        type = 1,
+                        type = BlockType.solid,
                         position = new Resources.Utilities.IntVector() {
                             x = i,
                             y = j,
@@ -220,7 +220,7 @@ namespace Server {
         }
         public void ProcessDatagram(byte[] datagram, Player source) {
             switch ((DatagramID)datagram[0]) {
-                case DatagramID.entityUpdate:
+                case DatagramID.dynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
 
@@ -263,6 +263,7 @@ namespace Server {
                     if (players.ContainsKey(attack.Target)) {//in case the target is a tombstone
                         SendUDP(datagram, players[attack.Target]);
                     }
+                    var x = new PassiveProc();
                     break;
                 #endregion
                 case DatagramID.shoot:
@@ -396,7 +397,7 @@ namespace Server {
 
         public void Load_world_delayed(Player player) {
             try {
-                worldUpdate.Write(player.writer, true);
+                worldUpdate.Write(player.writer);
             }
             catch { }
         }
