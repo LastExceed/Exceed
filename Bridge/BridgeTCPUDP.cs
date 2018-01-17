@@ -20,11 +20,11 @@ namespace Bridge {
         public static TcpListener tcpListener = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345); //hardcoded because client port can't be changed
         public static BinaryWriter swriter, cwriter;
         public static BinaryReader sreader, creader;
-        public static ushort guid;
+        public static long guid;
         public static Form1 form;
         public static bool connected = false;
-        public static Dictionary<long, EntityUpdate> players = new Dictionary<long, EntityUpdate>();
-        public static ushort lastTarget;
+        public static Dictionary<long, EntityUpdate> dynamicEntities = new Dictionary<long, EntityUpdate>();
+        public static long lastTarget;
 
         public static void Connect() {
             form.Log("connecting...", Color.DarkGray);
@@ -115,7 +115,7 @@ namespace Bridge {
                 tcpListener.Stop();
             }
             catch { }
-            players.Clear();
+            dynamicEntities.Clear();
         }
 
         public static void ListenFromClientTCP() {
@@ -157,7 +157,7 @@ namespace Bridge {
                     }
                     catch (ObjectDisposedException) { }
                 }
-                players.Clear();
+                dynamicEntities.Clear();
                 form.Log("client disconnected\n", Color.Red);
             }
         }
@@ -213,11 +213,11 @@ namespace Bridge {
                         entityUpdate.Write(cwriter);
                     }
 
-                    if (players.ContainsKey(entityUpdate.guid)) {
-                        entityUpdate.Merge(players[entityUpdate.guid]);
+                    if (dynamicEntities.ContainsKey(entityUpdate.guid)) {
+                        entityUpdate.Merge(dynamicEntities[entityUpdate.guid]);
                     }
                     else {
-                        players.Add(entityUpdate.guid, entityUpdate);
+                        dynamicEntities.Add(entityUpdate.guid, entityUpdate);
                     }
 
                     if (entityUpdate.name != null) {
@@ -234,7 +234,7 @@ namespace Bridge {
                         damage = attack.Damage,
                         critical = attack.Critical,
                         stuntime = attack.Stuntime,
-                        position = players[attack.Target].position,
+                        position = dynamicEntities[attack.Target].position,
                         isYellow = attack.Skill,
                         type = attack.Type,
                         showlight = attack.ShowLight,
@@ -293,7 +293,7 @@ namespace Bridge {
                         form.Log(chat.Text + "\n", Color.Magenta);
                     }
                     else {
-                        form.Log(players[chat.Sender].name + ": ", Color.Cyan);
+                        form.Log(dynamicEntities[chat.Sender].name + ": ", Color.Cyan);
                         form.Log(chat.Text + "\n", Color.White);
                     }
                     break;
@@ -395,7 +395,7 @@ namespace Bridge {
                         HP = 0
                     };
                     pdc.Write(cwriter);
-                    players.Remove(disconnect.Guid);
+                    dynamicEntities.Remove(disconnect.Guid);
                     RefreshPlayerlist();
                     break;
                 #endregion
@@ -403,8 +403,8 @@ namespace Bridge {
                     var specialMove = new SpecialMove(datagram);
                     switch (specialMove.Id) {
                         case SpecialMoveID.taunt:
-                            if (players.ContainsKey(specialMove.Guid)) {
-                                CwRam.Teleport(players[specialMove.Guid].position);
+                            if (dynamicEntities.ContainsKey(specialMove.Guid)) {
+                                CwRam.Teleport(dynamicEntities[specialMove.Guid].position);
                                 CwRam.Freeze(5000);
                             }
                             break;
@@ -428,7 +428,7 @@ namespace Bridge {
                                     z = 1f
                                 },
                                 alpha = 1f,
-                                position = players[specialMove.Guid].position
+                                position = dynamicEntities[specialMove.Guid].position
                             });
                             smoke.Write(cwriter);
                             break;
@@ -452,12 +452,12 @@ namespace Bridge {
                 case PacketID.entityUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(creader);
-                    if (players.ContainsKey(entityUpdate.guid)) {
-                        entityUpdate.Filter(players[entityUpdate.guid]);
-                        entityUpdate.Merge(players[entityUpdate.guid]);
+                    if (dynamicEntities.ContainsKey(entityUpdate.guid)) {
+                        entityUpdate.Filter(dynamicEntities[entityUpdate.guid]);
+                        entityUpdate.Merge(dynamicEntities[entityUpdate.guid]);
                     }
                     else {
-                        players.Add(entityUpdate.guid, entityUpdate);
+                        dynamicEntities.Add(entityUpdate.guid, entityUpdate);
                     }
                     if (entityUpdate.name != null) {
                         RefreshPlayerlist();
@@ -614,14 +614,14 @@ namespace Bridge {
                 case 0:
                     var query = new Query(sreader);
                     foreach (var item in query.players) {
-                        if (!players.ContainsKey(item.Key)) {
-                            players.Add(item.Key, new EntityUpdate());
+                        if (!dynamicEntities.ContainsKey(item.Key)) {
+                            dynamicEntities.Add(item.Key, new EntityUpdate());
                         }
-                        players[item.Key].guid = item.Key;
-                        players[item.Key].name = item.Value;
+                        dynamicEntities[item.Key].guid = item.Key;
+                        dynamicEntities[item.Key].name = item.Value;
                     }
                     form.Invoke(new Action(form.listBoxPlayers.Items.Clear));
-                    foreach (var playerData in players.Values) {
+                    foreach (var playerData in dynamicEntities.Values) {
                         form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(playerData.name)));
                     }
                     break;
@@ -636,7 +636,7 @@ namespace Bridge {
 
         public static void RefreshPlayerlist() {
             form.Invoke((Action)form.listBoxPlayers.Items.Clear);
-            foreach (var player in players.Values) {
+            foreach (var player in dynamicEntities.Values) {
                 form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(player.name)));
             }
         }
@@ -648,9 +648,9 @@ namespace Bridge {
                 return;
             }
 
-            bool spec = players[guid].specialization == 1;
+            bool spec = dynamicEntities[guid].specialization == 1;
             bool space = hotkeyID == 1;
-            switch ((EntityClass)players[guid].entityClass) {
+            switch ((EntityClass)dynamicEntities[guid].entityClass) {
                 case EntityClass.Rogue when spec:
                     #region ninja
                     if (hotkey == HotkeyID.ctrlSpace) {
@@ -660,8 +660,8 @@ namespace Bridge {
                         break;
                     }
                     #region blink
-                    if (players.ContainsKey(lastTarget)) {
-                        CwRam.Teleport(players[guid].position);
+                    if (dynamicEntities.ContainsKey(lastTarget)) {
+                        CwRam.Teleport(dynamicEntities[guid].position);
                     }
                     #endregion
                     break;
@@ -776,7 +776,7 @@ namespace Bridge {
                                 z = 1f
                             },
                             alpha = 1f,
-                            position = players[specialMove.Guid].position
+                            position = dynamicEntities[specialMove.Guid].position
                         });
                         fakeSmoke.Write(cwriter);
                         #endregion
