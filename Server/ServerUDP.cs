@@ -223,7 +223,7 @@ namespace Server {
                 case DatagramID.dynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
-
+                    Console.WriteLine(entityUpdate.guid);
                     string ACmessage = AntiCheat.Inspect(entityUpdate);
                     if (ACmessage != null) {
                         //var kickMessage = new ChatMessage() {
@@ -245,7 +245,7 @@ namespace Server {
                     }
                     if (!entityUpdate.IsEmpty) {
                         //entityUpdate.Broadcast(players, 0);
-                        BroadcastUDP(entityUpdate.Data, source);
+                        BroadcastUDP(entityUpdate.CreateDatagram(), source);
                         if (entityUpdate.HP == 0 && source.entityData.HP > 0) {
                             BroadcastUDP(Tomb.Show(source).Data);
                         }

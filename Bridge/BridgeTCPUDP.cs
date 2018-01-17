@@ -205,7 +205,7 @@ namespace Bridge {
                 case DatagramID.dynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
-
+                    form.Log("#", Color.BlanchedAlmond);
                     if (entityUpdate.guid == guid) {
                         CwRam.Teleport(entityUpdate.position);
                         break;
@@ -444,6 +444,7 @@ namespace Bridge {
                     }
                     break;
                 default:
+                    form.Log("unknown datagram ID: " + datagram[0], Color.Red);
                     break;
             }
         }
@@ -462,7 +463,9 @@ namespace Bridge {
                     if (entityUpdate.name != null) {
                         RefreshPlayerlist();
                     }
-                    SendUDP(entityUpdate.CreateDatagram());
+                    if (!entityUpdate.IsEmpty) {
+                        SendUDP(entityUpdate.CreateDatagram());
+                    }
                     break;
                 #endregion
                 case PacketID.entityAction:
