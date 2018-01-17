@@ -20,6 +20,7 @@ namespace Server {
         TcpListener tcpListener;
         public ServerUpdate worldUpdate = new ServerUpdate();
         Dictionary<ushort, Player> players = new Dictionary<ushort, Player>();
+        Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
         List<Ban> bans; //MAC|IP 
         Dictionary<string, string> accounts;
 
@@ -153,10 +154,10 @@ namespace Server {
             player.writer.Write(false);//not banned
 
             ushort newGuid = 1;
-            while (players.ContainsKey(newGuid)) {//find lowest available guid
+            while (dynamicEntities.ContainsKey(newGuid)) {//find lowest available guid
                 newGuid++;
             }
-            player.entityData.guid = newGuid;
+            player.guid = newGuid;
             players.Add(newGuid, player);
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(player.IpEndPoint.Address + " connected");
@@ -167,9 +168,10 @@ namespace Server {
                     ProcessPacket(packetID, player);
                 }
                 catch (IOException) {
-                    players.Remove((ushort)player.entityData.guid);
+                    players.Remove(player.guid);
+                    dynamicEntities.Remove(player.guid);
                     var disconnect = new Disconnect() {
-                        Guid = (ushort)player.entityData.guid
+                        Guid = (ushort)player.guid
                     };
                     BroadcastUDP(disconnect.data);
 
@@ -204,14 +206,14 @@ namespace Server {
         public void ProcessPacket(byte packetID, Player source) {
             switch (packetID) {
                 case 0://query
-                    var query = new Query("Exceed Official", 65535);
+                    //var query = new Query("Exceed Official", 65535);
 
-                    foreach (var player in players.Values) {
-                        if (player.playing && player.entityData.name != null) {
-                            query.players.Add((ushort)player.entityData.guid, player.entityData.name);
-                        }
-                    }
-                    query.Write(source.writer);
+                    //foreach (var player in players.Values) {
+                    //    if (player.playing && dynamicEntities[player.guid].name != null) {
+                    //        query.players.Add((ushort)player.entityData.guid, player.entityData.name);
+                    //    }
+                    //}
+                    //query.Write(source.writer);
                     break;
                 default:
                     Console.WriteLine("unknown packet: " + packetID);
@@ -239,19 +241,19 @@ namespace Server {
                     }
 
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
-                    if (!source.entityData.IsEmpty) { //dont filter the first packet
+                    if (!dynamicEntities[source.guid].IsEmpty) { //dont filter the first packet
                         //entityUpdate.Filter(player.entityData);
                     }
                     if (!entityUpdate.IsEmpty) {
                         //entityUpdate.Broadcast(players, 0);
                         BroadcastUDP(entityUpdate.CreateDatagram(), source);
-                        if (entityUpdate.HP == 0 && source.entityData.HP > 0) {
-                            BroadcastUDP(Tomb.Show(source).Data);
+                        if (entityUpdate.HP == 0 && dynamicEntities[source.guid].HP > 0) {
+                            BroadcastUDP(Tomb.Show(dynamicEntities[source.guid]).Data);
                         }
-                        else if (source.entityData.HP == 0 && entityUpdate.HP > 0) {
+                        else if (dynamicEntities[source.guid].HP == 0 && entityUpdate.HP > 0) {
                             BroadcastUDP(Tomb.Hide(source).Data);
                         }
-                        entityUpdate.Merge(source.entityData);
+                        entityUpdate.Merge(dynamicEntities[source.guid]);
                     }
                     break;
                 #endregion
@@ -320,7 +322,7 @@ namespace Server {
                     }
                     else {
                         Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.Write(players[chat.Sender].entityData.name + ": ");
+                        Console.Write(dynamicEntities[chat.Sender].name + ": ");
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.WriteLine(chat.Text);
                         BroadcastUDP(datagram, null, true); //pass to all players
@@ -336,14 +338,14 @@ namespace Server {
                 case DatagramID.connect:
                     #region connect
                     var connect = new Connect(datagram) {
-                        Guid = (ushort)source.entityData.guid,
+                        Guid = (ushort)source.guid,
                         Mapseed = Database.mapseed
                     };
                     SendUDP(connect.data, source);
 
                     foreach (Player player in players.Values) {
                         if (player.playing) {
-                            SendUDP(player.entityData.Data, source);
+                            SendUDP(dynamicEntities[player.guid].CreateDatagram(), source);
                         }
                     }
                     source.playing = true;
@@ -357,7 +359,9 @@ namespace Server {
                     var disconnect = new Disconnect(datagram);
                     source.playing = false;
                     BroadcastUDP(datagram, source, true);
-                    source.entityData = new EntityUpdate() { guid = source.entityData.guid };
+                    dynamicEntities[source.guid] = new EntityUpdate() {
+                        guid = source.guid
+                    };
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine(source.IpEndPoint.Address + " is now lurking");
@@ -369,7 +373,7 @@ namespace Server {
                     switch (specialMove.Id) {
                         case SpecialMoveID.taunt:
                             var targetGuid = specialMove.Guid;
-                            specialMove.Guid = (ushort)source.entityData.guid;
+                            specialMove.Guid = source.guid;
                             SendUDP(specialMove.data, players[targetGuid]);
                             break;
                         case SpecialMoveID.cursedArrow:
@@ -403,7 +407,7 @@ namespace Server {
 
         public void Ban(ushort guid) {
             var player = players[guid];
-            bans.Add(new Ban(player.entityData.name, player.entityData.name, player.MAC));
+            bans.Add(new Ban(dynamicEntities[player.guid].name, player.IpEndPoint.Address.ToString(), player.MAC));
             player.tcp.Close();
             File.WriteAllText(bansFilePath, JsonConvert.SerializeObject(bans));
         }

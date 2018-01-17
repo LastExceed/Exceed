@@ -13,7 +13,7 @@ namespace Resources {
         public bool available = true;
         public bool admin = false;
         public IPEndPoint IpEndPoint { get; private set; }
-        public EntityUpdate entityData = new EntityUpdate();
+        public ushort guid;
         public string MAC;
         public ushort lastTarget;
         public Stopwatch lagMeter;
