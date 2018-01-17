@@ -20,11 +20,11 @@ namespace Bridge {
         public static TcpListener tcpListener = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345); //hardcoded because client port can't be changed
         public static BinaryWriter swriter, cwriter;
         public static BinaryReader sreader, creader;
-        public static long guid;
+        public static ushort guid;
         public static Form1 form;
         public static bool connected = false;
         public static Dictionary<long, EntityUpdate> dynamicEntities = new Dictionary<long, EntityUpdate>();
-        public static long lastTarget;
+        public static ushort lastTarget;
 
         public static void Connect() {
             form.Log("connecting...", Color.DarkGray);
@@ -151,7 +151,7 @@ namespace Bridge {
                     }
                     catch (IOException) {
                         if (connected) {
-                            SendUDP(new Disconnect() { Guid = guid }.data);
+                            SendUDP(new Disconnect() { Guid = (guid)}.data);
                         }
                         break;
                     }
