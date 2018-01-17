@@ -242,9 +242,7 @@ namespace Server {
                     }
 
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
-                    if (!dynamicEntities[source.guid].IsEmpty) { //dont filter the first packet
-                        //entityUpdate.Filter(player.entityData);
-                    }
+
                     if (!entityUpdate.IsEmpty) {
                         //entityUpdate.Broadcast(players, 0);
                         BroadcastUDP(entityUpdate.CreateDatagram(), source);
