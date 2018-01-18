@@ -585,6 +585,9 @@ namespace Bridge {
                         new MapSeed() {
                             seed = mapseed
                         }.Write(cwriter);
+                        foreach (var dynamicEntity in dynamicEntities.Values.ToList()) {
+                            dynamicEntity.Write(cwriter);
+                        }
                     }
                     break;
                 #endregion
