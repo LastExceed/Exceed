@@ -473,13 +473,15 @@ namespace Bridge {
                                 sender = 0
                             };
                             x.Write(cwriter);
-
                             break;
                         case ActionType.pickup:
                             break;
                         case ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
                             if (form.radioButtonDestroy.Checked) {
-                                new ChatMessage() { message = "item destroyed" }.Write(cwriter);
+                                new ChatMessage() {
+                                    message = "item destroyed",
+                                    sender = 0,
+                                }.Write(cwriter);
                             }
                             else {
                                 var serverUpdate = new ServerUpdate();
@@ -495,10 +497,6 @@ namespace Bridge {
                             }
                             break;
                         case ActionType.callPet:
-                            var petCall = new SpecialMove() {
-                                Guid = guid
-                            };
-                            SendUDP(petCall.data);
                             break;
                         default:
                             //unknown type
@@ -630,7 +628,7 @@ namespace Bridge {
 
         public static void RefreshPlayerlist() {
             form.Invoke((Action)form.listBoxPlayers.Items.Clear);
-            foreach (var dynamicEntity in dynamicEntities.Values) {
+            foreach (var dynamicEntity in dynamicEntities.Values.ToList()) {
                 if (dynamicEntity.hostility == Hostility.player) {
                     form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(dynamicEntity.name)));
                 }
