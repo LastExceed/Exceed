@@ -17,7 +17,6 @@ namespace Resources {
 
         public Player(TcpClient client) {
             tcp = client;
-            tcp.NoDelay = true;
 
             Stream stream = tcp.GetStream();
             writer = new BinaryWriter(stream);
