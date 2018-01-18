@@ -145,14 +145,6 @@ namespace Bridge {
                 creader = new BinaryReader(stream);
                 cwriter = new BinaryWriter(stream);
 
-                new Join() {
-                    guid = guid,
-                    junk = new byte[0x1168]
-                }.Write(cwriter);
-                new MapSeed() {
-                    seed = mapseed
-                }.Write(cwriter);
-
                 clientConnected = true;
 
                 while (true) {
@@ -586,8 +578,13 @@ namespace Bridge {
                         version.Write(cwriter);
                     }
                     else {
-                        var connect = new Connect();
-                        SendUDP(connect.data);
+                        new Join() {
+                            guid = guid,
+                            junk = new byte[0x1168]
+                        }.Write(cwriter);
+                        new MapSeed() {
+                            seed = mapseed
+                        }.Write(cwriter);
                     }
                     break;
                 #endregion
