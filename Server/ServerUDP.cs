@@ -196,9 +196,9 @@ namespace Server {
         public void SendUDP(byte[] data, Player target) {
             udpClient.Send(data, data.Length, target.IpEndPoint);
         }
-        public void BroadcastUDP(byte[] data, Player toSkip = null, bool includeNotPlaying = false) {
+        public void BroadcastUDP(byte[] data, Player toSkip = null) {
             foreach (var player in players.Values) {
-                if (player != toSkip && (player.playing || includeNotPlaying)) {
+                if (player != toSkip) {
                     SendUDP(data, player);
                 }
             }
@@ -326,7 +326,7 @@ namespace Server {
                         Console.Write(dynamicEntities[chat.Sender].name + ": ");
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.WriteLine(chat.Text);
-                        BroadcastUDP(datagram, null, true); //pass to all players
+                        BroadcastUDP(datagram, null); //pass to all players
                     }
                     break;
                 #endregion
@@ -352,7 +352,6 @@ namespace Server {
                             SendUDP(entity.CreateDatagram(), source);
                         }
                     }
-                    source.playing = true;
                     //Task.Delay(100).ContinueWith(t => Load_world_delayed(source)); //WIP, causes crash when player disconnects before executed
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine(source.IpEndPoint.Address + " is now playing");
@@ -361,8 +360,7 @@ namespace Server {
                 case DatagramID.disconnect:
                     #region disconnect
                     var disconnect = new Disconnect(datagram);
-                    source.playing = false;
-                    BroadcastUDP(datagram, source, true);
+                    BroadcastUDP(datagram, source);
                     dynamicEntities[source.guid] = new EntityUpdate() {
                         guid = source.guid
                     };
