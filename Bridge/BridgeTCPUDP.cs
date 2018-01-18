@@ -484,6 +484,18 @@ namespace Bridge {
                             }
                             break;
                         case ActionType.callPet:
+                            var su = new ServerUpdate();
+                            su.missions.Add(new ServerUpdate.Mission() {
+                                id = 1,
+                                monsterID = EntityType.Aim,
+                                level = 1,
+                                chunkX = 1,
+                                chunkY = 1,
+                                sectionX = 1,
+                                sectionY = 1,
+                                state = MissionState.finished
+                            });
+                            su.Write(cwriter);
                             break;
                         default:
                             //unknown type

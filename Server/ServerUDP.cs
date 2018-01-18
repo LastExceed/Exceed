@@ -250,22 +250,16 @@ namespace Server {
                     if (entityUpdate.name != null) {
                         //Announce.Join(entityUpdate.name, player.entityData.name, players);
                     }
-
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
-                    if (!dynamicEntities[source.guid].IsEmpty) { //dont filter the first packet
-                        //entityUpdate.Filter(player.entityData);
+                    BroadcastUDP(entityUpdate.CreateDatagram(), source);
+
+                    if (entityUpdate.HP == 0 && dynamicEntities[source.guid].HP > 0) {
+                        BroadcastUDP(Tomb.Show(dynamicEntities[source.guid]).Data);
                     }
-                    if (!entityUpdate.IsEmpty) {
-                        //entityUpdate.Broadcast(players, 0);
-                        BroadcastUDP(entityUpdate.CreateDatagram(), source);
-                        if (entityUpdate.HP == 0 && dynamicEntities[source.guid].HP > 0) {
-                            BroadcastUDP(Tomb.Show(dynamicEntities[source.guid]).Data);
-                        }
-                        else if (dynamicEntities[source.guid].HP == 0 && entityUpdate.HP > 0) {
-                            BroadcastUDP(Tomb.Hide(source).Data);
-                        }
-                        entityUpdate.Merge(dynamicEntities[source.guid]);
+                    else if (dynamicEntities[source.guid].HP == 0 && entityUpdate.HP > 0) {
+                        BroadcastUDP(Tomb.Hide(source).Data);
                     }
+                    entityUpdate.Merge(dynamicEntities[source.guid]);
                     break;
                 #endregion
                 case DatagramID.attack:
@@ -355,7 +349,6 @@ namespace Server {
                     };
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(source.IpEndPoint.Address + " is now lurking");
                     break;
                 #endregion
                 case DatagramID.specialMove:
