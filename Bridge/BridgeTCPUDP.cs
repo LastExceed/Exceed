@@ -21,6 +21,7 @@ namespace Bridge {
         public static BinaryWriter swriter, cwriter;
         public static BinaryReader sreader, creader;
         public static ushort guid;
+        public static int mapseed;
         public static Form1 form;
         public static bool connectedToServer = false, clientConnected = false;
         public static Dictionary<long, EntityUpdate> dynamicEntities = new Dictionary<long, EntityUpdate>();
@@ -64,6 +65,7 @@ namespace Bridge {
             swriter.Write(NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault());
             switch ((AuthResponse)sreader.ReadByte()) {
                 case AuthResponse.success:
+                    form.Log("success\n", Color.Green);
                     if (sreader.ReadBoolean()) {//if banned
                         MessageBox.Show(sreader.ReadString());//ban message
                         form.Log("you are banned\n", Color.Red);
@@ -80,7 +82,8 @@ namespace Bridge {
                     form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
                     return;
             }
-            form.Log("success\n", Color.Green);
+            guid = sreader.ReadUInt16();
+            mapseed = sreader.ReadInt32();
             connectedToServer = true;
             
             swriter.Write((byte)0);//request query
@@ -135,17 +138,26 @@ namespace Bridge {
                 finally {
                     tcpListener.Stop();
                 }
-                clientConnected = true;
                 form.Log("client connected\n", Color.Green);
+
                 tcpToClient.NoDelay = true;
                 Stream stream = tcpToClient.GetStream();
                 creader = new BinaryReader(stream);
                 cwriter = new BinaryWriter(stream);
-                int packetID;
+
+                new Join() {
+                    guid = guid,
+                    junk = new byte[0x1168]
+                }.Write(cwriter);
+                new MapSeed() {
+                    seed = mapseed
+                }.Write(cwriter);
+
+                clientConnected = true;
 
                 while (true) {
                     try {
-                        packetID = creader.ReadInt32();
+                        int packetID = creader.ReadInt32();
                         //MessageBox.Show("" + packetID);
                         ProcessClientPacket(packetID);
                     }
@@ -357,23 +369,6 @@ namespace Bridge {
                         spread = particleDatagram.Spread
                     };
                     serverUpdate.particles.Add(particleSubPacket);
-                    break;
-                #endregion
-                case DatagramID.connect:
-                    #region connect
-                    var connect = new Connect(datagram);
-                    guid = connect.Guid;
-
-                    var join = new Join() {
-                        guid = guid,
-                        junk = new byte[0x1168]
-                    };
-                    join.Write(cwriter);
-
-                    var mapseed = new MapSeed() {
-                        seed = connect.Mapseed
-                    };
-                    if (clientConnected) mapseed.Write(cwriter);
                     break;
                 #endregion
                 case DatagramID.disconnect:

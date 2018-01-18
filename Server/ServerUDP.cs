@@ -153,14 +153,24 @@ namespace Server {
             }
             player.writer.Write(false);//not banned
 
-            ushort newGuid = 1;
-            while (dynamicEntities.ContainsKey(newGuid)) {//find lowest available guid
-                newGuid++;
+            player.guid = 1;
+            while (dynamicEntities.ContainsKey(player.guid)) {//find lowest available guid
+                player.guid++;
             }
-            player.guid = newGuid;
-            players.Add(newGuid, player);
-            dynamicEntities.Add(newGuid, null);
-            Console.ForegroundColor = ConsoleColor.Yellow;
+
+            player.writer.Write(player.guid);
+            player.writer.Write(Database.mapseed);
+
+            foreach (EntityUpdate entity in dynamicEntities.Values) {
+                    SendUDP(entity.CreateDatagram(), player);
+            }
+            //Task.Delay(100).ContinueWith(t => Load_world_delayed(source)); //WIP, causes crash when player disconnects before executed
+            
+            players.Add(player.guid, player);
+            dynamicEntities.Add(player.guid, new EntityUpdate() {
+                guid = player.guid,
+            });
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(player.IpEndPoint.Address + " connected");
 
             while (true) {
@@ -177,7 +187,7 @@ namespace Server {
                     BroadcastUDP(disconnect.data);
 
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(newGuid + " disconnected");
+                    Console.WriteLine(player.IpEndPoint.Address + " disconnected");
                     break;
                 }
             }
@@ -334,27 +344,6 @@ namespace Server {
                     #region interaction
                     var interaction = new Interaction(datagram);
                     BroadcastUDP(datagram, source); //pass to all players except source
-                    break;
-                #endregion
-                case DatagramID.connect:
-                    #region connect
-                    var connect = new Connect(datagram) {
-                        Guid = (ushort)source.guid,
-                        Mapseed = Database.mapseed
-                    };
-                    dynamicEntities[source.guid] = new EntityUpdate() {
-                        guid = source.guid,
-                    };
-                    SendUDP(connect.data, source);
-
-                    foreach (EntityUpdate entity in dynamicEntities.Values) {
-                        if (entity != null && entity.guid != source.guid) {
-                            SendUDP(entity.CreateDatagram(), source);
-                        }
-                    }
-                    //Task.Delay(100).ContinueWith(t => Load_world_delayed(source)); //WIP, causes crash when player disconnects before executed
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine(source.IpEndPoint.Address + " is now playing");
                     break;
                 #endregion
                 case DatagramID.disconnect:
