@@ -39,10 +39,14 @@ namespace Resources.Datagram {
             get => (ProjectileType)data[45];
             set => data[45] = (byte)value;
         }
-         
+        public ushort Source {
+            get => BitConverter.ToUInt16(data, 46);
+            set => BitConverter.GetBytes(value).CopyTo(data, 46);
+        }
+        
         public Projectile() {
-            data = new byte[46];
-            DatagramID = DatagramID.shoot;
+            data = new byte[48];
+            DatagramID = DatagramID.Projectile;
         }
 
         public Projectile(byte[] data) : base(data) { }
