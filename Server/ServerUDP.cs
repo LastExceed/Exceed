@@ -179,10 +179,14 @@ namespace Server {
                 catch (IOException) {
                     players.Remove(player.guid);
                     dynamicEntities.Remove(player.guid);
-                    var disconnect = new RemoveDynamicEntity() {
+                    BroadcastUDP(new RemoveDynamicEntity() {
                         Guid = (ushort)player.guid
-                    };
-                    BroadcastUDP(disconnect.data);
+                    }.data);
+                    if (player.tomb != null) {
+                        BroadcastUDP(new RemoveDynamicEntity() {
+                            Guid = (ushort)player.tomb
+                        }.data);
+                    }
 
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(player.IpEndPoint.Address + " disconnected");
@@ -361,9 +365,13 @@ namespace Server {
                     break;
                 #endregion
                 case DatagramID.RemoveDynamicEntity:
-                    #region disconnect
-                    var disconnect = new RemoveDynamicEntity(datagram);
-                    BroadcastUDP(datagram, source);
+                    #region removeDynamicEntity
+                    var remove = new RemoveDynamicEntity(datagram);
+                    BroadcastUDP(remove.data, source);
+                    if (source.tomb != null) {
+                        remove.Guid = (ushort)source.tomb;
+                        BroadcastUDP(remove.data);
+                    }
                     dynamicEntities[source.guid] = new EntityUpdate() {
                         guid = source.guid
                     };
