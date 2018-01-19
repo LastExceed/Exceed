@@ -250,18 +250,23 @@ namespace Bridge {
                 #endregion
                 case DatagramID.shoot:
                     #region shoot
-                    var shootDatagram = new Projectile(datagram);
+                    var projectile = new Projectile(datagram);
 
-                    var shootPacket = new Shoot() {
-                        position = shootDatagram.Position,
-                        velocity = shootDatagram.Velocity,
-                        scale = shootDatagram.Scale,
-                        particles = shootDatagram.Particles,
-                        projectile = shootDatagram.Type,
-                        chunkX = (int)shootDatagram.Position.x / 0x1000000,
-                        chunkY = (int)shootDatagram.Position.y / 0x1000000
+                    var shoot = new Shoot() {
+                        attacker = projectile.Source,
+                        position = projectile.Position,
+                        velocity = projectile.Velocity,
+                        scale = projectile.Scale,
+                        particles = projectile.Particles,
+                        projectile = projectile.Type,
+                        chunkX = (int)projectile.Position.x / 0x1000000,
+                        chunkY = (int)projectile.Position.y / 0x1000000
                     };
-                    serverUpdate.shoots.Add(shootPacket);
+                    var angle = Math.Atan2(shoot.velocity.y, shoot.velocity.x);
+                    shoot.position.x += (long)(Math.Cos(angle) * 0x10000);
+                    shoot.position.y += (long)(Math.Sin(angle) * 0x10000);
+
+                    serverUpdate.shoots.Add(shoot);
                     writeServerUpdate = true;
                     break;
                 #endregion
@@ -542,7 +547,8 @@ namespace Bridge {
                         Velocity = shoot.velocity,
                         Scale = shoot.scale,
                         Particles = shoot.particles,
-                        Type = shoot.projectile
+                        Type = shoot.projectile,
+                        Source = (ushort)shoot.attacker,
                     };
                     SendUDP(projectile.data);
                     break;

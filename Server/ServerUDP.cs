@@ -291,7 +291,7 @@ namespace Server {
                     var attack = new Attack(datagram);
                     source.lastTarget = attack.Target;
                     if (players.ContainsKey(attack.Target)) {//in case the target is a tombstone
-                        SendUDP(datagram, players[attack.Target]);
+                        SendUDP(attack.data, players[attack.Target]);
                     }
                     var x = new PassiveProc();
                     break;
@@ -299,7 +299,7 @@ namespace Server {
                 case DatagramID.shoot:
                     #region shoot
                     var shoot = new Resources.Datagram.Projectile(datagram);
-                    BroadcastUDP(datagram, source); //pass to all players except source
+                    BroadcastUDP(shoot.data, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.proc:
@@ -340,7 +340,7 @@ namespace Server {
                             //unknown proc type
                             break;
                     }
-                    BroadcastUDP(datagram, source); //pass to all players except source
+                    BroadcastUDP(proc.data, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.chat:
@@ -354,14 +354,14 @@ namespace Server {
                         Console.Write(dynamicEntities[chat.Sender].name + ": ");
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.WriteLine(chat.Text);
-                        BroadcastUDP(datagram, null); //pass to all players
+                        BroadcastUDP(chat.data, null); //pass to all players
                     }
                     break;
                 #endregion
                 case DatagramID.interaction:
                     #region interaction
                     var interaction = new Interaction(datagram);
-                    BroadcastUDP(datagram, source); //pass to all players except source
+                    BroadcastUDP(interaction.data, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.RemoveDynamicEntity:
