@@ -248,8 +248,8 @@ namespace Bridge {
                     writeServerUpdate = true;
                     break;
                 #endregion
-                case DatagramID.shoot:
-                    #region shoot
+                case DatagramID.Projectile:
+                    #region Projectile
                     var projectile = new Projectile(datagram);
 
                     var shoot = new Shoot() {

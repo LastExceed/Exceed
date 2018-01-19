@@ -296,8 +296,8 @@ namespace Server {
                     var x = new PassiveProc();
                     break;
                 #endregion
-                case DatagramID.shoot:
-                    #region shoot
+                case DatagramID.Projectile:
+                    #region Projectile
                     var shoot = new Resources.Datagram.Projectile(datagram);
                     BroadcastUDP(shoot.data, source); //pass to all players except source
                     break;

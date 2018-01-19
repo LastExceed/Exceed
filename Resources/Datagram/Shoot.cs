@@ -46,7 +46,7 @@ namespace Resources.Datagram {
         
         public Projectile() {
             data = new byte[48];
-            DatagramID = DatagramID.shoot;
+            DatagramID = DatagramID.Projectile;
         }
 
         public Projectile(byte[] data) : base(data) { }

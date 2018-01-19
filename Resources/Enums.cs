@@ -17,7 +17,7 @@
     public enum DatagramID : byte {
         dynamicUpdate,
         attack,
-        shoot,
+        Projectile,
         proc,
         chat,
         time,
