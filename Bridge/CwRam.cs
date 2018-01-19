@@ -39,5 +39,11 @@ namespace Bridge {
         public static void Fear(int duration) {
             CwRam.memory.WriteInt(CwRam.EntityStart + 0x130, duration);//ice spirit effect
         }
+
+        public static void RemoveFog() {
+            memory.WriteBytes(memory.baseAddress + 0x89316, new byte[8] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
+            memory.WriteBytes(memory.baseAddress + 0x89368, new byte[10] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
+            memory.WriteSingle(memory.ReadInt(memory.baseAddress + 0x0036b1c8) + 0x1D4, 1500f);
+        }
     }
 }

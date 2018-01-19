@@ -55,6 +55,12 @@ namespace ReadWriteProcessMemory {
         public ulong ReadULong(int pAddress) {
             return BitConverter.ToUInt64(ReadBytes(pAddress, 8), 0);
         }
+        public float ReadSingle(int pAddress) {
+            return BitConverter.ToSingle(ReadBytes(pAddress, 4), 0);
+        }
+        public double ReadDouble(int pAddress) {
+            return BitConverter.ToDouble(ReadBytes(pAddress, 8), 0);
+        }
         //writing children
         public void WriteByte(int pAddress, byte pValue) {
             WriteBytes(pAddress, new byte[] { pValue });
@@ -79,6 +85,12 @@ namespace ReadWriteProcessMemory {
             WriteBytes(pAddress, BitConverter.GetBytes(pValue));
         }
         public void WriteULong(int pAddress, ulong pValue) {
+            WriteBytes(pAddress, BitConverter.GetBytes(pValue));
+        }
+        public void WriteSingle(int pAddress, float pValue) {
+            WriteBytes(pAddress, BitConverter.GetBytes(pValue));
+        }
+        public void WriteDouble(int pAddress, double pValue) {
             WriteBytes(pAddress, BitConverter.GetBytes(pValue));
         }
     }

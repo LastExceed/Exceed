@@ -600,9 +600,9 @@ namespace Bridge {
                             guid = guid,
                             junk = new byte[0x1168]
                         }.Write(cwriter);
-                        new MapSeed() {
-                            seed = mapseed
-                        }.Write(cwriter);
+                        //new MapSeed() {
+                        //    seed = mapseed
+                        //}.Write(cwriter);
                         foreach (var dynamicEntity in dynamicEntities.Values.ToList()) {
                             dynamicEntity.Write(cwriter);
                         }
