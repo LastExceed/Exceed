@@ -156,7 +156,7 @@ namespace Bridge {
                     catch (IOException) {
                         clientConnected = false;
                         if (connectedToServer) {
-                            SendUDP(new Disconnect() { Guid = (guid)}.data);
+                            SendUDP(new RemoveDynamicEntity() { Guid = (guid)}.data);
                         }
                         dynamicEntities.Remove(guid);
                         form.Log("client disconnected\n", Color.Red);
@@ -363,16 +363,16 @@ namespace Bridge {
                     serverUpdate.particles.Add(particleSubPacket);
                     break;
                 #endregion
-                case DatagramID.disconnect:
-                    #region disconnect
-                    var disconnect = new Disconnect(datagram);
-                    var pdc = new EntityUpdate() {
-                        guid = disconnect.Guid,
+                case DatagramID.RemoveDynamicEntity:
+                    #region RemoveDynamicEntity
+                    var rde = new RemoveDynamicEntity(datagram);
+                    entityUpdate = new EntityUpdate() {
+                        guid = rde.Guid,
                         hostility = (Hostility)255, //workaround for DC because i dont like packet2
                         HP = 0
                     };
-                    if (clientConnected) pdc.Write(cwriter);
-                    dynamicEntities.Remove(disconnect.Guid);
+                    if (clientConnected) entityUpdate.Write(cwriter);
+                    dynamicEntities.Remove(rde.Guid);
                     RefreshPlayerlist();
                     break;
                 #endregion

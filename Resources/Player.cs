@@ -11,6 +11,7 @@ namespace Resources {
         public bool admin = false;
         public IPEndPoint IpEndPoint { get; private set; }
         public ushort guid;
+        public ushort? tomb;
         public string MAC;
         public ushort lastTarget;
         public Stopwatch lagMeter;
