@@ -153,14 +153,24 @@ namespace Server {
             }
             player.writer.Write(false);//not banned
 
-            ushort newGuid = 1;
-            while (dynamicEntities.ContainsKey(newGuid)) {//find lowest available guid
-                newGuid++;
+            player.guid = 1;
+            while (dynamicEntities.ContainsKey(player.guid)) {//find lowest available guid
+                player.guid++;
             }
-            player.guid = newGuid;
-            players.Add(newGuid, player);
-            dynamicEntities.Add(newGuid, null);
-            Console.ForegroundColor = ConsoleColor.Yellow;
+
+            player.writer.Write(player.guid);
+            player.writer.Write(Database.mapseed);
+
+            foreach (EntityUpdate entity in dynamicEntities.Values) {
+                    SendUDP(entity.CreateDatagram(), player);
+            }
+            //Task.Delay(100).ContinueWith(t => Load_world_delayed(source)); //WIP, causes crash when player disconnects before executed
+            
+            players.Add(player.guid, player);
+            dynamicEntities.Add(player.guid, new EntityUpdate() {
+                guid = player.guid,
+            });
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(player.IpEndPoint.Address + " connected");
 
             while (true) {
@@ -177,7 +187,7 @@ namespace Server {
                     BroadcastUDP(disconnect.data);
 
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(newGuid + " disconnected");
+                    Console.WriteLine(player.IpEndPoint.Address + " disconnected");
                     break;
                 }
             }
@@ -196,9 +206,9 @@ namespace Server {
         public void SendUDP(byte[] data, Player target) {
             udpClient.Send(data, data.Length, target.IpEndPoint);
         }
-        public void BroadcastUDP(byte[] data, Player toSkip = null, bool includeNotPlaying = false) {
+        public void BroadcastUDP(byte[] data, Player toSkip = null) {
             foreach (var player in players.Values) {
-                if (player != toSkip && (player.playing || includeNotPlaying)) {
+                if (player != toSkip) {
                     SendUDP(data, player);
                 }
             }
@@ -240,20 +250,16 @@ namespace Server {
                     if (entityUpdate.name != null) {
                         //Announce.Join(entityUpdate.name, player.entityData.name, players);
                     }
-
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
+                    BroadcastUDP(entityUpdate.CreateDatagram(), source);
 
-                    if (!entityUpdate.IsEmpty) {
-                        //entityUpdate.Broadcast(players, 0);
-                        BroadcastUDP(entityUpdate.CreateDatagram(), source);
-                        if (entityUpdate.HP == 0 && dynamicEntities[source.guid].HP > 0) {
-                            BroadcastUDP(Tomb.Show(dynamicEntities[source.guid]).Data);
-                        }
-                        else if (dynamicEntities[source.guid].HP == 0 && entityUpdate.HP > 0) {
-                            BroadcastUDP(Tomb.Hide(source).Data);
-                        }
-                        entityUpdate.Merge(dynamicEntities[source.guid]);
+                    if (entityUpdate.HP == 0 && dynamicEntities[source.guid].HP > 0) {
+                        BroadcastUDP(Tomb.Show(dynamicEntities[source.guid]).Data);
                     }
+                    else if (dynamicEntities[source.guid].HP == 0 && entityUpdate.HP > 0) {
+                        BroadcastUDP(Tomb.Hide(source).Data);
+                    }
+                    entityUpdate.Merge(dynamicEntities[source.guid]);
                     break;
                 #endregion
                 case DatagramID.attack:
@@ -324,7 +330,7 @@ namespace Server {
                         Console.Write(dynamicEntities[chat.Sender].name + ": ");
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.WriteLine(chat.Text);
-                        BroadcastUDP(datagram, null, true); //pass to all players
+                        BroadcastUDP(datagram, null); //pass to all players
                     }
                     break;
                 #endregion
@@ -334,39 +340,15 @@ namespace Server {
                     BroadcastUDP(datagram, source); //pass to all players except source
                     break;
                 #endregion
-                case DatagramID.connect:
-                    #region connect
-                    var connect = new Connect(datagram) {
-                        Guid = (ushort)source.guid,
-                        Mapseed = Database.mapseed
-                    };
-                    dynamicEntities[source.guid] = new EntityUpdate() {
-                        guid = source.guid,
-                    };
-                    SendUDP(connect.data, source);
-
-                    foreach (EntityUpdate entity in dynamicEntities.Values) {
-                        if (entity != null && entity.guid != source.guid) {
-                            SendUDP(entity.CreateDatagram(), source);
-                        }
-                    }
-                    source.playing = true;
-                    //Task.Delay(100).ContinueWith(t => Load_world_delayed(source)); //WIP, causes crash when player disconnects before executed
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine(source.IpEndPoint.Address + " is now playing");
-                    break;
-                #endregion
                 case DatagramID.disconnect:
                     #region disconnect
                     var disconnect = new Disconnect(datagram);
-                    source.playing = false;
-                    BroadcastUDP(datagram, source, true);
+                    BroadcastUDP(datagram, source);
                     dynamicEntities[source.guid] = new EntityUpdate() {
                         guid = source.guid
                     };
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(source.IpEndPoint.Address + " is now lurking");
                     break;
                 #endregion
                 case DatagramID.specialMove:

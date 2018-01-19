@@ -25,7 +25,6 @@
         staticUpdate,
         block,
         particle,
-        connect,
         disconnect,
         specialMove, //temp
         dummy = 255 //for establishing connection
