@@ -25,7 +25,7 @@
         staticUpdate,
         block,
         particle,
-        disconnect,
+        RemoveDynamicEntity,
         specialMove, //temp
         dummy = 255 //for establishing connection
     }

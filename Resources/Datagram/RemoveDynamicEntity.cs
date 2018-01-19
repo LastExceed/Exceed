@@ -1,16 +1,16 @@
 ﻿using System;
 
 namespace Resources.Datagram {
-    public class Disconnect : Datagram {
+    public class RemoveDynamicEntity : Datagram {
         public ushort Guid {
             get => BitConverter.ToUInt16(data, 1);
             set => BitConverter.GetBytes(value).CopyTo(data, 1);
         }
 
-        public Disconnect() {
+        public RemoveDynamicEntity() {
             data = new byte[3];
-            DatagramID = DatagramID.disconnect;
+            DatagramID = DatagramID.RemoveDynamicEntity;
         }
-        public Disconnect(byte[] data) : base(data) { }
+        public RemoveDynamicEntity(byte[] data) : base(data) { }
     }
 }

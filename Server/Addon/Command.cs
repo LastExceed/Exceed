@@ -75,7 +75,7 @@ namespace Server.Addon {
                             z = 14423162
                         }
                     };
-                    server.SendUDP(entityUpdate.Data, source);
+                    server.SendUDP(entityUpdate.CreateDatagram(), source);
                     break;
 
                 case "load":

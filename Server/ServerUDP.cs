@@ -13,6 +13,7 @@ using Resources;
 using Resources.Datagram;
 using Resources.Packet;
 using Newtonsoft.Json;
+using Resources.Utilities;
 
 namespace Server {
     class ServerUDP {
@@ -153,10 +154,7 @@ namespace Server {
             }
             player.writer.Write(false);//not banned
 
-            player.guid = 1;
-            while (dynamicEntities.ContainsKey(player.guid)) {//find lowest available guid
-                player.guid++;
-            }
+            player.guid = AssignGuid();
 
             player.writer.Write(player.guid);
             player.writer.Write(Database.mapseed);
@@ -181,7 +179,7 @@ namespace Server {
                 catch (IOException) {
                     players.Remove(player.guid);
                     dynamicEntities.Remove(player.guid);
-                    var disconnect = new Disconnect() {
+                    var disconnect = new RemoveDynamicEntity() {
                         Guid = (ushort)player.guid
                     };
                     BroadcastUDP(disconnect.data);
@@ -236,30 +234,52 @@ namespace Server {
                 case DatagramID.dynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
+                    #region antiCheat
                     string ACmessage = AntiCheat.Inspect(entityUpdate);
                     if (ACmessage != null) {
-                        //var kickMessage = new ChatMessage() {
-                        //    message = "illegal " + ACmessage
-                        //};
-                        //kickMessage.Write(player.writer, true);
-                        //Console.WriteLine(player.entityData.name + " kicked for illegal " + kickMessage.message);
-                        //Thread.Sleep(100); //thread is about to run out anyway so np
-                        //Kick(player);
-                        //return;
+                        //kick player
                     }
+                    #endregion
+                    #region announce
                     if (entityUpdate.name != null) {
                         //Announce.Join(entityUpdate.name, player.entityData.name, players);
                     }
+                    #endregion
+                    #region pvp
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
-                    BroadcastUDP(entityUpdate.CreateDatagram(), source);
-
-                    if (entityUpdate.HP == 0 && dynamicEntities[source.guid].HP > 0) {
-                        BroadcastUDP(Tomb.Show(dynamicEntities[source.guid]).Data);
+                    #endregion
+                    #region tombstone
+                    if (entityUpdate.HP <= 0 && dynamicEntities[source.guid].HP > 0) {
+                        //entityUpdate.Merge(dynamicEntities[source.guid]);
+                        var tombstone = new EntityUpdate() {
+                            guid = AssignGuid(),
+                            position = dynamicEntities[source.guid].position,
+                            hostility = Hostility.neutral,
+                            entityType = EntityType.None,
+                            appearance = new EntityUpdate.Appearance() {
+                                character_size = new FloatVector() {
+                                    x = 1,
+                                    y = 1,
+                                    z = 1,
+                                },
+                                head_model = 2155,
+                                head_size = 1
+                            },
+                            HP = 100,
+                            name = "tombstone"
+                        };
+                        source.tomb = (ushort)tombstone.guid;
+                        BroadcastUDP(tombstone.CreateDatagram());
                     }
-                    else if (dynamicEntities[source.guid].HP == 0 && entityUpdate.HP > 0) {
-                        BroadcastUDP(Tomb.Hide(source).Data);
+                    else if (dynamicEntities[source.guid].HP <= 0 && entityUpdate.HP > 0) {
+                        var rde = new RemoveDynamicEntity() {
+                            Guid = (ushort)source.tomb,
+                        };
+                        BroadcastUDP(rde.data);
                     }
+                    #endregion
                     entityUpdate.Merge(dynamicEntities[source.guid]);
+                    BroadcastUDP(entityUpdate.CreateDatagram(), source);
                     break;
                 #endregion
                 case DatagramID.attack:
@@ -340,15 +360,13 @@ namespace Server {
                     BroadcastUDP(datagram, source); //pass to all players except source
                     break;
                 #endregion
-                case DatagramID.disconnect:
+                case DatagramID.RemoveDynamicEntity:
                     #region disconnect
-                    var disconnect = new Disconnect(datagram);
+                    var disconnect = new RemoveDynamicEntity(datagram);
                     BroadcastUDP(datagram, source);
                     dynamicEntities[source.guid] = new EntityUpdate() {
                         guid = source.guid
                     };
-
-                    Console.ForegroundColor = ConsoleColor.Yellow;
                     break;
                 #endregion
                 case DatagramID.specialMove:
@@ -387,6 +405,12 @@ namespace Server {
                 worldUpdate.Write(player.writer);
             }
             catch { }
+        }
+
+        public ushort AssignGuid() {
+            ushort newGuid = 1;
+            while (dynamicEntities.ContainsKey(newGuid)) newGuid++;
+            return newGuid;
         }
 
         public void Ban(ushort guid) {
