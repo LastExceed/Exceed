@@ -20,7 +20,6 @@ namespace Bridge {
                 MessageBox.Show("CubeWorld process not found. Please start the game first");
                 Environment.Exit(0);
             }
-            CwRam.RemoveFog();
             HotkeyManager.Init(this);
         }
         protected override void WndProc(ref Message m) {
