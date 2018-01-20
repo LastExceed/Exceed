@@ -489,18 +489,6 @@ namespace Bridge {
                             }
                             break;
                         case ActionType.callPet:
-                            var su = new ServerUpdate();
-                            su.missions.Add(new ServerUpdate.Mission() {
-                                id = 1,
-                                monsterID = EntityType.Aim,
-                                level = 1,
-                                chunkX = 1,
-                                chunkY = 1,
-                                sectionX = 1,
-                                sectionY = 1,
-                                state = MissionState.finished
-                            });
-                            su.Write(cwriter);
                             break;
                         default:
                             //unknown type
@@ -527,7 +515,6 @@ namespace Bridge {
                 case PacketID.passiveProc:
                     #region passiveProc
                     var passiveProc = new PassiveProc(creader);
-
                     var proc = new Proc() {
                         Target = (ushort)passiveProc.target,
                         Type = passiveProc.type,
@@ -535,13 +522,11 @@ namespace Bridge {
                         Duration = passiveProc.duration
                     };
                     SendUDP(proc.data);
-
                     break;
                 #endregion
                 case PacketID.shoot:
                     #region shoot
                     var shoot = new Shoot(creader);
-
                     var projectile = new Projectile() {
                         Position = shoot.position,
                         Velocity = shoot.velocity,
