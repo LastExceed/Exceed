@@ -183,19 +183,16 @@ namespace Bridge {
         }
         public static void ListenFromServerUDP() {
             SendUDP(new byte[1] { (byte)DatagramID.dummy });//to allow incoming UDP packets
-            IPEndPoint source = null;
             while (true) {
-                byte[] datagram = udpToServer.Receive(ref source);
+                IPEndPoint source = null;
+                byte[] datagram = null;
                 try {
-                    ProcessDatagram(datagram);
+                    datagram = udpToServer.Receive(ref source);
                 }
-                catch (SocketException) {
-                    //when UDPclient is closed
+                catch (SocketException) {//when UDPclient is closed
+                    return;
                 }
-                catch (IOException) {
-                    //when bridge tries to pass a packet to
-                    //the client while the client disconnects
-                }
+                ProcessDatagram(datagram);
             }
         }
 
