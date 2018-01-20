@@ -273,7 +273,21 @@ namespace Bridge {
                 case DatagramID.proc:
                     #region proc
                     var proc = new Proc(datagram);
-
+                    if (proc.Type == ProcType.poison && proc.Target == guid) {
+                        var poisonTickDamage = new Hit() {
+                            damage = proc.Modifier,
+                            target = guid,
+                            position = dynamicEntities[guid].position,
+                        };
+                        bool tick() {
+                            bool f = clientConnected && dynamicEntities[guid].HP > 0;
+                            if (f) {
+                                poisonTickDamage.Write(cwriter);
+                            }
+                            return !f;
+                        }
+                        Tools.DoLater(tick, 500, 7);
+                    }
                     var passiveProc = new PassiveProc() {
                         target = proc.Target,
                         type = proc.Type,
@@ -489,6 +503,14 @@ namespace Bridge {
                             }
                             break;
                         case ActionType.callPet:
+                            var su = new ServerUpdate();
+                            var dmg = new ServerUpdate.Damage() {
+                                attacker = guid,
+                                target = 2,
+                                damage = 10f,
+                            };
+                            su.damages.Add(dmg);
+                            su.Write(cwriter);
                             break;
                         default:
                             //unknown type
@@ -515,6 +537,42 @@ namespace Bridge {
                 case PacketID.passiveProc:
                     #region passiveProc
                     var passiveProc = new PassiveProc(creader);
+                    switch (passiveProc.type) {
+                        case ProcType.bulwalk:
+                            new ChatMessage() {
+                                message = string.Format("bulwalk: {0}% dmg reduction", 1.0f - passiveProc.modifier),
+                                sender = 0,
+                            }.Write(cwriter);
+                            break;
+                        case ProcType.warFrenzy:
+                            break;
+                        case ProcType.camouflage:
+                            break;
+                        case ProcType.poison:
+                            break;
+                        case ProcType.unknownA:
+                            break;
+                        case ProcType.manashield:
+                            new ChatMessage() {
+                                message = string.Format("manashield: {0}", passiveProc.modifier),
+                                sender = 0,
+                            }.Write(cwriter);
+                            break;
+                        case ProcType.unknownB:
+                            break;
+                        case ProcType.unknownC:
+                            break;
+                        case ProcType.fireSpark:
+                            break;
+                        case ProcType.intuition:
+                            break;
+                        case ProcType.elusivenes:
+                            break;
+                        case ProcType.swiftness:
+                            break;
+                        default:
+                            break;
+                    }
                     var proc = new Proc() {
                         Target = (ushort)passiveProc.target,
                         Type = passiveProc.type,

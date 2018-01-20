@@ -298,48 +298,13 @@ namespace Server {
                 #endregion
                 case DatagramID.Projectile:
                     #region Projectile
-                    var shoot = new Resources.Datagram.Projectile(datagram);
-                    BroadcastUDP(shoot.data, source); //pass to all players except source
+                    var projectile = new Projectile(datagram);
+                    BroadcastUDP(projectile.data, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.proc:
                     #region proc
                     var proc = new Proc(datagram);
-
-                    switch (proc.Type) {
-                        case ProcType.bulwalk:
-                            SendUDP(new Chat(string.Format("bulwalk: {0}% dmg reduction", 1.0f - proc.Modifier)).data, source);
-                            break;
-                        case ProcType.poison:
-                            var poisonTickDamage = new Attack() {
-                                Damage = proc.Modifier,
-                                Target = proc.Target
-                            };
-                            var target = players[poisonTickDamage.Target];
-                            Func<bool> tick = () => {
-                                bool f = players.ContainsKey(poisonTickDamage.Target);
-                                if (f) {
-                                    SendUDP(poisonTickDamage.data, target);
-                                }
-                                return !f;
-                            };
-                            Tools.DoLater(tick, 500, 7);
-                            //Poison(players[proc.Target], poisonTickDamage);
-                            break;
-                        case ProcType.manashield:
-                            SendUDP(new Chat(string.Format("manashield: {0}", proc.Modifier)).data, source);
-                            break;
-                        case ProcType.warFrenzy:
-                        case ProcType.camouflage:
-                        case ProcType.fireSpark:
-                        case ProcType.intuition:
-                        case ProcType.elusivenes:
-                        case ProcType.swiftness:
-                            break;
-                        default:
-                            //unknown proc type
-                            break;
-                    }
                     BroadcastUDP(proc.data, source); //pass to all players except source
                     break;
                 #endregion
