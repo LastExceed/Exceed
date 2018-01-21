@@ -276,19 +276,20 @@ namespace Bridge {
                     #region proc
                     var proc = new Proc(datagram);
                     if (proc.Type == ProcType.poison && proc.Target == guid) {
-                        var poisonTickDamage = new Hit() {
+                        var su = new ServerUpdate();
+                        su.hits.Add(new Hit() {
                             damage = proc.Modifier,
                             target = guid,
                             position = dynamicEntities[guid].position,
-                        };
+                        });
                         bool tick() {
                             bool f = clientConnected && dynamicEntities[guid].HP > 0;
                             if (f) {
-                                outgoing.Add(poisonTickDamage);
+                                outgoing.Add(su);
                             }
                             return !f;
                         }
-                        //Tools.DoLater(tick, 500, 7);
+                        Tools.DoLater(tick, 500, 7);
                     }
                     var passiveProc = new PassiveProc() {
                         target = proc.Target,
