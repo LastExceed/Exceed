@@ -4,7 +4,7 @@ using Resources.Utilities;
 
 namespace Bridge {
     static class CwRam {
-        public static Form1 form;
+        public static FormEditor form;
         public static ProcessMemory memory;
         public static int EntityStart {
             get { return memory.ReadInt(memory.ReadInt(memory.baseAddress + 0x0036b1c8) + 0x39C); }

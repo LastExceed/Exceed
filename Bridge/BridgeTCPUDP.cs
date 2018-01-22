@@ -30,8 +30,8 @@ namespace Bridge {
 
         public static void Connect() {
             form.Log("connecting...", Color.DarkGray);
-            string serverIP = form.textBoxServerIP.Text;
-            int serverPort = (int)form.numericUpDownPort.Value;
+            string serverIP = "localhost";
+            int serverPort = 12346;
 
             try {
                 tcpToServer = new TcpClient() { NoDelay = true };
