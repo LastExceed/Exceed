@@ -11,6 +11,7 @@ namespace Bridge {
 
         public Form1(string[]args) {
             InitializeComponent();
+            //new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
             BridgeTCPUDP.form = this;
             CwRam.form = editor;
             try {
@@ -44,40 +45,10 @@ namespace Bridge {
             }
         }
 
-        public void EnableButtons() {
-            if (InvokeRequired) {
-                Invoke((Action)EnableButtons);
-            }
-            else {
-                buttonDisconnect.Enabled = false;
-                buttonConnect.Enabled = true;
-                groupBoxAccount.Enabled = true;
-            }
-        }
-        public void DisableButtons() {
-            if (InvokeRequired) {
-                Invoke((Action)DisableButtons);
-            }
-            else {
-                buttonDisconnect.Enabled = true;
-                buttonConnect.Enabled = false;
-                groupBoxAccount.Enabled = false;
-            }
-        }
-
-        private void ButtonConnect_Click(object sender, EventArgs e) {
-            DisableButtons();
-            new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
-        }
-        public void ButtonDisconnect_Click(object sender, EventArgs e) {
-            BridgeTCPUDP.Close();
-            EnableButtons();
-            Log("disconnected\n", Color.Red);
-        }
-
+ 
         private void TextBoxPassword_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) {
-                buttonConnect.PerformClick();
+                //buttonConnect.PerformClick();
             }
         }
 

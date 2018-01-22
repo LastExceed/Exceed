@@ -34,8 +34,6 @@
             this.buttonLogout = new System.Windows.Forms.Button();
             this.buttonLogin = new System.Windows.Forms.Button();
             this.buttonRegister = new System.Windows.Forms.Button();
-            this.buttonConnect = new System.Windows.Forms.Button();
-            this.buttonDisconnect = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.radioButtonDestroy = new System.Windows.Forms.RadioButton();
             this.radioButtonDuplicate = new System.Windows.Forms.RadioButton();
@@ -46,12 +44,12 @@
             this.buttonEditor = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.buttonChangePassword = new System.Windows.Forms.Button();
-            this.buttonChangeEmail = new System.Windows.Forms.Button();
-            this.radioButtonRankingsUsers = new System.Windows.Forms.RadioButton();
             this.radioButtonRankingsClan = new System.Windows.Forms.RadioButton();
+            this.radioButtonRankingsUsers = new System.Windows.Forms.RadioButton();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.buttonChangeEmail = new System.Windows.Forms.Button();
+            this.buttonChangePassword = new System.Windows.Forms.Button();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -89,6 +87,7 @@
             // 
             // buttonLogout
             // 
+            this.buttonLogout.Enabled = false;
             this.buttonLogout.Location = new System.Drawing.Point(59, 63);
             this.buttonLogout.Name = "buttonLogout";
             this.buttonLogout.Size = new System.Drawing.Size(60, 23);
@@ -113,27 +112,6 @@
             this.buttonRegister.TabIndex = 22;
             this.buttonRegister.Text = "Register new account";
             this.buttonRegister.UseVisualStyleBackColor = true;
-            // 
-            // buttonConnect
-            // 
-            this.buttonConnect.Location = new System.Drawing.Point(3, 55);
-            this.buttonConnect.Name = "buttonConnect";
-            this.buttonConnect.Size = new System.Drawing.Size(66, 23);
-            this.buttonConnect.TabIndex = 2;
-            this.buttonConnect.Text = "Connect";
-            this.buttonConnect.UseVisualStyleBackColor = true;
-            this.buttonConnect.Click += new System.EventHandler(this.ButtonConnect_Click);
-            // 
-            // buttonDisconnect
-            // 
-            this.buttonDisconnect.Enabled = false;
-            this.buttonDisconnect.Location = new System.Drawing.Point(3, 101);
-            this.buttonDisconnect.Name = "buttonDisconnect";
-            this.buttonDisconnect.Size = new System.Drawing.Size(76, 23);
-            this.buttonDisconnect.TabIndex = 3;
-            this.buttonDisconnect.Text = "Disconnect";
-            this.buttonDisconnect.UseVisualStyleBackColor = true;
-            this.buttonDisconnect.Click += new System.EventHandler(this.ButtonDisconnect_Click);
             // 
             // groupBox1
             // 
@@ -241,48 +219,16 @@
             this.tabPage1.Text = "Rankings";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
-            // tabPage2
+            // radioButtonRankingsClan
             // 
-            this.tabPage2.Controls.Add(this.buttonChangeEmail);
-            this.tabPage2.Controls.Add(this.buttonChangePassword);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(168, 230);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Account";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // tabPage3
-            // 
-            this.tabPage3.Controls.Add(this.buttonConnect);
-            this.tabPage3.Controls.Add(this.buttonDisconnect);
-            this.tabPage3.Controls.Add(this.groupBox1);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(168, 230);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Clans";
-            this.tabPage3.UseVisualStyleBackColor = true;
-            // 
-            // buttonChangePassword
-            // 
-            this.buttonChangePassword.Location = new System.Drawing.Point(22, 188);
-            this.buttonChangePassword.Name = "buttonChangePassword";
-            this.buttonChangePassword.Size = new System.Drawing.Size(104, 23);
-            this.buttonChangePassword.TabIndex = 0;
-            this.buttonChangePassword.Text = "change password";
-            this.buttonChangePassword.UseVisualStyleBackColor = true;
-            // 
-            // buttonChangeEmail
-            // 
-            this.buttonChangeEmail.Location = new System.Drawing.Point(24, 159);
-            this.buttonChangeEmail.Name = "buttonChangeEmail";
-            this.buttonChangeEmail.Size = new System.Drawing.Size(102, 23);
-            this.buttonChangeEmail.TabIndex = 1;
-            this.buttonChangeEmail.Text = "change email";
-            this.buttonChangeEmail.UseVisualStyleBackColor = true;
+            this.radioButtonRankingsClan.AutoSize = true;
+            this.radioButtonRankingsClan.Location = new System.Drawing.Point(6, 26);
+            this.radioButtonRankingsClan.Name = "radioButtonRankingsClan";
+            this.radioButtonRankingsClan.Size = new System.Drawing.Size(51, 17);
+            this.radioButtonRankingsClan.TabIndex = 1;
+            this.radioButtonRankingsClan.TabStop = true;
+            this.radioButtonRankingsClan.Text = "Clans";
+            this.radioButtonRankingsClan.UseVisualStyleBackColor = true;
             // 
             // radioButtonRankingsUsers
             // 
@@ -295,16 +241,46 @@
             this.radioButtonRankingsUsers.Text = "Users";
             this.radioButtonRankingsUsers.UseVisualStyleBackColor = true;
             // 
-            // radioButtonRankingsClan
+            // tabPage2
             // 
-            this.radioButtonRankingsClan.AutoSize = true;
-            this.radioButtonRankingsClan.Location = new System.Drawing.Point(6, 26);
-            this.radioButtonRankingsClan.Name = "radioButtonRankingsClan";
-            this.radioButtonRankingsClan.Size = new System.Drawing.Size(51, 17);
-            this.radioButtonRankingsClan.TabIndex = 1;
-            this.radioButtonRankingsClan.TabStop = true;
-            this.radioButtonRankingsClan.Text = "Clans";
-            this.radioButtonRankingsClan.UseVisualStyleBackColor = true;
+            this.tabPage2.Controls.Add(this.buttonChangeEmail);
+            this.tabPage2.Controls.Add(this.buttonChangePassword);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(168, 230);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Account";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // buttonChangeEmail
+            // 
+            this.buttonChangeEmail.Location = new System.Drawing.Point(24, 159);
+            this.buttonChangeEmail.Name = "buttonChangeEmail";
+            this.buttonChangeEmail.Size = new System.Drawing.Size(102, 23);
+            this.buttonChangeEmail.TabIndex = 1;
+            this.buttonChangeEmail.Text = "change email";
+            this.buttonChangeEmail.UseVisualStyleBackColor = true;
+            // 
+            // buttonChangePassword
+            // 
+            this.buttonChangePassword.Location = new System.Drawing.Point(22, 188);
+            this.buttonChangePassword.Name = "buttonChangePassword";
+            this.buttonChangePassword.Size = new System.Drawing.Size(104, 23);
+            this.buttonChangePassword.TabIndex = 0;
+            this.buttonChangePassword.Text = "change password";
+            this.buttonChangePassword.UseVisualStyleBackColor = true;
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.groupBox1);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(168, 230);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Clans";
+            this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
@@ -354,8 +330,6 @@
         #endregion
         public System.Windows.Forms.TextBox textBoxPassword;
         public System.Windows.Forms.TextBox textBoxUsername;
-        public System.Windows.Forms.Button buttonConnect;
-        public System.Windows.Forms.Button buttonDisconnect;
         public System.Windows.Forms.ListBox listBoxPlayers;
         public System.Windows.Forms.RichTextBox richTextBoxChat;
         public System.Windows.Forms.GroupBox groupBox1;

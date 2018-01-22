@@ -28,38 +28,7 @@ namespace Bridge {
         public static ushort lastTarget;
         public static Queue<Packet> outgoing = new Queue<Packet>();
 
-        public static void Connect() {
-            form.Log("connecting...", Color.DarkGray);
-            string serverIP = "localhost";
-            int serverPort = 12346;
-
-            try {
-                tcpToServer = new TcpClient() { NoDelay = true };
-                tcpToServer.Connect(serverIP, serverPort);
-
-                udpToServer = new UdpClient(tcpToServer.Client.LocalEndPoint as IPEndPoint);
-                udpToServer.Connect(serverIP, serverPort);
-            }
-            catch (SocketException) {//connection refused
-                Close();
-                form.Log("failed\n", Color.Red);
-                form.EnableButtons();
-                return;
-            }
-            form.Log("connected\n", Color.Green);
-
-            Stream stream = tcpToServer.GetStream();
-            swriter = new BinaryWriter(stream);
-            sreader = new BinaryReader(stream);
-
-            form.Log("checking version...", Color.DarkGray);
-            swriter.Write(Database.bridgeVersion);
-            if (!sreader.ReadBoolean()) {
-                form.Log("mismatch\n", Color.Red);
-                form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
-                return;
-            }
-            form.Log("match\n", Color.Green);
+        public static void Login() {
             form.Log("logging in...", Color.DarkGray);
             swriter.Write(form.textBoxUsername.Text);
             swriter.Write(form.textBoxPassword.Text);
@@ -80,18 +49,52 @@ namespace Bridge {
                     form.Log("wrong password\n", Color.Red);
                     goto default;
                 default:
-                    form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
+                    //form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
                     return;
             }
             guid = sreader.ReadUInt16();
             mapseed = sreader.ReadInt32();
             connectedToServer = true;
-            
+
             swriter.Write((byte)0);//request query
             new Thread(new ThreadStart(ListenFromServerTCP)).Start();
             new Thread(new ThreadStart(ListenFromServerUDP)).Start();
             ListenFromClientTCP();
         }
+
+        public static void Connect() {
+            form.Log("connecting...", Color.DarkGray);
+            string serverIP = "localhost";
+            int serverPort = 12346;
+
+            try {
+                tcpToServer = new TcpClient() { NoDelay = true };
+                tcpToServer.Connect(serverIP, serverPort);
+
+                udpToServer = new UdpClient(tcpToServer.Client.LocalEndPoint as IPEndPoint);
+                udpToServer.Connect(serverIP, serverPort);
+            }
+            catch (SocketException) {//connection refused
+                Close();
+                form.Log("failed\n", Color.Red);
+                MessageBox.Show("Connection failed\nRetry\nStay Offline");
+                return;
+            }
+            form.Log("connected\n", Color.Green);
+
+            Stream stream = tcpToServer.GetStream();
+            swriter = new BinaryWriter(stream);
+            sreader = new BinaryReader(stream);
+
+            form.Log("checking version...", Color.DarkGray);
+            swriter.Write(Database.bridgeVersion);
+            if (!sreader.ReadBoolean()) {
+                form.Log("mismatch\n", Color.Red);
+                //form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
+                return;
+            }
+            form.Log("match\n", Color.Green);
+            }
         public static void Close() {
             connectedToServer = false;
             form.Invoke(new Action(() => form.listBoxPlayers.Items.Clear()));
@@ -176,7 +179,6 @@ namespace Bridge {
                     if (connectedToServer) {
                         form.Log("Connection to Server lost\n", Color.Red);
                         Close();
-                        form.EnableButtons();
                     }
                     break;
                 }
