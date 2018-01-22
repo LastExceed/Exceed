@@ -26,6 +26,7 @@ namespace Bridge {
         public static bool connectedToServer = false, clientConnected = false;
         public static Dictionary<long, EntityUpdate> dynamicEntities = new Dictionary<long, EntityUpdate>();
         public static ushort lastTarget;
+        public static Queue<Packet> outgoing = new Queue<Packet>();
 
         public static void Connect() {
             form.Log("connecting...", Color.DarkGray);
@@ -146,11 +147,11 @@ namespace Bridge {
                 cwriter = new BinaryWriter(stream);
 
                 clientConnected = true;
+                new Thread(new ThreadStart(WriteToClientTCP)).Start();
 
                 while (true) {
                     try {
                         int packetID = creader.ReadInt32();
-                        //MessageBox.Show("" + packetID);
                         ProcessClientPacket(packetID);
                     }
                     catch (IOException) {
@@ -160,6 +161,7 @@ namespace Bridge {
                         }
                         dynamicEntities.Remove(guid);
                         form.Log("client disconnected\n", Color.Red);
+                        RefreshPlayerlist();
                         break;
                     }
                 }
@@ -182,24 +184,24 @@ namespace Bridge {
         }
         public static void ListenFromServerUDP() {
             SendUDP(new byte[1] { (byte)DatagramID.dummy });//to allow incoming UDP packets
-            IPEndPoint source = null;
-            try {
-                while (true) {
-                    byte[] datagram = udpToServer.Receive(ref source);
-                    try {
-                        ProcessDatagram(datagram);
-                    }
-                    catch (IOException) {
-                        return;
-                    }
+            while (true) {
+                IPEndPoint source = null;
+                byte[] datagram = null;
+                try {
+                    datagram = udpToServer.Receive(ref source);
                 }
+                catch (SocketException) {//when UDPclient is closed
+                    return;
+                }
+                ProcessDatagram(datagram);
             }
-            catch (SocketException) {
-                //when UDPclient is closed
-            }
-            catch (IOException) {
-                //when bridge tries to pass a packet to
-                //the client while the client disconnects
+        }
+
+        public static void WriteToClientTCP() {
+            while (clientConnected) {
+                if (outgoing.Count != 0) {
+                    outgoing.Dequeue().Write(cwriter);
+                }
             }
         }
 
@@ -215,7 +217,7 @@ namespace Bridge {
                             CwRam.Teleport(entityUpdate.position);
                             break;
                         }
-                        entityUpdate.Write(cwriter);
+                        outgoing.Enqueue(entityUpdate);
                     }
 
                     if (dynamicEntities.ContainsKey(entityUpdate.guid)) {
@@ -274,15 +276,16 @@ namespace Bridge {
                     #region proc
                     var proc = new Proc(datagram);
                     if (proc.Type == ProcType.poison && proc.Target == guid) {
-                        var poisonTickDamage = new Hit() {
+                        var su = new ServerUpdate();
+                        su.hits.Add(new Hit() {
                             damage = proc.Modifier,
                             target = guid,
                             position = dynamicEntities[guid].position,
-                        };
+                        });
                         bool tick() {
                             bool f = clientConnected && dynamicEntities[guid].HP > 0;
                             if (f) {
-                                poisonTickDamage.Write(cwriter);
+                                outgoing.Enqueue(su);
                             }
                             return !f;
                         }
@@ -305,7 +308,7 @@ namespace Bridge {
                         sender = chat.Sender,
                         message = chat.Text
                     };
-                    if (clientConnected) chatMessage.Write(cwriter);
+                    if (clientConnected) outgoing.Enqueue(chatMessage);
                     if (chat.Sender == 0) {
                         form.Log(chat.Text + "\n", Color.Magenta);
                     }
@@ -322,7 +325,7 @@ namespace Bridge {
                     var time = new Time() {
                         time = igt.Time
                     };
-                    if (clientConnected) time.Write(cwriter);
+                    if (clientConnected) outgoing.Enqueue(time);
                     break;
                 #endregion
                 case DatagramID.interaction:
@@ -390,7 +393,7 @@ namespace Bridge {
                         hostility = (Hostility)255, //workaround for DC because i dont like packet2
                         HP = 0
                     };
-                    if (clientConnected) entityUpdate.Write(cwriter);
+                    if (clientConnected) outgoing.Enqueue(entityUpdate);
                     dynamicEntities.Remove(rde.Guid);
                     RefreshPlayerlist();
                     break;
@@ -445,7 +448,7 @@ namespace Bridge {
                     form.Log("unknown datagram ID: " + datagram[0], Color.Red);
                     break;
             }
-            if (clientConnected && writeServerUpdate) serverUpdate.Write(cwriter);
+            if (clientConnected && writeServerUpdate) outgoing.Enqueue(serverUpdate);
         }
         public static void ProcessClientPacket(int packetID) {
             switch ((PacketID)packetID) {
@@ -478,16 +481,16 @@ namespace Bridge {
                                 message = "You can't use this, your hands are too small.",
                                 sender = 0
                             };
-                            x.Write(cwriter);
+                            outgoing.Enqueue(x);
                             break;
                         case ActionType.pickup:
                             break;
                         case ActionType.drop: //send item back to dropper because dropping is disabled to prevent chatspam
                             if (form.radioButtonDestroy.Checked) {
-                                new ChatMessage() {
+                                outgoing.Enqueue(new ChatMessage() {
                                     message = "item destroyed",
                                     sender = 0,
-                                }.Write(cwriter);
+                                });
                             }
                             else {
                                 var serverUpdate = new ServerUpdate();
@@ -499,18 +502,10 @@ namespace Bridge {
                                 if (form.radioButtonDuplicate.Checked) {
                                     serverUpdate.pickups.Add(pickup);
                                 }
-                                serverUpdate.Write(cwriter);
+                                outgoing.Enqueue(serverUpdate);
                             }
                             break;
                         case ActionType.callPet:
-                            var su = new ServerUpdate();
-                            var dmg = new ServerUpdate.Damage() {
-                                attacker = guid,
-                                target = 2,
-                                damage = 10f,
-                            };
-                            su.damages.Add(dmg);
-                            su.Write(cwriter);
                             break;
                         default:
                             //unknown type
@@ -539,10 +534,10 @@ namespace Bridge {
                     var passiveProc = new PassiveProc(creader);
                     switch (passiveProc.type) {
                         case ProcType.bulwalk:
-                            new ChatMessage() {
+                            outgoing.Enqueue(new ChatMessage() {
                                 message = string.Format("bulwalk: {0}% dmg reduction", 1.0f - passiveProc.modifier),
                                 sender = 0,
-                            }.Write(cwriter);
+                            });
                             break;
                         case ProcType.warFrenzy:
                             break;
@@ -553,10 +548,10 @@ namespace Bridge {
                         case ProcType.unknownA:
                             break;
                         case ProcType.manashield:
-                            new ChatMessage() {
+                            outgoing.Enqueue(new ChatMessage() {
                                 message = string.Format("manashield: {0}", passiveProc.modifier),
                                 sender = 0,
-                            }.Write(cwriter);
+                            });
                             break;
                         case ProcType.unknownB:
                             break;
@@ -610,8 +605,8 @@ namespace Bridge {
                             block.position.y += 8344456;
                             block.position.z += 220;
                         }
-                        
-                        serverUpdate.Write(cwriter);
+
+                        outgoing.Enqueue(serverUpdate);
                     }
                     else {
                         var chat = new Chat(chatMessage.message) {
@@ -636,18 +631,18 @@ namespace Bridge {
                     var version = new ProtocolVersion(creader);
                     if (version.version != 3) {
                         version.version = 3;
-                        version.Write(cwriter);
+                        outgoing.Enqueue(version);
                     }
                     else {
-                        new Join() {
+                        outgoing.Enqueue(new Join() {
                             guid = guid,
                             junk = new byte[0x1168]
-                        }.Write(cwriter);
-                        //new MapSeed() {
+                        });
+                        //outgoing.Enqueue(new MapSeed() {
                         //    seed = mapseed
-                        //}.Write(cwriter);
+                        //});
                         foreach (var dynamicEntity in dynamicEntities.Values.ToList()) {
-                            dynamicEntity.Write(cwriter);
+                            outgoing.Enqueue(dynamicEntity);
                         }
                     }
                     break;
@@ -674,7 +669,7 @@ namespace Bridge {
                     }
                     break;
                 case 4:
-                    new ServerUpdate(sreader).Write(cwriter);
+                    outgoing.Enqueue(new ServerUpdate(sreader));
                     break;
                 default:
                     MessageBox.Show("unknown server packet received");
@@ -828,7 +823,7 @@ namespace Bridge {
                             alpha = 1f,
                             position = dynamicEntities[specialMove.Guid].position
                         });
-                        fakeSmoke.Write(cwriter);
+                        outgoing.Enqueue(fakeSmoke);
                         #endregion
                     }
                     break;
