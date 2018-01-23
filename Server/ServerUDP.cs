@@ -175,6 +175,7 @@ namespace Server {
                     break;
 
                 case 1://login
+                    #region login
                     if (!players.Contains(player)) {
                         //musnt login without checking bridge version first
                     }
@@ -211,6 +212,15 @@ namespace Server {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " logged in as " + username);
                     break;
+                #endregion
+                case 2:
+                    #region logout
+                    if (player.entity != null) {
+                        dynamicEntities.Remove((ushort)player.entity.guid);
+                        player.entity = null;
+                    }
+                    break;
+                #endregion
                 default:
                     Console.WriteLine("unknown packet: " + packetID);
                     break;

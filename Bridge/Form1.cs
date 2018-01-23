@@ -22,6 +22,7 @@ namespace Bridge {
             }
             CwRam.RemoveFog();
             HotkeyManager.Init(this);
+            new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
         }
         protected override void WndProc(ref Message m) {
             if (m.Msg == HotkeyManager.WM_HOTKEY_MSG_ID) {
@@ -66,8 +67,10 @@ namespace Bridge {
             new Thread(new ThreadStart(BridgeTCPUDP.Login)).Start();
         }
 
-        private void button1_Click(object sender, EventArgs e) {
-            new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
+        private void buttonLogout_Click(object sender, EventArgs e) {
+            new Thread(new ThreadStart(BridgeTCPUDP.Logout)).Start();
+            buttonLogout.Enabled = false;
+            buttonLogin.Enabled = true;
         }
     }
 }

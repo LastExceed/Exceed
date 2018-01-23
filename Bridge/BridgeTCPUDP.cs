@@ -12,6 +12,7 @@ using System.Net.NetworkInformation;
 using Resources;
 using Resources.Packet;
 using Resources.Datagram;
+using System.Threading.Tasks;
 
 namespace Bridge {
     static class BridgeTCPUDP {
@@ -29,6 +30,7 @@ namespace Bridge {
         public static BridgeStatus status = BridgeStatus.offline;
 
         public static void Connect() {
+            Task.Delay(3333).Wait();//temp
             new Thread(new ThreadStart(ListenFromClientTCP)).Start();
             form.Log("connecting...", Color.DarkGray);
             string serverIP = "localhost";//temporarily
@@ -115,13 +117,18 @@ namespace Bridge {
                     form.Log("wrong password\n", Color.Red);
                     goto default;
                 default:
+                    form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
                     return;
             }
             status = BridgeStatus.loggedIn;
             guid = sreader.ReadUInt16();
             mapseed = sreader.ReadInt32();
-
             new Thread(new ThreadStart(ListenFromServerTCP)).Start();
+
+            form.Invoke(new Action(() => form.buttonLogout.Enabled = true));
+        }
+        public static void Logout() {
+            swriter.Write((byte)2);
         }
 
         public static void ListenFromClientTCP() {
