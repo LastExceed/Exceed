@@ -34,4 +34,10 @@
         unknownUser,
         wrongPassword
     }
+    public enum BridgeStatus : byte {
+        offline,
+        connected,
+        loggedIn,
+        playing
+    }
 }

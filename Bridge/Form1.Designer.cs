@@ -51,6 +51,7 @@
             this.buttonChangePassword = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label1 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -97,12 +98,14 @@
             // 
             // buttonLogin
             // 
+            this.buttonLogin.Enabled = false;
             this.buttonLogin.Location = new System.Drawing.Point(0, 63);
             this.buttonLogin.Name = "buttonLogin";
             this.buttonLogin.Size = new System.Drawing.Size(60, 23);
             this.buttonLogin.TabIndex = 24;
             this.buttonLogin.Text = "Login";
             this.buttonLogin.UseVisualStyleBackColor = true;
+            this.buttonLogin.Click += new System.EventHandler(this.ButtonLogin_Click);
             // 
             // buttonRegister
             // 
@@ -209,6 +212,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.button1);
             this.tabPage1.Controls.Add(this.radioButtonRankingsClan);
             this.tabPage1.Controls.Add(this.radioButtonRankingsUsers);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
@@ -292,6 +296,16 @@
             this.label1.TabIndex = 26;
             this.label1.Text = "Login:";
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(36, 109);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -337,7 +351,6 @@
         public System.Windows.Forms.RadioButton radioButtonDuplicate;
         public System.Windows.Forms.RadioButton radioButtonNormal;
         private System.Windows.Forms.Button buttonLogout;
-        private System.Windows.Forms.Button buttonLogin;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button buttonRegister;
         private System.Windows.Forms.LinkLabel linkLabelReset;
@@ -351,6 +364,8 @@
         private System.Windows.Forms.Button buttonChangePassword;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.Label label1;
+        public System.Windows.Forms.Button buttonLogin;
+        private System.Windows.Forms.Button button1;
     }
 }
 

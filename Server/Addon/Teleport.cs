@@ -18,7 +18,7 @@ namespace Server.Addon {
                 },
                 rotation = 2,
                 time = 1000,
-                guid = player.guid
+                guid = player.entity.guid
             };
 
             var serverUpdate = new ServerUpdate();

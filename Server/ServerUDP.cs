@@ -19,10 +19,9 @@ namespace Server {
     class ServerUDP {
         UdpClient udpClient;
         TcpListener tcpListener;
-        public ServerUpdate worldUpdate = new ServerUpdate();
-        Dictionary<ushort, Player> players = new Dictionary<ushort, Player>();
+        List<Player> players = new List<Player>();
         Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
-        List<Ban> bans; //MAC|IP 
+        List<Ban> bans;
         Dictionary<string, string> accounts;
 
         const string bansFilePath = "bans.json";
@@ -46,25 +45,25 @@ namespace Server {
             }
 
             #region models
-            var rnd = new Random();
-            for (int i = 8286946; i < 8286946 + 512; i++) {
-                for (int j = 8344456; j < 8344456 + 512; j++) {
-                    var block = new ServerUpdate.BlockDelta() {
-                        color = new Resources.Utilities.ByteVector() {
-                            x = 0,
-                            y = 0,
-                            z = (byte)rnd.Next(0, 255),
-                        },
-                        type = BlockType.solid,
-                        position = new Resources.Utilities.IntVector() {
-                            x = i,
-                            y = j,
-                            z = 208,
-                        },
-                    };
-                    worldUpdate.blockDeltas.Add(block);
-                }
-            }
+            //var rnd = new Random();
+            //for (int i = 8286946; i < 8286946 + 512; i++) {
+            //    for (int j = 8344456; j < 8344456 + 512; j++) {
+            //        var block = new ServerUpdate.BlockDelta() {
+            //            color = new Resources.Utilities.ByteVector() {
+            //                x = 0,
+            //                y = 0,
+            //                z = (byte)rnd.Next(0, 255),
+            //            },
+            //            type = BlockType.solid,
+            //            position = new Resources.Utilities.IntVector() {
+            //                x = i,
+            //                y = j,
+            //                z = 208,
+            //            },
+            //        };
+            //        worldUpdate.blockDeltas.Add(block);
+            //    }
+            //}
             //x = 543093329157,
             //y = 546862296355,
             //z = 14423162
@@ -123,74 +122,17 @@ namespace Server {
         }
 
         public void ListenTCP() {
-            Player player = new Player(tcpListener.AcceptTcpClient());
+            var player = new Player(tcpListener.AcceptTcpClient());
             new Thread(new ThreadStart(ListenTCP)).Start();
-
-            if (player.reader.ReadInt32() != Database.bridgeVersion) {
-                player.writer.Write(false);
-                return;
-            }
-            player.writer.Write(true);
-
-            string username = player.reader.ReadString();
-            //if (!accounts.ContainsKey(username)) {
-            //    player.writer.Write((byte)AuthResponse.unknownUser);
-            //    return;
-            //}
-            string password = player.reader.ReadString();
-            //if (accounts[username] != password) {
-            //    player.writer.Write((byte)AuthResponse.wrongPassword);
-            //    return;
-            //}
-            player.writer.Write((byte)AuthResponse.success);
-            player.admin = username == "BLACKROCK";
-
-            player.MAC = player.reader.ReadString();
-            var banEntry = bans.FirstOrDefault(x => x.Mac == player.MAC || x.Ip == player.IpEndPoint.Address.ToString());
-            if (banEntry != null) {
-                player.writer.Write(true);
-                player.writer.Write(banEntry.Reason);
-                return;
-            }
-            player.writer.Write(false);//not banned
-
-            player.guid = AssignGuid();
-
-            player.writer.Write(player.guid);
-            player.writer.Write(Database.mapseed);
-
-            foreach (EntityUpdate entity in dynamicEntities.Values) {
-                    SendUDP(entity.CreateDatagram(), player);
-            }
-            //Task.Delay(100).ContinueWith(t => Load_world_delayed(source)); //WIP, causes crash when player disconnects before executed
-            
-            players.Add(player.guid, player);
-            dynamicEntities.Add(player.guid, new EntityUpdate() {
-                guid = player.guid,
-            });
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(player.IpEndPoint.Address + " connected");
-
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " connected");
             while (true) {
                 try {
-                    byte packetID = player.reader.ReadByte();
+                    var packetID = player.reader.ReadByte();
                     ProcessPacket(packetID, player);
                 }
                 catch (IOException) {
-                    players.Remove(player.guid);
-                    dynamicEntities.Remove(player.guid);
-                    BroadcastUDP(new RemoveDynamicEntity() {
-                        Guid = (ushort)player.guid
-                    }.data);
-                    if (player.tomb != null) {
-                        BroadcastUDP(new RemoveDynamicEntity() {
-                            Guid = (ushort)player.tomb
-                        }.data);
-                    }
-
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(player.IpEndPoint.Address + " disconnected");
-                    break;
+                    
                 }
             }
         }
@@ -198,35 +140,76 @@ namespace Server {
             IPEndPoint source = null;
             while (true) {
                 byte[] datagram = udpClient.Receive(ref source);
-                var player = players.FirstOrDefault(x => x.Value.IpEndPoint.Equals(source)).Value;
-                if (player != null) {
+                var player = players.FirstOrDefault(x => (x.tcpClient.Client.RemoteEndPoint as IPEndPoint).Equals(source));
+                if (player != null && player.entity != null) {
                     ProcessDatagram(datagram, player);
                 }
             }
         }
 
         public void SendUDP(byte[] data, Player target) {
-            udpClient.Send(data, data.Length, target.IpEndPoint);
+            udpClient.Send(data, data.Length, target.tcpClient.Client.RemoteEndPoint as IPEndPoint);
         }
         public void BroadcastUDP(byte[] data, Player toSkip = null) {
-            foreach (var player in players.Values) {
+            foreach (var player in players) {
                 if (player != toSkip) {
                     SendUDP(data, player);
                 }
             }
         }
 
-        public void ProcessPacket(byte packetID, Player source) {
+        public void ProcessPacket(byte packetID, Player player) {
             switch (packetID) {
-                case 0://query
-                    //var query = new Query("Exceed Official", 65535);
+                case 0://bridge version
+                    if (player.reader.ReadInt32() == Database.bridgeVersion) {
+                        player.writer.Write(true);
+                        players.Add(player);
+                        foreach (EntityUpdate entity in dynamicEntities.Values) {
+                            SendUDP(entity.CreateDatagram(), player);
+                        }
+                    }
+                    else {
+                        player.writer.Write(false);
+                        //close tcp connection
+                    }
+                    break;
 
-                    //foreach (var player in players.Values) {
-                    //    if (player.playing && dynamicEntities[player.guid].name != null) {
-                    //        query.players.Add((ushort)player.entityData.guid, player.entityData.name);
-                    //    }
+                case 1://login
+                    if (!players.Contains(player)) {
+                        //musnt login without checking bridge version first
+                    }
+                    
+                    string username = player.reader.ReadString();
+                    //if (!accounts.ContainsKey(username)) {
+                    //    player.writer.Write((byte)AuthResponse.unknownUser);
+                    //    return;
                     //}
-                    //query.Write(source.writer);
+                    string password = player.reader.ReadString();
+                    //if (accounts[username] != password) {
+                    //    player.writer.Write((byte)AuthResponse.wrongPassword);
+                    //    return;
+                    //}
+                    player.writer.Write((byte)AuthResponse.success);
+
+                    player.MAC = player.reader.ReadString();
+                    var banEntry = bans.FirstOrDefault(x => x.Mac == player.MAC || x.Ip == (player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address.ToString());
+                    if (banEntry != null) {
+                        player.writer.Write(true);
+                        player.writer.Write(banEntry.Reason);
+                        break;
+                    }
+                    player.writer.Write(false);//not banned
+
+                    player.entity = new EntityUpdate() {
+                        guid = AssignGuid(),
+                    };
+                    player.writer.Write((ushort)player.entity.guid);
+                    player.writer.Write(Database.mapseed);
+
+                    dynamicEntities.Add((ushort)player.entity.guid, player.entity);
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " logged in as " + username);
                     break;
                 default:
                     Console.WriteLine("unknown packet: " + packetID);
@@ -253,11 +236,11 @@ namespace Server {
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
                     #endregion
                     #region tombstone
-                    if (entityUpdate.HP <= 0 && dynamicEntities[source.guid].HP > 0) {
+                    if (entityUpdate.HP <= 0 && source.entity.HP > 0) {
                         //entityUpdate.Merge(dynamicEntities[source.guid]);
                         var tombstone = new EntityUpdate() {
                             guid = AssignGuid(),
-                            position = dynamicEntities[source.guid].position,
+                            position = source.entity.position,
                             hostility = Hostility.neutral,
                             entityType = EntityType.None,
                             appearance = new EntityUpdate.Appearance() {
@@ -275,14 +258,14 @@ namespace Server {
                         source.tomb = (ushort)tombstone.guid;
                         BroadcastUDP(tombstone.CreateDatagram());
                     }
-                    else if (dynamicEntities[source.guid].HP <= 0 && entityUpdate.HP > 0) {
+                    else if (source.entity.HP <= 0 && entityUpdate.HP > 0) {
                         var rde = new RemoveDynamicEntity() {
                             Guid = (ushort)source.tomb,
                         };
                         BroadcastUDP(rde.data);
                     }
                     #endregion
-                    entityUpdate.Merge(dynamicEntities[source.guid]);
+                    entityUpdate.Merge(source.entity);
                     BroadcastUDP(entityUpdate.CreateDatagram(), source);
                     break;
                 #endregion
@@ -290,8 +273,9 @@ namespace Server {
                     #region attack
                     var attack = new Attack(datagram);
                     source.lastTarget = attack.Target;
-                    if (players.ContainsKey(attack.Target)) {//in case the target is a tombstone
-                        SendUDP(attack.data, players[attack.Target]);
+                    if (dynamicEntities.ContainsKey(attack.Target) && dynamicEntities[attack.Target].hostility == Hostility.player) {//in case the target is a tombstone
+
+                        SendUDP(attack.data, players.First(p => p.entity.guid == attack.Target));
                     }
                     var x = new PassiveProc();
                     break;
@@ -337,8 +321,8 @@ namespace Server {
                         remove.Guid = (ushort)source.tomb;
                         BroadcastUDP(remove.data);
                     }
-                    dynamicEntities[source.guid] = new EntityUpdate() {
-                        guid = source.guid
+                    source.entity = new EntityUpdate() {
+                        guid = source.entity.guid
                     };
                     break;
                 #endregion
@@ -347,9 +331,9 @@ namespace Server {
                     var specialMove = new SpecialMove(datagram);
                     switch (specialMove.Id) {
                         case SpecialMoveID.taunt:
-                            var targetGuid = specialMove.Guid;
-                            specialMove.Guid = source.guid;
-                            SendUDP(specialMove.data, players[targetGuid]);
+                            var target = players.First(p => p.entity.guid == specialMove.Guid);
+                            specialMove.Guid = (ushort)source.entity.guid;
+                            SendUDP(specialMove.data, target);
                             break;
                         case SpecialMoveID.cursedArrow:
                         case SpecialMoveID.arrowRain:
@@ -373,24 +357,17 @@ namespace Server {
             }
         }
 
-        public void Load_world_delayed(Player player) {
-            try {
-                worldUpdate.Write(player.writer);
-            }
-            catch { }
-        }
-
         public ushort AssignGuid() {
             ushort newGuid = 1;
             while (dynamicEntities.ContainsKey(newGuid)) newGuid++;
             return newGuid;
         }
 
-        public void Ban(ushort guid) {
-            var player = players[guid];
-            bans.Add(new Ban(dynamicEntities[player.guid].name, player.IpEndPoint.Address.ToString(), player.MAC));
-            player.tcp.Close();
-            File.WriteAllText(bansFilePath, JsonConvert.SerializeObject(bans));
-        }
+        //public void Ban(ushort guid) {
+        //    var player = players[guid];
+        //    bans.Add(new Ban(dynamicEntities[player.guid].name, player.IpEndPoint.Address.ToString(), player.MAC));
+        //    player.tcpClient.Close();
+        //    File.WriteAllText(bansFilePath, JsonConvert.SerializeObject(bans));
+        //}
     }
 }

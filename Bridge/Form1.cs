@@ -11,7 +11,6 @@ namespace Bridge {
 
         public Form1(string[]args) {
             InitializeComponent();
-            //new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
             BridgeTCPUDP.form = this;
             CwRam.form = editor;
             try {
@@ -58,6 +57,17 @@ namespace Bridge {
 
         private void ButtonEditor_Click(object sender, EventArgs e) {
             editor.Show();
+        }
+
+        private void ButtonLogin_Click(object sender, EventArgs e) {
+            buttonLogin.Enabled = false;
+            textBoxUsername.Enabled = false;
+            textBoxPassword.Enabled = false;
+            new Thread(new ThreadStart(BridgeTCPUDP.Login)).Start();
+        }
+
+        private void button1_Click(object sender, EventArgs e) {
+            new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
         }
     }
 }

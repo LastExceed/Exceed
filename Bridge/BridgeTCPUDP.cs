@@ -23,56 +23,24 @@ namespace Bridge {
         public static ushort guid;
         public static int mapseed;
         public static Form1 form;
-        public static bool connectedToServer = false, clientConnected = false;
         public static Dictionary<long, EntityUpdate> dynamicEntities = new Dictionary<long, EntityUpdate>();
         public static ushort lastTarget;
         public static Queue<Packet> outgoing = new Queue<Packet>();
-
-        public static void Login() {
-            form.Log("logging in...", Color.DarkGray);
-            swriter.Write(form.textBoxUsername.Text);
-            swriter.Write(form.textBoxPassword.Text);
-            swriter.Write(NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault());
-            switch ((AuthResponse)sreader.ReadByte()) {
-                case AuthResponse.success:
-                    form.Log("success\n", Color.Green);
-                    if (sreader.ReadBoolean()) {//if banned
-                        MessageBox.Show(sreader.ReadString());//ban message
-                        form.Log("you are banned\n", Color.Red);
-                        goto default;
-                    }
-                    break;
-                case AuthResponse.unknownUser:
-                    form.Log("unknown username\n", Color.Red);
-                    goto default;
-                case AuthResponse.wrongPassword:
-                    form.Log("wrong password\n", Color.Red);
-                    goto default;
-                default:
-                    //form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
-                    return;
-            }
-            guid = sreader.ReadUInt16();
-            mapseed = sreader.ReadInt32();
-            connectedToServer = true;
-
-            swriter.Write((byte)0);//request query
-            new Thread(new ThreadStart(ListenFromServerTCP)).Start();
-            new Thread(new ThreadStart(ListenFromServerUDP)).Start();
-            ListenFromClientTCP();
-        }
+        public static BridgeStatus status = BridgeStatus.offline;
 
         public static void Connect() {
+            new Thread(new ThreadStart(ListenFromClientTCP)).Start();
             form.Log("connecting...", Color.DarkGray);
-            string serverIP = "localhost";
+            string serverIP = "localhost";//temporarily
             int serverPort = 12346;
 
             try {
-                tcpToServer = new TcpClient() { NoDelay = true };
+                tcpToServer = new TcpClient();
                 tcpToServer.Connect(serverIP, serverPort);
 
                 udpToServer = new UdpClient(tcpToServer.Client.LocalEndPoint as IPEndPoint);
                 udpToServer.Connect(serverIP, serverPort);
+                SendUDP(new byte[1] { (byte)DatagramID.dummy });//to allow incoming UDP packets
             }
             catch (SocketException) {//connection refused
                 Close();
@@ -81,22 +49,26 @@ namespace Bridge {
                 return;
             }
             form.Log("connected\n", Color.Green);
+            status = BridgeStatus.connected;
 
             Stream stream = tcpToServer.GetStream();
             swriter = new BinaryWriter(stream);
             sreader = new BinaryReader(stream);
 
             form.Log("checking version...", Color.DarkGray);
+            swriter.Write((byte)0);//packetID
             swriter.Write(Database.bridgeVersion);
             if (!sreader.ReadBoolean()) {
                 form.Log("mismatch\n", Color.Red);
-                //form.buttonDisconnect.Invoke(new Action(form.buttonDisconnect.PerformClick));
+                MessageBox.Show("your bridge is outdated\nupdate\nstay offline");
                 return;
             }
             form.Log("match\n", Color.Green);
-            }
+            form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
+            ListenFromServerUDP();
+        }
         public static void Close() {
-            connectedToServer = false;
+            status = BridgeStatus.offline;
             form.Invoke(new Action(() => form.listBoxPlayers.Items.Clear()));
             LingerOption lingerOption = new LingerOption(true, 0);
             try {
@@ -118,30 +90,52 @@ namespace Bridge {
                 udpToServer = null;
             }
             catch { }
-            try {
-                tcpListener.Stop();
-            }
-            catch { }
             dynamicEntities.Clear();
         }
 
-        public static void ListenFromClientTCP() {
-            while (connectedToServer) {
-                bool WSAcancellation = false;
-                try {
-                    tcpListener.Start();
-                    WSAcancellation = true;
-                    tcpToClient = tcpListener.AcceptTcpClient();
-                }
-                catch (SocketException ex) {
-                    if (!WSAcancellation) {
-                        MessageBox.Show(ex.Message + "\n\nProbably Can't start listening for the client because the CubeWorld default port (12345) is already in use by another program. Do you have a CubeWorld server or another instance of the bridge already running on your computer?\n\nIf you don't know how to fix this, restarting your computer will likely help", "Error");
+        public static void Login() {
+            form.Log("logging in...", Color.DarkGray);
+            swriter.Write((byte)1);
+            swriter.Write(form.textBoxUsername.Text);
+            swriter.Write(form.textBoxPassword.Text);
+            swriter.Write(NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault());
+            switch ((AuthResponse)sreader.ReadByte()) {
+                case AuthResponse.success:
+                    if (sreader.ReadBoolean()) {//if banned
+                        MessageBox.Show(sreader.ReadString());//ban message
+                        form.Log("you are banned\n", Color.Red);
+                        goto default;
                     }
+                    form.Log("success\n", Color.Green);
+                    break;
+                case AuthResponse.unknownUser:
+                    form.Log("username does not exist\n", Color.Red);
+                    goto default;
+                case AuthResponse.wrongPassword:
+                    form.Log("wrong password\n", Color.Red);
+                    goto default;
+                default:
                     return;
-                }
-                finally {
-                    tcpListener.Stop();
-                }
+            }
+            status = BridgeStatus.loggedIn;
+            guid = sreader.ReadUInt16();
+            mapseed = sreader.ReadInt32();
+
+            new Thread(new ThreadStart(ListenFromServerTCP)).Start();
+        }
+
+        public static void ListenFromClientTCP() {
+            try {
+                tcpListener.Start();
+            }
+            catch (SocketException ex) {
+                MessageBox.Show(ex.Message + "\n\nProbably Can't start listening for the client because the CubeWorld default port (12345) is already in use by another program. Do you have a CubeWorld server or another instance of the bridge already running on your computer?\n\nIf you don't know how to fix this, restarting your computer will likely help", "Error");
+                //retry
+                return;
+            }
+
+            while (true) {
+                tcpToClient = tcpListener.AcceptTcpClient();
                 form.Log("client connected\n", Color.Green);
 
                 tcpToClient.NoDelay = true;
@@ -149,23 +143,39 @@ namespace Bridge {
                 creader = new BinaryReader(stream);
                 cwriter = new BinaryWriter(stream);
 
-                clientConnected = true;
-                new Thread(new ThreadStart(WriteToClientTCP)).Start();
+                if (status != BridgeStatus.loggedIn) {
+                    //reject client
+                }
+                else {
+                    status = BridgeStatus.playing;
+                    new Thread(new ThreadStart(WriteToClientTCP)).Start();
 
-                while (true) {
-                    try {
-                        int packetID = creader.ReadInt32();
-                        ProcessClientPacket(packetID);
-                    }
-                    catch (IOException) {
-                        clientConnected = false;
-                        if (connectedToServer) {
-                            SendUDP(new RemoveDynamicEntity() { Guid = (guid)}.data);
+                    while (true) {
+                        try {
+                            int packetID = creader.ReadInt32();
+                            ProcessClientPacket(packetID);
                         }
-                        dynamicEntities.Remove(guid);
-                        form.Log("client disconnected\n", Color.Red);
-                        RefreshPlayerlist();
-                        break;
+                        catch (IOException) {
+                            switch (status) {
+                                case BridgeStatus.offline://server crashed
+                                    break;
+                                case BridgeStatus.connected://player logged out
+                                    break;
+                                case BridgeStatus.loggedIn://impossible
+                                    goto default;
+                                case BridgeStatus.playing: //client disconnected himself
+                                    status = BridgeStatus.loggedIn;
+                                    SendUDP(new RemoveDynamicEntity() { Guid = (guid) }.data);
+                                    break;
+                                default:
+                                    //this shouldnt happen
+                                    break;
+                            }
+                            dynamicEntities.Remove(guid);
+                            form.Log("client disconnected\n", Color.Red);
+                            RefreshPlayerlist();
+                            break;
+                        }
                     }
                 }
             }
@@ -176,16 +186,13 @@ namespace Bridge {
                     ProcessServerPacket(sreader.ReadInt32()); //we can use byte here because it doesn't contain vanilla packets
                 }
                 catch (IOException) {
-                    if (connectedToServer) {
-                        form.Log("Connection to Server lost\n", Color.Red);
-                        Close();
-                    }
+                    form.Log("Connection to Server lost\n", Color.Red);
+                    Close();
                     break;
                 }
             }
         }
         public static void ListenFromServerUDP() {
-            SendUDP(new byte[1] { (byte)DatagramID.dummy });//to allow incoming UDP packets
             while (true) {
                 IPEndPoint source = null;
                 byte[] datagram = null;
@@ -200,7 +207,7 @@ namespace Bridge {
         }
 
         public static void WriteToClientTCP() {
-            while (clientConnected) {
+            while (status == BridgeStatus.playing) {
                 if (outgoing.Count != 0) {
                     outgoing.Dequeue().Write(cwriter);
                 }
@@ -214,7 +221,7 @@ namespace Bridge {
                 case DatagramID.dynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
-                    if (clientConnected) {
+                    if (status == BridgeStatus.playing) {
                         if (entityUpdate.guid == guid) {
                             CwRam.Teleport(entityUpdate.position);
                             break;
@@ -285,7 +292,7 @@ namespace Bridge {
                             position = dynamicEntities[guid].position,
                         });
                         bool tick() {
-                            bool f = clientConnected && dynamicEntities[guid].HP > 0;
+                            bool f = status == BridgeStatus.playing && dynamicEntities[guid].HP > 0;
                             if (f) {
                                 outgoing.Enqueue(su);
                             }
@@ -310,7 +317,7 @@ namespace Bridge {
                         sender = chat.Sender,
                         message = chat.Text
                     };
-                    if (clientConnected) outgoing.Enqueue(chatMessage);
+                    if (status == BridgeStatus.playing) outgoing.Enqueue(chatMessage);
                     if (chat.Sender == 0) {
                         form.Log(chat.Text + "\n", Color.Magenta);
                     }
@@ -327,7 +334,7 @@ namespace Bridge {
                     var time = new Time() {
                         time = igt.Time
                     };
-                    if (clientConnected) outgoing.Enqueue(time);
+                    if (status == BridgeStatus.playing) outgoing.Enqueue(time);
                     break;
                 #endregion
                 case DatagramID.interaction:
@@ -395,7 +402,7 @@ namespace Bridge {
                         hostility = (Hostility)255, //workaround for DC because i dont like packet2
                         HP = 0
                     };
-                    if (clientConnected) outgoing.Enqueue(entityUpdate);
+                    if (status == BridgeStatus.playing) outgoing.Enqueue(entityUpdate);
                     dynamicEntities.Remove(rde.Guid);
                     RefreshPlayerlist();
                     break;
@@ -406,7 +413,7 @@ namespace Bridge {
                     switch (specialMove.Id) {
                         case SpecialMoveID.taunt:
                             if (dynamicEntities.ContainsKey(specialMove.Guid)) {
-                                if (clientConnected) {
+                                if (status == BridgeStatus.playing) {
                                     CwRam.Teleport(dynamicEntities[specialMove.Guid].position);
                                     CwRam.Freeze(5000);
                                 }
@@ -450,7 +457,7 @@ namespace Bridge {
                     form.Log("unknown datagram ID: " + datagram[0], Color.Red);
                     break;
             }
-            if (clientConnected && writeServerUpdate) outgoing.Enqueue(serverUpdate);
+            if (status == BridgeStatus.playing && writeServerUpdate) outgoing.Enqueue(serverUpdate);
         }
         public static void ProcessClientPacket(int packetID) {
             switch ((PacketID)packetID) {
@@ -655,28 +662,28 @@ namespace Bridge {
             }
         }
         public static void ProcessServerPacket(int packetID) {
-            switch (packetID) {
-                case 0:
-                    var query = new Query(sreader);
-                    foreach (var item in query.players) {
-                        if (!dynamicEntities.ContainsKey(item.Key)) {
-                            dynamicEntities.Add(item.Key, new EntityUpdate());
-                        }
-                        dynamicEntities[item.Key].guid = item.Key;
-                        dynamicEntities[item.Key].name = item.Value;
-                    }
-                    form.Invoke(new Action(form.listBoxPlayers.Items.Clear));
-                    foreach (var playerData in dynamicEntities.Values) {
-                        form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(playerData.name)));
-                    }
-                    break;
-                case 4:
-                    outgoing.Enqueue(new ServerUpdate(sreader));
-                    break;
-                default:
-                    MessageBox.Show("unknown server packet received");
-                    break;
-            }
+            //switch (packetID) {
+            //    case 0:
+            //        var query = new Query(sreader);
+            //        foreach (var item in query.players) {
+            //            if (!dynamicEntities.ContainsKey(item.Key)) {
+            //                dynamicEntities.Add(item.Key, new EntityUpdate());
+            //            }
+            //            dynamicEntities[item.Key].guid = item.Key;
+            //            dynamicEntities[item.Key].name = item.Value;
+            //        }
+            //        form.Invoke(new Action(form.listBoxPlayers.Items.Clear));
+            //        foreach (var playerData in dynamicEntities.Values) {
+            //            form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(playerData.name)));
+            //        }
+            //        break;
+            //    case 4:
+            //        outgoing.Enqueue(new ServerUpdate(sreader));
+            //        break;
+            //    default:
+            //        MessageBox.Show("unknown server packet received");
+            //        break;
+            //}
         }
 
         public static void RefreshPlayerlist() {

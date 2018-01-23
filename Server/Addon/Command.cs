@@ -25,7 +25,7 @@ namespace Server.Addon {
                         xpDummy.Write(player.writer);
 
                         var kill = new ServerUpdate.Kill() {
-                            killer = player.guid,
+                            killer = player.entity.guid,
                             victim = 1000,
                             xp = amount
                         };
@@ -68,7 +68,7 @@ namespace Server.Addon {
             switch (command.ToLower()) {
                 case "spawn":
                     var entityUpdate = new EntityUpdate() {
-                        guid = source.guid,
+                        guid = source.entity.guid,
                         position = new LongVector() {
                             x = 543093329157,
                             y = 546862296355,
@@ -78,16 +78,16 @@ namespace Server.Addon {
                     server.SendUDP(entityUpdate.CreateDatagram(), source);
                     break;
 
-                case "load":
-                    server.worldUpdate.Write(source.writer);
-                    break;
+                //case "load":
+                //    server.worldUpdate.Write(source.writer);
+                //    break;
 
-                case "ban":
-                    ushort guid = 0;
-                    if (!source.admin || !ushort.TryParse(parameter, out guid)) {
-                        break;
-                    }
-                    break;
+                //case "ban":
+                //    ushort guid = 0;
+                //    if (!source.admin || !ushort.TryParse(parameter, out guid)) {
+                //        break;
+                //    }
+                //    break;
 
                 case "time":
                     try {
