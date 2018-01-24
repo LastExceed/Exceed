@@ -939,7 +939,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "FormEditor";
-            this.Text = "FormEditor";
+            this.Text = "Character editor";
             this.TopMost = true;
             this.Shown += new System.EventHandler(this.FormEditor_Shown);
             this.groupBoxClass.ResumeLayout(false);

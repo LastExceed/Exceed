@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Bridge {
-    public partial class Form1 : Form {
+    public partial class FormMain : Form {
         FormEditor editor = new FormEditor();
+        FormMap map = new FormMap();
 
-        public Form1(string[]args) {
+        public FormMain(string[]args) {
             InitializeComponent();
             BridgeTCPUDP.form = this;
             CwRam.form = editor;
@@ -67,10 +68,14 @@ namespace Bridge {
             new Thread(new ThreadStart(BridgeTCPUDP.Login)).Start();
         }
 
-        private void buttonLogout_Click(object sender, EventArgs e) {
+        private void ButtonLogout_Click(object sender, EventArgs e) {
             new Thread(new ThreadStart(BridgeTCPUDP.Logout)).Start();
             buttonLogout.Enabled = false;
             buttonLogin.Enabled = true;
+        }
+
+        private void ButtonMap_Click(object sender, EventArgs e) {
+            map.Show();
         }
     }
 }

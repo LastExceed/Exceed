@@ -13,7 +13,7 @@ namespace Bridge {
         static void Main(string[] args) {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1(args));
+            Application.Run(new FormMain(args));
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Bridge {
         public static BinaryReader sreader, creader;
         public static ushort guid;
         public static int mapseed;
-        public static Form1 form;
+        public static FormMain form;
         public static Dictionary<long, EntityUpdate> dynamicEntities = new Dictionary<long, EntityUpdate>();
         public static ushort lastTarget;
         public static Queue<Packet> outgoing = new Queue<Packet>();
@@ -123,7 +123,7 @@ namespace Bridge {
             status = BridgeStatus.loggedIn;
             guid = sreader.ReadUInt16();
             mapseed = sreader.ReadInt32();
-            new Thread(new ThreadStart(ListenFromServerTCP)).Start();
+            //new Thread(new ThreadStart(ListenFromServerTCP)).Start();
 
             form.Invoke(new Action(() => form.buttonLogout.Enabled = true));
         }
