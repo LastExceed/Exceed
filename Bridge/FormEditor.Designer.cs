@@ -941,6 +941,7 @@
             this.Name = "FormEditor";
             this.Text = "Character editor";
             this.TopMost = true;
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormEditor_FormClosed);
             this.Shown += new System.EventHandler(this.FormEditor_Shown);
             this.groupBoxClass.ResumeLayout(false);
             this.groupBoxClass.PerformLayout();

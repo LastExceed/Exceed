@@ -7,11 +7,13 @@ using System.Windows.Forms;
 
 namespace Bridge {
     public partial class FormMain : Form {
-        FormEditor editor = new FormEditor();
-        FormMap map = new FormMap();
+        public FormEditor editor;
+        public FormMap map;
 
         public FormMain(string[]args) {
             InitializeComponent();
+            editor = new FormEditor(this);
+            map = new FormMap(this);
             BridgeTCPUDP.form = this;
             CwRam.form = editor;
             try {

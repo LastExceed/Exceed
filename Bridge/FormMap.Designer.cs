@@ -34,6 +34,7 @@
             this.MaximizeBox = false;
             this.Name = "FormMap";
             this.Text = "FormMap";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormMap_FormClosed);
             this.ResumeLayout(false);
 
         }

@@ -10,8 +10,14 @@ using System.Windows.Forms;
 
 namespace Bridge {
     public partial class FormMap : Form {
-        public FormMap() {
+        FormMain main;
+        public FormMap(FormMain main) {
             InitializeComponent();
+            this.main = main;
+        }
+
+        private void FormMap_FormClosed(object sender, FormClosedEventArgs e) {
+            main.map = new FormMap(main);
         }
     }
 }
