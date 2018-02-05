@@ -12,11 +12,9 @@ namespace Bridge {
     public partial class FormEditor : Form {
         bool isReady = true;
         byte buffer, memorize;
-        FormMain main;
 
-        public FormEditor(FormMain main) {
+        public FormEditor() {
             InitializeComponent();
-            this.main = main;
         }
 
         private void FormEditor_Shown(object sender, EventArgs e) {
@@ -258,10 +256,6 @@ namespace Bridge {
                 CwRam.memory.WriteByte(CwRam.EntityStart + 0x0141, 1);
             }
 
-        }
-
-        private void FormEditor_FormClosed(object sender, FormClosedEventArgs e) {
-            main.editor = new FormEditor(main);
         }
     }
 }

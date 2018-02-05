@@ -7,13 +7,11 @@ using System.Windows.Forms;
 
 namespace Bridge {
     public partial class FormMain : Form {
-        public FormEditor editor;
-        public FormMap map;
+        public FormEditor editor = new FormEditor();
+        public FormMap map = new FormMap();
 
         public FormMain(string[]args) {
             InitializeComponent();
-            editor = new FormEditor(this);
-            map = new FormMap(this);
             BridgeTCPUDP.form = this;
             CwRam.form = editor;
             try {
@@ -60,7 +58,10 @@ namespace Bridge {
         }
 
         private void ButtonEditor_Click(object sender, EventArgs e) {
+            if (editor.IsDisposed) editor = new FormEditor();
             editor.Show();
+            editor.WindowState = FormWindowState.Normal;
+            editor.Focus();
         }
 
         private void ButtonLogin_Click(object sender, EventArgs e) {
@@ -77,7 +78,10 @@ namespace Bridge {
         }
 
         private void ButtonMap_Click(object sender, EventArgs e) {
+            if (map.IsDisposed) map = new FormMap();
             map.Show();
+            map.WindowState = FormWindowState.Normal;
+            map.Focus();
         }
     }
 }
