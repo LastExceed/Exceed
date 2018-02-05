@@ -359,7 +359,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case DatagramID.dummy:
+                case DatagramID.holePunch:
                     break;
                 default:
                     Console.WriteLine("unknown DatagramID: " + datagram[0]);

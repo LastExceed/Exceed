@@ -27,7 +27,7 @@
         particle,
         RemoveDynamicEntity,
         specialMove, //temp
-        dummy = 255 //for establishing connection
+        holePunch = 255 //for establishing connection
     }
     public enum AuthResponse : byte {
         success,

@@ -42,7 +42,7 @@ namespace Bridge {
 
                 udpToServer = new UdpClient(tcpToServer.Client.LocalEndPoint as IPEndPoint);
                 udpToServer.Connect(serverIP, serverPort);
-                SendUDP(new byte[1] { (byte)DatagramID.dummy });//to allow incoming UDP packets
+                SendUDP(new byte[1] { (byte)DatagramID.holePunch });
             }
             catch (SocketException) {//connection refused
                 Close();
