@@ -298,13 +298,13 @@
             this.radioButtonRankingsClan.Name = "radioButtonRankingsClan";
             this.radioButtonRankingsClan.Size = new System.Drawing.Size(51, 17);
             this.radioButtonRankingsClan.TabIndex = 1;
-            this.radioButtonRankingsClan.TabStop = true;
             this.radioButtonRankingsClan.Text = "Clans";
             this.radioButtonRankingsClan.UseVisualStyleBackColor = true;
             // 
             // radioButtonRankingsUsers
             // 
             this.radioButtonRankingsUsers.AutoSize = true;
+            this.radioButtonRankingsUsers.Checked = true;
             this.radioButtonRankingsUsers.Location = new System.Drawing.Point(5, 0);
             this.radioButtonRankingsUsers.Name = "radioButtonRankingsUsers";
             this.radioButtonRankingsUsers.Size = new System.Drawing.Size(52, 17);

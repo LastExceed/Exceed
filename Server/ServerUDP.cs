@@ -34,6 +34,7 @@ namespace Server {
             else {
                 Console.WriteLine("no bans file found");
                 bans = new List<Ban>();
+                //File.WriteAllText(bansFilePath, JsonConvert.SerializeObject(bans));
             }
 
             if (File.Exists(accountsFilePath)) {
@@ -42,6 +43,7 @@ namespace Server {
             else {
                 Console.WriteLine("no accounts file found");
                 accounts = new Dictionary<string, string>();
+                //File.WriteAllText(accountsFilePath, JsonConvert.SerializeObject(accounts));
             }
 
             #region models
