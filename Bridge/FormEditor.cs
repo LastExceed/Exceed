@@ -1,92 +1,32 @@
-﻿using ReadWriteProcessMemory;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
 using System.Drawing;
-using System.Threading;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Bridge {
-    public partial class Form1 : Form {
+    public partial class FormEditor : Form {
         bool isReady = true;
         byte buffer, memorize;
 
-        public Form1(string[]args) {
+        public FormEditor() {
             InitializeComponent();
-            BridgeTCPUDP.form = CwRam.form = this;
-            try {
-                CwRam.memory = new ProcessMemory("Cube");
-            }
-            catch (IndexOutOfRangeException) {
-                MessageBox.Show("CubeWorld process not found. Please start the game first");
-                Environment.Exit(0);
-            }
-            CwRam.RemoveFog();
-            HotkeyManager.Init(this);
-        }
-        protected override void WndProc(ref Message m) {
-            if (m.Msg == HotkeyManager.WM_HOTKEY_MSG_ID) {
-                BridgeTCPUDP.OnHotkey(m.WParam.ToInt32());
-            }
-            base.WndProc(ref m);
         }
 
-        public void Log(string text, Color color) {
-            if (InvokeRequired) {
-                Invoke((Action)(() => Log(text, color)));
-            }
-            else {
-                richTextBoxChat.SelectionStart = richTextBoxChat.TextLength;
-                richTextBoxChat.SelectionLength = 0;
+        private void FormEditor_Shown(object sender, EventArgs e) {
+            comboBoxClass.SelectedIndex = CwRam.memory.ReadByte(CwRam.EntityStart + 0x0140);
+            radioButtonSubclass1.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 0);
+            radioButtonSubclass2.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 1);
 
-                richTextBoxChat.SelectionColor = color;
-                richTextBoxChat.AppendText(text);
-                richTextBoxChat.SelectionColor = richTextBoxChat.ForeColor;
-            }
+            numericUpDownCharacterLevel.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x0190);
+            numericUpDownXP.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x0194);
+            numericUpDownMoney.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x1304);
+            numericUpDownPlatinum.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x1308);
         }
-
-        public void EnableButtons() {
-            if (InvokeRequired) {
-                Invoke((Action)EnableButtons);
-            }
-            else {
-                buttonDisconnect.Enabled = false;
-                buttonConnect.Enabled = true;
-                groupBoxServer.Enabled = true;
-                groupBoxAccount.Enabled = true;
-            }
-        }
-        public void DisableButtons() {
-            if (InvokeRequired) {
-                Invoke((Action)DisableButtons);
-            }
-            else {
-                buttonDisconnect.Enabled = true;
-                buttonConnect.Enabled = false;
-                groupBoxServer.Enabled = false;
-                groupBoxAccount.Enabled = false;
-            }
-        }
-
-        private void ButtonConnect_Click(object sender, EventArgs e) {
-            DisableButtons();
-            new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
-        }
-        public void ButtonDisconnect_Click(object sender, EventArgs e) {
-            BridgeTCPUDP.Close();
-            EnableButtons();
-            Log("disconnected\n", Color.Red);
-        }
-
-        private void TextBoxPassword_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter) {
-                buttonConnect.PerformClick();
-            }
-        }
-
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e) {
-            Environment.Exit(0);
-        }
-
 
         //itemeditor
         private void ListBoxItem_SelectedIndexChanged(object sender, EventArgs e) {
@@ -103,6 +43,7 @@ namespace Bridge {
             tabControlItemEditor.Enabled = true;
             listBoxSlots.SelectedIndex = -1;
         }
+
         private void NumericUpDownType_ValueChanged(object sender, EventArgs e) {
             buffer = (byte)numericUpDownType.Value;
             CwRam.memory.WriteByte(CwRam.ItemStart + 0, buffer);
@@ -137,7 +78,6 @@ namespace Bridge {
         private void NumericUpDownUnknown_ValueChanged(object sender, EventArgs e) {
             CwRam.memory.WriteInt(CwRam.ItemStart + 8, (int)numericUpDownUnknown.Value);
         }
-
         private void NumericUpDownRarity_ValueChanged(object sender, EventArgs e) {
             buffer = (byte)numericUpDownRarity.Value;
             CwRam.memory.WriteByte(CwRam.ItemStart + 12, buffer);
@@ -171,7 +111,7 @@ namespace Bridge {
             CwRam.memory.WriteShort(CwRam.ItemStart + 16, (short)numericUpDownLevel.Value);
         }
         //checkbox
-        private void CheckBoxAdapted_Click(object sender, EventArgs e) {
+        private void CheckBoxAdapted_CheckedChanged(object sender, EventArgs e) {
             CwRam.memory.WriteByte(CwRam.ItemStart + 14, Convert.ToByte(checkBoxAdapted.Checked));
         }
         //combobox
@@ -272,7 +212,7 @@ namespace Bridge {
                 CwRam.memory.WriteByte(CwRam.SlotStart + 3, 5);
             }
         }
-        private void CheckBoxHighlight_Click(object sender, EventArgs e) {
+        private void CheckBoxHighlight_CheckedChanged(object sender, EventArgs e) {
             if (checkBoxHighlight.Checked) {
                 listBoxItem.Enabled = false;
                 listBoxSlots.Enabled = false;
@@ -292,32 +232,6 @@ namespace Bridge {
             }
         }
 
-        private void CheckBoxStayOnTop_CheckedChanged(object sender, EventArgs e) {
-            TopMost = checkBoxStayOnTop.Checked;
-        }
-        private void TabControl1_SelectedIndexChanged(object sender, EventArgs e) {
-            if (tabControl1.SelectedIndex == 2) {
-                comboBoxClass.SelectedIndex = CwRam.memory.ReadByte(CwRam.EntityStart + 0x0140);
-                radioButtonSubclass1.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 0);
-                radioButtonSubclass2.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 1);
-
-                numericUpDownCharacterLevel.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x0190);
-                numericUpDownXP.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x0194);
-                numericUpDownMoney.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x1304);
-                numericUpDownPlatinum.Value = CwRam.memory.ReadInt(CwRam.EntityStart + 0x1308);
-
-                numericUpDownPetmaster.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 0 * 4);
-                numericUpDownRiding.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 1 * 4);
-                numericUpDownClimbing.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 2 * 4);
-                numericUpDownGliding.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 3 * 4);
-                numericUpDownSwimming.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 4 * 4);
-                numericUpDownSailing.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 5 * 4);
-                numericUpDownSkill1.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 6 * 4);
-                numericUpDownSkill2.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 7 * 4);
-                numericUpDownSkill3.Value = CwRam.memory.ReadInt(CwRam.SkillStart + 8 * 4);
-            }
-        }
-
         //character editor
         private void NumericUpDownCharacterLevel_ValueChanged(object sender, EventArgs e) {
             CwRam.memory.WriteInt(CwRam.EntityStart + 0x0190, (int)numericUpDownCharacterLevel.Value);
@@ -331,39 +245,9 @@ namespace Bridge {
         private void NumericUpDownPlatinum_ValueChanged(object sender, EventArgs e) {
             CwRam.memory.WriteInt(CwRam.EntityStart + 0x1308, (int)numericUpDownPlatinum.Value);
         }
-
-        private void NumericUpDownSkill1_ValueChanged(object sender, EventArgs e) {
-            CwRam.memory.WriteInt(CwRam.SkillStart + 6 * 4, (int)numericUpDownSkill1.Value);
-        }
-        private void NumericUpDownSkill2_ValueChanged(object sender, EventArgs e) {
-            CwRam.memory.WriteInt(CwRam.SkillStart + 7 * 4, (int)numericUpDownSkill2.Value);
-        }
-        private void NumericUpDownSkill3_ValueChanged(object sender, EventArgs e) {
-            CwRam.memory.WriteInt(CwRam.SkillStart + 8 * 4, (int)numericUpDownSkill3.Value);
-        }
-        private void NumericUpDownPetmaster_ValueChanged(object sender, EventArgs e) {
-            CwRam.memory.WriteInt(CwRam.SkillStart + 0 * 4, (int)numericUpDownPetmaster.Value);
-        }
-        private void NumericUpDownRiding_ValueChanged(object sender, EventArgs e) {
-            CwRam.memory.WriteInt(CwRam.SkillStart + 1 * 4, (int)numericUpDownRiding.Value);
-        }
-        private void NumericUpDownClimbing_ValueChanged(object sender, EventArgs e) {
-            CwRam.memory.WriteInt(CwRam.SkillStart + 2 * 4, (int)numericUpDownClimbing.Value);
-        }
-        private void NumericUpDownGliding_ValueChanged(object sender, EventArgs e) {
-            CwRam.memory.WriteInt(CwRam.SkillStart + 3 * 4, (int)numericUpDownGliding.Value);
-        }
-        private void NumericUpDownSwimming_ValueChanged(object sender, EventArgs e) {
-            CwRam.memory.WriteInt(CwRam.SkillStart + 4 * 4, (int)numericUpDownSwimming.Value);
-        }
-        private void NumericUpDownSailing_ValueChanged(object sender, EventArgs e) {
-            CwRam.memory.WriteInt(CwRam.SkillStart + 5 * 4, (int)numericUpDownSailing.Value);
-        }
-
         private void ComboBoxClass_SelectedIndexChanged(object sender, EventArgs e) {
             CwRam.memory.WriteByte(CwRam.EntityStart + 0x0140, (byte)comboBoxClass.SelectedIndex);
         }
-
         private void RadioButtonSubclass1_CheckedChanged(object sender, EventArgs e) {
             if (radioButtonSubclass1.Checked) {
                 CwRam.memory.WriteByte(CwRam.EntityStart + 0x0141, 0);
