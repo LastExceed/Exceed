@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Resources;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,7 +17,6 @@ namespace Bridge {
         public FormEditor() {
             InitializeComponent();
         }
-
         private void FormEditor_Shown(object sender, EventArgs e) {
             comboBoxClass.SelectedIndex = CwRam.memory.ReadByte(CwRam.EntityStart + 0x0140);
             radioButtonSubclass1.Checked = (CwRam.memory.ReadByte(CwRam.EntityStart + 0x0141) == 0);
@@ -33,7 +33,7 @@ namespace Bridge {
             numericUpDownType.Value = CwRam.memory.ReadByte(CwRam.ItemStart + 0); ;
             numericUpDownSubType.Value = CwRam.memory.ReadByte(CwRam.ItemStart + 1);
             numericUpDownModifier.Value = CwRam.memory.ReadInt(CwRam.ItemStart + 4);
-            numericUpDownUnknown.Value = CwRam.memory.ReadInt(CwRam.ItemStart + 8);
+            numericUpDownRecipe.Value = CwRam.memory.ReadInt(CwRam.ItemStart + 8);
             numericUpDownRarity.Value = CwRam.memory.ReadByte(CwRam.ItemStart + 12);
             numericUpDownMaterial.Value = CwRam.memory.ReadByte(CwRam.ItemStart + 13);
             numericUpDownLevel.Value = CwRam.memory.ReadUShort(CwRam.ItemStart + 16);
@@ -47,48 +47,29 @@ namespace Bridge {
         private void NumericUpDownType_ValueChanged(object sender, EventArgs e) {
             buffer = (byte)numericUpDownType.Value;
             CwRam.memory.WriteByte(CwRam.ItemStart + 0, buffer);
-
             isReady = false;
-            if (buffer < 26) {
-                comboBoxType.SelectedIndex = buffer;
-            }
-            else {
-                comboBoxType.SelectedIndex = -1;
-            }
+            comboBoxType.SelectedIndex = buffer < comboBoxType.Items.Count ? buffer : -1;
             isReady = true;
+            ItemTypeChanged(buffer);
         }
         private void NumericUpDownSubType_ValueChanged(object sender, EventArgs e) {
             buffer = (byte)numericUpDownSubType.Value;
             CwRam.memory.WriteByte(CwRam.ItemStart + 1, buffer);
-
             isReady = false;
-            //if (buffer < ?)
-            //{
-            //    comboBoxSubType.SelectedIndex = buffer;
-            //}
-            //else
-            //{
-            //    comboBoxSubType.SelectedIndex = -1;
-            //}
+            comboBoxSubType.SelectedIndex = buffer < comboBoxSubType.Items.Count ? buffer : -1;
             isReady = true;
         }
         private void NumericUpDownModifier_ValueChanged(object sender, EventArgs e) {
             CwRam.memory.WriteInt(CwRam.ItemStart + 4, (int)numericUpDownModifier.Value);
         }
-        private void NumericUpDownUnknown_ValueChanged(object sender, EventArgs e) {
-            CwRam.memory.WriteInt(CwRam.ItemStart + 8, (int)numericUpDownUnknown.Value);
+        private void NumericUpDownRecipe_ValueChanged(object sender, EventArgs e) {
+            CwRam.memory.WriteInt(CwRam.ItemStart + 8, (int)numericUpDownRecipe.Value);
         }
         private void NumericUpDownRarity_ValueChanged(object sender, EventArgs e) {
             buffer = (byte)numericUpDownRarity.Value;
             CwRam.memory.WriteByte(CwRam.ItemStart + 12, buffer);
-
             isReady = false;
-            if (buffer < 6) {
-                comboBoxRarity.SelectedIndex = buffer;
-            }
-            else {
-                comboBoxRarity.SelectedIndex = -1;
-            }
+            comboBoxRarity.SelectedIndex = buffer < comboBoxRarity.Items.Count ? buffer : -1;
             isReady = true;
         }
         private void NumericUpDownMaterial_ValueChanged(object sender, EventArgs e) {
@@ -120,6 +101,7 @@ namespace Bridge {
                 buffer = (byte)comboBoxType.SelectedIndex;
                 CwRam.memory.WriteByte(CwRam.ItemStart + 0, buffer);
                 numericUpDownType.Value = buffer;
+                ItemTypeChanged(buffer);
             }
         }
         private void ComboBoxSubType_SelectedIndexChanged(object sender, EventArgs e) {
@@ -143,6 +125,50 @@ namespace Bridge {
                 numericUpDownMaterial.Value = buffer;
             }
         }
+        
+        private void ItemTypeChanged(byte type) {
+            string[] subtypes = null;
+            switch ((ItemType)type) {
+                case ItemType.food:
+                    subtypes = Enum.GetNames(typeof(ItemSubtypeFood));
+                    break;
+                case ItemType.Weapon:
+                    subtypes = Enum.GetNames(typeof(ItemSubtypeWeapon));
+                    break;
+                case ItemType.resource:
+                    subtypes = Enum.GetNames(typeof(ItemSubtypeResource));
+                    break;
+                case ItemType.candle:
+                    subtypes = Enum.GetNames(typeof(ItemSubtypeCandle));
+                    break;
+                case ItemType.pet:
+                case ItemType.petFood:
+                    subtypes = Enum.GetNames(typeof(EntityType));
+                    break;
+                case ItemType.quest:
+                    subtypes = Enum.GetNames(typeof(ItemSubtypeQuest));
+                    break;
+                case ItemType.special:
+                    subtypes = Enum.GetNames(typeof(ItemSubtypeSpecial));
+                    break;
+
+                case ItemType.formula:
+                case ItemType.leftovers:
+                    if (numericUpDownRecipe.Value == 2 || numericUpDownRecipe.Value == 14) goto default;
+                    ItemTypeChanged((byte)(numericUpDownRecipe.Value % 256));
+                    return;
+                default:
+                    subtypes = new string[0];
+                    break;
+            }
+            comboBoxSubType.Items.Clear();
+            comboBoxSubType.Enabled = subtypes.Length != 0;
+            foreach (var subtype in subtypes) {
+                comboBoxSubType.Items.Add(subtype);
+            }
+            comboBoxSubType.Text = numericUpDownSubType.Value < subtypes.Length ? subtypes[(int)numericUpDownSubType.Value] : string.Empty;
+        }
+        
         //cubes/spirits
         private void ListBoxSlots_SelectedIndexChanged(object sender, EventArgs e) {
             isReady = false;

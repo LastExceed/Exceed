@@ -34,7 +34,7 @@
             this.labelLevel = new System.Windows.Forms.Label();
             this.labelMaterial = new System.Windows.Forms.Label();
             this.labelRarity = new System.Windows.Forms.Label();
-            this.labelUnknown = new System.Windows.Forms.Label();
+            this.labelRecipe = new System.Windows.Forms.Label();
             this.labelModifier = new System.Windows.Forms.Label();
             this.labelSubType = new System.Windows.Forms.Label();
             this.labelType = new System.Windows.Forms.Label();
@@ -46,7 +46,7 @@
             this.numericUpDownLevel = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownMaterial = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownRarity = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDownUnknown = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownRecipe = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownModifier = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownSubType = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownType = new System.Windows.Forms.NumericUpDown();
@@ -84,7 +84,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownLevel)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaterial)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRarity)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownUnknown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRecipe)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownModifier)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSubType)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownType)).BeginInit();
@@ -184,7 +184,7 @@
             this.tabPage4.Controls.Add(this.labelLevel);
             this.tabPage4.Controls.Add(this.labelMaterial);
             this.tabPage4.Controls.Add(this.labelRarity);
-            this.tabPage4.Controls.Add(this.labelUnknown);
+            this.tabPage4.Controls.Add(this.labelRecipe);
             this.tabPage4.Controls.Add(this.labelModifier);
             this.tabPage4.Controls.Add(this.labelSubType);
             this.tabPage4.Controls.Add(this.labelType);
@@ -196,7 +196,7 @@
             this.tabPage4.Controls.Add(this.numericUpDownLevel);
             this.tabPage4.Controls.Add(this.numericUpDownMaterial);
             this.tabPage4.Controls.Add(this.numericUpDownRarity);
-            this.tabPage4.Controls.Add(this.numericUpDownUnknown);
+            this.tabPage4.Controls.Add(this.numericUpDownRecipe);
             this.tabPage4.Controls.Add(this.numericUpDownModifier);
             this.tabPage4.Controls.Add(this.numericUpDownSubType);
             this.tabPage4.Controls.Add(this.numericUpDownType);
@@ -235,14 +235,14 @@
             this.labelRarity.TabIndex = 16;
             this.labelRarity.Text = "Rarity";
             // 
-            // labelUnknown
+            // labelRecipe
             // 
-            this.labelUnknown.AutoSize = true;
-            this.labelUnknown.Location = new System.Drawing.Point(-3, 67);
-            this.labelUnknown.Name = "labelUnknown";
-            this.labelUnknown.Size = new System.Drawing.Size(53, 13);
-            this.labelUnknown.TabIndex = 15;
-            this.labelUnknown.Text = "Unknown";
+            this.labelRecipe.AutoSize = true;
+            this.labelRecipe.Location = new System.Drawing.Point(-3, 67);
+            this.labelRecipe.Name = "labelRecipe";
+            this.labelRecipe.Size = new System.Drawing.Size(41, 13);
+            this.labelRecipe.TabIndex = 15;
+            this.labelRecipe.Text = "Recipe";
             // 
             // labelModifier
             // 
@@ -267,9 +267,9 @@
             this.labelType.AutoSize = true;
             this.labelType.Location = new System.Drawing.Point(-3, 4);
             this.labelType.Name = "labelType";
-            this.labelType.Size = new System.Drawing.Size(31, 13);
+            this.labelType.Size = new System.Drawing.Size(51, 13);
             this.labelType.TabIndex = 12;
-            this.labelType.Text = "Type";
+            this.labelType.Text = "ItemType";
             // 
             // comboBoxMaterial
             // 
@@ -332,7 +332,6 @@
             // 
             // comboBoxSubType
             // 
-            this.comboBoxSubType.Enabled = false;
             this.comboBoxSubType.FormattingEnabled = true;
             this.comboBoxSubType.Location = new System.Drawing.Point(91, 21);
             this.comboBoxSubType.Name = "comboBoxSubType";
@@ -354,8 +353,8 @@
             "Shoulder Armor",
             "Amulet",
             "Ring",
-            "Spirit",
-            "Nugget",
+            "Block",
+            "Resource",
             "Coin",
             "Platinum",
             "Leftover",
@@ -432,23 +431,23 @@
             this.numericUpDownRarity.TabIndex = 4;
             this.numericUpDownRarity.ValueChanged += new System.EventHandler(this.NumericUpDownRarity_ValueChanged);
             // 
-            // numericUpDownUnknown
+            // numericUpDownRecipe
             // 
-            this.numericUpDownUnknown.Location = new System.Drawing.Point(50, 63);
-            this.numericUpDownUnknown.Maximum = new decimal(new int[] {
+            this.numericUpDownRecipe.Location = new System.Drawing.Point(50, 63);
+            this.numericUpDownRecipe.Maximum = new decimal(new int[] {
             2147483647,
             0,
             0,
             0});
-            this.numericUpDownUnknown.Minimum = new decimal(new int[] {
+            this.numericUpDownRecipe.Minimum = new decimal(new int[] {
             -2147483648,
             0,
             0,
             -2147483648});
-            this.numericUpDownUnknown.Name = "numericUpDownUnknown";
-            this.numericUpDownUnknown.Size = new System.Drawing.Size(116, 20);
-            this.numericUpDownUnknown.TabIndex = 3;
-            this.numericUpDownUnknown.ValueChanged += new System.EventHandler(this.NumericUpDownUnknown_ValueChanged);
+            this.numericUpDownRecipe.Name = "numericUpDownRecipe";
+            this.numericUpDownRecipe.Size = new System.Drawing.Size(116, 20);
+            this.numericUpDownRecipe.TabIndex = 3;
+            this.numericUpDownRecipe.ValueChanged += new System.EventHandler(this.NumericUpDownRecipe_ValueChanged);
             // 
             // numericUpDownModifier
             // 
@@ -951,7 +950,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownLevel)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaterial)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRarity)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownUnknown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRecipe)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownModifier)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSubType)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownType)).EndInit();
@@ -982,7 +981,7 @@
         public System.Windows.Forms.Label labelLevel;
         public System.Windows.Forms.Label labelMaterial;
         public System.Windows.Forms.Label labelRarity;
-        public System.Windows.Forms.Label labelUnknown;
+        public System.Windows.Forms.Label labelRecipe;
         public System.Windows.Forms.Label labelModifier;
         public System.Windows.Forms.Label labelSubType;
         public System.Windows.Forms.Label labelType;
@@ -994,7 +993,7 @@
         public System.Windows.Forms.NumericUpDown numericUpDownLevel;
         public System.Windows.Forms.NumericUpDown numericUpDownMaterial;
         public System.Windows.Forms.NumericUpDown numericUpDownRarity;
-        public System.Windows.Forms.NumericUpDown numericUpDownUnknown;
+        public System.Windows.Forms.NumericUpDown numericUpDownRecipe;
         public System.Windows.Forms.NumericUpDown numericUpDownModifier;
         public System.Windows.Forms.NumericUpDown numericUpDownSubType;
         public System.Windows.Forms.NumericUpDown numericUpDownType;
