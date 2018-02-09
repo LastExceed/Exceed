@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
             "BLACKROCK",
             "[@]",
@@ -76,6 +77,7 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonMap = new System.Windows.Forms.Button();
+            this.timerSearchProcess = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -208,6 +210,7 @@
             // 
             // buttonEditor
             // 
+            this.buttonEditor.Enabled = false;
             this.buttonEditor.Location = new System.Drawing.Point(0, 233);
             this.buttonEditor.Name = "buttonEditor";
             this.buttonEditor.Size = new System.Drawing.Size(95, 23);
@@ -392,6 +395,11 @@
             this.buttonMap.UseVisualStyleBackColor = true;
             this.buttonMap.Click += new System.EventHandler(this.ButtonMap_Click);
             // 
+            // timerSearchProcess
+            // 
+            this.timerSearchProcess.Enabled = true;
+            this.timerSearchProcess.Tick += new System.EventHandler(this.timerSearchProcess_Tick);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -461,6 +469,7 @@
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Button buttonMap;
+        private System.Windows.Forms.Timer timerSearchProcess;
     }
 }
 

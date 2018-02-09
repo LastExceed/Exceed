@@ -20,6 +20,12 @@ namespace Bridge {
             RegisterHotKey(hWnd, (int)HotkeyID.specialmove2, CTRL, (int)Keys.X);
         }
 
+        public static void Deinit() {
+            UnregisterHotKey(hWnd, (int)HotkeyID.teleport_to_town);
+            UnregisterHotKey(hWnd, (int)HotkeyID.ctrlSpace);
+            UnregisterHotKey(hWnd, (int)HotkeyID.specialmove2);
+        }
+
         [DllImport("user32.dll")]
         private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
 

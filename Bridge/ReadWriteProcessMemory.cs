@@ -10,10 +10,11 @@ namespace ReadWriteProcessMemory {
         byte[] buffer = new byte[4];
         public IntPtr handle;
         public int baseAddress;
+        public Process process;
 
         //constructor
-        public ProcessMemory(string pName) {
-            Process process = Process.GetProcessesByName(pName)[0];
+        public ProcessMemory(Process process) {
+            this.process = process;
             handle = OpenProcess(0x001F0FFF, false, process.Id);
             baseAddress = process.MainModule.BaseAddress.ToInt32();
         }

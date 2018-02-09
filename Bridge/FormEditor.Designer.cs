@@ -77,6 +77,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.TimerHighlight = new System.Windows.Forms.Timer(this.components);
+            this.timerRefresh = new System.Windows.Forms.Timer(this.components);
             this.groupBoxClass.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMoney)).BeginInit();
             this.tabControlItemEditor.SuspendLayout();
@@ -919,6 +920,11 @@
             this.TimerHighlight.Interval = 250;
             this.TimerHighlight.Tick += new System.EventHandler(this.TimerHighlight_Tick);
             // 
+            // timerRefresh
+            // 
+            this.timerRefresh.Interval = 150;
+            this.timerRefresh.Tick += new System.EventHandler(this.TimerRefresh_Tick);
+            // 
             // FormEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1024,5 +1030,6 @@
         public System.Windows.Forms.Label label2;
         public System.Windows.Forms.Label label5;
         public System.Windows.Forms.Timer TimerHighlight;
+        private System.Windows.Forms.Timer timerRefresh;
     }
 }

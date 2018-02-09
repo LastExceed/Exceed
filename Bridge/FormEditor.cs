@@ -30,6 +30,11 @@ namespace Bridge {
 
         //itemeditor
         private void ListBoxItem_SelectedIndexChanged(object sender, EventArgs e) {
+            timerRefresh.Enabled = true;
+            tabControlItemEditor.Enabled = true;
+            listBoxSlots.SelectedIndex = -1;
+        }
+        private void TimerRefresh_Tick(object sender, EventArgs e) {
             numericUpDownType.Value = CwRam.memory.ReadByte(CwRam.ItemStart + 0); ;
             numericUpDownSubType.Value = CwRam.memory.ReadByte(CwRam.ItemStart + 1);
             numericUpDownModifier.Value = CwRam.memory.ReadInt(CwRam.ItemStart + 4);
@@ -39,9 +44,6 @@ namespace Bridge {
             numericUpDownLevel.Value = CwRam.memory.ReadUShort(CwRam.ItemStart + 16);
             checkBoxAdapted.Checked = (CwRam.memory.ReadByte(CwRam.ItemStart + 14) == 1);
             numericUpDownVisible.Value = CwRam.memory.ReadUInt(CwRam.ItemStart + 276);
-
-            tabControlItemEditor.Enabled = true;
-            listBoxSlots.SelectedIndex = -1;
         }
 
         private void NumericUpDownType_ValueChanged(object sender, EventArgs e) {
@@ -166,7 +168,9 @@ namespace Bridge {
             foreach (var subtype in subtypes) {
                 comboBoxSubType.Items.Add(subtype);
             }
+            isReady = false;
             comboBoxSubType.Text = numericUpDownSubType.Value < subtypes.Length ? subtypes[(int)numericUpDownSubType.Value] : string.Empty;
+            isReady = true;
         }
         
         //cubes/spirits
@@ -274,6 +278,7 @@ namespace Bridge {
         private void ComboBoxClass_SelectedIndexChanged(object sender, EventArgs e) {
             CwRam.memory.WriteByte(CwRam.EntityStart + 0x0140, (byte)comboBoxClass.SelectedIndex);
         }
+
         private void RadioButtonSubclass1_CheckedChanged(object sender, EventArgs e) {
             if (radioButtonSubclass1.Checked) {
                 CwRam.memory.WriteByte(CwRam.EntityStart + 0x0141, 0);

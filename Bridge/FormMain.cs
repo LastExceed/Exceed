@@ -1,5 +1,6 @@
 ﻿using ReadWriteProcessMemory;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,22 +8,14 @@ using System.Windows.Forms;
 
 namespace Bridge {
     public partial class FormMain : Form {
-        public FormEditor editor = new FormEditor();
+        public FormEditor editor = null;
         public FormMap map = new FormMap();
+        bool clientAttached = false;
 
         public FormMain(string[]args) {
             InitializeComponent();
             BridgeTCPUDP.form = this;
-            CwRam.form = editor;
-            try {
-                CwRam.memory = new ProcessMemory("Cube");
-            }
-            catch (IndexOutOfRangeException) {
-                MessageBox.Show("CubeWorld process not found. Please start the game first");
-                Environment.Exit(0);
-            }
-            CwRam.RemoveFog();
-            HotkeyManager.Init(this);
+            CwRam.formMain = this;
             new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
         }
         protected override void WndProc(ref Message m) {
@@ -31,7 +24,31 @@ namespace Bridge {
             }
             base.WndProc(ref m);
         }
-
+        private void timerSearchProcess_Tick(object sender, EventArgs e) {
+            if (buttonEditor.Enabled) {
+                try {
+                    Process.GetProcessById(CwRam.memory.process.Id);
+                }
+                catch (Exception) {
+                    HotkeyManager.Deinit();
+                    if (editor != null && !editor.IsDisposed) editor.Dispose();
+                    buttonEditor.Enabled = false;
+                }
+            }
+            else {
+                var processes = Process.GetProcessesByName("Cube");
+                if (processes.Length == 0) return;
+                try {
+                    CwRam.memory = new ProcessMemory(processes[0]);
+                }
+                catch (StackOverflowException) {
+                    return;
+                }
+                buttonEditor.Enabled = true;
+                CwRam.RemoveFog();
+                HotkeyManager.Init(this);
+            }
+        }
         public void Log(string text, Color color) {
             if (InvokeRequired) {
                 Invoke((Action)(() => Log(text, color)));
@@ -46,19 +63,12 @@ namespace Bridge {
             }
         }
 
- 
-        private void TextBoxPassword_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter) {
-                //buttonConnect.PerformClick();
-            }
-        }
-
         private void Form1_FormClosed(object sender, FormClosedEventArgs e) {
             Environment.Exit(0);
         }
 
         private void ButtonEditor_Click(object sender, EventArgs e) {
-            if (editor.IsDisposed) editor = new FormEditor();
+            if (editor == null || editor.IsDisposed) editor = new FormEditor();
             editor.Show();
             editor.WindowState = FormWindowState.Normal;
             editor.Focus();

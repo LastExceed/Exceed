@@ -4,17 +4,17 @@ using Resources.Utilities;
 
 namespace Bridge {
     static class CwRam {
-        public static FormEditor form;
+        public static FormMain formMain;
         public static ProcessMemory memory;
         public static int EntityStart {
             get { return memory.ReadInt(memory.ReadInt(memory.baseAddress + 0x0036b1c8) + 0x39C); }
         }
 
         public static int ItemStart {
-            get { return EntityStart + 0x1E8 + form.listBoxItem.SelectedIndex * 280; }
+            get { return EntityStart + 0x1E8 + formMain.editor.listBoxItem.SelectedIndex * 280; }
         }
         public static int SlotStart {
-            get { return ItemStart + 20 + 8 * form.listBoxSlots.SelectedIndex; }
+            get { return ItemStart + 20 + 8 * formMain.editor.listBoxSlots.SelectedIndex; }
         }
 
         public static int SkillStart {
