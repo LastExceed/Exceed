@@ -21,7 +21,7 @@ namespace Resources.Datagram {
 
         public Proc() {
             data = new byte[12];
-            DatagramID = DatagramID.proc;
+            DatagramID = DatagramID.Proc;
         }
 
         public Proc(byte[] data) : base(data) { }

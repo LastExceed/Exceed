@@ -17,7 +17,7 @@ namespace Resources.Datagram {
 
         public Interaction() {
             data = new byte[7];
-            DatagramID = DatagramID.interaction;
+            DatagramID = DatagramID.Interaction;
         }
         public Interaction(byte[] data) : base(data) { }
     }
