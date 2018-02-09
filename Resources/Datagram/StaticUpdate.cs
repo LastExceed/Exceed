@@ -54,7 +54,7 @@ namespace Resources.Datagram {
 
         public StaticUpdate() {
             data = new byte[45];
-            DatagramID = DatagramID.staticUpdate;
+            DatagramID = DatagramID.StaticUpdate;
         }
         public StaticUpdate(byte[] data) : base(data) { }
     }

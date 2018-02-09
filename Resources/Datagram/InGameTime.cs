@@ -9,7 +9,7 @@ namespace Resources.Datagram {
 
         public InGameTime() {
             data = new byte[5];
-            DatagramID = DatagramID.time;
+            DatagramID = DatagramID.Time;
         }
 
         public InGameTime(byte[] data) : base(data) { }

@@ -131,31 +131,31 @@ namespace Bridge {
         private void ItemTypeChanged(byte type) {
             string[] subtypes = null;
             switch ((ItemType)type) {
-                case ItemType.food:
+                case ItemType.Food:
                     subtypes = Enum.GetNames(typeof(ItemSubtypeFood));
                     break;
                 case ItemType.Weapon:
                     subtypes = Enum.GetNames(typeof(ItemSubtypeWeapon));
                     break;
-                case ItemType.resource:
+                case ItemType.Resource:
                     subtypes = Enum.GetNames(typeof(ItemSubtypeResource));
                     break;
-                case ItemType.candle:
+                case ItemType.Candle:
                     subtypes = Enum.GetNames(typeof(ItemSubtypeCandle));
                     break;
-                case ItemType.pet:
-                case ItemType.petFood:
+                case ItemType.Pet:
+                case ItemType.PetFood:
                     subtypes = Enum.GetNames(typeof(EntityType));
                     break;
-                case ItemType.quest:
+                case ItemType.Quest:
                     subtypes = Enum.GetNames(typeof(ItemSubtypeQuest));
                     break;
-                case ItemType.special:
+                case ItemType.Special:
                     subtypes = Enum.GetNames(typeof(ItemSubtypeSpecial));
                     break;
 
-                case ItemType.formula:
-                case ItemType.leftovers:
+                case ItemType.Formula:
+                case ItemType.Leftovers:
                     if (numericUpDownRecipe.Value == 2 || numericUpDownRecipe.Value == 14) goto default;
                     ItemTypeChanged((byte)(numericUpDownRecipe.Value % 256));
                     return;

@@ -38,12 +38,7 @@ namespace Bridge {
             else {
                 var processes = Process.GetProcessesByName("Cube");
                 if (processes.Length == 0) return;
-                try {
-                    CwRam.memory = new ProcessMemory(processes[0]);
-                }
-                catch (StackOverflowException) {
-                    return;
-                }
+                CwRam.memory = new ProcessMemory(processes[0]);
                 buttonEditor.Enabled = true;
                 CwRam.RemoveFog();
                 HotkeyManager.Init(this);

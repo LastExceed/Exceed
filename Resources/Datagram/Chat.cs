@@ -19,7 +19,7 @@ namespace Resources.Datagram {
         public Chat(string message) {
             if(message.Length <= 255) {
                 data = new byte[4 + message.Length];
-                DatagramID = DatagramID.chat;
+                DatagramID = DatagramID.Chat;
                 Length = (byte)message.Length;
                 Text = message;
             } else {

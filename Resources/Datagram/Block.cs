@@ -13,7 +13,7 @@ namespace Resources.Datagram {
 
         public Block() {
             data = new byte[3];
-            DatagramID = DatagramID.block;
+            DatagramID = DatagramID.Block;
         }
 
         public Block(byte[] data) : base(data) { }

@@ -15,9 +15,9 @@ namespace Bridge {
 
         public static void Init(Form form) {
             hWnd = form.Handle;
-            RegisterHotKey(hWnd, (int)HotkeyID.teleport_to_town, CTRL, (int)Keys.H);
-            RegisterHotKey(hWnd, (int)HotkeyID.ctrlSpace, CTRL, (int)Keys.Space);
-            RegisterHotKey(hWnd, (int)HotkeyID.specialmove2, CTRL, (int)Keys.X);
+            RegisterHotKey(hWnd, (int)HotkeyID.Teleport_To_Town, CTRL, (int)Keys.H);
+            RegisterHotKey(hWnd, (int)HotkeyID.CtrlSpace, CTRL, (int)Keys.Space);
+            RegisterHotKey(hWnd, (int)HotkeyID.SpecialMove2, CTRL, (int)Keys.X);
         }
 
         public static void Deinit() {

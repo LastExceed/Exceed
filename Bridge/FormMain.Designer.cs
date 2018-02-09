@@ -29,19 +29,19 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem(new string[] {
             "BLACKROCK",
             "[@]",
             "1"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem(new string[] {
             "Din-Din",
             "[pfu]",
             "2"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem(new string[] {
             "LoneWanderer",
             "",
             "3"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem(new string[] {
             "NoEpicLoot",
             "[fbm]",
             "4"}, -1);
@@ -268,10 +268,10 @@
             this.columnHeader2,
             this.columnHeader3});
             this.listView1.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2,
-            listViewItem3,
-            listViewItem4});
+            listViewItem5,
+            listViewItem6,
+            listViewItem7,
+            listViewItem8});
             this.listView1.Location = new System.Drawing.Point(0, 31);
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(229, 199);
@@ -398,6 +398,7 @@
             // timerSearchProcess
             // 
             this.timerSearchProcess.Enabled = true;
+            this.timerSearchProcess.Interval = 200;
             this.timerSearchProcess.Tick += new System.EventHandler(this.timerSearchProcess_Tick);
             // 
             // FormMain
