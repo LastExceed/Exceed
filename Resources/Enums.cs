@@ -2,7 +2,7 @@
     public enum HotkeyID : int{
         CtrlSpace,
         SpecialMove2,
-        Teleport_To_Town
+        TeleportToTown
     }
     public enum SpecialMoveID {
         Taunt,

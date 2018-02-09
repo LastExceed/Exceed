@@ -704,7 +704,7 @@ namespace Bridge {
 
         public static void OnHotkey(int hotkeyID) {
             HotkeyID hotkey = (HotkeyID)hotkeyID;
-            if (hotkey == HotkeyID.Teleport_To_Town) {
+            if (hotkey == HotkeyID.TeleportToTown) {
                 CwRam.SetMode(Mode.Teleport_To_City, 0);
                 return;
             }

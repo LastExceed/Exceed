@@ -15,15 +15,15 @@ namespace Bridge {
 
         public static void Init(Form form) {
             hWnd = form.Handle;
-            RegisterHotKey(hWnd, (int)HotkeyID.Teleport_To_Town, CTRL, (int)Keys.H);
+            RegisterHotKey(hWnd, (int)HotkeyID.TeleportToTown, CTRL, (int)Keys.H);
             RegisterHotKey(hWnd, (int)HotkeyID.CtrlSpace, CTRL, (int)Keys.Space);
             RegisterHotKey(hWnd, (int)HotkeyID.SpecialMove2, CTRL, (int)Keys.X);
         }
 
         public static void Deinit() {
-            UnregisterHotKey(hWnd, (int)HotkeyID.teleport_to_town);
-            UnregisterHotKey(hWnd, (int)HotkeyID.ctrlSpace);
-            UnregisterHotKey(hWnd, (int)HotkeyID.specialmove2);
+            UnregisterHotKey(hWnd, (int)HotkeyID.TeleportToTown);
+            UnregisterHotKey(hWnd, (int)HotkeyID.CtrlSpace);
+            UnregisterHotKey(hWnd, (int)HotkeyID.SpecialMove2);
         }
 
         [DllImport("user32.dll")]
