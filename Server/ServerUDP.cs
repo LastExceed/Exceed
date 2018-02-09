@@ -192,7 +192,7 @@ namespace Server {
                     //    player.writer.Write((byte)AuthResponse.wrongPassword);
                     //    return;
                     //}
-                    player.writer.Write((byte)AuthResponse.success);
+                    player.writer.Write((byte)AuthResponse.Success);
 
                     player.MAC = player.reader.ReadString();
                     var banEntry = bans.FirstOrDefault(x => x.Mac == player.MAC || x.Ip == (player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address.ToString());
@@ -230,7 +230,7 @@ namespace Server {
         }
         public void ProcessDatagram(byte[] datagram, Player source) {
             switch ((DatagramID)datagram[0]) {
-                case DatagramID.dynamicUpdate:
+                case DatagramID.DynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
                     #region antiCheat
@@ -253,7 +253,7 @@ namespace Server {
                         var tombstone = new EntityUpdate() {
                             guid = AssignGuid(),
                             position = source.entity.position,
-                            hostility = Hostility.neutral,
+                            hostility = Hostility.Neutral,
                             entityType = EntityType.None,
                             appearance = new EntityUpdate.Appearance() {
                                 character_size = new FloatVector() {
@@ -281,11 +281,11 @@ namespace Server {
                     BroadcastUDP(entityUpdate.CreateDatagram(), source);
                     break;
                 #endregion
-                case DatagramID.attack:
+                case DatagramID.Attack:
                     #region attack
                     var attack = new Attack(datagram);
                     source.lastTarget = attack.Target;
-                    if (dynamicEntities.ContainsKey(attack.Target) && dynamicEntities[attack.Target].hostility == Hostility.player) {//in case the target is a tombstone
+                    if (dynamicEntities.ContainsKey(attack.Target) && dynamicEntities[attack.Target].hostility == Hostility.Player) {//in case the target is a tombstone
 
                         SendUDP(attack.data, players.First(p => p.entity.guid == attack.Target));
                     }
@@ -298,13 +298,13 @@ namespace Server {
                     BroadcastUDP(projectile.data, source); //pass to all players except source
                     break;
                 #endregion
-                case DatagramID.proc:
+                case DatagramID.Proc:
                     #region proc
                     var proc = new Proc(datagram);
                     BroadcastUDP(proc.data, source); //pass to all players except source
                     break;
                 #endregion
-                case DatagramID.chat:
+                case DatagramID.Chat:
                     #region chat
                     var chat = new Chat(datagram);
                     if (chat.Text.StartsWith("/")) {
@@ -319,7 +319,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case DatagramID.interaction:
+                case DatagramID.Interaction:
                     #region interaction
                     var interaction = new Interaction(datagram);
                     BroadcastUDP(interaction.data, source); //pass to all players except source
@@ -338,22 +338,22 @@ namespace Server {
                     };
                     break;
                 #endregion
-                case DatagramID.specialMove:
+                case DatagramID.SpecialMove:
                     #region specialMove
                     var specialMove = new SpecialMove(datagram);
                     switch (specialMove.Id) {
-                        case SpecialMoveID.taunt:
+                        case SpecialMoveID.Taunt:
                             var target = players.First(p => p.entity.guid == specialMove.Guid);
                             specialMove.Guid = (ushort)source.entity.guid;
                             SendUDP(specialMove.data, target);
                             break;
-                        case SpecialMoveID.cursedArrow:
-                        case SpecialMoveID.arrowRain:
-                        case SpecialMoveID.shrapnel:
-                        case SpecialMoveID.smokeBomb:
-                        case SpecialMoveID.iceWave:
-                        case SpecialMoveID.confusion:
-                        case SpecialMoveID.shadowStep:
+                        case SpecialMoveID.CursedArrow:
+                        case SpecialMoveID.ArrowRain:
+                        case SpecialMoveID.Shrapnel:
+                        case SpecialMoveID.SmokeBomb:
+                        case SpecialMoveID.IceWave:
+                        case SpecialMoveID.Confusion:
+                        case SpecialMoveID.ShadowStep:
                             BroadcastUDP(specialMove.data, source);
                             break;
                         default:
@@ -361,7 +361,7 @@ namespace Server {
                     }
                     break;
                 #endregion
-                case DatagramID.holePunch:
+                case DatagramID.HolePunch:
                     break;
                 default:
                     Console.WriteLine("unknown DatagramID: " + datagram[0]);

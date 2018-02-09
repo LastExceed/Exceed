@@ -33,7 +33,7 @@ namespace Resources.Datagram {
 
         public Attack() {
             data = new byte[14];
-            DatagramID = DatagramID.attack;
+            DatagramID = DatagramID.Attack;
         }
 
         public Attack(byte[] data) : base(data) { }

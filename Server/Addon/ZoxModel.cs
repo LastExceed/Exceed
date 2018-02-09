@@ -27,7 +27,7 @@ namespace Server.Addon {
                         y = colors[2],
                         z = colors[1]
                     },
-                    type = (colors[3] == 0 && colors[2] == 0 && colors[1] == 0xFF) ? BlockType.liquid : BlockType.solid,
+                    type = (colors[3] == 0 && colors[2] == 0 && colors[1] == 0xFF) ? BlockType.Liquid : BlockType.Solid,
                     unknown = 0
                 };
                 serverUpdate.blockDeltas.Add(blockDelta);

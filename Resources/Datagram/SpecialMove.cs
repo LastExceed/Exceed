@@ -13,7 +13,7 @@ namespace Resources.Datagram {
 
         public SpecialMove() {
             data = new byte[4];
-            DatagramID = DatagramID.specialMove;
+            DatagramID = DatagramID.SpecialMove;
         }
         public SpecialMove(byte[] data) : base(data) { }
     }

@@ -1,43 +1,43 @@
 ﻿namespace Resources {
     public enum HotkeyID : int{
-        ctrlSpace,
-        specialmove2,
-        teleport_to_town
+        CtrlSpace,
+        SpecialMove2,
+        Teleport_To_Town
     }
     public enum SpecialMoveID {
-        taunt,
-        cursedArrow,
-        arrowRain,
-        shrapnel,
-        smokeBomb,
-        iceWave,
-        confusion,
-        shadowStep
+        Taunt,
+        CursedArrow,
+        ArrowRain,
+        Shrapnel,
+        SmokeBomb,
+        IceWave,
+        Confusion,
+        ShadowStep
     }
     public enum DatagramID : byte {
-        dynamicUpdate,
-        attack,
+        DynamicUpdate,
+        Attack,
         Projectile,
-        proc,
-        chat,
-        time,
-        interaction,
-        staticUpdate,
-        block,
-        particle,
+        Proc,
+        Chat,
+        Time,
+        Interaction,
+        StaticUpdate,
+        Block,
+        Particle,
         RemoveDynamicEntity,
-        specialMove, //temp
-        holePunch = 255 //for establishing connection
+        SpecialMove, //temp
+        HolePunch = 255 //for establishing connection
     }
     public enum AuthResponse : byte {
-        success,
-        unknownUser,
-        wrongPassword
+        Success,
+        UnknownUser,
+        WrongPassword
     }
     public enum BridgeStatus : byte {
-        offline,
-        connected,
-        loggedIn,
-        playing
+        Offline,
+        Connected,
+        LoggedIn,
+        Playing
     }
 }

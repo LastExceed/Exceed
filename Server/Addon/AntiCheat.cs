@@ -45,7 +45,7 @@ namespace Server.Addon {
                 return "level";
             }
             if(toInspect.consumable != null) {
-                if(toInspect.consumable.type == ItemType.food &&
+                if(toInspect.consumable.type == ItemType.Food &&
                     toInspect.consumable.subtype == 1 ||
                     toInspect.consumable.level > 647 ||
                     toInspect.consumable.rarity != 0) {
