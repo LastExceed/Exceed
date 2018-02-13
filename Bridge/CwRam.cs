@@ -41,9 +41,10 @@ namespace Bridge {
         }
 
         public static void RemoveFog() {
-            memory.WriteBytes(memory.baseAddress + 0x89316, new byte[8] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
-            memory.WriteBytes(memory.baseAddress + 0x89368, new byte[10] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
-            memory.WriteSingle(memory.ReadInt(memory.baseAddress + 0x0036b1c8) + 0x1D4, 1500f);
+            memory.WriteBytes(memory.baseAddress + 0x89316, new byte[8] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });//fog change based on render dist
+            memory.WriteBytes(memory.baseAddress + 0x89368, new byte[10] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });//fog change based on world change
+            memory.WriteByte(memory.baseAddress + 0x894EE, 0);//loading screen
+            memory.WriteSingle(memory.ReadInt(memory.baseAddress + 0x0036b1c8) + 0x1D4, -1000f);//fog
         }
     }
 }

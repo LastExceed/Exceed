@@ -10,7 +10,6 @@ namespace Bridge {
     public partial class FormMain : Form {
         public FormEditor editor = null;
         public FormMap map = new FormMap();
-        bool clientAttached = false;
 
         public FormMain(string[]args) {
             InitializeComponent();
@@ -27,7 +26,7 @@ namespace Bridge {
         private void timerSearchProcess_Tick(object sender, EventArgs e) {
             if (buttonEditor.Enabled) {
                 try {
-                    Process.GetProcessById(CwRam.memory.process.Id);
+                    CwRam.RemoveFog();
                 }
                 catch (Exception) {
                     HotkeyManager.Deinit();
@@ -45,7 +44,6 @@ namespace Bridge {
                     return; //process just started and isnt fully available yet, try again next iteration
                 }
                 buttonEditor.Enabled = true;
-                CwRam.RemoveFog();
                 HotkeyManager.Init(this);
             }
         }
