@@ -163,16 +163,15 @@ namespace Server {
         public void ProcessPacket(byte packetID, Player player) {
             switch (packetID) {
                 case 0://bridge version
-                    if (player.reader.ReadInt32() == Database.bridgeVersion) {
-                        player.writer.Write(true);
-                        players.Add(player);
-                        foreach (EntityUpdate entity in dynamicEntities.Values) {
-                            SendUDP(entity.CreateDatagram(), player);
-                        }
-                    }
-                    else {
+                    if (player.reader.ReadInt32() != Database.bridgeVersion) {
                         player.writer.Write(false);
-                        //close tcp connection
+                        //close connection
+                        break;
+                    }
+                    player.writer.Write(true);
+                    players.Add(player);
+                    foreach (EntityUpdate entity in dynamicEntities.Values) {
+                        SendUDP(entity.CreateDatagram(), player);
                     }
                     break;
 
@@ -217,10 +216,20 @@ namespace Server {
                 #endregion
                 case 2:
                     #region logout
-                    if (player.entity != null) {
-                        dynamicEntities.Remove((ushort)player.entity.guid);
-                        player.entity = null;
+                    if (player.entity == null) //not logged in
+                    dynamicEntities.Remove((ushort)player.entity.guid);
+                    var remove = new RemoveDynamicEntity() {
+                        Guid = (ushort)player.entity.guid,
+                    };
+                    BroadcastUDP(remove.data, player);
+                    player.entity = null;
+                    if (player.tomb != null) {
+                        remove.Guid = (ushort)player.tomb;
+                        BroadcastUDP(remove.data, player);
+                        player.tomb = null;
                     }
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " logged out");
                     break;
                 #endregion
                 default:
@@ -332,6 +341,7 @@ namespace Server {
                     if (source.tomb != null) {
                         remove.Guid = (ushort)source.tomb;
                         BroadcastUDP(remove.data);
+                        source.tomb = null;
                     }
                     source.entity = new EntityUpdate() {
                         guid = source.entity.guid

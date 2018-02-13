@@ -129,6 +129,9 @@ namespace Bridge {
         }
         public static void Logout() {
             swriter.Write((byte)2);
+            if (status == BridgeStatus.Playing) tcpToClient.Close();
+            status = BridgeStatus.Connected;
+            form.Log("logged out.\n", Color.DarkGray);
         }
 
         public static void ListenFromClientTCP() {
@@ -136,7 +139,7 @@ namespace Bridge {
                 tcpListener.Start();
             }
             catch (SocketException ex) {
-                MessageBox.Show(ex.Message + "\n\nProbably Can't start listening for the client because the CubeWorld default port (12345) is already in use by another program. Do you have a CubeWorld server or another instance of the bridge already running on your computer?\n\nIf you don't know how to fix this, restarting your computer will likely help", "Error");
+                MessageBox.Show(ex.Message + "\n\nCan't start listening for the client, probably because the CubeWorld default port (12345) is already in use by another program. Do you have a CubeWorld server or another instance of the bridge already running on your computer?\n\nIf you don't know how to fix this, restarting your computer will likely help", "Error");
                 //retry
                 return;
             }
@@ -151,7 +154,10 @@ namespace Bridge {
                 cwriter = new BinaryWriter(stream);
 
                 if (status != BridgeStatus.LoggedIn) {
-                    //reject client
+                    new ProtocolVersion() {
+                        version = 1337
+                    }.Write(cwriter);
+                    form.Log("client rejected\n", Color.Red);
                 }
                 else {
                     status = BridgeStatus.Playing;
@@ -162,7 +168,8 @@ namespace Bridge {
                             int packetID = creader.ReadInt32();
                             ProcessClientPacket(packetID);
                         }
-                        catch (IOException) {
+                        catch (Exception ex) {
+                            if (!(ex is IOException || ex is ObjectDisposedException)) throw;
                             switch (status) {
                                 case BridgeStatus.Offline://server crashed
                                     break;
@@ -172,7 +179,7 @@ namespace Bridge {
                                     goto default;
                                 case BridgeStatus.Playing: //client disconnected himself
                                     status = BridgeStatus.LoggedIn;
-                                    SendUDP(new RemoveDynamicEntity() { Guid = (guid) }.data);
+                                    SendUDP(new RemoveDynamicEntity() { Guid = guid }.data);
                                     break;
                                 default:
                                     //this shouldnt happen
@@ -610,7 +617,6 @@ namespace Bridge {
                 case PacketID.Chat:
                     #region chat
                     var chatMessage = new ChatMessage(creader);
-
                     if (chatMessage.message.ToLower() == @"/plane") {
                         Console.Beep();
                         var serverUpdate = new ServerUpdate() {

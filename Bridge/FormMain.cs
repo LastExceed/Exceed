@@ -38,7 +38,12 @@ namespace Bridge {
             else {
                 var processes = Process.GetProcessesByName("Cube");
                 if (processes.Length == 0) return;
-                CwRam.memory = new ProcessMemory(processes[0]);
+                try {
+                    CwRam.memory = new ProcessMemory(processes[0]);
+                }
+                catch (System.ComponentModel.Win32Exception) {
+                    return; //process just started and isnt fully available yet, try again next iteration
+                }
                 buttonEditor.Enabled = true;
                 CwRam.RemoveFog();
                 HotkeyManager.Init(this);
@@ -79,6 +84,8 @@ namespace Bridge {
         private void ButtonLogout_Click(object sender, EventArgs e) {
             new Thread(new ThreadStart(BridgeTCPUDP.Logout)).Start();
             buttonLogout.Enabled = false;
+            textBoxUsername.Enabled = true;
+            textBoxPassword.Enabled = true;
             buttonLogin.Enabled = true;
         }
 
