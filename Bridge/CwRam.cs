@@ -46,5 +46,10 @@ namespace Bridge {
             memory.WriteByte(memory.baseAddress + 0x894EE, 0);//loading screen
             memory.WriteSingle(memory.ReadInt(memory.baseAddress + 0x0036b1c8) + 0x1D4, -1000f);//fog
         }
+
+        public static void ZoomHack(bool state) {
+            if (state) memory.WriteBytes(memory.baseAddress + 0x7EFE9, new byte[10] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });//limit zoom distance to 14
+            else memory.WriteBytes(memory.baseAddress + 0x7EFE9, new byte[10] { 0xC7, 0x81, 0xC0, 0x01, 0x00, 0x00, 0x00, 0x00, 0x60, 0x41 });//limit zoom distance to 14
+        }
     }
 }

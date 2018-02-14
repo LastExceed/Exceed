@@ -29,19 +29,19 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
             "BLACKROCK",
             "[@]",
             "1"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "Din-Din",
             "[pfu]",
             "2"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "LoneWanderer",
             "",
             "3"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
             "NoEpicLoot",
             "[fbm]",
             "4"}, -1);
@@ -78,6 +78,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.buttonMap = new System.Windows.Forms.Button();
             this.timerSearchProcess = new System.Windows.Forms.Timer(this.components);
+            this.checkBoxZoomHack = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -268,10 +269,10 @@
             this.columnHeader2,
             this.columnHeader3});
             this.listView1.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem5,
-            listViewItem6,
-            listViewItem7,
-            listViewItem8});
+            listViewItem1,
+            listViewItem2,
+            listViewItem3,
+            listViewItem4});
             this.listView1.Location = new System.Drawing.Point(0, 31);
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(229, 199);
@@ -366,6 +367,7 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.checkBoxZoomHack);
             this.tabPage3.Controls.Add(this.groupBox1);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
@@ -401,6 +403,17 @@
             this.timerSearchProcess.Interval = 200;
             this.timerSearchProcess.Tick += new System.EventHandler(this.timerSearchProcess_Tick);
             // 
+            // checkBoxZoomHack
+            // 
+            this.checkBoxZoomHack.AutoSize = true;
+            this.checkBoxZoomHack.Location = new System.Drawing.Point(81, 153);
+            this.checkBoxZoomHack.Name = "checkBoxZoomHack";
+            this.checkBoxZoomHack.Size = new System.Drawing.Size(78, 17);
+            this.checkBoxZoomHack.TabIndex = 20;
+            this.checkBoxZoomHack.Text = "zoom hack";
+            this.checkBoxZoomHack.UseVisualStyleBackColor = true;
+            this.checkBoxZoomHack.CheckedChanged += new System.EventHandler(this.checkBoxZoomHack_CheckedChanged);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -433,6 +446,7 @@
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -471,6 +485,7 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Button buttonMap;
         private System.Windows.Forms.Timer timerSearchProcess;
+        private System.Windows.Forms.CheckBox checkBoxZoomHack;
     }
 }
 

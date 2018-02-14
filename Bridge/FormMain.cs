@@ -32,6 +32,7 @@ namespace Bridge {
                     HotkeyManager.Deinit();
                     if (editor != null && !editor.IsDisposed) editor.Dispose();
                     buttonEditor.Enabled = false;
+                    checkBoxZoomHack.Enabled = false;
                 }
             }
             else {
@@ -44,6 +45,7 @@ namespace Bridge {
                     return; //process just started and isnt fully available yet, try again next iteration
                 }
                 buttonEditor.Enabled = true;
+                checkBoxZoomHack.Enabled = true;
                 HotkeyManager.Init(this);
             }
         }
@@ -92,6 +94,10 @@ namespace Bridge {
             map.Show();
             map.WindowState = FormWindowState.Normal;
             map.Focus();
+        }
+
+        private void checkBoxZoomHack_CheckedChanged(object sender, EventArgs e) {
+            CwRam.ZoomHack(checkBoxZoomHack.Checked);
         }
     }
 }
