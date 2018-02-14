@@ -1,5 +1,5 @@
 ﻿namespace Resources {
-    static public class Database {
+    static public class Config {
         public const int mapseed = 8710; //hardcoded for now
         public const int bridgeVersion = 12;
         public const string serverIP = "localhost";//temp

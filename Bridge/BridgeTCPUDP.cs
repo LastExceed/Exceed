@@ -33,8 +33,8 @@ namespace Bridge {
             Task.Delay(3333).Wait();//temp
             new Thread(new ThreadStart(ListenFromClientTCP)).Start();
             form.Log("connecting...", Color.DarkGray);
-            string serverIP = Database.serverIP;
-            int serverPort = Database.serverPort;
+            string serverIP = Config.serverIP;
+            int serverPort = Config.serverPort;
 
             try {
                 tcpToServer = new TcpClient();
@@ -59,7 +59,7 @@ namespace Bridge {
 
             form.Log("checking version...", Color.DarkGray);
             swriter.Write((byte)0);//packetID
-            swriter.Write(Database.bridgeVersion);
+            swriter.Write(Config.bridgeVersion);
             if (!sreader.ReadBoolean()) {
                 form.Log("mismatch\n", Color.Red);
                 MessageBox.Show("your bridge is outdated\nupdate\nstay offline");

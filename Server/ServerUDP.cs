@@ -163,7 +163,7 @@ namespace Server {
         public void ProcessPacket(byte packetID, Player player) {
             switch (packetID) {
                 case 0://bridge version
-                    if (player.reader.ReadInt32() != Database.bridgeVersion) {
+                    if (player.reader.ReadInt32() != Config.bridgeVersion) {
                         player.writer.Write(false);
                         //close connection
                         break;
@@ -206,7 +206,7 @@ namespace Server {
                         guid = AssignGuid(),
                     };
                     player.writer.Write((ushort)player.entity.guid);
-                    player.writer.Write(Database.mapseed);
+                    player.writer.Write(Config.mapseed);
 
                     dynamicEntities.Add((ushort)player.entity.guid, player.entity);
 
