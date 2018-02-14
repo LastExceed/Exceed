@@ -33,8 +33,8 @@ namespace Bridge {
             Task.Delay(3333).Wait();//temp
             new Thread(new ThreadStart(ListenFromClientTCP)).Start();
             form.Log("connecting...", Color.DarkGray);
-            string serverIP = "localhost";//temporarily
-            int serverPort = 12346;
+            string serverIP = Database.serverIP;
+            int serverPort = Database.serverPort;
 
             try {
                 tcpToServer = new TcpClient();
@@ -258,10 +258,11 @@ namespace Bridge {
                 case DatagramID.Attack:
                     #region attack
                     var attack = new Attack(datagram);
-
+                    CwRam.Knockback(attack.Direction);
                     var hit = new Hit() {
                         target = attack.Target,
                         damage = attack.Damage,
+                        direction = attack.Direction,
                         critical = attack.Critical,
                         stuntime = attack.Stuntime,
                         position = dynamicEntities[attack.Target].position,
@@ -539,9 +540,13 @@ namespace Bridge {
                 case PacketID.Hit:
                     #region hit
                     var hit = new Hit(creader);
+                    form.Log(hit.direction.x + "\n", Color.Magenta);
+                    form.Log(hit.direction.y + "\n", Color.Magenta);
+                    form.Log(hit.direction.z + "\n", Color.Magenta);
                     var attack = new Attack() {
                         Target = (ushort)hit.target,
                         Damage = hit.damage,
+                        Direction = hit.direction,
                         Stuntime = hit.stuntime,
                         Skill = hit.isYellow,
                         Type = hit.type,

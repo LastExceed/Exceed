@@ -51,5 +51,11 @@ namespace Bridge {
             if (state) memory.WriteBytes(memory.baseAddress + 0x7EFE9, new byte[10] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });//limit zoom distance to 14
             else memory.WriteBytes(memory.baseAddress + 0x7EFE9, new byte[10] { 0xC7, 0x81, 0xC0, 0x01, 0x00, 0x00, 0x00, 0x00, 0x60, 0x41 });//limit zoom distance to 14
         }
+
+        public static void Knockback(FloatVector direction) {
+            memory.WriteSingle(EntityStart + 0x4C, memory.ReadSingle(EntityStart + 0x4C) + direction.x);
+            memory.WriteSingle(EntityStart + 0x50, memory.ReadSingle(EntityStart + 0x50) + direction.y);
+            memory.WriteSingle(EntityStart + 0x54, memory.ReadSingle(EntityStart + 0x54) + direction.z);
+        }
     }
 }
