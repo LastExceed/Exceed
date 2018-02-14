@@ -540,9 +540,6 @@ namespace Bridge {
                 case PacketID.Hit:
                     #region hit
                     var hit = new Hit(creader);
-                    form.Log(hit.direction.x + "\n", Color.Magenta);
-                    form.Log(hit.direction.y + "\n", Color.Magenta);
-                    form.Log(hit.direction.z + "\n", Color.Magenta);
                     var attack = new Attack() {
                         Target = (ushort)hit.target,
                         Damage = hit.damage,
