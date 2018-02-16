@@ -75,10 +75,10 @@
             this.buttonChangeEmail = new System.Windows.Forms.Button();
             this.buttonChangePassword = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.checkBoxZoomHack = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonMap = new System.Windows.Forms.Button();
             this.timerSearchProcess = new System.Windows.Forms.Timer(this.components);
-            this.checkBoxZoomHack = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -377,6 +377,18 @@
             this.tabPage3.Text = "Settings";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            // checkBoxZoomHack
+            // 
+            this.checkBoxZoomHack.AutoSize = true;
+            this.checkBoxZoomHack.Enabled = false;
+            this.checkBoxZoomHack.Location = new System.Drawing.Point(81, 153);
+            this.checkBoxZoomHack.Name = "checkBoxZoomHack";
+            this.checkBoxZoomHack.Size = new System.Drawing.Size(78, 17);
+            this.checkBoxZoomHack.TabIndex = 20;
+            this.checkBoxZoomHack.Text = "zoom hack";
+            this.checkBoxZoomHack.UseVisualStyleBackColor = true;
+            this.checkBoxZoomHack.CheckedChanged += new System.EventHandler(this.checkBoxZoomHack_CheckedChanged);
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -402,17 +414,6 @@
             this.timerSearchProcess.Enabled = true;
             this.timerSearchProcess.Interval = 200;
             this.timerSearchProcess.Tick += new System.EventHandler(this.timerSearchProcess_Tick);
-            // 
-            // checkBoxZoomHack
-            // 
-            this.checkBoxZoomHack.AutoSize = true;
-            this.checkBoxZoomHack.Location = new System.Drawing.Point(81, 153);
-            this.checkBoxZoomHack.Name = "checkBoxZoomHack";
-            this.checkBoxZoomHack.Size = new System.Drawing.Size(78, 17);
-            this.checkBoxZoomHack.TabIndex = 20;
-            this.checkBoxZoomHack.Text = "zoom hack";
-            this.checkBoxZoomHack.UseVisualStyleBackColor = true;
-            this.checkBoxZoomHack.CheckedChanged += new System.EventHandler(this.checkBoxZoomHack_CheckedChanged);
             // 
             // FormMain
             // 

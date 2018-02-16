@@ -15,6 +15,7 @@ namespace Bridge {
             InitializeComponent();
             BridgeTCPUDP.form = this;
             CwRam.formMain = this;
+            new Thread(new ThreadStart(BridgeTCPUDP.ListenFromClientTCP)).Start();
             new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
         }
         protected override void WndProc(ref Message m) {

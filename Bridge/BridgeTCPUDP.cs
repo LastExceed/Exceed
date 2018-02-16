@@ -31,7 +31,6 @@ namespace Bridge {
 
         public static void Connect() {
             Task.Delay(3333).Wait();//temp
-            new Thread(new ThreadStart(ListenFromClientTCP)).Start();
             form.Log("connecting...", Color.DarkGray);
             string serverIP = Config.serverIP;
             int serverPort = Config.serverPort;
@@ -45,31 +44,23 @@ namespace Bridge {
                 SendUDP(new byte[1] { (byte)DatagramID.HolePunch });
             }
             catch (SocketException) {//connection refused
-                Close();
+                Disconnect();
                 form.Log("failed\n", Color.Red);
                 MessageBox.Show("Connection failed\nRetry\nStay Offline");
                 return;
             }
-            form.Log("connected\n", Color.Green);
-            status = BridgeStatus.Connected;
-
             Stream stream = tcpToServer.GetStream();
             swriter = new BinaryWriter(stream);
             sreader = new BinaryReader(stream);
+            form.Log("connected\n", Color.Green);
+            new Thread(new ThreadStart(ListenFromServerTCP)).Start();
+            status = BridgeStatus.Connected;
 
             form.Log("checking version...", Color.DarkGray);
             swriter.Write((byte)0);//packetID
             swriter.Write(Config.bridgeVersion);
-            if (!sreader.ReadBoolean()) {
-                form.Log("mismatch\n", Color.Red);
-                MessageBox.Show("your bridge is outdated\nupdate\nstay offline");
-                return;
-            }
-            form.Log("match\n", Color.Green);
-            form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
-            ListenFromServerUDP();
         }
-        public static void Close() {
+        public static void Disconnect() {
             status = BridgeStatus.Offline;
             form.Invoke(new Action(() => form.listBoxPlayers.Items.Clear()));
             LingerOption lingerOption = new LingerOption(true, 0);
@@ -101,31 +92,6 @@ namespace Bridge {
             swriter.Write(form.textBoxUsername.Text);
             swriter.Write(form.textBoxPassword.Text);
             swriter.Write(NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault());
-            switch ((AuthResponse)sreader.ReadByte()) {
-                case AuthResponse.Success:
-                    if (sreader.ReadBoolean()) {//if banned
-                        MessageBox.Show(sreader.ReadString());//ban message
-                        form.Log("you are banned\n", Color.Red);
-                        goto default;
-                    }
-                    form.Log("success\n", Color.Green);
-                    break;
-                case AuthResponse.UnknownUser:
-                    form.Log("username does not exist\n", Color.Red);
-                    goto default;
-                case AuthResponse.WrongPassword:
-                    form.Log("wrong password\n", Color.Red);
-                    goto default;
-                default:
-                    form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
-                    return;
-            }
-            status = BridgeStatus.LoggedIn;
-            guid = sreader.ReadUInt16();
-            mapseed = sreader.ReadInt32();
-            //new Thread(new ThreadStart(ListenFromServerTCP)).Start();
-
-            form.Invoke(new Action(() => form.buttonLogout.Enabled = true));
         }
         public static void Logout() {
             swriter.Write((byte)2);
@@ -197,11 +163,11 @@ namespace Bridge {
         public static void ListenFromServerTCP() {
             while (true) {
                 try {
-                    ProcessServerPacket(sreader.ReadInt32()); //we can use byte here because it doesn't contain vanilla packets
+                    ProcessServerPacket(sreader.ReadByte()); //we can use byte here because it doesn't contain vanilla packets
                 }
                 catch (IOException) {
                     form.Log("Connection to Server lost\n", Color.Red);
-                    Close();
+                    Disconnect();
                     break;
                 }
             }
@@ -677,28 +643,68 @@ namespace Bridge {
             }
         }
         public static void ProcessServerPacket(int packetID) {
-            //switch (packetID) {
-            //    case 0:
-            //        var query = new Query(sreader);
-            //        foreach (var item in query.players) {
-            //            if (!dynamicEntities.ContainsKey(item.Key)) {
-            //                dynamicEntities.Add(item.Key, new EntityUpdate());
-            //            }
-            //            dynamicEntities[item.Key].guid = item.Key;
-            //            dynamicEntities[item.Key].name = item.Value;
-            //        }
-            //        form.Invoke(new Action(form.listBoxPlayers.Items.Clear));
-            //        foreach (var playerData in dynamicEntities.Values) {
-            //            form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(playerData.name)));
-            //        }
-            //        break;
-            //    case 4:
-            //        outgoing.Enqueue(new ServerUpdate(sreader));
-            //        break;
-            //    default:
-            //        MessageBox.Show("unknown server packet received");
-            //        break;
-            //}
+            switch (packetID) {
+                case 0:
+                    if (!sreader.ReadBoolean()) {
+                        form.Log("mismatch\n", Color.Red);
+                        MessageBox.Show("your bridge is outdated\nupdate\nstay offline");
+                        return;
+                    }
+                    form.Log("match\n", Color.Green);
+                    form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
+                    new Thread(new ThreadStart(ListenFromServerUDP)).Start();
+                    break;
+
+                case 1:
+                    switch ((AuthResponse)sreader.ReadByte()) {
+                        case AuthResponse.Success:
+                            if (sreader.ReadBoolean()) {//if banned
+                                MessageBox.Show(sreader.ReadString());//ban message
+                                form.Log("you are banned\n", Color.Red);
+                                goto default;
+                            }
+                            form.Log("success\n", Color.Green);
+                            break;
+                        case AuthResponse.UnknownUser:
+                            form.Log("username does not exist\n", Color.Red);
+                            goto default;
+                        case AuthResponse.WrongPassword:
+                            form.Log("wrong password\n", Color.Red);
+                            goto default;
+                        default:
+                            form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
+                            return;
+                    }
+                    status = BridgeStatus.LoggedIn;
+                    guid = sreader.ReadUInt16();
+                    mapseed = sreader.ReadInt32();
+
+                    form.Invoke(new Action(() => form.buttonLogout.Enabled = true));
+                    break;
+
+                //case 3:
+                //    var query = new Query(sreader);
+                //    foreach (var item in query.players) {
+                //        if (!dynamicEntities.ContainsKey(item.Key)) {
+                //            dynamicEntities.Add(item.Key, new EntityUpdate());
+                //        }
+                //        dynamicEntities[item.Key].guid = item.Key;
+                //        dynamicEntities[item.Key].name = item.Value;
+                //    }
+                //    form.Invoke(new Action(form.listBoxPlayers.Items.Clear));
+                //    foreach (var playerData in dynamicEntities.Values) {
+                //        form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(playerData.name)));
+                //    }
+                //    break;
+
+                //case 4:
+                //    outgoing.Enqueue(new ServerUpdate(sreader));
+                //    break;
+
+                default:
+                    MessageBox.Show("unknown server packet received");
+                    break;
+            }
         }
 
         public static void RefreshPlayerlist() {

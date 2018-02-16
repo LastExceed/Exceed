@@ -128,14 +128,19 @@ namespace Server {
             new Thread(new ThreadStart(ListenTCP)).Start();
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " connected");
-            while (true) {
-                try {
-                    var packetID = player.reader.ReadByte();
-                    ProcessPacket(packetID, player);
+            try {
+                while (true) ProcessPacket(player.reader.ReadByte(), player);
+            }
+            catch (IOException) {
+                if (player.entity != null) {
+                    BroadcastUDP(new RemoveDynamicEntity() {
+                        Guid = (ushort)player.entity.guid
+                    }.data,player);
+                    dynamicEntities.Remove((ushort)player.entity.guid);
                 }
-                catch (IOException) {
-                    
-                }
+                players.Remove(player);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " disconnected");
             }
         }
         public void ListenUDP() {
@@ -163,6 +168,7 @@ namespace Server {
         public void ProcessPacket(byte packetID, Player player) {
             switch (packetID) {
                 case 0://bridge version
+                    player.writer.Write((byte)0);
                     if (player.reader.ReadInt32() != Config.bridgeVersion) {
                         player.writer.Write(false);
                         //close connection
@@ -177,6 +183,7 @@ namespace Server {
 
                 case 1://login
                     #region login
+                    player.writer.Write((byte)1);
                     if (!players.Contains(player)) {
                         //musnt login without checking bridge version first
                     }
