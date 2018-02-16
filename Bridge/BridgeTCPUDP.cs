@@ -30,7 +30,6 @@ namespace Bridge {
         public static BridgeStatus status = BridgeStatus.Offline;
 
         public static void Connect() {
-            Task.Delay(3333).Wait();//temp
             form.Log("connecting...", Color.DarkGray);
             string serverIP = Config.serverIP;
             int serverPort = Config.serverPort;
@@ -46,7 +45,8 @@ namespace Bridge {
             catch (SocketException) {//connection refused
                 Disconnect();
                 form.Log("failed\n", Color.Red);
-                MessageBox.Show("Connection failed\nRetry\nStay Offline");
+                var result = MessageBox.Show("Unable to connect to Exceed. Please try again later.", "Connection Error", MessageBoxButtons.RetryCancel);
+                if (result == DialogResult.Retry) Connect();
                 return;
             }
             Stream stream = tcpToServer.GetStream();
@@ -105,8 +105,8 @@ namespace Bridge {
                 tcpListener.Start();
             }
             catch (SocketException ex) {
-                MessageBox.Show(ex.Message + "\n\nCan't start listening for the client, probably because the CubeWorld default port (12345) is already in use by another program. Do you have a CubeWorld server or another instance of the bridge already running on your computer?\n\nIf you don't know how to fix this, restarting your computer will likely help", "Error");
-                //retry
+                var result = MessageBox.Show(ex.Message + "\n\nCan't start listening for the client, probably because the CubeWorld default port (12345) is already in use by another program. Do you have a CubeWorld server or another instance of the bridge already running on your computer?\n\nIf you don't know how to fix this, restarting your computer will likely help", "Error", MessageBoxButtons.RetryCancel);
+                if (result == DialogResult.Retry) ListenFromClientTCP();
                 return;
             }
 
@@ -128,48 +128,42 @@ namespace Bridge {
                 else {
                     status = BridgeStatus.Playing;
                     new Thread(new ThreadStart(WriteToClientTCP)).Start();
-
-                    while (true) {
-                        try {
-                            int packetID = creader.ReadInt32();
-                            ProcessClientPacket(packetID);
+                    try {
+                        while (true) ProcessClientPacket(creader.ReadInt32());
+                    }
+                    catch (Exception ex) {
+                        if (!(ex is IOException || ex is ObjectDisposedException)) throw;
+                        switch (status) {
+                            case BridgeStatus.Offline://server crashed
+                                break;
+                            case BridgeStatus.Connected://player logged out
+                                break;
+                            case BridgeStatus.LoggedIn://impossible
+                                goto default;
+                            case BridgeStatus.Playing: //client disconnected himself
+                                status = BridgeStatus.LoggedIn;
+                                SendUDP(new RemoveDynamicEntity() { Guid = guid }.data);
+                                break;
+                            default:
+                                //this shouldnt happen
+                                break;
                         }
-                        catch (Exception ex) {
-                            if (!(ex is IOException || ex is ObjectDisposedException)) throw;
-                            switch (status) {
-                                case BridgeStatus.Offline://server crashed
-                                    break;
-                                case BridgeStatus.Connected://player logged out
-                                    break;
-                                case BridgeStatus.LoggedIn://impossible
-                                    goto default;
-                                case BridgeStatus.Playing: //client disconnected himself
-                                    status = BridgeStatus.LoggedIn;
-                                    SendUDP(new RemoveDynamicEntity() { Guid = guid }.data);
-                                    break;
-                                default:
-                                    //this shouldnt happen
-                                    break;
-                            }
-                            dynamicEntities.Remove(guid);
-                            form.Log("client disconnected\n", Color.Red);
-                            RefreshPlayerlist();
-                            break;
-                        }
+                        dynamicEntities.Remove(guid);
+                        form.Log("client disconnected\n", Color.Red);
+                        RefreshPlayerlist();
+                        break;
                     }
                 }
             }
         }
         public static void ListenFromServerTCP() {
-            while (true) {
-                try {
-                    ProcessServerPacket(sreader.ReadByte()); //we can use byte here because it doesn't contain vanilla packets
-                }
-                catch (IOException) {
-                    form.Log("Connection to Server lost\n", Color.Red);
-                    Disconnect();
-                    break;
-                }
+            try {
+                while (true) ProcessServerPacket(sreader.ReadByte()); //we can use byte here because it doesn't contain vanilla packets
+            }
+            catch (IOException) {
+                form.Log("Connection to Server lost\n", Color.Red);
+                Disconnect();
+                Connect();
             }
         }
         public static void ListenFromServerUDP() {

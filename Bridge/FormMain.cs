@@ -13,6 +13,8 @@ namespace Bridge {
 
         public FormMain(string[]args) {
             InitializeComponent();
+        }
+        private void FormMain_Shown(object sender, EventArgs e) {
             BridgeTCPUDP.form = this;
             CwRam.formMain = this;
             new Thread(new ThreadStart(BridgeTCPUDP.ListenFromClientTCP)).Start();
