@@ -151,7 +151,6 @@ namespace Bridge {
                         dynamicEntities.Remove(guid);
                         form.Log("client disconnected\n", Color.Red);
                         RefreshPlayerlist();
-                        break;
                     }
                 }
             }
