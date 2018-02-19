@@ -645,6 +645,7 @@ namespace Bridge {
                     }
                     form.Log("match\n", Color.Green);
                     form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
+                    form.Invoke(new Action(() => form.buttonRegister.Enabled = true));
                     new Thread(new ThreadStart(ListenFromServerUDP)).Start();
                     break;
 

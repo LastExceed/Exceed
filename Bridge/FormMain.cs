@@ -10,6 +10,7 @@ namespace Bridge {
     public partial class FormMain : Form {
         public FormEditor editor = null;
         public FormMap map = new FormMap();
+        public FormRegister register = new FormRegister();
 
         public FormMain(string[]args) {
             InitializeComponent();
@@ -83,7 +84,6 @@ namespace Bridge {
             textBoxPassword.Enabled = false;
             new Thread(new ThreadStart(BridgeTCPUDP.Login)).Start();
         }
-
         private void ButtonLogout_Click(object sender, EventArgs e) {
             new Thread(new ThreadStart(BridgeTCPUDP.Logout)).Start();
             buttonLogout.Enabled = false;
@@ -101,6 +101,13 @@ namespace Bridge {
 
         private void checkBoxZoomHack_CheckedChanged(object sender, EventArgs e) {
             CwRam.ZoomHack(checkBoxZoomHack.Checked);
+        }
+
+        private void buttonRegister_Click(object sender, EventArgs e) {
+            if (register.IsDisposed) register = new FormRegister();
+            register.Show();
+            register.WindowState = FormWindowState.Normal;
+            register.Focus();
         }
     }
 }

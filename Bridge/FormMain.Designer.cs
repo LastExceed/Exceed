@@ -143,6 +143,7 @@
             this.buttonRegister.TabIndex = 22;
             this.buttonRegister.Text = "Create account";
             this.buttonRegister.UseVisualStyleBackColor = true;
+            this.buttonRegister.Click += new System.EventHandler(this.buttonRegister_Click);
             // 
             // groupBox1
             // 
@@ -463,7 +464,6 @@
         public System.Windows.Forms.RadioButton radioButtonDestroy;
         public System.Windows.Forms.RadioButton radioButtonDuplicate;
         public System.Windows.Forms.RadioButton radioButtonNormal;
-        private System.Windows.Forms.Button buttonRegister;
         private System.Windows.Forms.LinkLabel linkLabelReset;
         private System.Windows.Forms.Button buttonEditor;
         private System.Windows.Forms.TabControl tabControl1;
@@ -488,6 +488,7 @@
         private System.Windows.Forms.Button buttonMap;
         private System.Windows.Forms.Timer timerSearchProcess;
         private System.Windows.Forms.CheckBox checkBoxZoomHack;
+        public System.Windows.Forms.Button buttonRegister;
     }
 }
 
