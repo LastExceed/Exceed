@@ -182,7 +182,6 @@ namespace Bridge {
         public static void WriteToClientTCP() {
             while (status == BridgeStatus.Playing) if (outgoing.Count != 0) outgoing.Dequeue().Write(cwriter);
             outgoing.Clear();
-            }
         }
 
         public static void ProcessDatagram(byte[] datagram) {
