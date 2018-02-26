@@ -10,6 +10,17 @@ using MySql.Data.MySqlClient;
 namespace Server
 {
     class DBConnect {
+
+        //TODO:
+        //add global server-config-file handler
+        //get loginRequest from bridge
+        //  answer to bridge with hashed password
+        //get registerRequest from bridge
+        //  verify email address
+        //  answer to bridge with status (success? failed? whatever?)
+        //
+
+
         public MySqlConnection dbConnection = null;
 
         private string dbServer;
