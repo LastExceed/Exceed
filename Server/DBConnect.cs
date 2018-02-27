@@ -10,16 +10,12 @@ using MySql.Data.MySqlClient;
 namespace Server
 {
     class DBConnect {
-
         //TODO:
-        //add global server-config-file handler
         //get loginRequest from bridge
-        //  answer to bridge with hashed password
+        //answer to bridge with hashed password
         //get registerRequest from bridge
-        //  verify email address
-        //  answer to bridge with status (success? failed? whatever?)
-        //
-
+        //verify email address
+        //answer to bridge with status (success? failed? whatever?)
 
         public MySqlConnection dbConnection = null;
 
@@ -32,7 +28,6 @@ namespace Server
 
         public DBConnect() {
             this.Initialize();
-
         }
 
         private void Initialize() {
@@ -42,7 +37,6 @@ namespace Server
                 TextWriter serverConfig_textWriter = new StreamWriter(this.serverConfig_filePath);
                 serverConfig_textWriter.WriteLine("#This is the Server Configuration File!\n#!!IF YOU DON'T KNOW WHAT TO DO - READ THE INSTRUCTIONS!\n#===============\ndbServer=localhost\ndbName=Exceed\ndbUser=root\ndbPass=toor");
                 serverConfig_textWriter.Close();
-
             } else {
                 string line;
                 string[] lineVar;
@@ -69,20 +63,17 @@ namespace Server
                     }
                 }
                 serverConfig_streamReader.Close();
-
-                string connectionString;
-                connectionString = "SERVER=" + this.dbServer + ";" + "DATABASE=" +
+                
+                string connectionString = "SERVER=" + this.dbServer + ";" + "DATABASE=" +
                 this.dbName + ";" + "UID=" + this.dbUser + ";" + "PASSWORD=" + this.dbPass + ";";
                 this.dbConnection = new MySqlConnection(connectionString);
             }
-
         }
 
         //open connection to database
         private bool OpenConnection() {
             try {
                 this.dbConnection.Open();
-                return true;
             }
             catch (MySqlException ex) {
                 //When handling errors, you can your application's response based 
@@ -98,32 +89,34 @@ namespace Server
                     case 1045:
                         MessageBox.Show("Invalid username/password, please try again");
                         break;
+
+                    default:
+                        MessageBox.Show("unknown db connection error");
+                        break;
                 }
                 return false;
             }
+            return true;
         }
 
         //Close connection
         private bool CloseConnection() {
             try {
                 this.dbConnection.Close();
-                return true;
             }
             catch (MySqlException ex) {
                 MessageBox.Show(ex.Message);
                 return false;
             }
+            return true;
         }
 
         //Insert statement
         public void RegisterNewAccount() {
-
             //TODO: check if email does even exist
             bool isEmailValid = true;
 
-
-            if (isEmailValid == true) {
-
+            if (isEmailValid) {
                 string query = "INSERT INTO users (email, nickname, hashedPassword) VALUES('mail@example.tld', 'John Smith', 'password123')";
 
                 //open connection
@@ -140,14 +133,14 @@ namespace Server
             }
         }
 
-        public string getHashedPassword() {
+        public string GetHashedPassword() {
             //Select statement
             string query = "SELECT pass FROM users WHERE(email IS 'mail@example.tld')";
 
             //Create a list to store the result
-            string hashedPassword = "";
+            string hashedPassword = null;
             //Open connection
-            if (this.OpenConnection() == true) {
+            if (this.OpenConnection()) {
                 //Create Command
                 MySqlCommand cmd = new MySqlCommand(query, this.dbConnection);
                 //Create a data reader and Execute the command
@@ -155,21 +148,12 @@ namespace Server
 
                 //Read the data and store them in the list
                 while (dataReader.Read()) {
-                    hashedPassword = dataReader["hashedPassword"] + "";
+                    hashedPassword = (string)dataReader["hashedPassword"];
                 }
-
-                //close Data Reader
                 dataReader.Close();
-
-                //close Connection
                 this.CloseConnection();
-
-                //return list to be displayed
-                return hashedPassword;
-            } else {
-               return hashedPassword;
             }
+            return hashedPassword;
         }
     }
-
 }
