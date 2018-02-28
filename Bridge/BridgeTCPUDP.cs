@@ -716,7 +716,7 @@ namespace Bridge {
 
             bool spec = dynamicEntities[guid].specialization == 1;
             bool space = hotkeyID == 1;
-            switch ((EntityClass)dynamicEntities[guid].entityClass) {
+            switch (dynamicEntities[guid].entityClass) {
                 case EntityClass.Rogue when spec:
                     #region ninja
                     if (hotkey == HotkeyID.CtrlSpace) {

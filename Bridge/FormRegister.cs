@@ -15,7 +15,7 @@ namespace Bridge {
             labelUsernameResult.ForeColor = Color.Red;
             string text = textBoxUsername.Text;
             if (text.Length == 0) labelUsernameResult.Text = "too short";
-            else if (text.Length > 9) labelUsernameResult.Text = "too long";
+            else if (text.Length > 11) labelUsernameResult.Text = "too long";
             else if (!alphaNumeric.IsMatch(text)) labelUsernameResult.Text = "only a-z,0-9";
             else if (false) labelUsernameResult.Text = "already in use";//check availability
             else {
@@ -36,6 +36,10 @@ namespace Bridge {
                 labelEmailResult.Text = "available";
                 if (labelUsernameResult.ForeColor == Color.Green) buttonRegister.Enabled = true;
             }
+        }
+
+        private void buttonRegister_Click(object sender, EventArgs e) {
+            MessageBox.Show("Account registered. A randomly generated password has been sent to your Email (don't forget to check spam folder in case you didn't receive it). If you don't want to keep that password you can change it in the account tab.");
         }
     }
 }
