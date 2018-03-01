@@ -18,7 +18,7 @@ namespace Bridge {
                 if (entity.hostility == Resources.Hostility.Player) {
                     Label playerlabel = new Label {
                         Left = (int)entity.position.x / 0x10000,
-                        Top = (int)entity.position.y / 0x10000,
+                        Top = 512 - (int)entity.position.y / 0x10000,
                         Text = entity.name,
                         AutoSize = true,
                     };
