@@ -23,7 +23,15 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            this.components = new System.ComponentModel.Container();
+            this.Refreshtimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
+            // 
+            // Refreshtimer
+            // 
+            this.Refreshtimer.Enabled = true;
+            this.Refreshtimer.Interval = 500;
+            this.Refreshtimer.Tick += new System.EventHandler(this.Refreshtimer_Tick);
             // 
             // FormMap
             // 
@@ -39,5 +47,7 @@
         }
 
         #endregion
+
+        private System.Windows.Forms.Timer Refreshtimer;
     }
 }
