@@ -455,17 +455,24 @@ namespace Bridge {
                     EntityAction entityAction = new EntityAction(creader);
                     switch (entityAction.type) {
                         case ActionType.Talk:
+                            #region Talk
                             break;
+                        #endregion
                         case ActionType.StaticInteraction:
+                            #region StaticInteraction
                             ChatMessage x = new ChatMessage() {
                                 message = "You can't use this, your hands are too small.",
                                 sender = 0
                             };
                             outgoing.Enqueue(x);
                             break;
+                        #endregion
                         case ActionType.PickUp:
+                            #region PickUp
                             break;
+                        #endregion
                         case ActionType.Drop: //send item back to dropper because dropping is disabled to prevent chatspam
+                            #region Drop
                             if (form.radioButtonDestroy.Checked) {
                                 outgoing.Enqueue(new ChatMessage() {
                                     message = "item destroyed",
@@ -485,8 +492,11 @@ namespace Bridge {
                                 outgoing.Enqueue(serverUpdate);
                             }
                             break;
+                        #endregion
                         case ActionType.CallPet:
+                            #region CallPet
                             break;
+                        #endregion
                         default:
                             //unknown type
                             break;
