@@ -33,18 +33,13 @@ namespace Server
         private void Initialize() {
             if (!File.Exists(this.serverConfig_filePath)) {
                 //TODO: Move to server startup - replace with proper error handling
-                File.Create(this.serverConfig_filePath);
-                TextWriter serverConfig_textWriter = new StreamWriter(this.serverConfig_filePath);
-                serverConfig_textWriter.WriteLine("#This is the Server Configuration File!\n#!!IF YOU DON'T KNOW WHAT TO DO - READ THE INSTRUCTIONS!\n#===============\ndbServer=localhost\ndbName=Exceed\ndbUser=root\ndbPass=toor");
-                serverConfig_textWriter.Close();
-            } else {
-                string line;
-                string[] lineVar;
-
-                // Read the file and display it line by line.  
-                StreamReader serverConfig_streamReader = new StreamReader(this.serverConfig_filePath);
-                while ((line = serverConfig_streamReader.ReadLine()) != null && line[0] != '#') {
-                    lineVar = line.Split('=');
+                File.WriteAllText(this.serverConfig_filePath, "#This is the Server Configuration File!\n#!!IF YOU DON'T KNOW WHAT TO DO - READ THE INSTRUCTIONS!\n#===============\ndbServer=localhost\ndbName=Exceed\ndbUser=root\ndbPass=toor");
+            }
+            else {
+                string[] lines = File.ReadAllLines(this.serverConfig_filePath);
+                foreach (var line in lines) {
+                    if (line[0] != '#') continue;
+                    string[] lineVar = line.Split('=');
                     switch (lineVar[0]) {
                         case "dbServer":
                             this.dbServer = lineVar[1];
@@ -59,18 +54,19 @@ namespace Server
                             this.dbPass = lineVar[1];
                             break;
                         default:
-                            break;
+                            throw new InvalidDataException();
                     }
                 }
-                serverConfig_streamReader.Close();
                 
-                string connectionString = "SERVER=" + this.dbServer + ";" + "DATABASE=" +
-                this.dbName + ";" + "UID=" + this.dbUser + ";" + "PASSWORD=" + this.dbPass + ";";
+                string connectionString = string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};",
+                                                        this.dbServer,
+                                                        this.dbName,
+                                                        this.dbUser,
+                                                        this.dbPass);
                 this.dbConnection = new MySqlConnection(connectionString);
             }
         }
 
-        //open connection to database
         private bool OpenConnection() {
             try {
                 this.dbConnection.Open();
@@ -98,8 +94,7 @@ namespace Server
             }
             return true;
         }
-
-        //Close connection
+        
         private bool CloseConnection() {
             try {
                 this.dbConnection.Close();
@@ -111,44 +106,31 @@ namespace Server
             return true;
         }
 
-        //Insert statement
         public void RegisterNewAccount() {
             //TODO: check if email does even exist
             bool isEmailValid = true;
 
             if (isEmailValid) {
-                string query = "INSERT INTO users (email, nickname, hashedPassword) VALUES('mail@example.tld', 'John Smith', 'password123')";
-
-                //open connection
                 if (this.OpenConnection() == true) {
-                    //create command and assign the query and connection from the constructor
+                    string query = "INSERT INTO users (email, nickname, hashedPassword) VALUES('mail@example.tld', 'John Smith', 'password123')";
                     MySqlCommand cmd = new MySqlCommand(query, this.dbConnection);
-
-                    //Execute command
+                    //TODO: catch exception on existing email
                     cmd.ExecuteNonQuery();
-
-                    //close connection
                     this.CloseConnection();
                 }
             }
         }
 
         public string GetHashedPassword() {
-            //Select statement
-            string query = "SELECT pass FROM users WHERE(email IS 'mail@example.tld')";
-
-            //Create a list to store the result
+            string query = "SELECT password FROM users WHERE(email IS 'mail@example.tld')";
+            
             string hashedPassword = null;
-            //Open connection
             if (this.OpenConnection()) {
-                //Create Command
                 MySqlCommand cmd = new MySqlCommand(query, this.dbConnection);
-                //Create a data reader and Execute the command
                 MySqlDataReader dataReader = cmd.ExecuteReader();
-
-                //Read the data and store them in the list
+                
                 while (dataReader.Read()) {
-                    hashedPassword = (string)dataReader["hashedPassword"];
+                    hashedPassword = (string)dataReader["password"];
                 }
                 dataReader.Close();
                 this.CloseConnection();
