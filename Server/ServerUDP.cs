@@ -168,16 +168,19 @@ namespace Server {
                 #endregion
                 case ServerPacketID.Login://login
                     #region login
-                    if (!players.Contains(source)) {
-                        //musnt login without checking bridge version first
-                    }
-                    
                     string username = source.reader.ReadString();
                     string password = source.reader.ReadString();
                     source.MAC = source.reader.ReadString();
-                    var ip = (source.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address.Address;
 
-                    var authResponse = Database.AuthUser(username, password, (int)ip, source.MAC);
+                    AuthResponse authResponse;
+                    if (!players.Contains(source)) {
+                        //musnt login without checking bridge version first
+                        authResponse = AuthResponse.Unverified;
+                    }
+                    else {
+                        var ip = (source.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address.Address;
+                        authResponse = Database.AuthUser(username, password, (int)ip, source.MAC);
+                    }
                     source.writer.Write((byte)ServerPacketID.Login);
                     source.writer.Write((byte)authResponse);
                     if (authResponse != AuthResponse.Success) break;

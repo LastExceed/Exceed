@@ -40,6 +40,7 @@
         UnknownUser,
         WrongPassword,
         Banned,
+        Unverified,//bridge version not checked
     }
     public enum RegisterResponse : byte {
         Success,
