@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Bridge {
@@ -36,6 +37,10 @@ namespace Bridge {
                 labelEmailResult.Text = "available";
                 if (labelUsernameResult.ForeColor == Color.Green) buttonRegister.Enabled = true;
             }
+        }
+
+        private void buttonRegister_Click(object sender, EventArgs e) {
+            new Thread(new ThreadStart(() => BridgeTCPUDP.Register(textBoxUsername.Text, textBoxEmail.Text))).Start();
         }
     }
 }
