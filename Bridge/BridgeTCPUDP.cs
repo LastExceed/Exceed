@@ -594,8 +594,9 @@ namespace Bridge {
                         outgoing.Enqueue(serverUpdate);
                     }
                     else {
-                        var chat = new Chat(chatMessage.message) {
-                            Sender = guid//client doesn't send this //(ushort)chatMessage.sender
+                        var chat = new Chat() {
+                            Sender = guid,//client doesn't send this
+                            Text = chatMessage.message
                         };
                         SendUDP(chat.data);
                     }

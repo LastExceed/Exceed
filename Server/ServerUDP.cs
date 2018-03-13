@@ -309,16 +309,25 @@ namespace Server {
                 case DatagramID.Chat:
                     #region chat
                     var chat = new Chat(datagram);
+
                     if (chat.Text.StartsWith("/")) {
-                        Command.Server(chat.Text, source, this); //wip
+                        var parameters = chat.Text.Substring(1).Split(" ");
+
+                        switch (parameters[0].ToLower()) {
+                            case "ban":
+                                break;
+                            default:
+
+                                break;
+                        }
+                        break;
                     }
-                    else {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.Write(dynamicEntities[chat.Sender].name + ": ");
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine(chat.Text);
-                        BroadcastUDP(chat.data, null); //pass to all players
-                    }
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.Write(dynamicEntities[chat.Sender].name + ": ");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine(chat.Text);
+
+                    BroadcastUDP(chat.data, null); //pass to all players
                     break;
                 #endregion
                 case DatagramID.Interaction:
@@ -346,7 +355,7 @@ namespace Server {
                     var specialMove = new SpecialMove(datagram);
                     switch (specialMove.Id) {
                         case SpecialMoveID.Taunt:
-                            var target = players.First(p => p.entity.guid == specialMove.Guid);
+                            target = players.First(p => p.entity.guid == specialMove.Guid);
                             specialMove.Guid = (ushort)source.entity.guid;
                             SendUDP(specialMove.data, target);
                             break;
