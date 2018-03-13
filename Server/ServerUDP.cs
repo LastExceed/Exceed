@@ -14,13 +14,13 @@ using Resources.Packet;
 using Resources.Utilities;
 
 namespace Server {
-    class ServerUDP {
-        UdpClient udpClient;
-        TcpListener tcpListener;
-        List<Player> players = new List<Player>();
-        Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
+    static class ServerUDP {
+        static UdpClient udpClient;
+        static TcpListener tcpListener;
+        static List<Player> players = new List<Player>();
+        static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
 
-        public ServerUDP(int port) {
+        public static void Setup(int port) {
             Database.Setup();
 
             #region models
@@ -100,7 +100,7 @@ namespace Server {
             new Thread(new ThreadStart(ListenTCP)).Start();
         }
 
-        public void ListenTCP() {
+        public static void ListenTCP() {
             var player = new Player(tcpListener.AcceptTcpClient());
             new Thread(new ThreadStart(ListenTCP)).Start();
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -120,7 +120,7 @@ namespace Server {
                 Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " disconnected");
             }
         }
-        public void ListenUDP() {
+        public static void ListenUDP() {
             IPEndPoint source = null;
             while (true) {
                 byte[] datagram = udpClient.Receive(ref source);
@@ -131,10 +131,10 @@ namespace Server {
             }
         }
 
-        public void SendUDP(byte[] data, Player target) {
+        public static void SendUDP(byte[] data, Player target) {
             udpClient.Send(data, data.Length, target.tcpClient.Client.RemoteEndPoint as IPEndPoint);
         }
-        public void BroadcastUDP(byte[] data, Player toSkip = null) {
+        public static void BroadcastUDP(byte[] data, Player toSkip = null) {
             foreach (var player in players) {
                 if (player != toSkip) {
                     SendUDP(data, player);
@@ -142,7 +142,7 @@ namespace Server {
             }
         }
 
-        public void ProcessPacket(byte packetID, Player source) {
+        public static void ProcessPacket(byte packetID, Player source) {
             switch ((ServerPacketID)packetID) {
                 case ServerPacketID.VersionCheck:
                     #region VersionCheck
@@ -228,7 +228,7 @@ namespace Server {
                     break;
             }
         }
-        public void ProcessDatagram(byte[] datagram, Player source) {
+        public static void ProcessDatagram(byte[] datagram, Player source) {
             switch ((DatagramID)datagram[0]) {
                 case DatagramID.DynamicUpdate:
                     #region entityUpdate
@@ -395,7 +395,7 @@ namespace Server {
             }
         }
 
-        public ushort AssignGuid() {
+        public static ushort AssignGuid() {
             ushort newGuid = 1;
             while (dynamicEntities.ContainsKey(newGuid)) newGuid++;
             return newGuid;
