@@ -79,11 +79,17 @@
             this.label1 = new System.Windows.Forms.Label();
             this.buttonMap = new System.Windows.Forms.Button();
             this.timerSearchProcess = new System.Windows.Forms.Timer(this.components);
+            this.trackBarTime = new System.Windows.Forms.TrackBar();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarTime)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             this.SuspendLayout();
             // 
             // textBoxPassword
@@ -150,7 +156,7 @@
             this.groupBox1.Controls.Add(this.radioButtonDestroy);
             this.groupBox1.Controls.Add(this.radioButtonDuplicate);
             this.groupBox1.Controls.Add(this.radioButtonNormal);
-            this.groupBox1.Location = new System.Drawing.Point(70, 38);
+            this.groupBox1.Location = new System.Drawing.Point(16, 150);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(75, 62);
             this.groupBox1.TabIndex = 19;
@@ -368,6 +374,9 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.numericUpDown2);
+            this.tabPage3.Controls.Add(this.numericUpDown1);
+            this.tabPage3.Controls.Add(this.trackBarTime);
             this.tabPage3.Controls.Add(this.checkBoxZoomHack);
             this.tabPage3.Controls.Add(this.groupBox1);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
@@ -382,7 +391,7 @@
             // 
             this.checkBoxZoomHack.AutoSize = true;
             this.checkBoxZoomHack.Enabled = false;
-            this.checkBoxZoomHack.Location = new System.Drawing.Point(81, 153);
+            this.checkBoxZoomHack.Location = new System.Drawing.Point(145, 195);
             this.checkBoxZoomHack.Name = "checkBoxZoomHack";
             this.checkBoxZoomHack.Size = new System.Drawing.Size(78, 17);
             this.checkBoxZoomHack.TabIndex = 20;
@@ -415,6 +424,43 @@
             this.timerSearchProcess.Enabled = true;
             this.timerSearchProcess.Interval = 200;
             this.timerSearchProcess.Tick += new System.EventHandler(this.timerSearchProcess_Tick);
+            // 
+            // trackBarTime
+            // 
+            this.trackBarTime.Location = new System.Drawing.Point(2, 3);
+            this.trackBarTime.Maximum = 48;
+            this.trackBarTime.Name = "trackBarTime";
+            this.trackBarTime.Size = new System.Drawing.Size(224, 45);
+            this.trackBarTime.TabIndex = 21;
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Location = new System.Drawing.Point(19, 54);
+            this.numericUpDown1.Maximum = new decimal(new int[] {
+            24,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(32, 20);
+            this.numericUpDown1.TabIndex = 22;
+            this.numericUpDown1.Value = new decimal(new int[] {
+            22,
+            0,
+            0,
+            0});
+            // 
+            // numericUpDown2
+            // 
+            this.numericUpDown2.Location = new System.Drawing.Point(59, 54);
+            this.numericUpDown2.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            this.numericUpDown2.Name = "numericUpDown2";
+            this.numericUpDown2.Size = new System.Drawing.Size(32, 20);
+            this.numericUpDown2.TabIndex = 23;
             // 
             // FormMain
             // 
@@ -450,6 +496,9 @@
             this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarTime)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -489,6 +538,9 @@
         private System.Windows.Forms.Timer timerSearchProcess;
         private System.Windows.Forms.CheckBox checkBoxZoomHack;
         public System.Windows.Forms.Button buttonRegister;
+        private System.Windows.Forms.TrackBar trackBarTime;
+        private System.Windows.Forms.NumericUpDown numericUpDown2;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
     }
 }
 
