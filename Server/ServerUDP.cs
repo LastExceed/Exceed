@@ -400,12 +400,5 @@ namespace Server {
             while (dynamicEntities.ContainsKey(newGuid)) newGuid++;
             return newGuid;
         }
-
-        //public void Ban(ushort guid) {
-        //    var player = players[guid];
-        //    bans.Add(new Ban(dynamicEntities[player.guid].name, player.IpEndPoint.Address.ToString(), player.MAC));
-        //    player.tcpClient.Close();
-        //    File.WriteAllText(bansFilePath, JsonConvert.SerializeObject(bans));
-        //}
     }
 }
