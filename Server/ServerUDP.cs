@@ -20,9 +20,6 @@ namespace Server {
         List<Player> players = new List<Player>();
         Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
 
-        const string bansFilePath = "bans.json";
-        const string accountsFilePath = "accounts.json";
-
         public ServerUDP(int port) {
             Database.Setup();
 
