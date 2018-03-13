@@ -14,11 +14,11 @@ using Resources.Packet;
 using Resources.Utilities;
 
 namespace Server {
-    static class ServerUDP {
-        static UdpClient udpClient;
-        static TcpListener tcpListener;
-        static List<Player> players = new List<Player>();
-        static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
+    public static class ServerUDP {
+        public static UdpClient udpClient;
+        public static TcpListener tcpListener;
+        public static List<Player> players = new List<Player>();
+        public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
 
         public static void Setup(int port) {
             Database.Setup();
@@ -100,7 +100,7 @@ namespace Server {
             new Thread(new ThreadStart(ListenTCP)).Start();
         }
 
-        public static void ListenTCP() {
+        private static void ListenTCP() {
             var player = new Player(tcpListener.AcceptTcpClient());
             new Thread(new ThreadStart(ListenTCP)).Start();
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -120,7 +120,7 @@ namespace Server {
                 Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " disconnected");
             }
         }
-        public static void ListenUDP() {
+        private static void ListenUDP() {
             IPEndPoint source = null;
             while (true) {
                 byte[] datagram = udpClient.Receive(ref source);
@@ -131,10 +131,10 @@ namespace Server {
             }
         }
 
-        public static void SendUDP(byte[] data, Player target) {
+        private static void SendUDP(byte[] data, Player target) {
             udpClient.Send(data, data.Length, target.tcpClient.Client.RemoteEndPoint as IPEndPoint);
         }
-        public static void BroadcastUDP(byte[] data, Player toSkip = null) {
+        private static void BroadcastUDP(byte[] data, Player toSkip = null) {
             foreach (var player in players) {
                 if (player != toSkip) {
                     SendUDP(data, player);
@@ -142,7 +142,7 @@ namespace Server {
             }
         }
 
-        public static void ProcessPacket(byte packetID, Player source) {
+        private static void ProcessPacket(byte packetID, Player source) {
             switch ((ServerPacketID)packetID) {
                 case ServerPacketID.VersionCheck:
                     #region VersionCheck
@@ -228,7 +228,7 @@ namespace Server {
                     break;
             }
         }
-        public static void ProcessDatagram(byte[] datagram, Player source) {
+        private static void ProcessDatagram(byte[] datagram, Player source) {
             switch ((DatagramID)datagram[0]) {
                 case DatagramID.DynamicUpdate:
                     #region entityUpdate
