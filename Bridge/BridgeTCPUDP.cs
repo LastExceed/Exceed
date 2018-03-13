@@ -12,7 +12,6 @@ using System.Net.NetworkInformation;
 using Resources;
 using Resources.Packet;
 using Resources.Datagram;
-using System.Threading.Tasks;
 
 namespace Bridge {
     static class BridgeTCPUDP {
