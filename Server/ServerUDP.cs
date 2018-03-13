@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
@@ -12,7 +11,6 @@ using Server.Addon;
 using Resources;
 using Resources.Datagram;
 using Resources.Packet;
-using Newtonsoft.Json;
 using Resources.Utilities;
 
 namespace Server {
@@ -21,30 +19,12 @@ namespace Server {
         TcpListener tcpListener;
         List<Player> players = new List<Player>();
         Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
-        List<Ban> bans;
-        Dictionary<string, string> accounts;
 
         const string bansFilePath = "bans.json";
         const string accountsFilePath = "accounts.json";
 
         public ServerUDP(int port) {
-            if (File.Exists(bansFilePath)) {
-                bans = JsonConvert.DeserializeObject<List<Ban>>(File.ReadAllText(bansFilePath));
-            }
-            else {
-                Console.WriteLine("no bans file found");
-                bans = new List<Ban>();
-                //File.WriteAllText(bansFilePath, JsonConvert.SerializeObject(bans));
-            }
-
-            if (File.Exists(accountsFilePath)) {
-                accounts = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(accountsFilePath));
-            }
-            else {
-                Console.WriteLine("no accounts file found");
-                accounts = new Dictionary<string, string>();
-                //File.WriteAllText(accountsFilePath, JsonConvert.SerializeObject(accounts));
-            }
+            Database.Setup();
 
             #region models
             //var rnd = new Random();
@@ -165,78 +145,85 @@ namespace Server {
             }
         }
 
-        public void ProcessPacket(byte packetID, Player player) {
-            switch (packetID) {
-                case 0://bridge version
-                    player.writer.Write((byte)0);
-                    if (player.reader.ReadInt32() != Config.bridgeVersion) {
-                        player.writer.Write(false);
+        public void ProcessPacket(byte packetID, Player source) {
+            switch ((ServerPacketID)packetID) {
+                case ServerPacketID.VersionCheck:
+                    #region VersionCheck
+                    source.writer.Write((byte)ServerPacketID.VersionCheck);
+                    if (source.reader.ReadInt32() != Config.bridgeVersion) {
+                        source.writer.Write(false);
                         //close connection
                         break;
                     }
-                    player.writer.Write(true);
-                    players.Add(player);
+                    source.writer.Write(true);
+                    players.Add(source);
                     foreach (EntityUpdate entity in dynamicEntities.Values) {
-                        SendUDP(entity.CreateDatagram(), player);
+                        SendUDP(entity.CreateDatagram(), source);
                     }
-                    break;
-
-                case 1://login
-                    #region login
-                    player.writer.Write((byte)1);
-                    if (!players.Contains(player)) {
-                        //musnt login without checking bridge version first
-                    }
-                    
-                    string username = player.reader.ReadString();
-                    //if (!accounts.ContainsKey(username)) {
-                    //    player.writer.Write((byte)AuthResponse.unknownUser);
-                    //    return;
-                    //}
-                    string password = player.reader.ReadString();
-                    //if (accounts[username] != password) {
-                    //    player.writer.Write((byte)AuthResponse.wrongPassword);
-                    //    return;
-                    //}
-                    player.writer.Write((byte)AuthResponse.Success);
-
-                    player.MAC = player.reader.ReadString();
-                    var banEntry = bans.FirstOrDefault(x => x.Mac == player.MAC || x.Ip == (player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address.ToString());
-                    if (banEntry != null) {
-                        player.writer.Write(true);
-                        player.writer.Write(banEntry.Reason);
-                        break;
-                    }
-                    player.writer.Write(false);//not banned
-
-                    player.entity = new EntityUpdate() {
-                        guid = AssignGuid(),
-                    };
-                    player.writer.Write((ushort)player.entity.guid);
-                    player.writer.Write(Config.mapseed);
-
-                    dynamicEntities.Add((ushort)player.entity.guid, player.entity);
-
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " logged in as " + username);
                     break;
                 #endregion
-                case 2:
-                    #region logout
-                    if (player.entity == null) //not logged in
-                    dynamicEntities.Remove((ushort)player.entity.guid);
-                    var remove = new RemoveDynamicEntity() {
-                        Guid = (ushort)player.entity.guid,
+                case ServerPacketID.Login://login
+                    #region login
+                    string username = source.reader.ReadString();
+                    string password = source.reader.ReadString();
+                    source.MAC = source.reader.ReadString();
+
+                    AuthResponse authResponse;
+                    if (!players.Contains(source)) {
+                        //musnt login without checking bridge version first
+                        authResponse = AuthResponse.Unverified;
+                    }
+                    else {
+                        var ip = (source.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address.Address;
+                        authResponse = Database.AuthUser(username, password, (int)ip, source.MAC);
+                    }
+                    source.writer.Write((byte)ServerPacketID.Login);
+                    source.writer.Write((byte)authResponse);
+                    if (authResponse != AuthResponse.Success) break;
+
+                    source.entity = new EntityUpdate() {
+                        guid = AssignGuid(),
                     };
-                    BroadcastUDP(remove.data, player);
-                    player.entity = null;
-                    if (player.tomb != null) {
-                        remove.Guid = (ushort)player.tomb;
-                        BroadcastUDP(remove.data, player);
-                        player.tomb = null;
+                    source.writer.Write((ushort)source.entity.guid);
+                    source.writer.Write(Config.mapseed);
+
+                    dynamicEntities.Add((ushort)source.entity.guid, source.entity);
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine((source.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " logged in as " + username);
+                    break;
+                #endregion
+                case ServerPacketID.Logout:
+                    #region logout
+                    if (source.entity == null) break;//not logged in
+                    dynamicEntities.Remove((ushort)source.entity.guid);
+                    var remove = new RemoveDynamicEntity() {
+                        Guid = (ushort)source.entity.guid,
+                    };
+                    BroadcastUDP(remove.data, source);
+                    source.entity = null;
+                    if (source.tomb != null) {
+                        remove.Guid = (ushort)source.tomb;
+                        BroadcastUDP(remove.data, source);
+                        source.tomb = null;
                     }
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " logged out");
+                    Console.WriteLine((source.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " logged out");
+                    break;
+                #endregion
+                case ServerPacketID.Register:
+                    #region Register
+                    username = source.reader.ReadString();
+                    var email = source.reader.ReadString();
+                    var password_temp = "RANDOM_PASSWORD";
+
+                    var registerResponse = Database.RegisterUser(username, email, password_temp);
+                    source.writer.Write((byte)ServerPacketID.Register);
+                    source.writer.Write((byte)registerResponse);
+                    if (registerResponse == RegisterResponse.Success) {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine((source.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " registered: " + username);
+                    }
                     break;
                 #endregion
                 default:
@@ -301,11 +288,8 @@ namespace Server {
                     #region attack
                     var attack = new Attack(datagram);
                     source.lastTarget = attack.Target;
-                    if (dynamicEntities.ContainsKey(attack.Target) && dynamicEntities[attack.Target].hostility == Hostility.Player) {//in case the target is a tombstone
-
-                        SendUDP(attack.data, players.First(p => p.entity.guid == attack.Target));
-                    }
-                    var x = new PassiveProc();
+                    var target = players.FirstOrDefault(p => p.entity.guid == attack.Target);
+                    if (target != null) SendUDP(attack.data, target);
                     break;
                 #endregion
                 case DatagramID.Projectile:
@@ -323,16 +307,44 @@ namespace Server {
                 case DatagramID.Chat:
                     #region chat
                     var chat = new Chat(datagram);
+
                     if (chat.Text.StartsWith("/")) {
-                        Command.Server(chat.Text, source, this); //wip
+                        var parameters = chat.Text.Substring(1).Split(" ");
+
+                        switch (parameters[0].ToLower()) {
+                            case "ban":
+                                break;
+                            case "time":
+                                if (parameters.Length == 1) ;//missing param
+                                var clock = parameters[1].Split(":");
+                                if (clock.Length < 2 ||
+                                    !int.TryParse(clock[0], out int hour) ||
+                                    !int.TryParse(clock[1], out int minute)) {
+                                    chat.Sender = 0;
+                                    chat.Text = "invalid syntax";
+                                    SendUDP(chat.data, source);
+                                }
+                                else {
+                                    var inGameTime = new InGameTime() {
+                                        Time = (hour * 60 + minute) * 60000,
+                                    };
+                                    SendUDP(inGameTime.data, source);
+                                }
+                                break;
+                            default:
+                                chat.Sender = 0;
+                                chat.Text = string.Format("unknown command '{0}'", parameters[0]);
+                                SendUDP(chat.data, source);
+                                break;
+                        }
+                        break;
                     }
-                    else {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.Write(dynamicEntities[chat.Sender].name + ": ");
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine(chat.Text);
-                        BroadcastUDP(chat.data, null); //pass to all players
-                    }
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.Write(dynamicEntities[chat.Sender].name + ": ");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine(chat.Text);
+
+                    BroadcastUDP(chat.data, null); //pass to all players
                     break;
                 #endregion
                 case DatagramID.Interaction:
@@ -360,7 +372,7 @@ namespace Server {
                     var specialMove = new SpecialMove(datagram);
                     switch (specialMove.Id) {
                         case SpecialMoveID.Taunt:
-                            var target = players.First(p => p.entity.guid == specialMove.Guid);
+                            target = players.First(p => p.entity.guid == specialMove.Guid);
                             specialMove.Guid = (ushort)source.entity.guid;
                             SendUDP(specialMove.data, target);
                             break;

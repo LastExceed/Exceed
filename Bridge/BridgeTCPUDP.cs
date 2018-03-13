@@ -86,18 +86,23 @@ namespace Bridge {
             dynamicEntities.Clear();
         }
 
-        public static void Login() {
+        public static void Login(string name, string password) {
             form.Log("logging in...", Color.DarkGray);
-            swriter.Write((byte)1);
-            swriter.Write(form.textBoxUsername.Text);
-            swriter.Write(form.textBoxPassword.Text);
+            swriter.Write((byte)ServerPacketID.Login);
+            swriter.Write(name);
+            swriter.Write(password);
             swriter.Write(NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault());
         }
         public static void Logout() {
-            swriter.Write((byte)2);
+            swriter.Write((byte)ServerPacketID.Logout);
             if (status == BridgeStatus.Playing) tcpToClient.Close();
             status = BridgeStatus.Connected;
             form.Log("logged out.\n", Color.DarkGray);
+        }
+        public static void Register(string name, string email) {
+            swriter.Write((byte)ServerPacketID.Register);
+            swriter.Write(name);
+            swriter.Write(email);
         }
 
         public static void ListenFromClientTCP() {
@@ -599,8 +604,9 @@ namespace Bridge {
                         outgoing.Enqueue(serverUpdate);
                     }
                     else {
-                        var chat = new Chat(chatMessage.message) {
-                            Sender = guid//client doesn't send this //(ushort)chatMessage.sender
+                        var chat = new Chat() {
+                            Sender = guid,//client doesn't send this
+                            Text = chatMessage.message
                         };
                         SendUDP(chat.data);
                     }
@@ -643,8 +649,9 @@ namespace Bridge {
             }
         }
         public static void ProcessServerPacket(int packetID) {
-            switch (packetID) {
-                case 0:
+            switch ((ServerPacketID)packetID) {
+                case ServerPacketID.VersionCheck:
+                    #region VersionCheck
                     if (!sreader.ReadBoolean()) {
                         form.Log("mismatch\n", Color.Red);
                         MessageBox.Show("your bridge is outdated\nupdate\nstay offline");
@@ -655,15 +662,11 @@ namespace Bridge {
                     form.Invoke(new Action(() => form.buttonRegister.Enabled = true));
                     new Thread(new ThreadStart(ListenFromServerUDP)).Start();
                     break;
-
-                case 1:
+                #endregion
+                case ServerPacketID.Login:
+                    #region Login
                     switch ((AuthResponse)sreader.ReadByte()) {
                         case AuthResponse.Success:
-                            if (sreader.ReadBoolean()) {//if banned
-                                MessageBox.Show(sreader.ReadString());//ban message
-                                form.Log("you are banned\n", Color.Red);
-                                goto default;
-                            }
                             form.Log("success\n", Color.Green);
                             break;
                         case AuthResponse.UnknownUser:
@@ -672,7 +675,12 @@ namespace Bridge {
                         case AuthResponse.WrongPassword:
                             form.Log("wrong password\n", Color.Red);
                             goto default;
+                        case AuthResponse.Banned:
+                            form.Log("you are banned\n", Color.Red);
+                            goto default;
                         default:
+                            form.Invoke(new Action(() => form.textBoxUsername.Enabled = true));
+                            form.Invoke(new Action(() => form.textBoxPassword.Enabled = true));
                             form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
                             return;
                     }
@@ -682,6 +690,25 @@ namespace Bridge {
 
                     form.Invoke(new Action(() => form.buttonLogout.Enabled = true));
                     break;
+                #endregion
+                case ServerPacketID.Register:
+                    #region Register
+                    switch ((RegisterResponse)sreader.ReadByte()) {
+                        case RegisterResponse.Success:
+                            form.Log("account registered\n", Color.DarkGray);
+                            form.Invoke(new Action(form.register.Close));
+                            break;
+                        case RegisterResponse.UsernameTaken:
+                            MessageBox.Show("this username is already in use");
+                            break;
+                        case RegisterResponse.EmailTaken:
+                            MessageBox.Show("there is already an account associated to this email");
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                #endregion
 
                 //case 3:
                 //    var query = new Query(sreader);

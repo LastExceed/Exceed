@@ -7,24 +7,20 @@ namespace Resources.Datagram {
             get => BitConverter.ToUInt16(data, 1);
             set => BitConverter.GetBytes(value).CopyTo(data, 1);
         }
-        public byte Length {
-            get => data[3];
-            set => data[3] = value;
-        }
         public string Text {
-            get => Encoding.ASCII.GetString(data, 4, Length);
-            set => Encoding.ASCII.GetBytes(value).CopyTo(data, 4);
+            get => Encoding.ASCII.GetString(data, 3, data.Length-3);
+            set {
+                var sender = Sender;//gets lost when we create a new byte[]
+                data = new byte[3 + value.Length];
+                DatagramID = DatagramID.Chat;
+                Sender = sender;
+                Encoding.ASCII.GetBytes(value).CopyTo(data, 3);
+            }
         }
 
-        public Chat(string message) {
-            if(message.Length <= 255) {
-                data = new byte[4 + message.Length];
-                DatagramID = DatagramID.Chat;
-                Length = (byte)message.Length;
-                Text = message;
-            } else {
-                throw new OverflowException("Message to long");
-            }
+        public Chat() {
+            data = new byte[3];
+            DatagramID = DatagramID.Particle;
         }
 
         public Chat(byte[] data) : base(data) { }

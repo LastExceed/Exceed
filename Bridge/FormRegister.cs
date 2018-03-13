@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Bridge {
@@ -39,7 +40,7 @@ namespace Bridge {
         }
 
         private void buttonRegister_Click(object sender, EventArgs e) {
-            MessageBox.Show("Account registered. A randomly generated password has been sent to your Email (don't forget to check spam folder in case you didn't receive it). If you don't want to keep that password you can change it in the account tab.");
+            new Thread(new ThreadStart(() => BridgeTCPUDP.Register(textBoxUsername.Text, textBoxEmail.Text))).Start();
         }
     }
 }

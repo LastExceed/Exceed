@@ -31,6 +31,7 @@ namespace Bridge {
             if (buttonEditor.Enabled) {
                 try {
                     CwRam.RemoveFog();
+                    if (BridgeTCPUDP.status == Resources.BridgeStatus.Playing) CwRam.SetName(textBoxUsername.Text);
                 }
                 catch (Exception) {
                     HotkeyManager.Deinit();
@@ -82,7 +83,7 @@ namespace Bridge {
             buttonLogin.Enabled = false;
             textBoxUsername.Enabled = false;
             textBoxPassword.Enabled = false;
-            new Thread(new ThreadStart(BridgeTCPUDP.Login)).Start();
+            new Thread(new ThreadStart(() => BridgeTCPUDP.Login(textBoxUsername.Text, textBoxPassword.Text))).Start();
         }
         private void ButtonLogout_Click(object sender, EventArgs e) {
             new Thread(new ThreadStart(BridgeTCPUDP.Logout)).Start();
