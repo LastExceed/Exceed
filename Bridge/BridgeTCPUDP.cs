@@ -685,8 +685,14 @@ namespace Bridge {
                     switch ((RegisterResponse)sreader.ReadByte()) {
                         case RegisterResponse.Success:
                             form.Log("account registered\n", Color.DarkGray);
+                            form.Invoke(new Action(form.register.Close));
                             break;
-                            //need more cases
+                        case RegisterResponse.UsernameTaken:
+                            MessageBox.Show("this username is already in use");
+                            break;
+                        case RegisterResponse.EmailTaken:
+                            MessageBox.Show("there is already an account associated to this email");
+                            break;
                         default:
                             break;
                     }

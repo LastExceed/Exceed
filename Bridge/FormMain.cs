@@ -31,6 +31,7 @@ namespace Bridge {
             if (buttonEditor.Enabled) {
                 try {
                     CwRam.RemoveFog();
+                    if ((byte)BridgeTCPUDP.status > 1) CwRam.SetName(textBoxUsername.Text);
                 }
                 catch (Exception) {
                     HotkeyManager.Deinit();

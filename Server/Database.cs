@@ -17,10 +17,22 @@ namespace Server {
                 dbConnection.Open();
 
                 var tableStrings = new List<string> {
-                    "CREATE TABLE users (name VARCHAR(11) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL UNIQUE)",
-                    "CREATE TABLE clans (name VARCHAR(255) NOT NULL UNIQUE, tag VARCHAR(3) NOT NULL UNIQUE)",
-                    "CREATE TABLE logins (name VARCHAR(11) NOT NULL, ip INT NOT NULL, mac VARCHAR(12) NOT NULL)",//TODO: replace name with relation
-                    "CREATE TABLE bans (name VARCHAR(11) NOT NULL, ip INT NOT NULL, mac VARCHAR(12) NOT NULL, reason VARCHAR(255))",//same as logins, maybe use relation instead?
+                    "CREATE TABLE users  (name        VARCHAR(11)  NOT NULL UNIQUE," +
+                                         "password    VARCHAR(64)  NOT NULL," +
+                                         "email       VARCHAR(64)  NOT NULL UNIQUE," +
+                                         "permissions TINYINT)",
+                                                                   
+                    "CREATE TABLE clans  (name        VARCHAR(64)  NOT NULL UNIQUE," +
+                                         "tag         VARCHAR(3)   NOT NULL UNIQUE)",
+                                                                   
+                    "CREATE TABLE logins (name        VARCHAR(11)  NOT NULL," +
+                                         "ip          INT          NOT NULL," +
+                                         "mac         CHAR(12)     NOT NULL)",//TODO: replace name with relation
+                                                                   
+                    "CREATE TABLE bans   (name        VARCHAR(11)  NOT NULL," +
+                                         "ip          INT          NOT NULL," +
+                                         "mac         CHAR(12)     NOT NULL," +
+                                         "reason      VARCHAR(255) NOT NULL)",//same as logins, maybe use relation instead?
                 };
                 var cmd = new SQLiteCommand(dbConnection);
                 foreach (string sql in tableStrings) {
