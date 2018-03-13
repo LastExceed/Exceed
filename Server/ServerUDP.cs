@@ -21,8 +21,6 @@ namespace Server {
         TcpListener tcpListener;
         List<Player> players = new List<Player>();
         Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
-        List<Ban> bans;
-        Dictionary<string, string> accounts;
 
         const string bansFilePath = "bans.json";
         const string accountsFilePath = "accounts.json";
