@@ -23,27 +23,27 @@ namespace Bridge {
         }
 
         public static void SetMode(Mode mode, int timer) {
-            CwRam.memory.WriteInt(CwRam.EntityStart + 0x6C, timer);//skill timer
-            CwRam.memory.WriteInt(CwRam.EntityStart + 0x68, (int)mode);//skill
+            memory.WriteInt(EntityStart + 0x6C, timer);//skill timer
+            memory.WriteInt(EntityStart + 0x68, (int)mode);//skill
         }
         public static void SetName(string name) {
             var data = new byte[16];
             Encoding.ASCII.GetBytes(name).CopyTo(data, 0);
-            CwRam.memory.WriteBytes(CwRam.EntityStart + 0x1168, data);
+            memory.WriteBytes(EntityStart + 0x1168, data);
         }
 
         public static void Teleport(LongVector destination) {
-            CwRam.memory.WriteLong(CwRam.EntityStart + 0x10, destination.x);
-            CwRam.memory.WriteLong(CwRam.EntityStart + 0x18, destination.y); 
-            CwRam.memory.WriteLong(CwRam.EntityStart + 0x20, destination.z);
+            memory.WriteLong(EntityStart + 0x10, destination.x);
+            memory.WriteLong(EntityStart + 0x18, destination.y); 
+            memory.WriteLong(EntityStart + 0x20, destination.z);
         }
 
         public static void Freeze(int duration) {
-            CwRam.memory.WriteInt(CwRam.EntityStart + 0x134, duration);//ice spirit effect
+            memory.WriteInt(EntityStart + 0x134, duration);//ice spirit effect
         }
 
         public static void Fear(int duration) {
-            CwRam.memory.WriteInt(CwRam.EntityStart + 0x130, duration);//ice spirit effect
+            memory.WriteInt(EntityStart + 0x130, duration);//ice spirit effect
         }
 
         public static void RemoveFog() {
