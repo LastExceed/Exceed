@@ -48,7 +48,6 @@ namespace Resources.Datagram {
             data = new byte[26];
             DatagramID = DatagramID.Attack;
         }
-
         public Attack(byte[] data) : base(data) { }
     }
 }

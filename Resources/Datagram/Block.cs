@@ -15,7 +15,6 @@ namespace Resources.Datagram {
             data = new byte[3];
             DatagramID = DatagramID.Block;
         }
-
         public Block(byte[] data) : base(data) { }
     }
 }

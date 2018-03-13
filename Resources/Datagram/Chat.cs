@@ -22,7 +22,6 @@ namespace Resources.Datagram {
             data = new byte[3];
             DatagramID = DatagramID.Particle;
         }
-
         public Chat(byte[] data) : base(data) { }
     }
 }

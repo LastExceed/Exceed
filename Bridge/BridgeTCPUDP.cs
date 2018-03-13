@@ -307,7 +307,7 @@ namespace Bridge {
                     var igt = new InGameTime(datagram);
 
                     var time = new Time() {
-                        time = igt.Time
+                        time = igt.Milliseconds
                     };
                     if (status == BridgeStatus.Playing) outgoing.Enqueue(time);
                     break;

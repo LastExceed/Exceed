@@ -2,7 +2,7 @@
 
 namespace Resources.Datagram {
     public class InGameTime : Datagram {
-        public int Time {
+        public int Milliseconds {
             get => BitConverter.ToInt32(data, 1);
             set => BitConverter.GetBytes(value).CopyTo(data, 1);
         }
@@ -11,7 +11,6 @@ namespace Resources.Datagram {
             data = new byte[5];
             DatagramID = DatagramID.Time;
         }
-
         public InGameTime(byte[] data) : base(data) { }
     }
 }
