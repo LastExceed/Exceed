@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
@@ -12,7 +11,6 @@ using Server.Addon;
 using Resources;
 using Resources.Datagram;
 using Resources.Packet;
-using Newtonsoft.Json;
 using Resources.Utilities;
 
 namespace Server {
@@ -316,8 +314,27 @@ namespace Server {
                         switch (parameters[0].ToLower()) {
                             case "ban":
                                 break;
+                            case "time":
+                                if (parameters.Length == 1) ;//missing param
+                                var clock = parameters[1].Split(":");
+                                if (clock.Length < 2 ||
+                                    !int.TryParse(clock[0], out int hour) ||
+                                    !int.TryParse(clock[1], out int minute)) {
+                                    chat.Sender = 0;
+                                    chat.Text = "invalid syntax";
+                                    SendUDP(chat.data, source);
+                                }
+                                else {
+                                    var inGameTime = new InGameTime() {
+                                        Time = (hour * 60 + minute) * 60000,
+                                    };
+                                    SendUDP(inGameTime.data, source);
+                                }
+                                break;
                             default:
-
+                                chat.Sender = 0;
+                                chat.Text = string.Format("unknown command '{0}'", parameters[0]);
+                                SendUDP(chat.data, source);
                                 break;
                         }
                         break;
