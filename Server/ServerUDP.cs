@@ -290,11 +290,8 @@ namespace Server {
                     #region attack
                     var attack = new Attack(datagram);
                     source.lastTarget = attack.Target;
-                    if (dynamicEntities.ContainsKey(attack.Target) && dynamicEntities[attack.Target].hostility == Hostility.Player) {//in case the target is a tombstone
-
-                        SendUDP(attack.data, players.First(p => p.entity.guid == attack.Target));
-                    }
-                    var x = new PassiveProc();
+                    var target = players.FirstOrDefault(p => p.entity.guid == attack.Target);
+                    if (target != null) SendUDP(attack.data, target);
                     break;
                 #endregion
                 case DatagramID.Projectile:
