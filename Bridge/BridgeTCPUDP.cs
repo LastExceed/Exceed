@@ -599,16 +599,13 @@ namespace Bridge {
                             block.position.y += 8344456;
                             block.position.z += 220;
                         }
-
                         outgoing.Enqueue(serverUpdate);
                     }
-                    else {
-                        var chat = new Chat() {
-                            Sender = guid,//client doesn't send this
-                            Text = chatMessage.message
-                        };
-                        SendUDP(chat.data);
-                    }
+                    var chat = new Chat() {
+                        Sender = guid,//client doesn't send this
+                        Text = chatMessage.message
+                    };
+                    SendUDP(chat.data);
                     break;
                 #endregion
                 case PacketID.Chunk:
