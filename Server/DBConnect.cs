@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
-using System.Windows.Forms;
-using MySql.Data;
 using MySql.Data.MySqlClient;
 
-namespace Server
-{
+namespace Server {
     class DBConnect {
         //TODO:
         //get loginRequest from bridge
@@ -79,15 +74,15 @@ namespace Server
                 //1045: Invalid user name and/or password.
                 switch (ex.Number) {
                     case 0:
-                        MessageBox.Show("Cannot connect to server.  Contact administrator");
+                        Console.WriteLine("Cannot connect to server.  Contact administrator");
                         break;
 
                     case 1045:
-                        MessageBox.Show("Invalid username/password, please try again");
+                        Console.WriteLine("Invalid username/password, please try again");
                         break;
 
                     default:
-                        MessageBox.Show("unknown db connection error");
+                        Console.WriteLine("unknown db connection error");
                         break;
                 }
                 return false;
@@ -100,7 +95,7 @@ namespace Server
                 this.dbConnection.Close();
             }
             catch (MySqlException ex) {
-                MessageBox.Show(ex.Message);
+                Console.WriteLine(ex.Message);
                 return false;
             }
             return true;
