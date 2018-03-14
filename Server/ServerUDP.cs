@@ -312,7 +312,12 @@ namespace Server {
                             case "ban":
                                 break;
                             case "time":
-                                if (parameters.Length == 1) ;//missing param
+                                if (parameters.Length == 1) {
+                                    chat.Sender = 0;
+                                    chat.Text = string.Format("usage example: /time 12:00");
+                                    SendUDP(chat.data, source);
+                                    break;
+                                }
                                 var clock = parameters[1].Split(":");
                                 if (clock.Length < 2 ||
                                     !int.TryParse(clock[0], out int hour) ||
