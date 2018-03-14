@@ -141,12 +141,6 @@ namespace Server {
                 }
             }
         }
-        private static void Send(this Datagram d, Player target) {
-            udpClient.Send(d.data, d.data.Length, target.tcpClient.Clienat.RemoteEndPoint as IPEndPoint);
-        }
-        private static void Broadcast(this Datagram d, Player toSkip = null) {
-
-        }
 
         private static void ProcessPacket(byte packetID, Player source) {
             switch ((ServerPacketID)packetID) {
