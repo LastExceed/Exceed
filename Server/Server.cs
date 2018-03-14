@@ -14,7 +14,7 @@ using Resources.Packet;
 using Resources.Utilities;
 
 namespace Server {
-    public static class ServerUDP {
+    public static class Server {
         public static UdpClient udpClient;
         public static TcpListener tcpListener;
         public static List<Player> players = new List<Player>();
