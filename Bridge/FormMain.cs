@@ -86,10 +86,6 @@ namespace Bridge {
         }
         private void ButtonLogout_Click(object sender, EventArgs e) {
             new Thread(new ThreadStart(BridgeTCPUDP.Logout)).Start();
-            buttonLogout.Enabled = false;
-            textBoxUsername.Enabled = true;
-            textBoxPassword.Enabled = true;
-            buttonLogin.Enabled = true;
         }
 
         private void ButtonMap_Click(object sender, EventArgs e) {

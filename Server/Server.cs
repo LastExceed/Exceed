@@ -104,7 +104,7 @@ namespace Server {
             var player = new Player(tcpListener.AcceptTcpClient());
             new Thread(new ThreadStart(ListenTCP)).Start();
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " connected");
+            Console.WriteLine(player.IP + " connected");
             try {
                 while (true) ProcessPacket(player.reader.ReadByte(), player);
             }
@@ -117,14 +117,14 @@ namespace Server {
                 }
                 players.Remove(player);
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine((player.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " disconnected");
+                Console.WriteLine(player.IP + " disconnected");
             }
         }
         private static void ListenUDP() {
             IPEndPoint source = null;
             while (true) {
                 byte[] datagram = udpClient.Receive(ref source);
-                var player = players.FirstOrDefault(x => (x.tcpClient.Client.RemoteEndPoint as IPEndPoint).Equals(source));
+                var player = players.FirstOrDefault(x => (x.RemoteEndPoint).Equals(source));
                 if (player != null && player.entity != null) {
                     ProcessDatagram(datagram, player);
                 }
@@ -132,7 +132,7 @@ namespace Server {
         }
 
         private static void SendUDP(byte[] data, Player target) {
-            udpClient.Send(data, data.Length, target.tcpClient.Client.RemoteEndPoint as IPEndPoint);
+            udpClient.Send(data, data.Length, target.RemoteEndPoint);
         }
         private static void BroadcastUDP(byte[] data, Player toSkip = null) {
             foreach (var player in players) {
@@ -179,8 +179,7 @@ namespace Server {
                         authResponse = AuthResponse.AccountAlreadyActive;
                     }
                     else {
-                        var ip = (source.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address.Address;
-                        authResponse = Database.AuthUser(username, password, (int)ip, source.MAC);
+                        authResponse = Database.AuthUser(username, password, (int)source.IP.Address, source.MAC);
                     }
                     source.writer.Write((byte)ServerPacketID.Login);
                     source.writer.Write((byte)authResponse);
@@ -196,7 +195,7 @@ namespace Server {
                     dynamicEntities.Add((ushort)source.entity.guid, source.entity);
 
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine((source.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " logged in as " + username);
+                    Console.WriteLine(source.IP + " logged in as " + username);
                     break;
                 #endregion
                 case ServerPacketID.Logout:
@@ -214,7 +213,7 @@ namespace Server {
                         source.tomb = null;
                     }
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine((source.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " logged out");
+                    Console.WriteLine(source.IP + " logged out");
                     break;
                 #endregion
                 case ServerPacketID.Register:
@@ -228,7 +227,7 @@ namespace Server {
                     source.writer.Write((byte)registerResponse);
                     if (registerResponse == RegisterResponse.Success) {
                         Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.WriteLine((source.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address + " registered: " + username);
+                        Console.WriteLine(source.IP + " registered: " + username);
                     }
                     break;
                 #endregion
@@ -316,36 +315,67 @@ namespace Server {
 
                     if (chat.Text.StartsWith("/")) {
                         var parameters = chat.Text.Substring(1).Split(" ");
-
-                        switch (parameters[0].ToLower()) {
+                        var command = parameters[0].ToLower();
+                        switch (command) {
+                            case "kick":
+                            case "btfo":
                             case "ban":
-                                break;
-                            case "time":
+                                #region ban
                                 if (parameters.Length == 1) {
-                                    chat.Sender = 0;
-                                    chat.Text = string.Format("usage example: /time 12:00");
-                                    SendUDP(chat.data, source);
+                                    Notify(source, string.Format("usage example: /kick blackrock"));
+                                    break;
+                                }
+                                target = players.FirstOrDefault(x => x.entity.name.Contains(parameters[1]));
+                                if (target == null) {
+                                    Notify(source, "invalid target");
+                                    break;
+                                };
+                                var reason = "no reason specified";
+                                if (parameters.Length > 2) {
+                                    reason = parameters[2];
+                                }
+                                Notify(target, "you got kicked: " + reason);
+                                var rde = new RemoveDynamicEntity {
+                                    Guid = (ushort)target.entity.guid,
+                                };
+                                BroadcastUDP(rde.data);
+                                if (source.tomb != null) {
+                                    rde.Guid = (ushort)source.tomb;
+                                    BroadcastUDP(rde.data);
+                                    source.tomb = null;
+                                }
+                                source.entity = new EntityUpdate() {
+                                    guid = source.entity.guid
+                                };
+                                if (command == "kick") break;
+                                target.writer.Write((byte)ServerPacketID.BTFO);
+                                source.entity = null;
+                                dynamicEntities.Remove((ushort)source.entity.guid);
+                                if (command == "btfo") break;
+                                Database.BanUser(target.entity.name, (int)(target.IP.Address), target.MAC, reason);
+                                break;
+                            #endregion
+                            case "time":
+                                #region time
+                                if (parameters.Length == 1) {
+                                    Notify(source, string.Format("usage example: /time 12:00"));
                                     break;
                                 }
                                 var clock = parameters[1].Split(":");
                                 if (clock.Length < 2 ||
-                                    !int.TryParse(clock[0], out int hour) ||
-                                    !int.TryParse(clock[1], out int minute)) {
-                                    chat.Sender = 0;
-                                    chat.Text = "invalid syntax";
-                                    SendUDP(chat.data, source);
+                                !int.TryParse(clock[0], out int hour) ||
+                                !int.TryParse(clock[1], out int minute)) {
+                                    Notify(source, string.Format("invalid syntax"));
+                                    break;
                                 }
-                                else {
-                                    var inGameTime = new InGameTime() {
-                                        Milliseconds = (hour * 60 + minute) * 60000,
-                                    };
-                                    SendUDP(inGameTime.data, source);
-                                }
+                                var inGameTime = new InGameTime() {
+                                    Milliseconds = (hour * 60 + minute) * 60000,
+                                };
+                                SendUDP(inGameTime.data, source);
                                 break;
+                            #endregion
                             default:
-                                chat.Sender = 0;
-                                chat.Text = string.Format("unknown command '{0}'", parameters[0]);
-                                SendUDP(chat.data, source);
+                                Notify(source, string.Format("unknown command '{0}'", parameters[0]));
                                 break;
                         }
                         break;
@@ -413,6 +443,14 @@ namespace Server {
             ushort newGuid = 1;
             while (dynamicEntities.ContainsKey(newGuid)) newGuid++;
             return newGuid;
+        }
+
+        public static void Notify(Player target, string message) {
+            var chat = new Chat() {
+                Sender = 0,
+                Text = message,
+            };
+            SendUDP(chat.data, target);
         }
     }
 }

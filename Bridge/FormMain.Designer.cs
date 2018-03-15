@@ -75,21 +75,21 @@
             this.buttonChangeEmail = new System.Windows.Forms.Button();
             this.buttonChangePassword = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.trackBarTime = new System.Windows.Forms.TrackBar();
             this.checkBoxZoomHack = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonMap = new System.Windows.Forms.Button();
             this.timerSearchProcess = new System.Windows.Forms.Timer(this.components);
-            this.trackBarTime = new System.Windows.Forms.TrackBar();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarTime)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarTime)).BeginInit();
             this.SuspendLayout();
             // 
             // textBoxPassword
@@ -387,6 +387,43 @@
             this.tabPage3.Text = "Settings";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            // numericUpDown2
+            // 
+            this.numericUpDown2.Location = new System.Drawing.Point(59, 54);
+            this.numericUpDown2.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            this.numericUpDown2.Name = "numericUpDown2";
+            this.numericUpDown2.Size = new System.Drawing.Size(32, 20);
+            this.numericUpDown2.TabIndex = 23;
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Location = new System.Drawing.Point(19, 54);
+            this.numericUpDown1.Maximum = new decimal(new int[] {
+            24,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(32, 20);
+            this.numericUpDown1.TabIndex = 22;
+            this.numericUpDown1.Value = new decimal(new int[] {
+            22,
+            0,
+            0,
+            0});
+            // 
+            // trackBarTime
+            // 
+            this.trackBarTime.Location = new System.Drawing.Point(2, 3);
+            this.trackBarTime.Maximum = 48;
+            this.trackBarTime.Name = "trackBarTime";
+            this.trackBarTime.Size = new System.Drawing.Size(224, 45);
+            this.trackBarTime.TabIndex = 21;
+            // 
             // checkBoxZoomHack
             // 
             this.checkBoxZoomHack.AutoSize = true;
@@ -425,43 +462,6 @@
             this.timerSearchProcess.Interval = 200;
             this.timerSearchProcess.Tick += new System.EventHandler(this.timerSearchProcess_Tick);
             // 
-            // trackBarTime
-            // 
-            this.trackBarTime.Location = new System.Drawing.Point(2, 3);
-            this.trackBarTime.Maximum = 48;
-            this.trackBarTime.Name = "trackBarTime";
-            this.trackBarTime.Size = new System.Drawing.Size(224, 45);
-            this.trackBarTime.TabIndex = 21;
-            // 
-            // numericUpDown1
-            // 
-            this.numericUpDown1.Location = new System.Drawing.Point(19, 54);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
-            24,
-            0,
-            0,
-            0});
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(32, 20);
-            this.numericUpDown1.TabIndex = 22;
-            this.numericUpDown1.Value = new decimal(new int[] {
-            22,
-            0,
-            0,
-            0});
-            // 
-            // numericUpDown2
-            // 
-            this.numericUpDown2.Location = new System.Drawing.Point(59, 54);
-            this.numericUpDown2.Maximum = new decimal(new int[] {
-            60,
-            0,
-            0,
-            0});
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(32, 20);
-            this.numericUpDown2.TabIndex = 23;
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -482,7 +482,7 @@
             this.Controls.Add(this.listBoxPlayers);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(500, 249);
+            this.MinimumSize = new System.Drawing.Size(604, 295);
             this.Name = "FormMain";
             this.Text = "Exceed Bridge";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
@@ -496,9 +496,9 @@
             this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarTime)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarTime)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

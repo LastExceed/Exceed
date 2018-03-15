@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using Resources.Packet;
 
@@ -11,6 +12,12 @@ namespace Resources {
         public ushort? tomb;
         public string MAC;
         public ushort lastTarget;
+        public IPEndPoint RemoteEndPoint {
+            get => tcpClient.Client.RemoteEndPoint as IPEndPoint;
+        }
+        public IPAddress IP {
+            get => RemoteEndPoint.Address;
+        }
 
         public Player(TcpClient tcpClient) {
             this.tcpClient = tcpClient;

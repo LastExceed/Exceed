@@ -97,6 +97,10 @@ namespace Bridge {
             if (status == BridgeStatus.Playing) tcpToClient.Close();
             status = BridgeStatus.Connected;
             form.Log("logged out.\n", Color.DarkGray);
+            form.Invoke(new Action(() => form.buttonLogout.Enabled = false));
+            form.Invoke(new Action(() => form.textBoxUsername.Enabled = true));
+            form.Invoke(new Action(() => form.textBoxPassword.Enabled = true));
+            form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
         }
         public static void Register(string name, string email) {
             swriter.Write((byte)ServerPacketID.Register);
@@ -128,34 +132,33 @@ namespace Bridge {
                         version = 1337
                     }.Write(cwriter);
                     form.Log("client rejected\n", Color.Red);
+                    continue;
                 }
-                else {
-                    status = BridgeStatus.Playing;
-                    new Thread(new ThreadStart(WriteToClientTCP)).Start();
-                    try {
-                        while (true) ProcessClientPacket(creader.ReadInt32());
+                status = BridgeStatus.Playing;
+                new Thread(new ThreadStart(WriteToClientTCP)).Start();
+                try {
+                    while (true) ProcessClientPacket(creader.ReadInt32());
+                }
+                catch (Exception ex) {
+                    if (!(ex is IOException || ex is ObjectDisposedException)) throw;
+                    switch (status) {
+                        case BridgeStatus.Offline://server crashed
+                            break;
+                        case BridgeStatus.Connected://player logged out
+                            break;
+                        case BridgeStatus.LoggedIn://impossible
+                            goto default;
+                        case BridgeStatus.Playing: //client disconnected himself
+                            status = BridgeStatus.LoggedIn;
+                            SendUDP(new RemoveDynamicEntity() { Guid = guid }.data);
+                            break;
+                        default:
+                            //this shouldnt happen
+                            break;
                     }
-                    catch (Exception ex) {
-                        if (!(ex is IOException || ex is ObjectDisposedException)) throw;
-                        switch (status) {
-                            case BridgeStatus.Offline://server crashed
-                                break;
-                            case BridgeStatus.Connected://player logged out
-                                break;
-                            case BridgeStatus.LoggedIn://impossible
-                                goto default;
-                            case BridgeStatus.Playing: //client disconnected himself
-                                status = BridgeStatus.LoggedIn;
-                                SendUDP(new RemoveDynamicEntity() { Guid = guid }.data);
-                                break;
-                            default:
-                                //this shouldnt happen
-                                break;
-                        }
-                        dynamicEntities.Remove(guid);
-                        form.Log("client disconnected\n", Color.Red);
-                        RefreshPlayerlist();
-                    }
+                    dynamicEntities.Remove(guid);
+                    form.Log("client disconnected\n", Color.Red);
+                    RefreshPlayerlist();
                 }
             }
         }
@@ -630,9 +633,9 @@ namespace Bridge {
                             guid = guid,
                             junk = new byte[0x1168]
                         });
-                        //outgoing.Enqueue(new MapSeed() {
-                        //    seed = mapseed
-                        //});
+                        outgoing.Enqueue(new MapSeed() {
+                            seed = mapseed
+                        });
                         foreach (var dynamicEntity in dynamicEntities.Values.ToList()) {
                             outgoing.Enqueue(dynamicEntity);
                         }
@@ -714,7 +717,9 @@ namespace Bridge {
                     }
                     break;
                 #endregion
-
+                case ServerPacketID.BTFO:
+                    Logout();
+                    break;
                 //case 3:
                 //    var query = new Query(sreader);
                 //    foreach (var item in query.players) {
