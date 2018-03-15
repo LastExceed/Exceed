@@ -674,6 +674,15 @@ namespace Bridge {
                         case AuthResponse.Banned:
                             form.Log("you are banned\n", Color.Red);
                             goto default;
+                        case AuthResponse.AccountAlreadyActive:
+                            form.Log("account already in use\n", Color.Red);
+                            goto default;
+                        case AuthResponse.Unverified:
+                            form.Log("unverified (this shouldnt happen)\n", Color.Red);
+                            goto default;
+                        case AuthResponse.UserAlreadyLoggedIn:
+                            form.Log("you are already logged in (this shouldn't happen)\n", Color.Red);
+                            goto default;
                         default:
                             form.Invoke(new Action(() => form.textBoxUsername.Enabled = true));
                             form.Invoke(new Action(() => form.textBoxPassword.Enabled = true));

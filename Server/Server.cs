@@ -170,6 +170,14 @@ namespace Server {
                         //musnt login without checking bridge version first
                         authResponse = AuthResponse.Unverified;
                     }
+                    else if (source.entity != null) {
+                        //already logged in into another account
+                        authResponse = AuthResponse.UserAlreadyLoggedIn;
+                    }
+                    else if (players.FirstOrDefault(x => x.entity?.name == username) != null) {
+                        //another user is already logged into this account
+                        authResponse = AuthResponse.AccountAlreadyActive;
+                    }
                     else {
                         var ip = (source.tcpClient.Client.RemoteEndPoint as IPEndPoint).Address.Address;
                         authResponse = Database.AuthUser(username, password, (int)ip, source.MAC);
@@ -180,6 +188,7 @@ namespace Server {
 
                     source.entity = new EntityUpdate() {
                         guid = AssignGuid(),
+                        name = username,
                     };
                     source.writer.Write((ushort)source.entity.guid);
                     source.writer.Write(Config.mapseed);

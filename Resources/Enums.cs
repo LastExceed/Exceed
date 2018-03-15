@@ -41,6 +41,8 @@
         WrongPassword,
         Banned,
         Unverified,//bridge version not checked
+        UserAlreadyLoggedIn,
+        AccountAlreadyActive,
     }
     public enum RegisterResponse : byte {
         Success,
