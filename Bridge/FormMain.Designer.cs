@@ -143,6 +143,7 @@
             // 
             // buttonRegister
             // 
+            this.buttonRegister.Enabled = false;
             this.buttonRegister.Location = new System.Drawing.Point(0, 85);
             this.buttonRegister.Name = "buttonRegister";
             this.buttonRegister.Size = new System.Drawing.Size(95, 23);
