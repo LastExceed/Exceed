@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 
 using Resources;
+using Resources.Utilities;
 using Resources.Packet;
 using Resources.Datagram;
 
@@ -221,7 +222,12 @@ namespace Bridge {
                 case DatagramID.Attack:
                     #region attack
                     var attack = new Attack(datagram);
-                    CwRam.Knockback(attack.Direction);
+                    var knockbackScale = attack.Damage * 0.02f;
+                    CwRam.Knockback(new FloatVector() {
+                        x = attack.Direction.x * knockbackScale,
+                        y = attack.Direction.y * knockbackScale,
+                        z = attack.Direction.z * knockbackScale,
+                    });
                     var hit = new Hit() {
                         target = attack.Target,
                         damage = attack.Damage,
