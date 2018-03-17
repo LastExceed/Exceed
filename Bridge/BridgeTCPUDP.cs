@@ -222,12 +222,7 @@ namespace Bridge {
                 case DatagramID.Attack:
                     #region attack
                     var attack = new Attack(datagram);
-                    var knockbackScale = attack.Damage * 0.02f;
-                    CwRam.Knockback(new FloatVector() {
-                        x = attack.Direction.x * knockbackScale,
-                        y = attack.Direction.y * knockbackScale,
-                        z = attack.Direction.z * knockbackScale,
-                    });
+                    CwRam.Knockback(attack.Direction);
                     var hit = new Hit() {
                         target = attack.Target,
                         damage = attack.Damage,
