@@ -247,6 +247,7 @@ namespace Bridge {
                         velocity = projectile.Velocity,
                         scale = projectile.Scale,
                         particles = projectile.Particles,
+                        mana = projectile.Particles,
                         projectile = projectile.Type,
                         chunkX = (int)projectile.Position.x / 0x1000000,
                         chunkY = (int)projectile.Position.y / 0x1000000
