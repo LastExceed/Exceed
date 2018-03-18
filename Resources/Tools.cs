@@ -3,8 +3,11 @@ using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Resources {
-    static class Tools {
-        public static Regex alphaNumeric = new Regex(@"^[a-zA-Z0-9\s,]*$");
+    public static class Tools {
+        public static Regex alphaNumericRegex = new Regex(@"^[a-z0-9]*$", RegexOptions.IgnoreCase);
+        public static Regex validEmailRegex = new Regex(@"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)(?<!\.)@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$", RegexOptions.IgnoreCase);
+
+
         /// <summary>
         /// if you specify an amount of iterations > 1 the initial delay will be 0
         /// </summary>

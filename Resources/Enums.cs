@@ -49,6 +49,7 @@
         Success,
         EmailTaken,
         UsernameTaken,
+        InvalidInput,
     }
     public enum BridgeStatus : byte {
         Offline,

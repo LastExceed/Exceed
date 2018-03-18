@@ -220,9 +220,15 @@ namespace Server {
                     #region Register
                     username = source.reader.ReadString();
                     var email = source.reader.ReadString();
-                    var password_temp = "RANDOM_PASSWORD";
 
-                    var registerResponse = Database.RegisterUser(username, email, password_temp);
+                    RegisterResponse registerResponse;
+                    if (!Tools.alphaNumericRegex.IsMatch(username) || !Tools.validEmailRegex.IsMatch(email)) {
+                        registerResponse = RegisterResponse.InvalidInput;
+                    }
+                    else {
+                        var password_temp = "RANDOM_PASSWORD";
+                        registerResponse = Database.RegisterUser(username, email, password_temp);
+                    }
                     source.writer.Write((byte)ServerPacketID.Register);
                     source.writer.Write((byte)registerResponse);
                     if (registerResponse == RegisterResponse.Success) {

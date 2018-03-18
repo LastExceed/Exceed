@@ -26,11 +26,10 @@ namespace Bridge {
             };
         }
 
-        Regex validEmailRegex = new Regex(@"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)(?<!\.)@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$", RegexOptions.IgnoreCase);
         private void textBoxEmail_TextChanged(object sender, EventArgs e) {
             buttonRegister.Enabled = false;
             labelEmailResult.ForeColor = Color.Red;
-            if (!validEmailRegex.IsMatch(textBoxEmail.Text)) labelEmailResult.Text = "invalid";
+            if (!Resources.Tools.validEmailRegex.IsMatch(textBoxEmail.Text)) labelEmailResult.Text = "invalid";
             else if (false) labelEmailResult.Text = "already in use";
             else {
                 labelEmailResult.ForeColor = Color.Green;
