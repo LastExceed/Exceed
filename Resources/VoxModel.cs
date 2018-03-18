@@ -91,7 +91,7 @@ namespace Resources {
                         var weight = reader.ReadSingle();
                         var propertyBits = reader.ReadInt32();
                         for (int i = 0; i < 8; i++) {
-                            if (Tools.GetBit(propertyBits, i)) {
+                            if (Bit.GetBit(propertyBits, i)) {
                                 var normalizedPropertyValue = reader.ReadSingle();
                             }
                         }

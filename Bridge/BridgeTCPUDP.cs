@@ -278,7 +278,7 @@ namespace Bridge {
                             }
                             return !f;
                         }
-                        Tools.DoLater(tick, 500, 7);
+                        Bit.DoLater(tick, 500, 7);
                     }
                     var passiveProc = new PassiveProc() {
                         target = proc.Target,
