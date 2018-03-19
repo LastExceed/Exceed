@@ -355,6 +355,7 @@ namespace Server {
                                 };
                                 if (command == "kick") break;
                                 target.writer.Write((byte)ServerPacketID.BTFO);
+                                Console.Beep();
                                 source.entity = null;
                                 dynamicEntities.Remove((ushort)source.entity.guid);
                                 if (command == "btfo") break;

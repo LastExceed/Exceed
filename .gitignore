@@ -290,5 +290,4 @@ __pycache__/
 #private certificate
 *.p12
 
-**/bans.json
-**/accounts.json
+**/db.sqlite

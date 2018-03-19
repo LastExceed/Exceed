@@ -147,7 +147,7 @@ namespace Bridge {
                             break;
                         case BridgeStatus.Connected://player logged out
                             break;
-                        case BridgeStatus.LoggedIn://impossible
+                        case BridgeStatus.LoggedIn://kicked
                             goto default;
                         case BridgeStatus.Playing: //client disconnected himself
                             status = BridgeStatus.LoggedIn;
@@ -378,6 +378,7 @@ namespace Bridge {
                     #region RemoveDynamicEntity
                     var rde = new RemoveDynamicEntity(datagram);
                     if (rde.Guid == guid) {
+                        status = BridgeStatus.LoggedIn;
                         tcpToClient.Close();
                         break;
                     }
