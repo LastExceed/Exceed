@@ -377,6 +377,10 @@ namespace Bridge {
                 case DatagramID.RemoveDynamicEntity:
                     #region RemoveDynamicEntity
                     var rde = new RemoveDynamicEntity(datagram);
+                    if (rde.Guid == guid) {
+                        tcpToClient.Close();
+                        break;
+                    }
                     entityUpdate = new EntityUpdate() {
                         guid = rde.Guid,
                         hostility = (Hostility)255, //workaround for DC because i dont like packet2
