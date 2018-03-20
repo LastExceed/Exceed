@@ -7,7 +7,7 @@ using System.IO;
 namespace Server {
     static class Database {
         const string dbFileName = "db.sqlite";
-        static SQLiteConnection dbConnection = new SQLiteConnection(string.Format("Data Source={0};Version=3;", dbFileName));
+        static SQLiteConnection dbConnection = new SQLiteConnection($"Data Source={dbFileName};Version=3;");
 
         public static void Setup() {
             if (!File.Exists(dbFileName)) {
