@@ -50,53 +50,64 @@ namespace Server {
             Console.WriteLine("database loaded");
         }
 
-        public static RegisterResponse RegisterUser(string username, string email, string pw) {
-            var cmd = new SQLiteCommand(dbConnection) {
-                CommandText = string.Format("SELECT * FROM users WHERE name='{0}'", username)
-            };
-            var reader = cmd.ExecuteReader();
-            if (reader.Read()) return RegisterResponse.UsernameTaken;
-            reader.Close();
-
-            cmd.CommandText = string.Format("SELECT * FROM users WHERE email='{0}'", email);
-            reader = cmd.ExecuteReader();
-            if (reader.Read()) return RegisterResponse.EmailTaken;
-            reader.Close();
-
-            cmd.CommandText = string.Format("INSERT INTO users (name, email, password) VALUES ('{0}', '{1}', '{2}')", username, email, pw);
-            cmd.ExecuteNonQuery();
-            cmd.Dispose();
-
+        public static RegisterResponse RegisterUser(string username, string email, string password) {
+            using (var cmd = new SQLiteCommand(dbConnection)) {
+                cmd.CommandText = "SELECT * FROM users WHERE name=@username";
+                cmd.Parameters.AddWithValue("@username", username);
+                using (var reader = cmd.ExecuteReader()) {
+                    if (reader.Read()) {
+                        return RegisterResponse.UsernameTaken;
+                    }
+                }
+                cmd.CommandText = "SELECT * FROM users WHERE email=@email";
+                cmd.Parameters.AddWithValue("@email", email);
+                using (var reader = cmd.ExecuteReader()) {
+                    if (reader.Read()) {
+                        return RegisterResponse.EmailTaken;
+                    }
+                }
+                cmd.CommandText = "INSERT INTO users (name, email, password) VALUES (@username, @email, @pw)";
+                cmd.Parameters.AddWithValue("@pw", password);
+                cmd.ExecuteNonQuery();
+            }
             return RegisterResponse.Success;
         }
 
         public static AuthResponse AuthUser(string username, string password, int ip, string mac) {
-            var cmd = new SQLiteCommand(dbConnection) {
-                CommandText = string.Format("SELECT password FROM users WHERE name='{0}'", username)
-            };
-            var reader = cmd.ExecuteReader();
-            if (!reader.Read()) return AuthResponse.UnknownUser;
-            if ((string)reader["password"] != password) return AuthResponse.WrongPassword;
-            reader.Close();
-
-            cmd.CommandText = string.Format("SELECT * FROM bans WHERE name='{0}' OR ip={1} OR mac='{2}'", username, ip, mac);
-            reader = cmd.ExecuteReader();
-            if (reader.Read()) return AuthResponse.Banned;
-            reader.Close();
-
-            cmd.CommandText = string.Format("INSERT INTO logins (name, ip, mac) VALUES ('{0}', {1}, '{2}')", username, ip, mac);
-            cmd.ExecuteNonQuery();
-            cmd.Dispose();
-
+            using (var cmd = new SQLiteCommand(dbConnection)) {
+                cmd.CommandText = "SELECT password FROM users WHERE name=@username";
+                cmd.Parameters.AddWithValue("@username", username);
+                using (var reader = cmd.ExecuteReader()) {
+                    if (!reader.Read()) {
+                        return AuthResponse.UnknownUser;
+                    }
+                    else if ((string)reader["password"] != password) {
+                        return AuthResponse.WrongPassword;
+                    }
+                }
+                cmd.CommandText = "SELECT * FROM bans WHERE name=@username OR ip=@ip OR mac=@mac";
+                cmd.Parameters.AddWithValue("@ip", ip);
+                cmd.Parameters.AddWithValue("@mac", mac);
+                using (var reader = cmd.ExecuteReader()) {
+                    if (reader.Read()) {
+                        return AuthResponse.Banned;
+                    }
+                }
+                cmd.CommandText = "INSERT INTO logins (name, ip, mac) VALUES (@username, @ip, @mac)";
+                cmd.ExecuteNonQuery();
+            }
             return AuthResponse.Success;
         }
 
         public static void BanUser(string username, int ip, string mac, string reason) {
-            var cmd = new SQLiteCommand(dbConnection) {
-                CommandText = string.Format("INSERT INTO bans (name, ip, mac, reason) VALUES ('{0}', {1}, '{2}', '{3}')", username, ip, mac, reason),
-            };
-            cmd.ExecuteNonQuery();
-            cmd.Dispose();
+            using (var cmd = new SQLiteCommand(dbConnection)) {
+                cmd.CommandText = "INSERT INTO bans (name, ip, mac, reason) VALUES (@username, @ip, @mac, @reason)";
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.Parameters.AddWithValue("@ip", ip);
+                cmd.Parameters.AddWithValue("@mac", mac);
+                cmd.Parameters.AddWithValue("@reason", reason);
+                cmd.ExecuteNonQuery();
+            }
         }
     }
 }
