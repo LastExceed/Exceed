@@ -346,20 +346,20 @@ namespace Server {
                                 };
                                 BroadcastUDP(rde.data);
                                 if (source.tomb != null) {
-                                    rde.Guid = (ushort)source.tomb;
+                                    rde.Guid = (ushort)target.tomb;
                                     BroadcastUDP(rde.data);
-                                    source.tomb = null;
+                                    target.tomb = null;
                                 }
-                                source.entity = new EntityUpdate() {
-                                    guid = source.entity.guid
+                                target.entity = new EntityUpdate() {
+                                    guid = target.entity.guid
                                 };
                                 if (command == "kick") break;
                                 target.writer.Write((byte)ServerPacketID.BTFO);
-                                Console.Beep();
-                                source.entity = null;
-                                dynamicEntities.Remove((ushort)source.entity.guid);
-                                if (command == "btfo") break;
-                                Database.BanUser(target.entity.name, (int)(target.IP.Address), target.MAC, reason);
+                                dynamicEntities.Remove((ushort)target.entity.guid);
+                                if (command == "ban") {
+                                    Database.BanUser(target.entity.name, (int)(target.IP.Address), target.MAC, reason);
+                                }
+                                target.entity = null;
                                 break;
                             #endregion
                             case "time":
