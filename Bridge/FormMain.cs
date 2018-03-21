@@ -86,6 +86,7 @@ namespace Bridge {
         }
         private void ButtonLogout_Click(object sender, EventArgs e) {
             new Thread(new ThreadStart(BridgeTCPUDP.Logout)).Start();
+            OnLogout();
         }
 
         private void ButtonMap_Click(object sender, EventArgs e) {
@@ -104,6 +105,14 @@ namespace Bridge {
             register.Show();
             register.WindowState = FormWindowState.Normal;
             register.Focus();
+        }
+
+        public void OnLogout() {
+            Log("logged out.\n", Color.DarkGray);
+            buttonLogout.Enabled = false;
+            textBoxUsername.Enabled = true;
+            textBoxPassword.Enabled = true;
+            buttonLogin.Enabled = true;
         }
     }
 }

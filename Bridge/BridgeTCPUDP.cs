@@ -97,11 +97,6 @@ namespace Bridge {
             swriter.Write((byte)ServerPacketID.Logout);
             if (status == BridgeStatus.Playing) tcpToClient.Close();
             status = BridgeStatus.Connected;
-            form.Log("logged out.\n", Color.DarkGray);
-            form.Invoke(new Action(() => form.buttonLogout.Enabled = false));
-            form.Invoke(new Action(() => form.textBoxUsername.Enabled = true));
-            form.Invoke(new Action(() => form.textBoxPassword.Enabled = true));
-            form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
         }
         public static void Register(string name, string email) {
             swriter.Write((byte)ServerPacketID.Register);
@@ -377,11 +372,6 @@ namespace Bridge {
                 case DatagramID.RemoveDynamicEntity:
                     #region RemoveDynamicEntity
                     var rde = new RemoveDynamicEntity(datagram);
-                    if (rde.Guid == guid) {
-                        status = BridgeStatus.LoggedIn;
-                        tcpToClient.Close();
-                        break;
-                    }
                     entityUpdate = new EntityUpdate() {
                         guid = rde.Guid,
                         hostility = (Hostility)255, //workaround for DC because i dont like packet2
@@ -724,8 +714,18 @@ namespace Bridge {
                     }
                     break;
                 #endregion
+                case ServerPacketID.Kick:
+                    #region Kick
+                    status = BridgeStatus.LoggedIn;
+                    tcpToClient.Close();
+                    break;
+                #endregion
                 case ServerPacketID.BTFO:
-                    Logout();
+                    status = BridgeStatus.Connected;
+                    form.Invoke(new Action(() => form.OnLogout()));
+                    CwRam.memory.process.Kill();
+                    var reason = sreader.ReadString();
+                    MessageBox.Show(reason);
                     break;
                 //case 3:
                 //    var query = new Query(sreader);

@@ -35,6 +35,7 @@
         Logout,
         Register,
         BTFO,
+        Kick,
     }
     public enum AuthResponse : byte {
         Success,

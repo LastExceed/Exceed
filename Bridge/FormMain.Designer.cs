@@ -107,7 +107,7 @@
             this.textBoxUsername.Name = "textBoxUsername";
             this.textBoxUsername.Size = new System.Drawing.Size(94, 20);
             this.textBoxUsername.TabIndex = 0;
-            this.textBoxUsername.Text = "public_test_id";
+            this.textBoxUsername.Text = "testuser1";
             // 
             // linkLabelReset
             // 
@@ -115,7 +115,7 @@
             this.linkLabelReset.Location = new System.Drawing.Point(0, 110);
             this.linkLabelReset.Name = "linkLabelReset";
             this.linkLabelReset.Size = new System.Drawing.Size(78, 13);
-            this.linkLabelReset.TabIndex = 25;
+            this.linkLabelReset.TabIndex = 4;
             this.linkLabelReset.TabStop = true;
             this.linkLabelReset.Text = "reset password";
             // 
@@ -136,7 +136,7 @@
             this.buttonLogin.Location = new System.Drawing.Point(0, 63);
             this.buttonLogin.Name = "buttonLogin";
             this.buttonLogin.Size = new System.Drawing.Size(48, 23);
-            this.buttonLogin.TabIndex = 24;
+            this.buttonLogin.TabIndex = 2;
             this.buttonLogin.Text = "Login";
             this.buttonLogin.UseVisualStyleBackColor = true;
             this.buttonLogin.Click += new System.EventHandler(this.ButtonLogin_Click);
@@ -147,7 +147,7 @@
             this.buttonRegister.Location = new System.Drawing.Point(0, 85);
             this.buttonRegister.Name = "buttonRegister";
             this.buttonRegister.Size = new System.Drawing.Size(95, 23);
-            this.buttonRegister.TabIndex = 22;
+            this.buttonRegister.TabIndex = 3;
             this.buttonRegister.Text = "Create account";
             this.buttonRegister.UseVisualStyleBackColor = true;
             this.buttonRegister.Click += new System.EventHandler(this.buttonRegister_Click);
@@ -223,7 +223,7 @@
             this.buttonEditor.Location = new System.Drawing.Point(0, 233);
             this.buttonEditor.Name = "buttonEditor";
             this.buttonEditor.Size = new System.Drawing.Size(95, 23);
-            this.buttonEditor.TabIndex = 22;
+            this.buttonEditor.TabIndex = 6;
             this.buttonEditor.Text = "character editor";
             this.buttonEditor.UseVisualStyleBackColor = true;
             this.buttonEditor.Click += new System.EventHandler(this.ButtonEditor_Click);

@@ -110,10 +110,7 @@ namespace Server {
             }
             catch (IOException) {
                 if (player.entity != null) {
-                    BroadcastUDP(new RemoveDynamicEntity() {
-                        Guid = (ushort)player.entity.guid
-                    }.data,player);
-                    dynamicEntities.Remove((ushort)player.entity.guid);
+                    RemovePlayerEntity(player, false);
                 }
                 players.Remove(player);
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -201,17 +198,7 @@ namespace Server {
                 case ServerPacketID.Logout:
                     #region logout
                     if (source.entity == null) break;//not logged in
-                    dynamicEntities.Remove((ushort)source.entity.guid);
-                    var remove = new RemoveDynamicEntity() {
-                        Guid = (ushort)source.entity.guid,
-                    };
-                    BroadcastUDP(remove.data, source);
-                    source.entity = null;
-                    if (source.tomb != null) {
-                        remove.Guid = (ushort)source.tomb;
-                        BroadcastUDP(remove.data, source);
-                        source.tomb = null;
-                    }
+                    RemovePlayerEntity(source, false);
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine(source.IP + " logged out");
                     break;
@@ -340,26 +327,18 @@ namespace Server {
                                 if (parameters.Length > 2) {
                                     reason = parameters[2];
                                 }
-                                Notify(target, "you got kicked: " + reason);
-                                var rde = new RemoveDynamicEntity {
-                                    Guid = (ushort)target.entity.guid,
-                                };
-                                BroadcastUDP(rde.data);
-                                if (source.tomb != null) {
-                                    rde.Guid = (ushort)target.tomb;
-                                    BroadcastUDP(rde.data);
-                                    target.tomb = null;
+                                if (command == "kick") {
+                                    Notify(target, "you got kicked: " + reason);
+                                    target.writer.Write((byte)ServerPacketID.Kick);
+                                    RemovePlayerEntity(target, true);
+                                    break;
                                 }
-                                target.entity = new EntityUpdate() {
-                                    guid = target.entity.guid
-                                };
-                                if (command == "kick") break;
                                 target.writer.Write((byte)ServerPacketID.BTFO);
-                                dynamicEntities.Remove((ushort)target.entity.guid);
+                                target.writer.Write(reason);
                                 if (command == "ban") {
-                                    Database.BanUser(target.entity.name, (int)(target.IP.Address), target.MAC, reason);
+                                    Database.BanUser(target.entity.name, (int)target.IP.Address, target.MAC, reason);
                                 }
-                                target.entity = null;
+                                RemovePlayerEntity(target, false);
                                 break;
                             #endregion
                             case "time":
@@ -404,15 +383,7 @@ namespace Server {
                 case DatagramID.RemoveDynamicEntity:
                     #region removeDynamicEntity
                     var remove = new RemoveDynamicEntity(datagram);
-                    BroadcastUDP(remove.data, source);
-                    if (source.tomb != null) {
-                        remove.Guid = (ushort)source.tomb;
-                        BroadcastUDP(remove.data);
-                        source.tomb = null;
-                    }
-                    source.entity = new EntityUpdate() {
-                        guid = source.entity.guid
-                    };
+                    RemovePlayerEntity(source, true);
                     break;
                 #endregion
                 case DatagramID.SpecialMove:
@@ -443,6 +414,27 @@ namespace Server {
                 default:
                     Console.WriteLine("unknown DatagramID: " + datagram[0]);
                     break;
+            }
+        }
+
+        public static void RemovePlayerEntity(Player player, bool createNewEntity) {
+            var rde = new RemoveDynamicEntity() {
+                Guid = (ushort)player.entity.guid,
+            };
+            BroadcastUDP(rde.data, player);
+            if (player.tomb != null) {
+                rde.Guid = (ushort)player.tomb;
+                BroadcastUDP(rde.data);
+                player.tomb = null;
+            }
+            if (createNewEntity) {
+                player.entity = new EntityUpdate() {
+                    guid = player.entity.guid
+                };
+            }
+            else {
+                dynamicEntities.Remove((ushort)player.entity.guid);
+                player.entity = null;
             }
         }
 
