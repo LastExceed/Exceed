@@ -727,25 +727,6 @@ namespace Bridge {
                     var reason = sreader.ReadString();
                     MessageBox.Show(reason);
                     break;
-                //case 3:
-                //    var query = new Query(sreader);
-                //    foreach (var item in query.players) {
-                //        if (!dynamicEntities.ContainsKey(item.Key)) {
-                //            dynamicEntities.Add(item.Key, new EntityUpdate());
-                //        }
-                //        dynamicEntities[item.Key].guid = item.Key;
-                //        dynamicEntities[item.Key].name = item.Value;
-                //    }
-                //    form.Invoke(new Action(form.listBoxPlayers.Items.Clear));
-                //    foreach (var playerData in dynamicEntities.Values) {
-                //        form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(playerData.name)));
-                //    }
-                //    break;
-
-                //case 4:
-                //    outgoing.Enqueue(new ServerUpdate(sreader));
-                //    break;
-
                 default:
                     MessageBox.Show("unknown server packet received");
                     break;
