@@ -10,6 +10,7 @@ namespace Bridge {
         public FormEditor editor = null;
         public FormMap map = new FormMap();
         public FormRegister register = new FormRegister();
+        private bool processAttached = false;
 
         public FormMain(string[]args) {
             InitializeComponent();
@@ -27,14 +28,15 @@ namespace Bridge {
             base.WndProc(ref m);
         }
         private void timerSearchProcess_Tick(object sender, EventArgs e) {
-            if (buttonEditor.Enabled) {
+            if (processAttached) {
                 try {
                     CwRam.RemoveFog();
                     if (BridgeTCPUDP.status == Resources.BridgeStatus.Playing) CwRam.SetName(textBoxUsername.Text);
                 }
                 catch (Exception) {
-                    HotkeyManager.Deinit();
+                    //HotkeyManager.Deinit();
                     if (editor != null && !editor.IsDisposed) editor.Dispose();
+                    processAttached = false;
                     buttonEditor.Enabled = false;
                     checkBoxZoomHack.Enabled = false;
                 }
@@ -50,7 +52,8 @@ namespace Bridge {
                 }
                 buttonEditor.Enabled = true;
                 checkBoxZoomHack.Enabled = true;
-                HotkeyManager.Init(this);
+                processAttached = true;
+                //HotkeyManager.Init(this);
             }
         }
         public void Log(string text, Color color) {
