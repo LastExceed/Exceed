@@ -29,27 +29,31 @@ namespace Bridge {
         }
         private void timerSearchProcess_Tick(object sender, EventArgs e) {
             if (processAttached) {
-                try {
-                    CwRam.RemoveFog();
-                    if (BridgeTCPUDP.status == Resources.BridgeStatus.Playing) CwRam.SetName(textBoxUsername.Text);
-                }
-                catch (Exception) {
+                if (CwRam.memory.process.HasExited) {
                     //HotkeyManager.Deinit();
                     if (editor != null && !editor.IsDisposed) editor.Dispose();
                     processAttached = false;
                     buttonEditor.Enabled = false;
                     checkBoxZoomHack.Enabled = false;
                 }
+                else {
+                    CwRam.RemoveFog();
+                    if (BridgeTCPUDP.status == Resources.BridgeStatus.Playing) CwRam.SetName(textBoxUsername.Text);
+                }
             }
             else {
                 var processes = Process.GetProcessesByName("Cube");
-                if (processes.Length == 0) return;
+                if (processes.Length == 0) {
+                    Text = "Exceed Bridge (detached)";
+                    return;
+                }
                 try {
                     CwRam.memory = new ProcessMemory(processes[0]);
                 }
                 catch (System.ComponentModel.Win32Exception) {
                     return; //process just started and isnt fully available yet, try again next iteration
                 }
+                Text = "Exceed Bridge (attached)";
                 buttonEditor.Enabled = true;
                 checkBoxZoomHack.Enabled = true;
                 processAttached = true;
