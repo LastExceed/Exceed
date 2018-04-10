@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Bridge {
@@ -10,11 +11,9 @@ namespace Bridge {
         }
         List<Label> playercollection = new List<Label>();
         private void Refreshtimer_Tick(object sender, EventArgs e) {
-            foreach (Label label in playercollection) {
-                Controls.Remove(label);
-            }
+            Controls.Clear();
             playercollection.Clear();
-            foreach (var entity in BridgeTCPUDP.dynamicEntities.Values) {
+            foreach (var entity in BridgeTCPUDP.dynamicEntities.Values.ToList()) {
                 if (entity.hostility == Resources.Hostility.Player) {
                     Label playerlabel = new Label {
                         Left = (int)entity.position.x / 0x10000,
