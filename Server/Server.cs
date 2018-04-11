@@ -249,11 +249,10 @@ namespace Server {
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
                     #endregion
                     #region tombstone
-                    if (entityUpdate.HP <= 0 && source.entity.HP > 0) {
-                        //entityUpdate.Merge(dynamicEntities[source.guid]);
+                    if (entityUpdate.HP <= 0 && (source.entity.HP > 0 || source.entity.HP == null)) {
                         var tombstone = new EntityUpdate() {
                             guid = AssignGuid(),
-                            position = source.entity.position,
+                            position = entityUpdate.position ?? source.entity.position,
                             hostility = Hostility.Neutral,
                             entityType = EntityType.None,
                             appearance = new EntityUpdate.Appearance() {
