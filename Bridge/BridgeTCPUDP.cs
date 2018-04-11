@@ -63,6 +63,7 @@ namespace Bridge {
         public static void Disconnect() {
             status = BridgeStatus.Offline;
             form.Invoke(new Action(() => form.listBoxPlayers.Items.Clear()));
+            form.Invoke(new Action(() => form.OnLogout()));
             LingerOption lingerOption = new LingerOption(true, 0);
             try {
                 udpToServer.Close();
