@@ -271,7 +271,7 @@ namespace Server {
                         source.tomb = (ushort)tombstone.guid;
                         BroadcastUDP(tombstone.CreateDatagram());
                     }
-                    else if (source.entity.HP <= 0 && entityUpdate.HP > 0) {
+                    else if (source.entity.HP <= 0 && entityUpdate.HP > 0 && source.tomb != null) {
                         var rde = new RemoveDynamicEntity() {
                             Guid = (ushort)source.tomb,
                         };
@@ -286,7 +286,7 @@ namespace Server {
                     #region attack
                     var attack = new Attack(datagram);
                     source.lastTarget = attack.Target;
-                    var target = players.FirstOrDefault(p => p.entity.guid == attack.Target);
+                    var target = players.FirstOrDefault(p => p.entity?.guid == attack.Target);
                     if (target != null) SendUDP(attack.data, target);
                     break;
                 #endregion

@@ -183,7 +183,14 @@ namespace Bridge {
         }
 
         public static void WriteToClientTCP() {
-            while (status == BridgeStatus.Playing) if (outgoing.Count != 0) outgoing.Dequeue().Write(cwriter);
+            while (status == BridgeStatus.Playing) if (outgoing.Count != 0) {
+                    try {
+                        outgoing.Dequeue().Write(cwriter);
+                    }
+                    catch (IOException) {
+                        break;
+                    }
+                }
             outgoing.Clear();
         }
 
