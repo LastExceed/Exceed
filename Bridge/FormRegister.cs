@@ -39,7 +39,7 @@ namespace Bridge {
         }
 
         private void buttonRegister_Click(object sender, EventArgs e) {
-            new Thread(new ThreadStart(() => BridgeTCPUDP.Register(textBoxUsername.Text, textBoxEmail.Text))).Start();
+            new Thread(new ThreadStart(() => BridgeTCPUDP.Register(textBoxUsername.Text, textBoxEmail.Text, textBoxPassword.Text))).Start();
         }
     }
 }

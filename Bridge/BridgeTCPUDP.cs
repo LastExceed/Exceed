@@ -99,10 +99,11 @@ namespace Bridge {
             if (status == BridgeStatus.Playing) tcpToClient.Close();
             status = BridgeStatus.Connected;
         }
-        public static void Register(string name, string email) {
+        public static void Register(string name, string email, string password) {
             swriter.Write((byte)ServerPacketID.Register);
             swriter.Write(name);
             swriter.Write(email);
+            swriter.Write(password);
         }
 
         public static void ListenFromClientTCP() {

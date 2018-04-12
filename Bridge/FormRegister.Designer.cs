@@ -29,7 +29,7 @@
             this.labelUsername = new System.Windows.Forms.Label();
             this.labelPassword = new System.Windows.Forms.Label();
             this.labelEmail = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.textBoxPassword = new System.Windows.Forms.TextBox();
             this.labelUsernameResult = new System.Windows.Forms.Label();
             this.labelEmailResult = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -90,12 +90,11 @@
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(55, 43);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.ReadOnly = true;
-            this.textBox3.Size = new System.Drawing.Size(190, 20);
-            this.textBox3.TabIndex = 3;
-            this.textBox3.Text = "can be changed later";
+            this.textBoxPassword.Location = new System.Drawing.Point(55, 43);
+            this.textBoxPassword.Name = "textBox3";
+            this.textBoxPassword.Size = new System.Drawing.Size(190, 20);
+            this.textBoxPassword.TabIndex = 3;
+            this.textBoxPassword.UseSystemPasswordChar = true;
             // 
             // labelUsernameResult
             // 
@@ -124,7 +123,7 @@
             this.ClientSize = new System.Drawing.Size(318, 64);
             this.Controls.Add(this.labelEmailResult);
             this.Controls.Add(this.labelUsernameResult);
-            this.Controls.Add(this.textBox3);
+            this.Controls.Add(this.textBoxPassword);
             this.Controls.Add(this.labelEmail);
             this.Controls.Add(this.labelPassword);
             this.Controls.Add(this.labelUsername);
@@ -149,7 +148,7 @@
         private System.Windows.Forms.Label labelUsername;
         private System.Windows.Forms.Label labelPassword;
         private System.Windows.Forms.Label labelEmail;
-        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox textBoxPassword;
         private System.Windows.Forms.Label labelUsernameResult;
         private System.Windows.Forms.Label labelEmailResult;
     }
