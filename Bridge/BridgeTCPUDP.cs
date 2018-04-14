@@ -91,7 +91,7 @@ namespace Bridge {
             form.Log("logging in...", Color.DarkGray);
             swriter.Write((byte)ServerPacketID.Login);
             swriter.Write(name);
-            swriter.Write(password);
+            swriter.Write(Hashing.Hash(password));
             swriter.Write(NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault());
         }
         public static void Logout() {
@@ -103,7 +103,7 @@ namespace Bridge {
             swriter.Write((byte)ServerPacketID.Register);
             swriter.Write(name);
             swriter.Write(email);
-            swriter.Write(password);
+            swriter.Write(Hashing.Hash(password));
         }
 
         public static void ListenFromClientTCP() {

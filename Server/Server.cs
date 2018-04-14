@@ -225,7 +225,8 @@ namespace Server {
                     break;
                 #endregion
                 default:
-                    Console.WriteLine("unknown packet: " + packetID);
+                    Console.WriteLine($"unknown packetID {packetID} received from {source.IP}");
+                    source.tcpClient.Close();
                     break;
             }
         }
@@ -235,10 +236,8 @@ namespace Server {
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
                     #region antiCheat
-                    string ACmessage = AntiCheat.Inspect(entityUpdate);
-                    if (ACmessage != null) {
-                        //kick player
-                    }
+                    string ACmessage = AntiCheat.Inspect(entityUpdate, source.entity);
+                    if (ACmessage != null) Kick(source, ACmessage);
                     #endregion
                     #region announce
                     if (entityUpdate.name != null) {
@@ -327,9 +326,7 @@ namespace Server {
                                     reason = parameters[2];
                                 }
                                 if (command == "kick") {
-                                    Notify(target, "you got kicked: " + reason);
-                                    target.writer.Write((byte)ServerPacketID.Kick);
-                                    RemovePlayerEntity(target, true);
+                                    Kick(target, reason);
                                     break;
                                 }
                                 target.writer.Write((byte)ServerPacketID.BTFO);
@@ -411,7 +408,8 @@ namespace Server {
                 case DatagramID.HolePunch:
                     break;
                 default:
-                    Console.WriteLine("unknown DatagramID: " + datagram[0]);
+                    Console.WriteLine($"unknown DatagramID {datagram[0]} received from {source.IP}");
+                    Kick(source, "invalid data received");
                     break;
             }
         }
@@ -435,6 +433,11 @@ namespace Server {
                 dynamicEntities.Remove((ushort)player.entity.guid);
                 player.entity = null;
             }
+        }
+        public static void Kick(Player target, string reason) {
+            Notify(target, "you got kicked: " + reason);
+            target.writer.Write((byte)ServerPacketID.Kick);
+            RemovePlayerEntity(target, true);
         }
 
         public static ushort AssignGuid() {
