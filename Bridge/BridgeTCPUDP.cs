@@ -137,27 +137,26 @@ namespace Bridge {
                 try {
                     while (true) ProcessClientPacket(creader.ReadInt32());
                 }
-                catch (Exception ex) {
-                    if (!(ex is IOException || ex is ObjectDisposedException)) throw;
-                    switch (status) {
-                        case BridgeStatus.Offline://server crashed
-                            break;
-                        case BridgeStatus.Connected://player logged out
-                            break;
-                        case BridgeStatus.LoggedIn://kicked
-                            goto default;
-                        case BridgeStatus.Playing: //client disconnected himself
-                            status = BridgeStatus.LoggedIn;
-                            SendUDP(new RemoveDynamicEntity() { Guid = guid }.data);
-                            break;
-                        default:
-                            //this shouldnt happen
-                            break;
-                    }
-                    dynamicEntities.Remove(guid);
-                    form.Log("client disconnected\n", Color.Red);
-                    RefreshPlayerlist();
+                catch (ObjectDisposedException ex) { }
+                catch (IOException ex) { }
+                switch (status) {
+                    case BridgeStatus.Offline://server crashed
+                        break;
+                    case BridgeStatus.Connected://player logged out
+                        break;
+                    case BridgeStatus.LoggedIn://kicked
+                        goto default;
+                    case BridgeStatus.Playing: //client disconnected himself
+                        status = BridgeStatus.LoggedIn;
+                        SendUDP(new RemoveDynamicEntity() { Guid = guid }.data);
+                        break;
+                    default:
+                        //this shouldnt happen
+                        break;
                 }
+                dynamicEntities.Remove(guid);
+                form.Log("client disconnected\n", Color.Red);
+                RefreshPlayerlist();
             }
         }
         public static void ListenFromServerTCP() {
@@ -185,7 +184,8 @@ namespace Bridge {
         }
 
         public static void WriteToClientTCP() {
-            while (status == BridgeStatus.Playing) if (outgoing.Count != 0) {
+            while (status == BridgeStatus.Playing) {
+                if (outgoing.Count != 0) {
                     try {
                         outgoing.Dequeue().Write(cwriter);
                     }
@@ -193,6 +193,10 @@ namespace Bridge {
                         break;
                     }
                 }
+                else {
+                    Thread.Sleep(50);
+                }
+            }
             outgoing.Clear();
         }
 
@@ -601,12 +605,12 @@ namespace Bridge {
                     if (chatMessage.message.ToLower() == @"/plane") {
                         Console.Beep();
                         var serverUpdate = new ServerUpdate() {
-                            blockDeltas = VoxModel.Parse("model.vox"),
+                            blockDeltas = new Vox("model.vox").Parse(),
                         };
                         foreach (var block in serverUpdate.blockDeltas) {
-                            block.position.x += 8286946;
-                            block.position.y += 8344456;
-                            block.position.z += 220;
+                            block.position.x += (int)(dynamicEntities[guid].position.x / 0x10000);//8286946;
+                            block.position.y += (int)(dynamicEntities[guid].position.y / 0x10000);//8344456;
+                            block.position.z += (int)(dynamicEntities[guid].position.z / 0x10000);//220;
                         }
                         outgoing.Enqueue(serverUpdate);
                     }
