@@ -123,7 +123,12 @@ namespace Server {
                 byte[] datagram = udpClient.Receive(ref source);
                 var player = players.FirstOrDefault(x => (x.RemoteEndPoint).Equals(source));
                 if (player != null && player.entity != null) {
-                    ProcessDatagram(datagram, player);
+                    try {
+                        ProcessDatagram(datagram, player);
+                    }
+                    catch (IndexOutOfRangeException) {
+                        Kick(player, "invalid data received");
+                    }
                 }
             }
         }
