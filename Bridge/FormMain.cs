@@ -7,15 +7,20 @@ using System.Windows.Forms;
 
 namespace Bridge {
     public partial class FormMain : Form {
-        public FormEditor editor = null;
+        public FormEditor editor = new FormEditor();
         public FormMap map = new FormMap();
         public FormRegister register = new FormRegister();
+        public FormChat chat = new FormChat();
+        public FormRankings rankings = new FormRankings();
         private bool processAttached = false;
 
         public FormMain(string[]args) {
             InitializeComponent();
         }
         private void FormMain_Shown(object sender, EventArgs e) {
+            chat.Show();
+            chat.Top = this.Top;
+            chat.Left = Left + Width;
             BridgeTCPUDP.form = this;
             CwRam.formMain = this;
             new Thread(new ThreadStart(BridgeTCPUDP.ListenFromClientTCP)).Start();
@@ -38,7 +43,7 @@ namespace Bridge {
                 }
                 else {
                     CwRam.RemoveFog();
-                    if (BridgeTCPUDP.status == Resources.BridgeStatus.Playing) CwRam.SetName(textBoxUsername.Text);
+                    if (BridgeTCPUDP.status == Resources.BridgeStatus.Playing) CwRam.SetName(linkLabelUser.Text);
                 }
             }
             else {
@@ -65,12 +70,12 @@ namespace Bridge {
                 Invoke((Action)(() => Log(text, color)));
             }
             else {
-                richTextBoxChat.SelectionStart = richTextBoxChat.TextLength;
-                richTextBoxChat.SelectionLength = 0;
-
-                richTextBoxChat.SelectionColor = color;
-                richTextBoxChat.AppendText(text);
-                richTextBoxChat.SelectionColor = richTextBoxChat.ForeColor;
+                chat.richTextBoxChat.SelectionStart = chat.richTextBoxChat.TextLength;
+                chat.richTextBoxChat.SelectionLength = 0;
+               
+                chat.richTextBoxChat.SelectionColor = color;
+                chat.richTextBoxChat.AppendText(text);
+                chat.richTextBoxChat.SelectionColor = chat.richTextBoxChat.ForeColor;
             }
         }
 
@@ -79,21 +84,10 @@ namespace Bridge {
         }
 
         private void ButtonEditor_Click(object sender, EventArgs e) {
-            if (editor == null || editor.IsDisposed) editor = new FormEditor();
+            if (editor.IsDisposed) editor = new FormEditor();
             editor.Show();
             editor.WindowState = FormWindowState.Normal;
             editor.Focus();
-        }
-
-        private void ButtonLogin_Click(object sender, EventArgs e) {
-            buttonLogin.Enabled = false;
-            textBoxUsername.Enabled = false;
-            textBoxPassword.Enabled = false;
-            new Thread(new ThreadStart(() => BridgeTCPUDP.Login(textBoxUsername.Text, textBoxPassword.Text))).Start();
-        }
-        private void ButtonLogout_Click(object sender, EventArgs e) {
-            new Thread(new ThreadStart(BridgeTCPUDP.Logout)).Start();
-            OnLogout();
         }
 
         private void ButtonMap_Click(object sender, EventArgs e) {
@@ -107,19 +101,47 @@ namespace Bridge {
             CwRam.ZoomHack(checkBoxZoomHack.Checked);
         }
 
-        private void buttonRegister_Click(object sender, EventArgs e) {
+        private void ShowWindow(Form form) {
+
+        }
+
+        private void buttonLoginRegister_Click(object sender, EventArgs e) {
             if (register.IsDisposed) register = new FormRegister();
             register.Show();
             register.WindowState = FormWindowState.Normal;
             register.Focus();
+            register.Location = this.Location;
         }
 
+        private void contextMenuStripUser_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+            BridgeTCPUDP.Logout();
+            OnLogout();
+        }
         public void OnLogout() {
-            Log("logged out.\n", Color.DarkGray);
-            buttonLogout.Enabled = false;
-            textBoxUsername.Enabled = true;
-            textBoxPassword.Enabled = true;
-            buttonLogin.Enabled = true;
+            Log("logged out\n", Color.Gray);
+            buttonLoginRegister.Visible = true;
+            linkLabelUser.Text = "linkLabelUser";
+            linkLabelUser.Visible = false;
+            buttonClan.Enabled = false;
+            linkLabelClan.Text = "linkLabelClan";
+            linkLabelClan.Visible = false;
+        }
+
+        private void linkLabelUser_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            contextMenuStripUser.Show();
+            contextMenuStripUser.Top = Cursor.Position.Y;
+            contextMenuStripUser.Left = Cursor.Position.X;
+        }
+
+        private void buttonClan_Click(object sender, EventArgs e) {
+            MessageBox.Show("TODO");
+        }
+
+        private void buttonRankings_Click(object sender, EventArgs e) {
+            rankings.Show();
+            rankings.WindowState = FormWindowState.Normal;
+            rankings.Focus();
+            rankings.Location = this.Location;
         }
     }
 }

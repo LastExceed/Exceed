@@ -648,46 +648,19 @@ namespace Bridge {
                         return;
                     }
                     form.Log("match\n", Color.Green);
-                    form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
-                    form.Invoke(new Action(() => form.buttonRegister.Enabled = true));
+                    form.Invoke(new Action(() => form.buttonLoginRegister.Enabled = true));
                     new Thread(new ThreadStart(ListenFromServerUDP)).Start();
                     break;
                 #endregion
                 case ServerPacketID.Login:
                     #region Login
-                    switch ((AuthResponse)sreader.ReadByte()) {
-                        case AuthResponse.Success:
-                            form.Log("success\n", Color.Green);
-                            break;
-                        case AuthResponse.UnknownUser:
-                            form.Log("username does not exist\n", Color.Red);
-                            goto default;
-                        case AuthResponse.WrongPassword:
-                            form.Log("wrong password\n", Color.Red);
-                            goto default;
-                        case AuthResponse.Banned:
-                            form.Log("you are banned\n", Color.Red);
-                            goto default;
-                        case AuthResponse.AccountAlreadyActive:
-                            form.Log("account already in use\n", Color.Red);
-                            goto default;
-                        case AuthResponse.Unverified:
-                            form.Log("unverified (this shouldnt happen)\n", Color.Red);
-                            goto default;
-                        case AuthResponse.UserAlreadyLoggedIn:
-                            form.Log("you are already logged in (this shouldn't happen)\n", Color.Red);
-                            goto default;
-                        default:
-                            form.Invoke(new Action(() => form.textBoxUsername.Enabled = true));
-                            form.Invoke(new Action(() => form.textBoxPassword.Enabled = true));
-                            form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
-                            return;
+                    var authResponse = (AuthResponse)sreader.ReadByte();
+                    if (authResponse == AuthResponse.Success) {
+                        status = BridgeStatus.LoggedIn;
+                        guid = sreader.ReadUInt16();
+                        mapseed = sreader.ReadInt32();
                     }
-                    status = BridgeStatus.LoggedIn;
-                    guid = sreader.ReadUInt16();
-                    mapseed = sreader.ReadInt32();
-
-                    form.Invoke(new Action(() => form.buttonLogout.Enabled = true));
+                    form.Invoke(new Action(() => form.register.OnLoginResponse(authResponse)));
                     break;
                 #endregion
                 case ServerPacketID.Register:
@@ -695,7 +668,7 @@ namespace Bridge {
                     switch ((RegisterResponse)sreader.ReadByte()) {
                         case RegisterResponse.Success:
                             form.Log("account registered\n", Color.DarkGray);
-                            form.Invoke(new Action(form.register.Close));
+                            form.Invoke(new Action(form.register.buttonLogin.PerformClick));
                             break;
                         case RegisterResponse.UsernameTaken:
                             MessageBox.Show("this username is already in use");
