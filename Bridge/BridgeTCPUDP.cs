@@ -688,12 +688,14 @@ namespace Bridge {
                     break;
                 #endregion
                 case ServerPacketID.BTFO:
+                    #region BTFO
                     status = BridgeStatus.Connected;
                     form.Invoke(new Action(() => form.OnLogout()));
                     CwRam.memory.process.Kill();
                     var reason = sreader.ReadString();
                     MessageBox.Show(reason);
                     break;
+                #endregion
                 default:
                     MessageBox.Show("unknown server packet received");
                     break;
