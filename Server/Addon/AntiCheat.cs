@@ -4,7 +4,10 @@ using Resources.Packet;
 namespace Server.Addon {
     class AntiCheat {
         public static string Inspect(EntityUpdate current, EntityUpdate previous) {
-            if(current.hostility != null && current.hostility != 0) {
+            if (current.guid != previous.guid) {
+                return "guid";
+            }
+            if (current.hostility != null && current.hostility != 0) {
                 return "hostility";
             }
             if(current.appearance != null) {
