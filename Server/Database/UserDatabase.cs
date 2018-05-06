@@ -3,6 +3,7 @@ using Resources;
 using System.Linq;
 
 namespace Server.Database {
+    // To update Database run add-migration "update description"
     public class UserDatabase : DbContext {
         const string dbFileName = "db.sqlite";
 
