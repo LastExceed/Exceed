@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Resources;
+using System;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -26,11 +27,10 @@ namespace Bridge {
             };
         }
 
-        Regex validEmailRegex = new Regex(@"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)(?<!\.)@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$", RegexOptions.IgnoreCase);
         private void textBoxEmail_TextChanged(object sender, EventArgs e) {
             buttonRegister.Enabled = false;
             labelEmailResult.ForeColor = Color.Red;
-            if (!validEmailRegex.IsMatch(textBoxEmail.Text)) labelEmailResult.Text = "invalid";
+            if (!Resources.Tools.validEmailRegex.IsMatch(textBoxEmail.Text)) labelEmailResult.Text = "invalid";
             else if (false) labelEmailResult.Text = "already in use";
             else {
                 labelEmailResult.ForeColor = Color.Green;
@@ -40,7 +40,76 @@ namespace Bridge {
         }
 
         private void buttonRegister_Click(object sender, EventArgs e) {
-            new Thread(new ThreadStart(() => BridgeTCPUDP.Register(textBoxUsername.Text, textBoxEmail.Text))).Start();
+            BridgeTCPUDP.Register(textBoxUsername.Text, textBoxEmail.Text, textBoxPassword.Text);
+        }
+
+        private void buttonCreate_Click(object sender, EventArgs e) {
+            buttonLogin.Visible = false;
+            linkLabelReset.Visible = false;
+
+            labelPassword.Top += 21;
+            textBoxPassword.Top += 21;
+
+            labelEmail.Visible = true;
+            textBoxEmail.Visible = true;
+
+            buttonRegister.Enabled = true;
+            this.Width += 73;
+            this.Text = "Account registration";
+            
+            buttonCreate.Visible = false;
+        }
+
+        private void buttonLogin_Click(object sender, EventArgs e) {
+            buttonLogin.Enabled = false;
+            buttonCreate.Enabled = false;
+            linkLabelReset.Enabled = false;
+            textBoxUsername.ReadOnly = true;
+            textBoxEmail.ReadOnly = true;
+            textBoxPassword.ReadOnly = true;
+            BridgeTCPUDP.Login(textBoxUsername.Text, textBoxPassword.Text);
+        }
+
+        public void OnLoginResponse(AuthResponse authResponse) {
+            switch (authResponse) {
+                case AuthResponse.Success:
+                    BridgeTCPUDP.form.Log("success\n", Color.Green);
+                    BridgeTCPUDP.form.buttonLoginRegister.Visible = false;
+                    BridgeTCPUDP.form.linkLabelUser.Text = textBoxUsername.Text;
+                    BridgeTCPUDP.form.linkLabelUser.Visible = true;
+                    BridgeTCPUDP.form.buttonClan.Enabled = true;
+                    BridgeTCPUDP.form.buttonClan.Visible = false;
+                    BridgeTCPUDP.form.linkLabelClan.Text = "Prisoners of Irreality";
+                    BridgeTCPUDP.form.linkLabelClan.Visible = true;
+                    this.Close();
+                    break;
+                case AuthResponse.UnknownUser:
+                    BridgeTCPUDP.form.Log("username does not exist\n", Color.Red);
+                    goto default;
+                case AuthResponse.WrongPassword:
+                    BridgeTCPUDP.form.Log("wrong password\n", Color.Red);
+                    goto default;
+                case AuthResponse.Banned:
+                    BridgeTCPUDP.form.Log("you are banned\n", Color.Red);
+                    goto default;
+                case AuthResponse.AccountAlreadyActive:
+                    BridgeTCPUDP.form.Log("account already in use\n", Color.Red);
+                    goto default;
+                case AuthResponse.Unverified:
+                    BridgeTCPUDP.form.Log("unverified (this shouldnt happen)\n", Color.Red);
+                    goto default;
+                case AuthResponse.UserAlreadyLoggedIn:
+                    BridgeTCPUDP.form.Log("you are already logged in (this shouldn't happen)\n", Color.Red);
+                    goto default;
+                default:
+                    buttonLogin.Enabled = true;
+                    buttonCreate.Enabled = true;
+                    linkLabelReset.Enabled = true;
+                    textBoxUsername.ReadOnly = false;
+                    textBoxEmail.ReadOnly = false;
+                    textBoxPassword.ReadOnly = false;
+                    break;
+            }
         }
     }
 }

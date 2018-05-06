@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 
 using Resources;
+using Resources.Utilities;
 using Resources.Packet;
 using Resources.Datagram;
 
@@ -25,7 +26,7 @@ namespace Bridge {
         public static FormMain form;
         public static Dictionary<long, EntityUpdate> dynamicEntities = new Dictionary<long, EntityUpdate>();
         public static ushort lastTarget;
-        public static Queue<Packet> outgoing = new Queue<Packet>();
+        public static Mutex outgoingMutex = new Mutex();
         public static BridgeStatus status = BridgeStatus.Offline;
 
         public static void Connect() {
@@ -62,6 +63,7 @@ namespace Bridge {
         public static void Disconnect() {
             status = BridgeStatus.Offline;
             form.Invoke(new Action(() => form.listBoxPlayers.Items.Clear()));
+            form.Invoke(new Action(() => form.OnLogout()));
             LingerOption lingerOption = new LingerOption(true, 0);
             try {
                 udpToServer.Close();
@@ -89,23 +91,19 @@ namespace Bridge {
             form.Log("logging in...", Color.DarkGray);
             swriter.Write((byte)ServerPacketID.Login);
             swriter.Write(name);
-            swriter.Write(password);
+            swriter.Write(Hashing.Hash(password));
             swriter.Write(NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault());
         }
         public static void Logout() {
             swriter.Write((byte)ServerPacketID.Logout);
             if (status == BridgeStatus.Playing) tcpToClient.Close();
             status = BridgeStatus.Connected;
-            form.Log("logged out.\n", Color.DarkGray);
-            form.Invoke(new Action(() => form.buttonLogout.Enabled = false));
-            form.Invoke(new Action(() => form.textBoxUsername.Enabled = true));
-            form.Invoke(new Action(() => form.textBoxPassword.Enabled = true));
-            form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
         }
-        public static void Register(string name, string email) {
+        public static void Register(string name, string email, string password) {
             swriter.Write((byte)ServerPacketID.Register);
             swriter.Write(name);
             swriter.Write(email);
+            swriter.Write(Hashing.Hash(password));
         }
 
         public static void ListenFromClientTCP() {
@@ -117,7 +115,6 @@ namespace Bridge {
                 if (result == DialogResult.Retry) ListenFromClientTCP();
                 return;
             }
-
             while (true) {
                 tcpToClient = tcpListener.AcceptTcpClient();
                 form.Log("client connected\n", Color.Green);
@@ -128,38 +125,36 @@ namespace Bridge {
                 cwriter = new BinaryWriter(stream);
 
                 if (status != BridgeStatus.LoggedIn) {
-                    new ProtocolVersion() {
-                        version = 1337
-                    }.Write(cwriter);
+                    SendToClient(new ProtocolVersion() {
+                        version = 42069,
+                    });
                     form.Log("client rejected\n", Color.Red);
                     continue;
                 }
                 status = BridgeStatus.Playing;
-                new Thread(new ThreadStart(WriteToClientTCP)).Start();
                 try {
                     while (true) ProcessClientPacket(creader.ReadInt32());
                 }
-                catch (Exception ex) {
-                    if (!(ex is IOException || ex is ObjectDisposedException)) throw;
-                    switch (status) {
-                        case BridgeStatus.Offline://server crashed
-                            break;
-                        case BridgeStatus.Connected://player logged out
-                            break;
-                        case BridgeStatus.LoggedIn://impossible
-                            goto default;
-                        case BridgeStatus.Playing: //client disconnected himself
-                            status = BridgeStatus.LoggedIn;
-                            SendUDP(new RemoveDynamicEntity() { Guid = guid }.data);
-                            break;
-                        default:
-                            //this shouldnt happen
-                            break;
-                    }
-                    dynamicEntities.Remove(guid);
-                    form.Log("client disconnected\n", Color.Red);
-                    RefreshPlayerlist();
+                catch (ObjectDisposedException ex) { }
+                catch (IOException ex) { }
+                switch (status) {
+                    case BridgeStatus.Offline://server crashed
+                        break;
+                    case BridgeStatus.Connected://player logged out
+                        break;
+                    case BridgeStatus.LoggedIn://kicked
+                        goto default;
+                    case BridgeStatus.Playing: //client disconnected himself
+                        status = BridgeStatus.LoggedIn;
+                        SendUDP(new RemoveDynamicEntity() { Guid = guid }.data);
+                        break;
+                    default:
+                        //this shouldnt happen
+                        break;
                 }
+                dynamicEntities.Remove(guid);
+                form.Log("client disconnected\n", Color.Red);
+                RefreshPlayerlist();
             }
         }
         public static void ListenFromServerTCP() {
@@ -186,11 +181,6 @@ namespace Bridge {
             }
         }
 
-        public static void WriteToClientTCP() {
-            while (status == BridgeStatus.Playing) if (outgoing.Count != 0) outgoing.Dequeue().Write(cwriter);
-            outgoing.Clear();
-        }
-
         public static void ProcessDatagram(byte[] datagram) {
             var serverUpdate = new ServerUpdate();
             bool writeServerUpdate = false;
@@ -203,7 +193,7 @@ namespace Bridge {
                             CwRam.Teleport(entityUpdate.position);
                             break;
                         }
-                        outgoing.Enqueue(entityUpdate);
+                        SendToClient(entityUpdate);
                     }
 
                     if (dynamicEntities.ContainsKey(entityUpdate.guid)) {
@@ -247,6 +237,7 @@ namespace Bridge {
                         velocity = projectile.Velocity,
                         scale = projectile.Scale,
                         particles = projectile.Particles,
+                        mana = projectile.Particles,
                         projectile = projectile.Type,
                         chunkX = (int)projectile.Position.x / 0x1000000,
                         chunkY = (int)projectile.Position.y / 0x1000000
@@ -272,7 +263,7 @@ namespace Bridge {
                         bool tick() {
                             bool f = status == BridgeStatus.Playing && dynamicEntities[guid].HP > 0;
                             if (f) {
-                                outgoing.Enqueue(su);
+                                SendToClient(su);
                             }
                             return !f;
                         }
@@ -295,7 +286,7 @@ namespace Bridge {
                         sender = chat.Sender,
                         message = chat.Text
                     };
-                    if (status == BridgeStatus.Playing) outgoing.Enqueue(chatMessage);
+                    if (status == BridgeStatus.Playing) SendToClient(chatMessage);
                     if (chat.Sender == 0) {
                         form.Log(chat.Text + "\n", Color.Magenta);
                     }
@@ -312,7 +303,7 @@ namespace Bridge {
                     var time = new Time() {
                         time = igt.Milliseconds
                     };
-                    if (status == BridgeStatus.Playing) outgoing.Enqueue(time);
+                    if (status == BridgeStatus.Playing) SendToClient(time);
                     break;
                 #endregion
                 case DatagramID.Interaction:
@@ -380,7 +371,7 @@ namespace Bridge {
                         hostility = (Hostility)255, //workaround for DC because i dont like packet2
                         HP = 0
                     };
-                    if (status == BridgeStatus.Playing) outgoing.Enqueue(entityUpdate);
+                    if (status == BridgeStatus.Playing) SendToClient(entityUpdate);
                     dynamicEntities.Remove(rde.Guid);
                     RefreshPlayerlist();
                     break;
@@ -435,7 +426,7 @@ namespace Bridge {
                     form.Log("unknown datagram ID: " + datagram[0], Color.Red);
                     break;
             }
-            if (status == BridgeStatus.Playing && writeServerUpdate) outgoing.Enqueue(serverUpdate);
+            if (status == BridgeStatus.Playing && writeServerUpdate) SendToClient(serverUpdate);
         }
         public static void ProcessClientPacket(int packetID) {
             switch ((PacketID)packetID) {
@@ -471,7 +462,7 @@ namespace Bridge {
                                 message = "You can't use this, your hands are too small.",
                                 sender = 0
                             };
-                            outgoing.Enqueue(x);
+                            SendToClient(x);
                             break;
                         #endregion
                         case ActionType.PickUp:
@@ -481,7 +472,7 @@ namespace Bridge {
                         case ActionType.Drop: //send item back to dropper because dropping is disabled to prevent chatspam
                             #region Drop
                             if (form.radioButtonDestroy.Checked) {
-                                outgoing.Enqueue(new ChatMessage() {
+                                SendToClient(new ChatMessage() {
                                     message = "item destroyed",
                                     sender = 0,
                                 });
@@ -496,7 +487,7 @@ namespace Bridge {
                                 if (form.radioButtonDuplicate.Checked) {
                                     serverUpdate.pickups.Add(pickup);
                                 }
-                                outgoing.Enqueue(serverUpdate);
+                                SendToClient(serverUpdate);
                             }
                             break;
                         #endregion
@@ -532,7 +523,7 @@ namespace Bridge {
                     var passiveProc = new PassiveProc(creader);
                     switch (passiveProc.type) {
                         case ProcType.Bulwalk:
-                            outgoing.Enqueue(new ChatMessage() {
+                            SendToClient(new ChatMessage() {
                                 message = string.Format("bulwalk: {0}% dmg reduction", 1.0f - passiveProc.modifier),
                                 sender = 0,
                             });
@@ -546,7 +537,7 @@ namespace Bridge {
                         case ProcType.UnknownA:
                             break;
                         case ProcType.ManaShield:
-                            outgoing.Enqueue(new ChatMessage() {
+                            SendToClient(new ChatMessage() {
                                 message = string.Format("manashield: {0}", passiveProc.modifier),
                                 sender = 0,
                             });
@@ -595,14 +586,14 @@ namespace Bridge {
                     if (chatMessage.message.ToLower() == @"/plane") {
                         Console.Beep();
                         var serverUpdate = new ServerUpdate() {
-                            blockDeltas = VoxModel.Parse("model.vox"),
+                            blockDeltas = new Vox("model.vox").Parse(),
                         };
                         foreach (var block in serverUpdate.blockDeltas) {
-                            block.position.x += 8286946;
-                            block.position.y += 8344456;
-                            block.position.z += 220;
+                            block.position.x += 0x802080;//(int)(dynamicEntities[guid].position.x / 0x10000);//8286946;
+                            block.position.y += 0x802080;//(int)(dynamicEntities[guid].position.y / 0x10000);//8344456;
+                            block.position.z += 150;// (int)(dynamicEntities[guid].position.z / 0x10000);//220;
                         }
-                        outgoing.Enqueue(serverUpdate);
+                        SendToClient(serverUpdate);
                     }
                     var chat = new Chat() {
                         Sender = guid,//client doesn't send this
@@ -626,18 +617,18 @@ namespace Bridge {
                     var version = new ProtocolVersion(creader);
                     if (version.version != 3) {
                         version.version = 3;
-                        outgoing.Enqueue(version);
+                        SendToClient(version);
                     }
                     else {
-                        outgoing.Enqueue(new Join() {
+                        SendToClient(new Join() {
                             guid = guid,
                             junk = new byte[0x1168]
                         });
-                        outgoing.Enqueue(new MapSeed() {
+                        SendToClient(new MapSeed() {
                             seed = mapseed
                         });
                         foreach (var dynamicEntity in dynamicEntities.Values.ToList()) {
-                            outgoing.Enqueue(dynamicEntity);
+                            SendToClient(dynamicEntity);
                         }
                     }
                     break;
@@ -657,46 +648,19 @@ namespace Bridge {
                         return;
                     }
                     form.Log("match\n", Color.Green);
-                    form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
-                    form.Invoke(new Action(() => form.buttonRegister.Enabled = true));
+                    form.Invoke(new Action(() => form.buttonLoginRegister.Enabled = true));
                     new Thread(new ThreadStart(ListenFromServerUDP)).Start();
                     break;
                 #endregion
                 case ServerPacketID.Login:
                     #region Login
-                    switch ((AuthResponse)sreader.ReadByte()) {
-                        case AuthResponse.Success:
-                            form.Log("success\n", Color.Green);
-                            break;
-                        case AuthResponse.UnknownUser:
-                            form.Log("username does not exist\n", Color.Red);
-                            goto default;
-                        case AuthResponse.WrongPassword:
-                            form.Log("wrong password\n", Color.Red);
-                            goto default;
-                        case AuthResponse.Banned:
-                            form.Log("you are banned\n", Color.Red);
-                            goto default;
-                        case AuthResponse.AccountAlreadyActive:
-                            form.Log("account already in use\n", Color.Red);
-                            goto default;
-                        case AuthResponse.Unverified:
-                            form.Log("unverified (this shouldnt happen)\n", Color.Red);
-                            goto default;
-                        case AuthResponse.UserAlreadyLoggedIn:
-                            form.Log("you are already logged in (this shouldn't happen)\n", Color.Red);
-                            goto default;
-                        default:
-                            form.Invoke(new Action(() => form.textBoxUsername.Enabled = true));
-                            form.Invoke(new Action(() => form.textBoxPassword.Enabled = true));
-                            form.Invoke(new Action(() => form.buttonLogin.Enabled = true));
-                            return;
+                    var authResponse = (AuthResponse)sreader.ReadByte();
+                    if (authResponse == AuthResponse.Success) {
+                        status = BridgeStatus.LoggedIn;
+                        guid = sreader.ReadUInt16();
+                        mapseed = sreader.ReadInt32();
                     }
-                    status = BridgeStatus.LoggedIn;
-                    guid = sreader.ReadUInt16();
-                    mapseed = sreader.ReadInt32();
-
-                    form.Invoke(new Action(() => form.buttonLogout.Enabled = true));
+                    form.Invoke(new Action(() => form.register.OnLoginResponse(authResponse)));
                     break;
                 #endregion
                 case ServerPacketID.Register:
@@ -704,7 +668,7 @@ namespace Bridge {
                     switch ((RegisterResponse)sreader.ReadByte()) {
                         case RegisterResponse.Success:
                             form.Log("account registered\n", Color.DarkGray);
-                            form.Invoke(new Action(form.register.Close));
+                            form.Invoke(new Action(form.register.buttonLogin.PerformClick));
                             break;
                         case RegisterResponse.UsernameTaken:
                             MessageBox.Show("this username is already in use");
@@ -717,28 +681,21 @@ namespace Bridge {
                     }
                     break;
                 #endregion
-                case ServerPacketID.BTFO:
-                    Logout();
+                case ServerPacketID.Kick:
+                    #region Kick
+                    status = BridgeStatus.LoggedIn;
+                    tcpToClient.Close();
                     break;
-                //case 3:
-                //    var query = new Query(sreader);
-                //    foreach (var item in query.players) {
-                //        if (!dynamicEntities.ContainsKey(item.Key)) {
-                //            dynamicEntities.Add(item.Key, new EntityUpdate());
-                //        }
-                //        dynamicEntities[item.Key].guid = item.Key;
-                //        dynamicEntities[item.Key].name = item.Value;
-                //    }
-                //    form.Invoke(new Action(form.listBoxPlayers.Items.Clear));
-                //    foreach (var playerData in dynamicEntities.Values) {
-                //        form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(playerData.name)));
-                //    }
-                //    break;
-
-                //case 4:
-                //    outgoing.Enqueue(new ServerUpdate(sreader));
-                //    break;
-
+                #endregion
+                case ServerPacketID.BTFO:
+                    #region BTFO
+                    status = BridgeStatus.Connected;
+                    form.Invoke(new Action(() => form.OnLogout()));
+                    CwRam.memory.process.Kill();
+                    var reason = sreader.ReadString();
+                    MessageBox.Show(reason);
+                    break;
+                #endregion
                 default:
                     MessageBox.Show("unknown server packet received");
                     break;
@@ -891,7 +848,7 @@ namespace Bridge {
                             alpha = 1f,
                             position = dynamicEntities[specialMove.Guid].position
                         });
-                        outgoing.Enqueue(fakeSmoke);
+                        SendToClient(fakeSmoke);
                         #endregion
                     }
                     break;
@@ -918,6 +875,16 @@ namespace Bridge {
 
         public static void SendUDP(byte[] data) {
             udpToServer.Send(data, data.Length);
+        }
+        public static void SendToClient(Packet packet) {
+            outgoingMutex.WaitOne();
+            try {
+                packet.Write(cwriter);
+            }
+            catch (IOException) {
+                //handled in reading thread
+            }
+            outgoingMutex.ReleaseMutex();
         }
     }
 }

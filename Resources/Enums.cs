@@ -35,6 +35,7 @@
         Logout,
         Register,
         BTFO,
+        Kick,
     }
     public enum AuthResponse : byte {
         Success,
@@ -49,6 +50,7 @@
         Success,
         EmailTaken,
         UsernameTaken,
+        InvalidInput,
     }
     public enum BridgeStatus : byte {
         Offline,

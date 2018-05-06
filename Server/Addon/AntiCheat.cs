@@ -3,75 +3,78 @@ using Resources.Packet;
 
 namespace Server.Addon {
     class AntiCheat {
-        public static string Inspect(EntityUpdate toInspect) {
-            if(toInspect.hostility != null && toInspect.hostility != 0) {
+        public static string Inspect(EntityUpdate current, EntityUpdate previous) {
+            if (current.guid != previous.guid) {
+                return "guid";
+            }
+            if (current.hostility != null && current.hostility != 0) {
                 return "hostility";
             }
-            if(toInspect.appearance != null) {
-                if((toInspect.appearance.character_size.x != 0.8000000119f && toInspect.appearance.character_size.x != 0.9600000381f && toInspect.appearance.character_size.x != 1.039999962f) ||
-                    (toInspect.appearance.character_size.y != 0.8000000119f && toInspect.appearance.character_size.y != 0.9600000381f && toInspect.appearance.character_size.y != 1.039999962f) ||
-                    (toInspect.appearance.character_size.z != 1.799999952f && toInspect.appearance.character_size.z != 2.160000086f && toInspect.appearance.character_size.z != 2.339999914f) ||
-                    (toInspect.appearance.head_size != 0.8999999762f && toInspect.appearance.head_size != 1.00999999f) ||
-                    toInspect.appearance.body_size != 1.0f ||
-                    toInspect.appearance.hand_size != 1.0f ||
-                    toInspect.appearance.foot_size != 0.9800000191f ||
-                    toInspect.appearance.shoulder2_size != 1.0f ||
-                    toInspect.appearance.weapon_size < 0.7f || toInspect.appearance.weapon_size > 1.3f ||
-                    toInspect.appearance.tail_size != 0.8000000119f ||
-                    (toInspect.appearance.shoulder_size != 1.0f && toInspect.appearance.shoulder_size != 1.200000048f) ||
-                    toInspect.appearance.wings_size != 1.0f) {
+            if(current.appearance != null) {
+                if((current.appearance.character_size.x != 0.8000000119f && current.appearance.character_size.x != 0.9600000381f && current.appearance.character_size.x != 1.039999962f) ||
+                    (current.appearance.character_size.y != 0.8000000119f && current.appearance.character_size.y != 0.9600000381f && current.appearance.character_size.y != 1.039999962f) ||
+                    (current.appearance.character_size.z != 1.799999952f && current.appearance.character_size.z != 2.160000086f && current.appearance.character_size.z != 2.339999914f) ||
+                    (current.appearance.head_size != 0.8999999762f && current.appearance.head_size != 1.00999999f) ||
+                    current.appearance.body_size != 1.0f ||
+                    current.appearance.hand_size != 1.0f ||
+                    current.appearance.foot_size != 0.9800000191f ||
+                    current.appearance.shoulder2_size != 1.0f ||
+                    current.appearance.weapon_size < 0.7f || current.appearance.weapon_size > 1.3f ||
+                    current.appearance.tail_size != 0.8000000119f ||
+                    (current.appearance.shoulder_size != 1.0f && current.appearance.shoulder_size != 1.200000048f) ||
+                    current.appearance.wings_size != 1.0f) {
                     return "appearance";
                 }
             }
-            if(toInspect.charge != null && toInspect.charge > 1) {
+            if(current.charge != null && current.charge > (current.MP ?? previous.MP)) {
                 return "MP charge";
             }
-            if(toInspect.HP != null && toInspect.HP > 3333) {
+            if(current.HP != null && current.HP > 3333) {
                 return "HP";
             }
-            if(toInspect.MP != null && toInspect.MP > 1) {
+            if(current.MP != null && current.MP > 1) {
                 return "MP";
             }
-            if(toInspect.multipliers != null) {
-                if(toInspect.multipliers.HP != 100 ||
-                    toInspect.multipliers.attackSpeed != 1 ||
-                    toInspect.multipliers.damage != 1 ||
-                    toInspect.multipliers.armor != 1 ||
-                    toInspect.multipliers.resi != 1) {
+            if(current.multipliers != null) {
+                if(current.multipliers.HP != 100 ||
+                    current.multipliers.attackSpeed != 1 ||
+                    current.multipliers.damage != 1 ||
+                    current.multipliers.armor != 1 ||
+                    current.multipliers.resi != 1) {
                     return "multipliers";
                 }
             }
-            if(toInspect.level != null && toInspect.level > 500) {
+            if(current.level != null && current.level > 500) {
                 return "level";
             }
-            if(toInspect.consumable != null) {
-                if(toInspect.consumable.type == ItemType.Food &&
-                    toInspect.consumable.subtype == 1 ||
-                    toInspect.consumable.level > 647 ||
-                    toInspect.consumable.rarity != 0) {
+            if(current.consumable != null) {
+                if(current.consumable.type == ItemType.Food &&
+                    current.consumable.subtype == 1 ||
+                    current.consumable.level > 647 ||
+                    current.consumable.rarity != 0) {
                     //return "consumable";
                 }
             }
-            if(toInspect.equipment != null) {
-                foreach(Item item in toInspect.equipment) {
+            if(current.equipment != null) {
+                foreach(Item item in current.equipment) {
                     if(item.type != 0 &&
                        (item.level > 647 || (byte)item.rarity > 4)) {
                         return "equipment";
                     }
                 }
             }
-            if(toInspect.skillDistribution != null) {
-                if(toInspect.skillDistribution.petmaster +
-                    toInspect.skillDistribution.petriding +
-                    toInspect.skillDistribution.sailing +
-                    toInspect.skillDistribution.climbing +
-                    toInspect.skillDistribution.hangGliding +
-                    toInspect.skillDistribution.swimming +
-                    toInspect.skillDistribution.ability1 +
-                    toInspect.skillDistribution.ability2 +
-                    toInspect.skillDistribution.ability3 +
-                    toInspect.skillDistribution.ability4 +
-                    toInspect.skillDistribution.ability5 > 500 * 2 - 2) {
+            if(current.skillDistribution != null) {
+                if(current.skillDistribution.petmaster +
+                    current.skillDistribution.petriding +
+                    current.skillDistribution.sailing +
+                    current.skillDistribution.climbing +
+                    current.skillDistribution.hangGliding +
+                    current.skillDistribution.swimming +
+                    current.skillDistribution.ability1 +
+                    current.skillDistribution.ability2 +
+                    current.skillDistribution.ability3 +
+                    current.skillDistribution.ability4 +
+                    current.skillDistribution.ability5 > 500 * 2 - 2) {
                     return "skill distribution";
                 }
             }

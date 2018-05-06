@@ -49,7 +49,7 @@ namespace Resources.Datagram {
         }
         public bool Closed {
             get => data[45].GetBit(0);
-            set => Tools.SetBit(ref data[45], value, 0);
+            set => Bit.Set(ref data[45], 0, value);
         }
 
         public StaticUpdate() {

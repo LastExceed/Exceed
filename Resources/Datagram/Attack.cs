@@ -37,11 +37,11 @@ namespace Resources.Datagram {
         }
         public bool ShowLight {
             get => data[25].GetBit(0);
-            set => Tools.SetBit(ref data[25], value, 0);
+            set => Bit.Set(ref data[25], 0, value);
         }
         public bool Critical {
             get => data[25].GetBit(1);
-            set => Tools.SetBit(ref data[25], value, 1);
+            set => Bit.Set(ref data[25], 1, value);
         }
 
         public Attack() {

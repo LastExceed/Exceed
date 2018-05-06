@@ -29,15 +29,18 @@
             this.labelUsername = new System.Windows.Forms.Label();
             this.labelPassword = new System.Windows.Forms.Label();
             this.labelEmail = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.textBoxPassword = new System.Windows.Forms.TextBox();
             this.labelUsernameResult = new System.Windows.Forms.Label();
             this.labelEmailResult = new System.Windows.Forms.Label();
+            this.buttonLogin = new System.Windows.Forms.Button();
+            this.linkLabelReset = new System.Windows.Forms.LinkLabel();
+            this.buttonCreate = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonRegister
             // 
             this.buttonRegister.Enabled = false;
-            this.buttonRegister.Location = new System.Drawing.Point(244, 43);
+            this.buttonRegister.Location = new System.Drawing.Point(220, 43);
             this.buttonRegister.Name = "buttonRegister";
             this.buttonRegister.Size = new System.Drawing.Size(74, 21);
             this.buttonRegister.TabIndex = 0;
@@ -47,9 +50,9 @@
             // 
             // textBoxUsername
             // 
-            this.textBoxUsername.Location = new System.Drawing.Point(55, 1);
+            this.textBoxUsername.Location = new System.Drawing.Point(56, 1);
             this.textBoxUsername.Name = "textBoxUsername";
-            this.textBoxUsername.Size = new System.Drawing.Size(190, 20);
+            this.textBoxUsername.Size = new System.Drawing.Size(164, 20);
             this.textBoxUsername.TabIndex = 1;
             this.textBoxUsername.TextChanged += new System.EventHandler(this.textBoxUsername_TextChanged);
             // 
@@ -57,8 +60,9 @@
             // 
             this.textBoxEmail.Location = new System.Drawing.Point(55, 22);
             this.textBoxEmail.Name = "textBoxEmail";
-            this.textBoxEmail.Size = new System.Drawing.Size(190, 20);
+            this.textBoxEmail.Size = new System.Drawing.Size(165, 20);
             this.textBoxEmail.TabIndex = 2;
+            this.textBoxEmail.Visible = false;
             this.textBoxEmail.TextChanged += new System.EventHandler(this.textBoxEmail_TextChanged);
             // 
             // labelUsername
@@ -73,7 +77,7 @@
             // labelPassword
             // 
             this.labelPassword.AutoSize = true;
-            this.labelPassword.Location = new System.Drawing.Point(-2, 46);
+            this.labelPassword.Location = new System.Drawing.Point(-2, 25);
             this.labelPassword.Name = "labelPassword";
             this.labelPassword.Size = new System.Drawing.Size(56, 13);
             this.labelPassword.TabIndex = 5;
@@ -87,21 +91,21 @@
             this.labelEmail.Size = new System.Drawing.Size(35, 13);
             this.labelEmail.TabIndex = 6;
             this.labelEmail.Text = "Email:";
+            this.labelEmail.Visible = false;
             // 
-            // textBox3
+            // textBoxPassword
             // 
-            this.textBox3.Location = new System.Drawing.Point(55, 43);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.ReadOnly = true;
-            this.textBox3.Size = new System.Drawing.Size(190, 20);
-            this.textBox3.TabIndex = 3;
-            this.textBox3.Text = "can be changed later";
+            this.textBoxPassword.Location = new System.Drawing.Point(56, 22);
+            this.textBoxPassword.Name = "textBoxPassword";
+            this.textBoxPassword.Size = new System.Drawing.Size(164, 20);
+            this.textBoxPassword.TabIndex = 3;
+            this.textBoxPassword.UseSystemPasswordChar = true;
             // 
             // labelUsernameResult
             // 
             this.labelUsernameResult.AutoSize = true;
             this.labelUsernameResult.ForeColor = System.Drawing.Color.Red;
-            this.labelUsernameResult.Location = new System.Drawing.Point(248, 5);
+            this.labelUsernameResult.Location = new System.Drawing.Point(220, 4);
             this.labelUsernameResult.Name = "labelUsernameResult";
             this.labelUsernameResult.Size = new System.Drawing.Size(48, 13);
             this.labelUsernameResult.TabIndex = 8;
@@ -111,20 +115,53 @@
             // 
             this.labelEmailResult.AutoSize = true;
             this.labelEmailResult.ForeColor = System.Drawing.Color.Red;
-            this.labelEmailResult.Location = new System.Drawing.Point(247, 25);
+            this.labelEmailResult.Location = new System.Drawing.Point(220, 25);
             this.labelEmailResult.Name = "labelEmailResult";
             this.labelEmailResult.Size = new System.Drawing.Size(37, 13);
             this.labelEmailResult.TabIndex = 9;
             this.labelEmailResult.Text = "invalid";
             // 
+            // buttonLogin
+            // 
+            this.buttonLogin.Location = new System.Drawing.Point(0, 43);
+            this.buttonLogin.Name = "buttonLogin";
+            this.buttonLogin.Size = new System.Drawing.Size(56, 21);
+            this.buttonLogin.TabIndex = 31;
+            this.buttonLogin.Text = "Login";
+            this.buttonLogin.UseVisualStyleBackColor = true;
+            this.buttonLogin.Click += new System.EventHandler(this.buttonLogin_Click);
+            // 
+            // linkLabelReset
+            // 
+            this.linkLabelReset.AutoSize = true;
+            this.linkLabelReset.Location = new System.Drawing.Point(142, 46);
+            this.linkLabelReset.Name = "linkLabelReset";
+            this.linkLabelReset.Size = new System.Drawing.Size(78, 13);
+            this.linkLabelReset.TabIndex = 30;
+            this.linkLabelReset.TabStop = true;
+            this.linkLabelReset.Text = "reset password";
+            // 
+            // buttonCreate
+            // 
+            this.buttonCreate.Location = new System.Drawing.Point(55, 43);
+            this.buttonCreate.Name = "buttonCreate";
+            this.buttonCreate.Size = new System.Drawing.Size(88, 21);
+            this.buttonCreate.TabIndex = 29;
+            this.buttonCreate.Text = "Create account";
+            this.buttonCreate.UseVisualStyleBackColor = true;
+            this.buttonCreate.Click += new System.EventHandler(this.buttonCreate_Click);
+            // 
             // FormRegister
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(318, 64);
+            this.ClientSize = new System.Drawing.Size(221, 64);
+            this.Controls.Add(this.linkLabelReset);
+            this.Controls.Add(this.buttonCreate);
+            this.Controls.Add(this.buttonLogin);
             this.Controls.Add(this.labelEmailResult);
             this.Controls.Add(this.labelUsernameResult);
-            this.Controls.Add(this.textBox3);
+            this.Controls.Add(this.textBoxPassword);
             this.Controls.Add(this.labelEmail);
             this.Controls.Add(this.labelPassword);
             this.Controls.Add(this.labelUsername);
@@ -134,7 +171,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "FormRegister";
-            this.Text = "Exceed account registration";
+            this.Text = "Login";
             this.TopMost = true;
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -149,8 +186,11 @@
         private System.Windows.Forms.Label labelUsername;
         private System.Windows.Forms.Label labelPassword;
         private System.Windows.Forms.Label labelEmail;
-        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox textBoxPassword;
         private System.Windows.Forms.Label labelUsernameResult;
         private System.Windows.Forms.Label labelEmailResult;
+        private System.Windows.Forms.LinkLabel linkLabelReset;
+        private System.Windows.Forms.Button buttonCreate;
+        public System.Windows.Forms.Button buttonLogin;
     }
 }
