@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Server.Database {
     public class Clan {
-        [Key] public uint id { get; set; }
-        public string name { get; set; }
-        public string tag { get; set; }
+        public uint Id { get; set; }
+        public string Name { get; set; }
+        public string Tag { get; set; }
 
-        public virtual ICollection<User> members { get; set; }
+        public virtual ICollection<User> Members { get; set; }
     }
 }

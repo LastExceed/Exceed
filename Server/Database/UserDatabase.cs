@@ -12,25 +12,53 @@ namespace Server.Database {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            var user = modelBuilder.Entity<User>();
-            user.HasOne(x => x.clan).WithMany(x => x.members).HasForeignKey(x => x.clanId);
-            user.HasMany(x => x.bans).WithOne(x => x.user).HasForeignKey(x => x.userId);
-            user.HasOne(x => x.login).WithOne(x => x.user).HasForeignKey<Login>(x => x.userId);
+            {
+                var user = modelBuilder.Entity<User>();
+                user.HasKey(x => x.Id);
+                user.Property(x => x.Name).IsRequired();
+                var password = user.Property(x => x.PasswordHash);
+                password.IsRequired();
+                password.HasMaxLength(Hashing.SaltSize + Hashing.HashSize);
+
+                user.Property(x => x.Email).IsRequired();
+
+
+                user.HasOne(x => x.Clan).WithMany(x => x.Members).HasForeignKey(x => x.ClanId);
+                user.HasMany(x => x.Bans).WithOne(x => x.User).HasForeignKey(x => x.UserId);
+                user.HasOne(x => x.Login).WithOne(x => x.User).HasForeignKey<Login>(x => x.UserId);
+            }
+
+            {
+                var clans = modelBuilder.Entity<Clan>();
+                clans.HasKey(x => x.Id);
+                clans.Property(x => x.Name).IsRequired();
+            }
+
+            {
+                var logins = modelBuilder.Entity<Login>();
+                logins.HasKey(x => x.UserId);
+
+            }
+
+            {
+                var bans = modelBuilder.Entity<Ban>();
+                bans.HasKey(x => x.Id);
+            }
         }
 
-        public DbSet<User> users { get; set; }
-        public DbSet<Clan> clans { get; set; }
-        public DbSet<Login> logins { get; set; }
-        public DbSet<Ban> bans { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Clan> Clans { get; set; }
+        public DbSet<Login> Logins { get; set; }
+        public DbSet<Ban> Bans { get; set; }
 
         public AuthResponse AuthUser(string username, string password, int ip, string mac) {
-            var user = users.Include(x => x.login).SingleOrDefault(x => x.name == username);
+            var user = Users.Include(x => x.Login).SingleOrDefault(x => x.Name == username);
             if(user == null)
                 return AuthResponse.UnknownUser;
-            if(user.login != null)
+            if(user.Login != null)
                 return AuthResponse.UserAlreadyLoggedIn;
 
-            if(bans.Any(x => x.userId == user.id || x.ip == ip || x.mac == mac))
+            if(Bans.Any(x => x.UserId == user.Id || x.Ip == ip || x.Mac == mac))
                 return AuthResponse.Banned;
 
             if(user.VerifyPassword(password))
@@ -40,23 +68,23 @@ namespace Server.Database {
         }
 
         public RegisterResponse RegisterUser(string username, string email, string password) {
-            if(users.Any(x => x.email == email)) {
+            if(Users.Any(x => x.Email == email)) {
                 return RegisterResponse.EmailTaken;
             }
-            if(users.Any(x => x.name == username)) {
+            if(Users.Any(x => x.Name == username)) {
                 return RegisterResponse.UsernameTaken;
             }
             var user = new User(username, email, password);
-            users.Add(user);
+            Users.Add(user);
             SaveChanges();
 
             return RegisterResponse.Success;
         }
 
         public void BanUser(string entityName, int ipAddress, string targetMac, string reason) {
-            var user = users.SingleOrDefault(x => x.name == entityName)?.id;
-            var ban = new Ban { ip = ipAddress, mac = targetMac, reason = reason, userId = user };
-            bans.Add(ban);
+            var user = Users.SingleOrDefault(x => x.Name == entityName)?.Id;
+            var ban = new Ban { Ip = ipAddress, Mac = targetMac, Reason = reason, UserId = user };
+            Bans.Add(ban);
             SaveChanges();
         }
     }

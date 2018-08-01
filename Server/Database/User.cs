@@ -1,31 +1,27 @@
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Server.Database {
     public class User {
-        [Key] public uint id { get; set; }
-
-        [Required]
-        public string name { get; set; }
-
-        [Required, MaxLength(Hashing.SaltSize + Hashing.HashSize)]
+        public uint Id { get; set; }
+        
+        public string Name { get; set; }
+        
         public byte[] PasswordHash { get; set; }
 
-        [Required, DataType(DataType.EmailAddress)]
-        public string email { get; set; }
-        public byte permission { get; set; }
+        public string Email { get; set; }
+        public byte Permission { get; set; }
         
-        public uint? clanId { get; set; }
-        public virtual Clan clan { get; set; }
+        public uint? ClanId { get; set; }
+        public virtual Clan Clan { get; set; }
         
-        public virtual Login login { get; set; }
+        public virtual Login Login { get; set; }
 
-        public virtual ICollection<Ban> bans { get; set; }
+        public virtual ICollection<Ban> Bans { get; set; }
 
         public User() { }
         public User(string username, string email, string password) {
-            this.name = username;
-            this.email = email;
+            this.Name = username;
+            this.Email = email;
             this.PasswordHash = Hashing.Hash(password);
         }
         

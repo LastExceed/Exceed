@@ -1,11 +1,9 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Server.Database {
     public class Login {
-        public int ip { get; set; }
-        public string mac { get; set; }
+        public int Ip { get; set; }
+        public string Mac { get; set; }
 
-        [Key] public uint userId { get; set; }
-        public virtual User user { get; set; }
+        public uint UserId { get; set; }
+        public virtual User User { get; set; }
     }
 }

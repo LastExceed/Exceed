@@ -21,97 +21,98 @@ namespace Server.Migrations
 
             modelBuilder.Entity("Server.Database.Ban", b =>
                 {
-                    b.Property<uint>("id")
+                    b.Property<uint>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("ip");
+                    b.Property<int>("Ip");
 
-                    b.Property<string>("mac");
+                    b.Property<string>("Mac");
 
-                    b.Property<string>("reason");
+                    b.Property<string>("Reason");
 
-                    b.Property<uint?>("userId");
+                    b.Property<uint?>("UserId");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
-                    b.HasIndex("userId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("bans");
+                    b.ToTable("Bans");
                 });
 
             modelBuilder.Entity("Server.Database.Clan", b =>
                 {
-                    b.Property<uint>("id")
+                    b.Property<uint>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("name");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
-                    b.Property<string>("tag");
+                    b.Property<string>("Tag");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
-                    b.ToTable("clans");
+                    b.ToTable("Clans");
                 });
 
             modelBuilder.Entity("Server.Database.Login", b =>
                 {
-                    b.Property<uint>("userId");
+                    b.Property<uint>("UserId");
 
-                    b.Property<int>("ip");
+                    b.Property<int>("Ip");
 
-                    b.Property<string>("mac");
+                    b.Property<string>("Mac");
 
-                    b.HasKey("userId");
+                    b.HasKey("UserId");
 
-                    b.ToTable("logins");
+                    b.ToTable("Logins");
                 });
 
             modelBuilder.Entity("Server.Database.User", b =>
                 {
-                    b.Property<uint>("id")
+                    b.Property<uint>("Id")
                         .ValueGeneratedOnAdd();
-
+                    
                     b.Property<byte[]>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(64);
 
-                    b.Property<uint?>("clanId");
+                    b.Property<uint?>("ClanId");
 
-                    b.Property<string>("email")
+                    b.Property<string>("Email")
                         .IsRequired();
 
-                    b.Property<string>("name")
+                    b.Property<string>("Name")
                         .IsRequired();
+                    
+                    b.Property<byte>("Permission");
 
-                    b.Property<byte>("permission");
+                    b.HasKey("Id");
 
-                    b.HasKey("id");
+                    b.HasIndex("ClanId");
 
-                    b.HasIndex("clanId");
-
-                    b.ToTable("users");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Server.Database.Ban", b =>
                 {
-                    b.HasOne("Server.Database.User", "user")
-                        .WithMany("bans")
-                        .HasForeignKey("userId");
+                    b.HasOne("Server.Database.User", "User")
+                        .WithMany("Bans")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Server.Database.Login", b =>
                 {
-                    b.HasOne("Server.Database.User", "user")
-                        .WithOne("login")
-                        .HasForeignKey("Server.Database.Login", "userId")
+                    b.HasOne("Server.Database.User", "User")
+                        .WithOne("Login")
+                        .HasForeignKey("Server.Database.Login", "UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Server.Database.User", b =>
                 {
-                    b.HasOne("Server.Database.Clan", "clan")
-                        .WithMany("members")
-                        .HasForeignKey("clanId");
+                    b.HasOne("Server.Database.Clan", "Clan")
+                        .WithMany("Members")
+                        .HasForeignKey("ClanId");
                 });
 #pragma warning restore 612, 618
         }
