@@ -40,24 +40,34 @@ namespace Bridge {
         }
 
         private void buttonRegister_Click(object sender, EventArgs e) {
+            buttonRegister.Enabled = false;
             BridgeTCPUDP.Register(textBoxUsername.Text, textBoxEmail.Text, textBoxPassword.Text);
         }
 
         private void buttonCreate_Click(object sender, EventArgs e) {
-            buttonLogin.Visible = false;
-            linkLabelReset.Visible = false;
+            SetLayout(true);
+        }
+        public void SetLayout(bool registration) {
+            buttonLogin.Visible = !registration;
+            linkLabelReset.Visible = !registration;
 
-            labelPassword.Top += 21;
-            textBoxPassword.Top += 21;
+            labelEmail.Visible = registration;
+            textBoxEmail.Visible = registration;
 
-            labelEmail.Visible = true;
-            textBoxEmail.Visible = true;
-
-            buttonRegister.Enabled = true;
-            this.Width += 73;
-            this.Text = "Account registration";
-            
-            buttonCreate.Visible = false;
+            buttonRegister.Enabled = registration;
+            if (registration) {
+                labelPassword.Top += 21;
+                textBoxPassword.Top += 21;
+                this.Width += 73;
+                this.Text = "Account registration";
+            }
+            else {
+                labelPassword.Top -= 21;
+                textBoxPassword.Top -= 21;
+                this.Width -= 73;
+                this.Text = "Login";
+            }
+            buttonCreate.Visible = !registration;
         }
 
         private void buttonLogin_Click(object sender, EventArgs e) {
