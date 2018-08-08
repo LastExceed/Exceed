@@ -13,6 +13,7 @@ namespace Bridge {
         public FormChat chat = new FormChat();
         public FormRankings rankings = new FormRankings();
         private bool processAttached = false;
+        private KeyboardHook keyboardHook;
 
         public FormMain(string[]args) {
             InitializeComponent();
@@ -25,12 +26,7 @@ namespace Bridge {
             CwRam.formMain = this;
             new Thread(new ThreadStart(BridgeTCPUDP.ListenFromClientTCP)).Start();
             new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
-        }
-        protected override void WndProc(ref Message m) {
-            if (m.Msg == HotkeyManager.WM_HOTKEY_MSG_ID) {
-                BridgeTCPUDP.OnHotkey(m.WParam.ToInt32());
-            }
-            base.WndProc(ref m);
+            keyboardHook = new KeyboardHook();
         }
         private void timerSearchProcess_Tick(object sender, EventArgs e) {
             if (processAttached) {

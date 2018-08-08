@@ -135,8 +135,8 @@ namespace Bridge {
                 try {
                     while (true) ProcessClientPacket(creader.ReadInt32());
                 }
-                catch (ObjectDisposedException ex) { }
-                catch (IOException ex) { }
+                catch (ObjectDisposedException) { }
+                catch (IOException) { }
                 switch (status) {
                     case BridgeStatus.Offline://server crashed
                         break;

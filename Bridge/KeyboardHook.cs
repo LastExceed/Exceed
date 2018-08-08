@@ -18,6 +18,9 @@ namespace Bridge {
         [DllImport("user32", CallingConvention = CallingConvention.StdCall)]
         private static extern int CallNextHookEx(int idHook, int nCode, int wParam, int lParam);
 
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
         [DllImport("kernel32.dll", CallingConvention = CallingConvention.StdCall)]
         private static extern int GetCurrentThreadId();
         #endregion
@@ -74,17 +77,43 @@ namespace Bridge {
                 switch ((KeyEvents)W) {
                     case KeyEvents.KeyDown:
                     case KeyEvents.SKeyDown:
-                        //Task.Run(() => BridgeTCPUDP.OnHotkey(Resources.HotkeyID.SpecialMove2));
+                        Task.Run(() => OnKey(key, true));
                         break;
                     case KeyEvents.KeyUp:
                     case KeyEvents.SKeyUp:
-                        //Task.Run(() => Program.OnKeyUp(key));
+                        Task.Run(() => OnKey(key, false));
                         break;
                     default:
                         break;
                 }
             }
             return CallNextHookEx(HookID, Code, W, L);
+        }
+        private Dictionary<Keys, bool> keyboardState = new Dictionary<Keys, bool>();
+        private void OnKey(Keys key, bool isDown) {
+            if (GetForegroundWindow() != CwRam.memory.process.MainWindowHandle) {
+                Console.Beep();
+                return;
+            }
+
+            if (!keyboardState.ContainsKey(key)) {
+                keyboardState.Add(key, !isDown);
+            }
+            if (keyboardState[key] == isDown) {
+                return;
+            }
+            keyboardState[key] = isDown;
+
+            switch (key) {
+                case Keys.D4:
+                    BridgeTCPUDP.OnHotkey(Resources.HotkeyID.CtrlSpace);
+                    break;
+                case Keys.D5:
+                    BridgeTCPUDP.OnHotkey(Resources.HotkeyID.SpecialMove2);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

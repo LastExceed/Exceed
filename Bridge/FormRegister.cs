@@ -19,7 +19,7 @@ namespace Bridge {
             if (text.Length == 0) labelUsernameResult.Text = "too short";
             else if (text.Length > 11) labelUsernameResult.Text = "too long";
             else if (!alphaNumeric.IsMatch(text)) labelUsernameResult.Text = "only a-z,0-9";
-            else if (false) labelUsernameResult.Text = "already in use";//check availability
+            //else if (false) labelUsernameResult.Text = "already in use";//check availability
             else {
                 labelUsernameResult.ForeColor = Color.Green;
                 labelUsernameResult.Text = "available";
@@ -31,7 +31,7 @@ namespace Bridge {
             buttonRegister.Enabled = false;
             labelEmailResult.ForeColor = Color.Red;
             if (!Resources.Tools.validEmailRegex.IsMatch(textBoxEmail.Text)) labelEmailResult.Text = "invalid";
-            else if (false) labelEmailResult.Text = "already in use";
+            //else if (false) labelEmailResult.Text = "already in use";
             else {
                 labelEmailResult.ForeColor = Color.Green;
                 labelEmailResult.Text = "available";
