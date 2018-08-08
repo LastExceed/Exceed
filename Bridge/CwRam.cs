@@ -7,20 +7,14 @@ namespace Bridge {
     static class CwRam {
         public static FormMain formMain;
         public static ProcessMemory memory;
-        public static int EntityStart {
-            get { return memory.ReadInt(memory.ReadInt(memory.baseAddress + 0x0036b1c8) + 0x39C); }
-        }
+        public static int EntityStart => memory.ReadInt(memory.ReadInt(memory.baseAddress + 0x0036b1c8) + 0x39C);
 
-        public static int ItemStart {
-            get { return EntityStart + 0x1E8 + formMain.editor.listBoxItem.SelectedIndex * 280; }
-        }
-        public static int SlotStart {
-            get { return ItemStart + 20 + 8 * formMain.editor.listBoxSlots.SelectedIndex; }
-        }
+        public static int ItemStart => EntityStart + 0x1E8 + formMain.editor.listBoxItem.SelectedIndex * 280;
+        public static int SlotStart => ItemStart + 20 + 8 * formMain.editor.listBoxSlots.SelectedIndex;
 
-        public static int SkillStart {
-            get { return EntityStart + 0x1138; }
-        }
+        public static int SkillStart => EntityStart + 0x1138;
+
+        public static bool AnyInterfaceOpen => memory.ReadInt(memory.baseAddress + 0x0036B0C0) == 1;
 
         public static void SetMode(Mode mode, int timer) {
             memory.WriteInt(EntityStart + 0x6C, timer);//skill timer

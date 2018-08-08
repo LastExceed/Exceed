@@ -712,6 +712,7 @@ namespace Bridge {
         }
 
         public static void OnHotkey(HotkeyID hotkey) {
+            if (CwRam.AnyInterfaceOpen) return;
             if (hotkey == HotkeyID.TeleportToTown) {
                 CwRam.SetMode(Mode.Teleport_To_City, 0);
                 return;
@@ -725,13 +726,14 @@ namespace Bridge {
                         #region dash
                         CwRam.SetMode(Mode.Spin_Run, 0);
                         #endregion
-                        break;
                     }
-                    #region blink
-                    if (dynamicEntities.ContainsKey(lastTarget)) {
-                        CwRam.Teleport(dynamicEntities[guid].position);
+                    else {
+                        #region blink
+                        if (dynamicEntities.ContainsKey(lastTarget)) {
+                            CwRam.Teleport(dynamicEntities[guid].position);
+                        }
+                        #endregion
                     }
-                    #endregion
                     break;
                 #endregion
                 case EntityClass.Rogue:

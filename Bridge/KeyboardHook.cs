@@ -91,17 +91,10 @@ namespace Bridge {
         }
         private Dictionary<Keys, bool> keyboardState = new Dictionary<Keys, bool>();
         private void OnKey(Keys key, bool isDown) {
-            if (GetForegroundWindow() != CwRam.memory.process.MainWindowHandle) {
-                Console.Beep();
-                return;
-            }
+            if (GetForegroundWindow() != CwRam.memory.process.MainWindowHandle) return;
 
-            if (!keyboardState.ContainsKey(key)) {
-                keyboardState.Add(key, !isDown);
-            }
-            if (keyboardState[key] == isDown) {
-                return;
-            }
+            if (!keyboardState.ContainsKey(key)) keyboardState.Add(key, !isDown);
+            if (keyboardState[key] == isDown) return;
             keyboardState[key] = isDown;
 
             switch (key) {
