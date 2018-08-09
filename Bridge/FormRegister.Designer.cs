@@ -179,8 +179,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Button buttonRegister;
         private System.Windows.Forms.TextBox textBoxUsername;
         private System.Windows.Forms.TextBox textBoxEmail;
         private System.Windows.Forms.Label labelUsername;
@@ -192,5 +190,6 @@
         private System.Windows.Forms.LinkLabel linkLabelReset;
         private System.Windows.Forms.Button buttonCreate;
         public System.Windows.Forms.Button buttonLogin;
+        public System.Windows.Forms.Button buttonRegister;
     }
 }

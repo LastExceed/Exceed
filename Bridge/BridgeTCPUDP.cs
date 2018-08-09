@@ -135,8 +135,8 @@ namespace Bridge {
                 try {
                     while (true) ProcessClientPacket(creader.ReadInt32());
                 }
-                catch (ObjectDisposedException ex) { }
-                catch (IOException ex) { }
+                catch (ObjectDisposedException) { }
+                catch (IOException) { }
                 switch (status) {
                     case BridgeStatus.Offline://server crashed
                         break;
@@ -668,15 +668,15 @@ namespace Bridge {
                     switch ((RegisterResponse)sreader.ReadByte()) {
                         case RegisterResponse.Success:
                             form.Log("account registered\n", Color.DarkGray);
-                            form.Invoke(new Action(form.register.buttonLogin.PerformClick));
+                            form.Invoke(new Action(() => form.register.SetLayout(false)));
                             break;
                         case RegisterResponse.UsernameTaken:
                             MessageBox.Show("this username is already in use");
+                            form.Invoke(new Action(() => form.register.buttonRegister.Enabled = true));
                             break;
                         case RegisterResponse.EmailTaken:
                             MessageBox.Show("there is already an account associated to this email");
-                            break;
-                        default:
+                            form.Invoke(new Action(() => form.register.buttonRegister.Enabled = true));
                             break;
                     }
                     break;
@@ -711,15 +711,14 @@ namespace Bridge {
             }
         }
 
-        public static void OnHotkey(int hotkeyID) {
-            HotkeyID hotkey = (HotkeyID)hotkeyID;
+        public static void OnHotkey(HotkeyID hotkey) {
+            if (CwRam.AnyInterfaceOpen) return;
             if (hotkey == HotkeyID.TeleportToTown) {
                 CwRam.SetMode(Mode.Teleport_To_City, 0);
                 return;
             }
 
             bool spec = dynamicEntities[guid].specialization == 1;
-            bool space = hotkeyID == 1;
             switch (dynamicEntities[guid].entityClass) {
                 case EntityClass.Rogue when spec:
                     #region ninja
@@ -727,13 +726,14 @@ namespace Bridge {
                         #region dash
                         CwRam.SetMode(Mode.Spin_Run, 0);
                         #endregion
-                        break;
                     }
-                    #region blink
-                    if (dynamicEntities.ContainsKey(lastTarget)) {
-                        CwRam.Teleport(dynamicEntities[guid].position);
+                    else {
+                        #region blink
+                        if (dynamicEntities.ContainsKey(lastTarget)) {
+                            CwRam.Teleport(dynamicEntities[guid].position);
+                        }
+                        #endregion
                     }
-                    #endregion
                     break;
                 #endregion
                 case EntityClass.Rogue:
@@ -867,8 +867,6 @@ namespace Bridge {
                     }
                     break;
                 #endregion
-                default:
-                    break;
             }
             CwRam.memory.WriteInt(CwRam.EntityStart + 0x1164, 3);//mana cubes
         }

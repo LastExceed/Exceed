@@ -13,6 +13,7 @@ namespace Bridge {
         public FormChat chat = new FormChat();
         public FormRankings rankings = new FormRankings();
         private bool processAttached = false;
+        private KeyboardHook keyboardHook;
 
         public FormMain(string[]args) {
             InitializeComponent();
@@ -25,12 +26,7 @@ namespace Bridge {
             CwRam.formMain = this;
             new Thread(new ThreadStart(BridgeTCPUDP.ListenFromClientTCP)).Start();
             new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
-        }
-        protected override void WndProc(ref Message m) {
-            if (m.Msg == HotkeyManager.WM_HOTKEY_MSG_ID) {
-                BridgeTCPUDP.OnHotkey(m.WParam.ToInt32());
-            }
-            base.WndProc(ref m);
+            keyboardHook = new KeyboardHook();
         }
         private void timerSearchProcess_Tick(object sender, EventArgs e) {
             if (processAttached) {
@@ -92,9 +88,7 @@ namespace Bridge {
 
         private void ButtonMap_Click(object sender, EventArgs e) {
             if (map.IsDisposed) map = new FormMap();
-            map.Show();
-            map.WindowState = FormWindowState.Normal;
-            map.Focus();
+            ShowWindow(map);
         }
 
         private void checkBoxZoomHack_CheckedChanged(object sender, EventArgs e) {
@@ -102,14 +96,14 @@ namespace Bridge {
         }
 
         private void ShowWindow(Form form) {
-
+            form.Show();
+            form.WindowState = FormWindowState.Normal;
+            form.Focus();
         }
 
         private void buttonLoginRegister_Click(object sender, EventArgs e) {
             if (register.IsDisposed) register = new FormRegister();
-            register.Show();
-            register.WindowState = FormWindowState.Normal;
-            register.Focus();
+            ShowWindow(register);
             register.Location = this.Location;
         }
 
@@ -138,10 +132,14 @@ namespace Bridge {
         }
 
         private void buttonRankings_Click(object sender, EventArgs e) {
-            rankings.Show();
-            rankings.WindowState = FormWindowState.Normal;
-            rankings.Focus();
+            if (rankings.IsDisposed) rankings = new FormRankings();
+            ShowWindow(rankings);
             rankings.Location = this.Location;
+        }
+
+        private void buttonChat_Click(object sender, EventArgs e) {
+            if (chat.IsDisposed) chat = new FormChat();
+            ShowWindow(chat);
         }
     }
 }

@@ -7,6 +7,9 @@ using System.Net.Sockets;
 using System.IO;
 
 using Server.Addon;
+using Server.Database;
+
+using Microsoft.EntityFrameworkCore;
 
 using Resources;
 using Resources.Datagram;
@@ -19,9 +22,11 @@ namespace Server {
         public static TcpListener tcpListener;
         public static List<Player> players = new List<Player>();
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
+        public static UserDatabase Database;
 
         public static void Setup(int port) {
-            Database.Setup();
+            Database = new UserDatabase();
+            Database.Database.Migrate(); //Ensure database exists
 
             #region models
             //var rnd = new Random();
