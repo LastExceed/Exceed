@@ -397,9 +397,11 @@ namespace Server {
                     var specialMove = new SpecialMove(datagram);
                     switch (specialMove.Id) {
                         case SpecialMoveID.Taunt:
-                            target = players.First(p => p.entity.guid == specialMove.Guid);
-                            specialMove.Guid = (ushort)source.entity.guid;
-                            SendUDP(specialMove.data, target);
+                            target = players.FirstOrDefault(p => p.entity.guid == specialMove.Guid);
+                            if (target != null) {
+                                specialMove.Guid = (ushort)source.entity.guid;
+                                SendUDP(specialMove.data, target);
+                            }
                             break;
                         case SpecialMoveID.CursedArrow:
                         case SpecialMoveID.ArrowRain:
