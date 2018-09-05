@@ -97,6 +97,7 @@ namespace Bridge {
             if (keyboardState[key] == isDown) return;
             keyboardState[key] = isDown;
 
+            if (!isDown) return;//temp fix to prevent activation on release
             switch (key) {
                 case Keys.D4:
                     BridgeTCPUDP.OnHotkey(Resources.HotkeyID.CtrlSpace);
