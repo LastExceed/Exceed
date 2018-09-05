@@ -105,6 +105,9 @@ namespace Bridge {
                 case Keys.D5:
                     BridgeTCPUDP.OnHotkey(Resources.HotkeyID.SpecialMove2);
                     break;
+                case Keys.D0:
+                    BridgeTCPUDP.OnHotkey(Resources.HotkeyID.TeleportToTown);
+                    break;
                 default:
                     break;
             }

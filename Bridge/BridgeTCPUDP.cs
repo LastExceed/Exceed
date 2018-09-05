@@ -595,6 +595,14 @@ namespace Bridge {
                         }
                         SendToClient(serverUpdate);
                     }
+                    if (chatMessage.message.ToLower() == @"/spawn") {
+                        CwRam.Teleport(new LongVector() {
+                            x = 0x8020800000,
+                            y = 0x8020800000,
+                            z = 0,
+                        });
+                        break;
+                    }
                     var chat = new Chat() {
                         Sender = guid,//client doesn't send this
                         Text = chatMessage.message
