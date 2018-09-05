@@ -717,18 +717,22 @@ namespace Bridge {
                 CwRam.SetMode(Mode.Teleport_To_City, 0);
                 return;
             }
-
+            var notification = new ChatMessage() {
+                sender = 0,
+            };
             bool spec = dynamicEntities[guid].specialization == 1;
             switch (dynamicEntities[guid].entityClass) {
                 case EntityClass.Rogue when spec:
                     #region ninja
                     if (hotkey == HotkeyID.CtrlSpace) {
                         #region dash
+                        notification.message = "using [dash]";
                         CwRam.SetMode(Mode.Spin_Run, 0);
                         #endregion
                     }
                     else {
                         #region blink
+                        notification.message = "using [blink]";
                         if (dynamicEntities.ContainsKey(lastTarget)) {
                             CwRam.Teleport(dynamicEntities[guid].position);
                         }
@@ -740,6 +744,7 @@ namespace Bridge {
                     #region assassin
                     if (hotkey == HotkeyID.CtrlSpace) {
                         #region confusion
+                        notification.message = "TODO: [confusion]";
                         var specialMove = new SpecialMove() {
                             Guid = guid,
                             Id = SpecialMoveID.Confusion,
@@ -749,6 +754,7 @@ namespace Bridge {
                     }
                     else {
                         #region shadow step
+                        notification.message = "TOD: [shadow step]";
                         var specialMove = new SpecialMove() {
                             Guid = guid,
                             Id = SpecialMoveID.ShadowStep,
@@ -762,6 +768,7 @@ namespace Bridge {
                     #region guardian
                     if (hotkey == HotkeyID.CtrlSpace) {
                         #region taunt
+                        notification.message = "using [taunt]";
                         var specialMove = new SpecialMove() {
                             Guid = lastTarget,
                             Id = SpecialMoveID.Taunt,
@@ -771,6 +778,7 @@ namespace Bridge {
                     }
                     else {
                         #region steel wall
+                        notification.message = "using [steel wall]";
                         CwRam.SetMode(Mode.Boss_Skill_Block, 0);
                         #endregion
                     }
@@ -780,11 +788,13 @@ namespace Bridge {
                     #region berserk
                     if (hotkey == HotkeyID.CtrlSpace) {
                         #region boulder toss
+                        notification.message = "using [boulder toss]";
                         CwRam.SetMode(Mode.Boulder_Toss, 0);
                         #endregion
                     }
                     else {
                         #region earth shatter
+                        notification.message = "using [earth shatter]";
                         CwRam.SetMode(Mode.Earth_Shatter, 0);
                         #endregion
                     }
@@ -794,12 +804,14 @@ namespace Bridge {
                     #region watermage
                     if (hotkey == HotkeyID.CtrlSpace) {
                         #region splash
+                        notification.message = "using [splash]";
                         CwRam.SetMode(Mode.Splash, 0);
                         #endregion
                     }
                     else {
                         #region ice wave
                         //TODO
+                        notification.message = "TODO: [ice wave]";
                         #endregion
                     }
                     break;
@@ -808,11 +820,13 @@ namespace Bridge {
                     #region firemage
                     if (hotkey == HotkeyID.CtrlSpace) {
                         #region lava
+                        notification.message = "using [lava]";
                         CwRam.SetMode(Mode.Lava, 0);
                         #endregion
                     }
                     else {
                         #region beam
+                        notification.message = "using [fire ray]";
                         CwRam.SetMode(Mode.FireRay, 0);
                         #endregion
                     }
@@ -823,10 +837,12 @@ namespace Bridge {
                     if (hotkey == HotkeyID.CtrlSpace) {
                         #region shrapnel
                         //TODO
+                        notification.message = "TODO: [shrapnel]";
                         #endregion
                     }
                     else {
                         #region smoke bomb
+                        notification.message = "using [smoke bomb]";
                         var specialMove = new SpecialMove() {
                             Guid = guid,
                             Id = SpecialMoveID.SmokeBomb,
@@ -858,17 +874,20 @@ namespace Bridge {
                     if (hotkey == HotkeyID.CtrlSpace) {
                         #region cursed arrow
                         //TODO
+                        notification.message = "TOD: [cursed arrow]";
                         #endregion
                     }
                     else {
                         #region arrow rain
                         //TODO
+                        notification.message = "TODO: [arrow rain]";
                         #endregion
                     }
                     break;
                 #endregion
             }
             CwRam.memory.WriteInt(CwRam.EntityStart + 0x1164, 3);//mana cubes
+            SendToClient(notification);
         }
 
         public static void SendUDP(byte[] data) {
