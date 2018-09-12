@@ -322,6 +322,10 @@ namespace Server {
                             case "btfo":
                             case "ban":
                                 #region ban
+                                if (source.entity.name != "BLACKROCK") {
+                                    Notify(source, "no permission");
+                                    break;
+                                }
                                 if (parameters.Length == 1) {
                                     Notify(source, string.Format("usage example: /kick blackrock"));
                                     break;
