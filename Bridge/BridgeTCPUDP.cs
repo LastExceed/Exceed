@@ -882,13 +882,31 @@ namespace Bridge {
                     if (hotkey == HotkeyID.CtrlSpace) {
                         #region cursed arrow
                         //TODO
-                        notification.message = "TOD: [cursed arrow]";
+                        notification.message = "TODO: [cursed arrow]";
                         #endregion
                     }
                     else {
                         #region arrow rain
                         //TODO
                         notification.message = "TODO: [arrow rain]";
+                        //const int rainSize = 7;
+                        //for (int x = 0; x < rainSize; x++) {
+                        //    for (int y = 0; y < rainSize; y++) {
+                        //        var projectile = new Projectile() {
+                        //            Scale = 1f,
+                        //            Type = ProjectileType.Arrow,
+                        //            Source = guid,
+                        //            Velocity = new FloatVector() { x = 0, y = 0, z = -1f },
+                        //            Position = new LongVector() {
+                        //                x = 0x8020800000,//dynamicEntities[guid].position.x + (long)((dynamicEntities[guid].rayHit.x + x - rainSize / 2) * 0x10000),
+                        //                y = 0x8020800000,//dynamicEntities[guid].position.y + (long)((dynamicEntities[guid].rayHit.y + y - rainSize / 2) * 0x10000),
+                        //                z = 0x01000000,//dynamicEntities[guid].position.z + (long)((dynamicEntities[guid].rayHit.z + 10) * 0x10000),
+                        //            }
+                        //        };
+                        //        SendUDP(projectile.data);
+                        //        ProcessDatagram(projectile.data);
+                        //    }
+                        //}
                         #endregion
                     }
                     break;
