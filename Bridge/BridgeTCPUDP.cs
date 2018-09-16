@@ -652,7 +652,10 @@ namespace Bridge {
                     #region VersionCheck
                     if (!sreader.ReadBoolean()) {
                         form.Log("mismatch\n", Color.Red);
-                        MessageBox.Show("your bridge is outdated\nupdate\nstay offline");
+                        var b = MessageBox.Show("your bridge is outdated. Please download the newest version.\n\nGo to download page now?", "version mismatch", MessageBoxButtons.YesNo);
+                        if (b == DialogResult.Yes) {
+                            System.Diagnostics.Process.Start("https://github.com/LastExceed/Exceed/releases");
+                        }
                         return;
                     }
                     form.Log("match\n", Color.Green);
