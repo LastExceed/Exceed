@@ -742,7 +742,7 @@ namespace Bridge {
                         #region blink
                         notification.message = "using [blink]";
                         if (dynamicEntities.ContainsKey(lastTarget)) {
-                            CwRam.Teleport(dynamicEntities[guid].position);
+                            CwRam.Teleport(dynamicEntities[lastTarget].position);
                         }
                         #endregion
                     }
