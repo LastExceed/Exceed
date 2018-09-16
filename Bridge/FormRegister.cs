@@ -19,7 +19,7 @@ namespace Bridge {
             if (text.Length == 0) labelUsernameResult.Text = "too short";
             else if (text.Length > 11) labelUsernameResult.Text = "too long";
             else if (!alphaNumeric.IsMatch(text)) labelUsernameResult.Text = "only a-z,0-9";
-            else if (false) labelUsernameResult.Text = "already in use";//check availability
+            //else if (false) labelUsernameResult.Text = "already in use";//check availability
             else {
                 labelUsernameResult.ForeColor = Color.Green;
                 labelUsernameResult.Text = "available";
@@ -31,7 +31,7 @@ namespace Bridge {
             buttonRegister.Enabled = false;
             labelEmailResult.ForeColor = Color.Red;
             if (!Resources.Tools.validEmailRegex.IsMatch(textBoxEmail.Text)) labelEmailResult.Text = "invalid";
-            else if (false) labelEmailResult.Text = "already in use";
+            //else if (false) labelEmailResult.Text = "already in use";
             else {
                 labelEmailResult.ForeColor = Color.Green;
                 labelEmailResult.Text = "available";
@@ -40,24 +40,34 @@ namespace Bridge {
         }
 
         private void buttonRegister_Click(object sender, EventArgs e) {
+            buttonRegister.Enabled = false;
             BridgeTCPUDP.Register(textBoxUsername.Text, textBoxEmail.Text, textBoxPassword.Text);
         }
 
         private void buttonCreate_Click(object sender, EventArgs e) {
-            buttonLogin.Visible = false;
-            linkLabelReset.Visible = false;
+            SetLayout(true);
+        }
+        public void SetLayout(bool registration) {
+            buttonLogin.Visible = !registration;
+            linkLabelReset.Visible = !registration;
 
-            labelPassword.Top += 21;
-            textBoxPassword.Top += 21;
+            labelEmail.Visible = registration;
+            textBoxEmail.Visible = registration;
 
-            labelEmail.Visible = true;
-            textBoxEmail.Visible = true;
-
-            buttonRegister.Enabled = true;
-            this.Width += 73;
-            this.Text = "Account registration";
-            
-            buttonCreate.Visible = false;
+            buttonRegister.Enabled = registration;
+            if (registration) {
+                labelPassword.Top += 21;
+                textBoxPassword.Top += 21;
+                this.Width += 73;
+                this.Text = "Account registration";
+            }
+            else {
+                labelPassword.Top -= 21;
+                textBoxPassword.Top -= 21;
+                this.Width -= 73;
+                this.Text = "Login";
+            }
+            buttonCreate.Visible = !registration;
         }
 
         private void buttonLogin_Click(object sender, EventArgs e) {

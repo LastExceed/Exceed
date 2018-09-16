@@ -7,6 +7,9 @@ using System.Net.Sockets;
 using System.IO;
 
 using Server.Addon;
+using Server.Database;
+
+using Microsoft.EntityFrameworkCore;
 
 using Resources;
 using Resources.Datagram;
@@ -19,9 +22,11 @@ namespace Server {
         public static TcpListener tcpListener;
         public static List<Player> players = new List<Player>();
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
+        public static UserDatabase Database;
 
         public static void Setup(int port) {
-            Database.Setup();
+            Database = new UserDatabase();
+            Database.Database.Migrate(); //Ensure database exists
 
             #region models
             //var rnd = new Random();
@@ -317,6 +322,10 @@ namespace Server {
                             case "btfo":
                             case "ban":
                                 #region ban
+                                if (source.entity.name != "BLACKROCK") {
+                                    Notify(source, "no permission");
+                                    break;
+                                }
                                 if (parameters.Length == 1) {
                                     Notify(source, string.Format("usage example: /kick blackrock"));
                                     break;
@@ -392,9 +401,11 @@ namespace Server {
                     var specialMove = new SpecialMove(datagram);
                     switch (specialMove.Id) {
                         case SpecialMoveID.Taunt:
-                            target = players.First(p => p.entity.guid == specialMove.Guid);
-                            specialMove.Guid = (ushort)source.entity.guid;
-                            SendUDP(specialMove.data, target);
+                            target = players.FirstOrDefault(p => p.entity.guid == specialMove.Guid);
+                            if (target != null) {
+                                specialMove.Guid = (ushort)source.entity.guid;
+                                SendUDP(specialMove.data, target);
+                            }
                             break;
                         case SpecialMoveID.CursedArrow:
                         case SpecialMoveID.ArrowRain:

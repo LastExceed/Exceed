@@ -152,6 +152,7 @@
             this.buttonChat.TabIndex = 27;
             this.buttonChat.Text = "Ingame chat";
             this.buttonChat.UseVisualStyleBackColor = true;
+            this.buttonChat.Click += new System.EventHandler(this.buttonChat_Click);
             // 
             // buttonRankings
             // 
