@@ -21,6 +21,7 @@ namespace Server {
         public static UdpClient udpClient;
         public static TcpListener tcpListener;
         public static List<Player> players = new List<Player>();
+        public static List<Duel> duels = new List<Duel>();
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
         public static UserDatabase Database;
 
@@ -370,6 +371,66 @@ namespace Server {
                                 SendUDP(inGameTime.data, source);
                                 break;
                             #endregion
+                            case "duel":
+                                Duel duelAwaiting;
+                                if (parameters.Length > 1)
+                                {
+                                    switch (parameters[1].ToLower())
+                                    {
+                                        case "help":
+                                            Notify(source, string.Format("/duel start [player2]"));
+                                            Notify(source, string.Format("/duel accept"));
+                                            Notify(source, string.Format("/duel refuse"));
+                                            break;
+                                        case "start":
+                                            if (parameters.Length == 3)
+                                            {
+                                                target = players.FirstOrDefault(x => x.entity.name.Contains(parameters[2]));
+                                                if (target == null)
+                                                {
+                                                    Notify(source, "invalid target");
+                                                    break;
+                                                };
+                                                Notify(target, string.Format("{0} wants to duel you ! /duel accept to accept the duel , /duel refuse to refuse it", source.entity.name));
+                                                duels.Add(new Duel(source, target, DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+                                            }
+                                            else
+                                            {
+                                                Notify(source, string.Format("Syntax : /duel start [player2]"));
+                                            }
+                                            break;
+                                        case "accept":
+                                            duelAwaiting = duels.FirstOrDefault(x => x.player2.entity.name.Contains(source.entity.name));
+                                            if (duelAwaiting != null)
+                                            {
+                                                duelAwaiting.AcceptDuel();
+                                            }
+                                            else
+                                            {
+                                                Notify(source, string.Format("No duel request found"));
+                                            }
+                                            break;
+                                        case "refuse":
+                                            duelAwaiting = duels.FirstOrDefault(x => x.player2.entity.name.Contains(source.entity.name));
+                                            if (duelAwaiting != null)
+                                            {
+                                                duelAwaiting.RefuseDuel();
+                                            }
+                                            else
+                                            {
+                                                Notify(source, string.Format("No duel request found"));
+                                            }
+                                            break;
+                                        default:
+                                            Notify(source, string.Format("Type /duel help for more information"));
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    Notify(source, string.Format("Type /duel help for more information"));
+                                }
+                                break;
                             default:
                                 Notify(source, string.Format("unknown command '{0}'", parameters[0]));
                                 break;
