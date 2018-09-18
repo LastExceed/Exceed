@@ -24,7 +24,8 @@ namespace Server {
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
         public static UserDatabase Database;
 
-        public static void Setup(int port) {
+        public static void Start(int port) {
+            Log.PrintLn("server starting...");
             Database = new UserDatabase();
             Database.Database.Migrate(); //Ensure database exists
 
@@ -103,13 +104,13 @@ namespace Server {
             tcpListener = new TcpListener(IPAddress.Any, port);
             tcpListener.Start();
             new Thread(new ThreadStart(ListenTCP)).Start();
+            Log.PrintLn("loading completed");
         }
 
         private static void ListenTCP() {
             var player = new Player(tcpListener.AcceptTcpClient());
             new Thread(new ThreadStart(ListenTCP)).Start();
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine(player.IP + " connected");
+            Log.PrintLn(player.IP + " connected", ConsoleColor.Blue);
             try {
                 while (true) ProcessPacket(player.reader.ReadByte(), player);
             }
@@ -118,8 +119,7 @@ namespace Server {
                     RemovePlayerEntity(player, false);
                 }
                 players.Remove(player);
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(player.IP + " disconnected");
+                Log.PrintLn(player.IP + " disconnected", ConsoleColor.Red);
             }
         }
         private static void ListenUDP() {
@@ -201,16 +201,14 @@ namespace Server {
 
                     dynamicEntities.Add((ushort)source.entity.guid, source.entity);
 
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine(source.IP + " logged in as " + username);
+                    Log.PrintLn(source.IP + " logged in as " + username, ConsoleColor.Green);
                     break;
                 #endregion
                 case ServerPacketID.Logout:
                     #region logout
                     if (source.entity == null) break;//not logged in
                     RemovePlayerEntity(source, false);
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(source.IP + " logged out");
+                    Log.PrintLn(source.IP + " logged out", ConsoleColor.Yellow);
                     break;
                 #endregion
                 case ServerPacketID.Register:
@@ -229,13 +227,12 @@ namespace Server {
                     source.writer.Write((byte)ServerPacketID.Register);
                     source.writer.Write((byte)registerResponse);
                     if (registerResponse == RegisterResponse.Success) {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.WriteLine(source.IP + " registered: " + username);
+                        Log.PrintLn(source.IP + " registered as " + username, ConsoleColor.Cyan);
                     }
                     break;
                 #endregion
                 default:
-                    Console.WriteLine($"unknown packetID {packetID} received from {source.IP}");
+                    Log.PrintLn($"unknown packetID {packetID} received from {source.IP}", ConsoleColor.Magenta);
                     source.tcpClient.Close();
                     break;
             }
@@ -376,10 +373,8 @@ namespace Server {
                         }
                         break;
                     }
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write(dynamicEntities[chat.Sender].name + ": ");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine(chat.Text);
+                    Log.Print(dynamicEntities[chat.Sender].name + ": ", ConsoleColor.Cyan);
+                    Log.PrintLn(chat.Text, ConsoleColor.White, false);
 
                     BroadcastUDP(chat.data, null); //pass to all players
                     break;
@@ -406,7 +401,7 @@ namespace Server {
                                 specialMove.Guid = (ushort)source.entity.guid;
                                 SendUDP(specialMove.data, target);
                             }
-                            break;
+                            break;                            
                         case SpecialMoveID.CursedArrow:
                         case SpecialMoveID.ArrowRain:
                         case SpecialMoveID.Shrapnel:
@@ -424,7 +419,7 @@ namespace Server {
                 case DatagramID.HolePunch:
                     break;
                 default:
-                    Console.WriteLine($"unknown DatagramID {datagram[0]} received from {source.IP}");
+                    Log.PrintLn($"unknown DatagramID {datagram[0]} received from {source.IP}", ConsoleColor.Magenta);
                     Kick(source, "invalid data received");
                     break;
             }
