@@ -21,9 +21,11 @@ namespace Server {
         public static UdpClient udpClient;
         public static TcpListener tcpListener;
         public static List<Player> players = new List<Player>();
+        public static List<Duel> duels = new List<Duel>();
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
         public static UserDatabase Database;
-
+        public delegate void teleportFunction(int[] position,Player target);
+        public static bool test = false;
         public static void Setup(int port) {
             Database = new UserDatabase();
             Database.Database.Migrate(); //Ensure database exists
@@ -251,7 +253,7 @@ namespace Server {
                     #endregion
                     #region announce
                     if (entityUpdate.name != null) {
-                        //Announce.Join(entityUpdate.name, player.entityData.name, players);
+                        // Announce.Join(entityUpdate.name, player.entityData.name, players);
                     }
                     #endregion
                     #region pvp
@@ -286,7 +288,14 @@ namespace Server {
                         BroadcastUDP(rde.data);
                     }
                     #endregion
+                    if (test == false)
+                    { 
                     entityUpdate.Merge(source.entity);
+                    }
+                    else
+                    {
+                        test = false;
+                    }
                     BroadcastUDP(entityUpdate.CreateDatagram(), source);
                     break;
                 #endregion
@@ -368,6 +377,81 @@ namespace Server {
                                     Milliseconds = (hour * 60 + minute) * 60000,
                                 };
                                 SendUDP(inGameTime.data, source);
+                                break;
+                            #endregion
+                            case "position":
+                                Notify(source, string.Format("X: {0}, Y: {1}, Z: {2}", source.entity.position.x, source.entity.position.y, source.entity.position.z));
+                                break;
+                            case "spawn":
+                                source.entity.position.x = 550299340623;
+                                source.entity.position.x = 550298079857;
+                                source.entity.position.x = 9770177;
+                                test = true;
+                                break;
+                            case "duel":
+                                #region duel
+                                Duel duelAwaiting;
+                                if (parameters.Length > 1)
+                                {
+                                    switch (parameters[1].ToLower())
+                                    {
+                                        case "help":
+                                            Notify(source, string.Format("/duel start [player2]"));
+                                            Notify(source, string.Format("/duel accept"));
+                                            Notify(source, string.Format("/duel refuse"));
+                                            break;
+                                        case "stop":
+                                            duelAwaiting = duels.FirstOrDefault(x => x.player2.entity.name.Contains(source.entity.name));
+                                            duelAwaiting.Stop();
+                                            break;
+                                        case "start":
+                                            if (parameters.Length == 3)
+                                            {
+                                                target = players.FirstOrDefault(x => x.entity.name.Contains(parameters[2]));
+                                                if (target == null)
+                                                {
+                                                    Notify(source, "invalid target");
+                                                    break;
+                                                };
+                                                Notify(target, string.Format("{0} wants to duel you ! /duel accept to accept the duel , /duel refuse to refuse it", source.entity.name));
+                                                duels.Add(new Duel(source, target, DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+                                            }
+                                            else
+                                            {
+                                                Notify(source, string.Format("Syntax : /duel start [player2]"));
+                                            }
+                                            break;
+                                        case "accept":
+                                            duelAwaiting = duels.FirstOrDefault(x => x.player2.entity.name.Contains(source.entity.name));
+                                            if (duelAwaiting != null)
+                                            {
+                                                duelAwaiting.AcceptDuel();
+                                            }
+                                            else
+                                            {
+                                                Notify(source, string.Format("No duel request found"));
+                                            }
+                                            break;
+                                        case "refuse":
+                                            duelAwaiting = duels.FirstOrDefault(x => x.player2.entity.name.Contains(source.entity.name));
+                                            if (duelAwaiting != null)
+                                            {
+                                                duelAwaiting.RefuseDuel();
+                                            }
+                                            else
+                                            {
+                                                Notify(source, string.Format("No duel request found"));
+                                            }
+                                            break;
+                                        default:
+                                            Notify(source, string.Format("Type /duel help for more information"));
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    Notify(source, string.Format("Type /duel help for more information"));
+                                }
                                 break;
                             #endregion
                             default:
@@ -468,6 +552,12 @@ namespace Server {
                 Text = message,
             };
             SendUDP(chat.data, target);
+        }
+        public static void TeleportPlayer(long[] position,Player target)
+        {
+            target.entity.position.x = position[0];
+            target.entity.position.y = position[1];
+            target.entity.position.z = position[2];
         }
     }
 }
