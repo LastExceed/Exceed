@@ -3,10 +3,10 @@
 namespace Server {
     class Program {
         static void Main(string[] args) {
-            Console.WriteLine("server starting...");
-            Server.Setup(12346);
-            Console.WriteLine("loading completed");
-            while (Console.ReadLine() != "stop");
+            Server.Start(12346);
+            while (true) {
+                Console.ReadLine();
+            }
         }
     }
 }

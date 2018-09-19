@@ -20,6 +20,8 @@ namespace Resources {
         }
 
         public Player(TcpClient tcpClient) {
+            tcpClient.SendTimeout = 5000;
+            //tcpClient.ReceiveTimeout = 60000;
             this.tcpClient = tcpClient;
             var stream = tcpClient.GetStream();
             reader = new BinaryReader(stream);

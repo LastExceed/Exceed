@@ -118,6 +118,8 @@ namespace Bridge {
             while (true) {
                 tcpToClient = tcpListener.AcceptTcpClient();
                 form.Log("client connected\n", Color.Green);
+                tcpToClient.ReceiveTimeout = 100;
+                tcpToClient.SendTimeout = 100;
 
                 tcpToClient.NoDelay = true;
                 Stream stream = tcpToClient.GetStream();
@@ -137,6 +139,7 @@ namespace Bridge {
                 }
                 catch (ObjectDisposedException) { }
                 catch (IOException) { }
+                tcpToClient.Close();
                 switch (status) {
                     case BridgeStatus.Offline://server crashed
                         break;
