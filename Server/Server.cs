@@ -22,6 +22,7 @@ namespace Server {
         public static TcpListener tcpListener;
         public static List<Player> players = new List<Player>();
         public static List<Duel> duels = new List<Duel>();
+        public static long[] arenaPos = new long[3];
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
         public static UserDatabase Database;
 
@@ -256,7 +257,7 @@ namespace Server {
                     entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
                     #endregion
                     #region tombstone
-                    if (entityUpdate.HP <= 0 && (source.entity.HP > 0 || source.entity.HP == null)) {
+                    if (entityUpdate.HP <= 0 && (source.entity.HP > 0 || source.entity.HP == null) && source.Duel == null) {
                         var tombstone = new EntityUpdate() {
                             guid = AssignGuid(),
                             position = entityUpdate.position ?? source.entity.position,
@@ -404,6 +405,15 @@ namespace Server {
                                 {
                                     switch (parameters[1].ToLower())
                                     {
+                                        case "set-place":
+                                            arenaPos = new long[3]
+                                            {
+                                                source.entity.position.x,
+                                                source.entity.position.y,
+                                                source.entity.position.z
+                                            };
+                                            Notify(source, string.Format("Duel's spawn point set !"));
+                                            break;
                                         case "help":
                                             Notify(source, string.Format("/duel start [player2]"));
                                             Notify(source, string.Format("/duel accept"));
@@ -567,6 +577,16 @@ namespace Server {
             target.entity.position.x = position[0];
             target.entity.position.y = position[1];
             target.entity.position.z = position[2];
+            SendUDP(target.entity.CreateDatagram(), target);
+        }
+        public static void setHp(float? hp, Player target)
+        {
+            target.entity.HP = hp;
+            SendUDP(target.entity.CreateDatagram(), target);
+        }
+        public static void setHostility(Hostility hostility, Player target)
+        {
+            target.entity.hostility = hostility;
             SendUDP(target.entity.CreateDatagram(), target);
         }
     }

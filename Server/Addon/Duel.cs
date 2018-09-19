@@ -10,8 +10,12 @@ namespace Server.Addon
         private Boolean ongoing;
         public Player winner; 
         public Player player1;
+        public long[] storedPos1; // initial player1 position
+        public float? storedHp1; // initial player1 position
         public Player player2;
-        public volatile int request_state;// 0 waiting | 1 accepted | 2 refused
+        public long[] storedPos2; // initial player2 position
+        public float? storedHp2; // initial player2 position
+        public int request_state;// 0 waiting | 1 accepted | 2 refused
         private async Task WaitingResponse(long requestInitialTime)
         {
             await Task.Run(() =>
@@ -35,7 +39,6 @@ namespace Server.Addon
                         Server.Notify(this.player1, string.Format("{0} didn't respond within the 30s limit", this.player2.entity.name));
                         break;
                 }
-                Server.duels.Remove(this);
             });
         }
         public Duel(Player player1,Player player2,long requestInitialTime)
@@ -47,9 +50,22 @@ namespace Server.Addon
         }
         private void StartDuel()
         {
-            long[] arena1 = new long[]{ 550299340623, 550298079857, 9770177 };
-            Server.TeleportPlayer(arena1,player1);
-            Server.TeleportPlayer(arena1, player2);
+            this.storedPos1 = new long[]{
+                player1.entity.position.x,
+                player1.entity.position.y,
+                player1.entity.position.z,
+             };
+            this.storedPos2 = new long[]{
+                player2.entity.position.x,
+                player2.entity.position.y,
+                player2.entity.position.z,
+             };
+            this.storedHp1 = player1.entity.HP;
+            this.storedHp2 = player2.entity.HP;
+            this.player1.Duel = true;
+            this.player2.Duel = true;
+            Server.TeleportPlayer(Server.arenaPos,player1);
+            Server.TeleportPlayer(Server.arenaPos, player2);
             while(this.ongoing == true)
             {
                 if(player1.entity.HP <= 0)
@@ -65,6 +81,13 @@ namespace Server.Addon
                 System.Threading.Thread.Sleep(1000);
             }
             NotifyPlayers(String.Format("{0} won this duel", winner.entity.name));
+            Server.setHp(storedHp1, player1);
+            Server.setHp(storedHp2, player2);
+            Server.TeleportPlayer(storedPos1, player1);
+            Server.TeleportPlayer(storedPos2, player2);
+            player1.Duel = null;
+            player2.Duel = null;
+            Server.duels.Remove(this);
             // Initialize the duel
         }
         public void Stop()
