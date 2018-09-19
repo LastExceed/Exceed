@@ -612,6 +612,15 @@ namespace Bridge {
                             });
                             break;
                         case ProcType.WarFrenzy:
+                            CwRam.PlayerEntity.BossBuff = true;
+                            bool DisableBossBuff() {
+                                bool f = status == BridgeStatus.Playing && dynamicEntities[guid].HP > 0;
+                                if (f) {
+                                    CwRam.PlayerEntity.BossBuff = false;
+                                }
+                                return !f;
+                            }
+                            Tools.DoLater(DisableBossBuff, passiveProc.duration, 1);
                             break;
                         case ProcType.Camouflage:
                             break;

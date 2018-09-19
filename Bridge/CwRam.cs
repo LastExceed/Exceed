@@ -52,7 +52,7 @@ namespace Bridge {
         }
 
         public static void Fear(int duration) {
-            memory.WriteInt(EntityStart + 0x130, duration);//ice spirit effect
+            memory.WriteInt(EntityStart + 0x130, duration);
         }
 
         public static void RemoveFog() {
@@ -71,6 +71,17 @@ namespace Bridge {
             memory.WriteSingle(EntityStart + 0x4C, memory.ReadSingle(EntityStart + 0x4C) + direction.x);
             memory.WriteSingle(EntityStart + 0x50, memory.ReadSingle(EntityStart + 0x50) + direction.y);
             memory.WriteSingle(EntityStart + 0x54, memory.ReadSingle(EntityStart + 0x54) + direction.z);
+        }
+        
+        public class PlayerEntity {
+            public static short AppearanceFlags {
+                set => memory.WriteShort(EntityStart + 0x7E, value);
+            }
+            public static bool BossBuff {
+                set {
+                    AppearanceFlags = (short)(value ? 0x0200 : 0);
+                }
+            }
         }
     }
 }
