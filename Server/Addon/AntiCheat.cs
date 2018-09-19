@@ -26,7 +26,7 @@ namespace Server.Addon {
                     return "appearance";
                 }
             }
-            if(current.charge != null && current.charge > (current.MP ?? previous.MP)) {
+            if(current.charge != null && current.charge > 1){ //(current.MP ?? previous.MP)) {
                 return "MP charge";
             }
             if(current.HP != null && current.HP > 3333) {
@@ -35,15 +35,15 @@ namespace Server.Addon {
             if(current.MP != null && current.MP > 1) {
                 return "MP";
             }
-            if(current.multipliers != null) {
-                if(current.multipliers.HP != 100 ||
-                    current.multipliers.attackSpeed != 1 ||
-                    current.multipliers.damage != 1 ||
-                    current.multipliers.armor != 1 ||
-                    current.multipliers.resi != 1) {
-                    return "multipliers";
-                }
-            }
+            //if(current.multipliers != null) {
+            //    if(current.multipliers.HP != 100 ||
+            //        current.multipliers.attackSpeed != 1 ||
+            //        current.multipliers.damage != 1 ||
+            //        current.multipliers.armor != 1 ||
+            //        current.multipliers.resi != 1) {
+            //        return "multipliers";
+            //    }
+            //}
             if(current.level != null && current.level > 500) {
                 return "level";
             }
