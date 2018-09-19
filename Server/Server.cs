@@ -362,6 +362,9 @@ namespace Server {
                                 RemovePlayerEntity(target, false);
                                 break;
                             #endregion
+                            case "bleeding":
+
+                                break;
                             case "time":
                                 #region time
                                 if (parameters.Length == 1) {
@@ -490,15 +493,17 @@ namespace Server {
                                 specialMove.Guid = (ushort)source.entity.guid;
                                 SendUDP(specialMove.data, target);
                             }
-                            break;                            
+                            break;
+                        case SpecialMoveID.SmokeBomb:
+                            BroadcastUDP(specialMove.data, source);
+                            break;
                         case SpecialMoveID.CursedArrow:
                         case SpecialMoveID.ArrowRain:
                         case SpecialMoveID.Shrapnel:
-                        case SpecialMoveID.SmokeBomb:
                         case SpecialMoveID.IceWave:
                         case SpecialMoveID.Confusion:
                         case SpecialMoveID.ShadowStep:
-                            BroadcastUDP(specialMove.data, source);
+                            BroadcastUDP(specialMove.data);
                             break;
                         default:
                             break;

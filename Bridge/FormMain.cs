@@ -24,8 +24,8 @@ namespace Bridge {
             chat.Left = Left + Width;
             BridgeTCPUDP.form = this;
             CwRam.formMain = this;
-            new Thread(new ThreadStart(BridgeTCPUDP.ListenFromClientTCP)).Start();
-            new Thread(new ThreadStart(BridgeTCPUDP.Connect)).Start();
+            new Thread(BridgeTCPUDP.ListenFromClientTCP).Start();
+            new Thread(BridgeTCPUDP.Connect).Start();
             keyboardHook = new KeyboardHook();
         }
         private void timerSearchProcess_Tick(object sender, EventArgs e) {
