@@ -194,6 +194,9 @@ namespace Bridge {
                     if (status == BridgeStatus.Playing) {
                         if (entityUpdate.guid == guid) {
                             CwRam.Teleport(entityUpdate.position);
+                            CwRam.SetHp(entityUpdate.HP);
+                            CwRam.SetLevel(entityUpdate.level);
+                            CwRam.SetHostility(entityUpdate.hostility);
                             break;
                         }
                         SendToClient(entityUpdate);

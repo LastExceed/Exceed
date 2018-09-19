@@ -24,15 +24,9 @@ namespace Server {
         public static List<Duel> duels = new List<Duel>();
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
         public static UserDatabase Database;
-<<<<<<< HEAD
-        public delegate void teleportFunction(int[] position,Player target);
-        public static bool test = false;
-        public static void Setup(int port) {
-=======
 
         public static void Start(int port) {
             Log.PrintLn("server starting...");
->>>>>>> 44713c700425635d96634e844bca348ee9b85bdd
             Database = new UserDatabase();
             Database.Database.Migrate(); //Ensure database exists
 
@@ -290,14 +284,7 @@ namespace Server {
                         BroadcastUDP(rde.data);
                     }
                     #endregion
-                    if (test == false)
-                    { 
                     entityUpdate.Merge(source.entity);
-                    }
-                    else
-                    {
-                        test = false;
-                    }
                     BroadcastUDP(entityUpdate.CreateDatagram(), source);
                     break;
                 #endregion
@@ -365,6 +352,24 @@ namespace Server {
                             case "bleeding":
 
                                 break;
+                            case "hp":
+                                source.entity.HP = Int32.Parse(parameters[1].ToLower());
+                                SendUDP(source.entity.CreateDatagram(), source);
+                                break;
+                            case "kill":
+                                source.entity.HP = 0;
+                                SendUDP(source.entity.CreateDatagram(), source);
+                                source.entity.HP = 100;
+                                break;
+                            case "generate-entity":
+                                var testEntity = new EntityUpdate(source.entity.CreateDatagram())
+                                {
+                                    guid = AssignGuid(),
+                                    hostility = Hostility.Player,
+                                    name = "test-entity"
+                                };
+                                BroadcastUDP(testEntity.CreateDatagram());
+                                break;
                             case "time":
                                 #region time
                                 if (parameters.Length == 1) {
@@ -391,7 +396,6 @@ namespace Server {
                                 source.entity.position.x = 550299340623;
                                 source.entity.position.x = 550298079857;
                                 source.entity.position.x = 9770177;
-                                test = true;
                                 break;
                             case "duel":
                                 #region duel
@@ -406,7 +410,7 @@ namespace Server {
                                             Notify(source, string.Format("/duel refuse"));
                                             break;
                                         case "stop":
-                                            duelAwaiting = duels.FirstOrDefault(x => x.player2.entity.name.Contains(source.entity.name));
+                                            duelAwaiting = duels.FirstOrDefault(x => x.player1.entity.name.Contains(source.entity.name) || x.player2.entity.name.Contains(source.entity.name));
                                             duelAwaiting.Stop();
                                             break;
                                         case "start":
@@ -563,6 +567,7 @@ namespace Server {
             target.entity.position.x = position[0];
             target.entity.position.y = position[1];
             target.entity.position.z = position[2];
+            SendUDP(target.entity.CreateDatagram(), target);
         }
     }
 }

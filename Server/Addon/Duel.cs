@@ -7,7 +7,8 @@ namespace Server.Addon
 {
     public class Duel
     {
-        private Boolean start;
+        private Boolean ongoing;
+        public Player winner; 
         public Player player1;
         public Player player2;
         public volatile int request_state;// 0 waiting | 1 accepted | 2 refused
@@ -24,7 +25,7 @@ namespace Server.Addon
                     case 1:
                         Server.Notify(this.player1, string.Format("Duel is starting"));
                         Server.Notify(this.player2, string.Format("Duel is starting"));
-                        this.start = true;
+                        this.ongoing = true;
                         StartDuel();
                         break;
                     case 2:
@@ -39,14 +40,40 @@ namespace Server.Addon
         }
         public Duel(Player player1,Player player2,long requestInitialTime)
         {
-            this.start = false;
+            this.ongoing = false;
             this.player1 = player1;
             this.player2 = player2;
             WaitingResponse(requestInitialTime);
         }
         private void StartDuel()
         {
+            long[] arena1 = new long[]{ 550299340623, 550298079857, 9770177 };
+            Server.TeleportPlayer(arena1,player1);
+            Server.TeleportPlayer(arena1, player2);
+            while(this.ongoing == true)
+            {
+                if(player1.entity.HP <= 0)
+                {
+                    this.winner = player2;
+                    this.ongoing = false;
+                }
+                else if(player2.entity.HP <= 0)
+                {
+                    this.winner = player1;
+                    this.ongoing = false;
+                }
+                System.Threading.Thread.Sleep(1000);
+            }
+            NotifyPlayers(String.Format("{0} won this duel", winner.entity.name));
             // Initialize the duel
+        }
+        public void Stop()
+        {
+            if (this.ongoing == true)
+            {
+                NotifyPlayers(String.Format("The duel was cancelled"));
+            }
+            Server.duels.Remove(this);
         }
         public void AcceptDuel()
         {
@@ -55,6 +82,11 @@ namespace Server.Addon
         public void RefuseDuel()
         {
             this.request_state = 2;
+        }
+        public void NotifyPlayers(string message)
+        {
+            Server.Notify(player1, message);
+            Server.Notify(player2, message);
         }
     }
 }

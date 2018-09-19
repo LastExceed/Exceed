@@ -25,7 +25,22 @@ namespace Bridge {
             Encoding.ASCII.GetBytes(name).CopyTo(data, 0);
             memory.WriteBytes(EntityStart + 0x1168, data);
         }
-
+        public static void SetHostility(Resources.Hostility? hostility)
+        {
+            var temp = hostility ?? 0;
+            var data = System.BitConverter.GetBytes((byte)temp);
+            memory.WriteBytes(EntityStart + 0x60, data);
+        }
+        public static void SetHp(float? hp)
+        {
+            var data = System.BitConverter.GetBytes(hp.GetValueOrDefault());
+            memory.WriteBytes(EntityStart + 0x16c, data);
+        }
+        public static void SetLevel(int? level)
+        {
+            var data = System.BitConverter.GetBytes(level.GetValueOrDefault());
+            memory.WriteBytes(EntityStart + 0x190, data);
+        }
         public static void Teleport(LongVector destination) {
             memory.WriteLong(EntityStart + 0x10, destination.x);
             memory.WriteLong(EntityStart + 0x18, destination.y); 
