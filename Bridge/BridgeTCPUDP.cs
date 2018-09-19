@@ -118,8 +118,8 @@ namespace Bridge {
             while (true) {
                 tcpToClient = tcpListener.AcceptTcpClient();
                 form.Log("client connected\n", Color.Green);
-                tcpToClient.ReceiveTimeout = 100;
-                tcpToClient.SendTimeout = 100;
+                tcpToClient.ReceiveTimeout = 500;
+                tcpToClient.SendTimeout = 500;
 
                 tcpToClient.NoDelay = true;
                 Stream stream = tcpToClient.GetStream();
@@ -160,7 +160,7 @@ namespace Bridge {
                 RefreshPlayerlist();
             }
         }
-        public static void ListenFromServerTCP() {
+        private static void ListenFromServerTCP() {
             try {
                 while (true) ProcessServerPacket(sreader.ReadByte()); //we can use byte here because it doesn't contain vanilla packets
             }
@@ -170,7 +170,7 @@ namespace Bridge {
                 Connect();
             }
         }
-        public static void ListenFromServerUDP() {
+        private static void ListenFromServerUDP() {
             while (true) {
                 IPEndPoint source = null;
                 byte[] datagram = null;
@@ -184,7 +184,7 @@ namespace Bridge {
             }
         }
 
-        public static void ProcessDatagram(byte[] datagram) {
+        private static void ProcessDatagram(byte[] datagram) {
             var serverUpdate = new ServerUpdate();
             bool writeServerUpdate = false;
             switch ((DatagramID)datagram[0]) {
@@ -396,6 +396,37 @@ namespace Bridge {
                         case SpecialMoveID.ArrowRain:
                             break;
                         case SpecialMoveID.Shrapnel:
+                            var su = new ServerUpdate();
+                            var blood_hit = new Hit() {
+                                damage = 5f,
+                                target = specialMove.Guid,
+                            };
+                            su.hits.Add(blood_hit);
+                            var blood_particles = new ServerUpdate.Particle() {
+                                count = 10,
+                                spread = 2f,
+                                type = ParticleType.Normal,
+                                size = 0.1f,
+                                velocity = new FloatVector() {
+                                    z = 1f,
+                                },
+                                color = new FloatVector() {
+                                    x = 1f,
+                                    y = 0f,
+                                    z = 0f
+                                },
+                                alpha = 1f,
+                            };
+                            su.particles.Add(blood_particles);
+                            bool tick() {
+                                bool f = status == BridgeStatus.Playing && dynamicEntities[specialMove.Guid].HP > 0;
+                                if (f) {
+                                    blood_hit.position = blood_particles.position = dynamicEntities[specialMove.Guid].position;
+                                    SendToClient(su);
+                                }
+                                return !f;
+                            }
+                            Tools.DoLater(tick, 50, 100);
                             break;
                         case SpecialMoveID.SmokeBomb:
                             serverUpdate.particles.Add(new ServerUpdate.Particle() {
@@ -415,6 +446,52 @@ namespace Bridge {
                             writeServerUpdate = true;
                             break;
                         case SpecialMoveID.IceWave:
+                            if (specialMove.Guid != guid) {//distance small enough
+                                CwRam.Freeze(3000);
+                            }
+                            serverUpdate.particles.Add(new ServerUpdate.Particle() {
+                                count = 100,
+                                spread = 4f,
+                                type = ParticleType.NoGravity,
+                                size = 0.3f,
+                                velocity = new FloatVector(),
+                                color = new FloatVector() {
+                                    x = 0f,
+                                    y = 1f,
+                                    z = 1f
+                                },
+                                alpha = 1f,
+                                position = dynamicEntities[specialMove.Guid].position
+                            });
+                            serverUpdate.particles.Add(new ServerUpdate.Particle() {
+                                count = 100,
+                                spread = 10f,
+                                type = ParticleType.NoGravity,
+                                size = 0.1f,
+                                velocity = new FloatVector(),
+                                color = new FloatVector() {
+                                    x = 1f,
+                                    y = 1f,
+                                    z = 1f
+                                },
+                                alpha = 1f,
+                                position = dynamicEntities[specialMove.Guid].position
+                            });
+                            serverUpdate.particles.Add(new ServerUpdate.Particle() {
+                                count = 100,
+                                spread = 2f,
+                                type = ParticleType.NoGravity,
+                                size = 0.7f,
+                                velocity = new FloatVector(),
+                                color = new FloatVector() {
+                                    x = 0f,
+                                    y = 0f,
+                                    z = 1f
+                                },
+                                alpha = 1f,
+                                position = dynamicEntities[specialMove.Guid].position
+                            });
+                            writeServerUpdate = true;
                             break;
                         case SpecialMoveID.Confusion:
                             break;
@@ -431,7 +508,7 @@ namespace Bridge {
             }
             if (status == BridgeStatus.Playing && writeServerUpdate) SendToClient(serverUpdate);
         }
-        public static void ProcessClientPacket(int packetID) {
+        private static void ProcessClientPacket(int packetID) {
             switch ((PacketID)packetID) {
                 case PacketID.EntityUpdate:
                     #region entityUpdate
@@ -649,7 +726,7 @@ namespace Bridge {
                     break;
             }
         }
-        public static void ProcessServerPacket(int packetID) {
+        private static void ProcessServerPacket(int packetID) {
             switch ((ServerPacketID)packetID) {
                 case ServerPacketID.VersionCheck:
                     #region VersionCheck
@@ -824,8 +901,12 @@ namespace Bridge {
                     }
                     else {
                         #region ice wave
-                        //TODO
-                        notification.message = "TODO: [ice wave]";
+                        notification.message = "using [ice wave]";
+                        var specialMove = new SpecialMove() {
+                            Guid = guid,
+                            Id = SpecialMoveID.IceWave,
+                        };
+                        SendUDP(specialMove.data);
                         #endregion
                     }
                     break;
@@ -850,8 +931,12 @@ namespace Bridge {
                     #region scout
                     if (hotkey == HotkeyID.CtrlSpace) {
                         #region shrapnel
-                        //TODO
-                        notification.message = "TODO: [shrapnel]";
+                        notification.message = "using [shrapnel] bleeding test";
+                        var specialMove = new SpecialMove() {
+                            Guid = guid,
+                            Id = SpecialMoveID.Shrapnel,
+                        };
+                        SendUDP(specialMove.data);
                         #endregion
                     }
                     else {
@@ -922,10 +1007,10 @@ namespace Bridge {
             SendToClient(notification);
         }
 
-        public static void SendUDP(byte[] data) {
+        private static void SendUDP(byte[] data) {
             udpToServer.Send(data, data.Length);
         }
-        public static void SendToClient(Packet packet) {
+        private static void SendToClient(Packet packet) {
             outgoingMutex.WaitOne();
             try {
                 packet.Write(cwriter);
