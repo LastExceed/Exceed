@@ -24,8 +24,15 @@ namespace Server {
         public static List<Duel> duels = new List<Duel>();
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
         public static UserDatabase Database;
-
+<<<<<<< HEAD
+        public delegate void teleportFunction(int[] position,Player target);
+        public static bool test = false;
         public static void Setup(int port) {
+=======
+
+        public static void Start(int port) {
+            Log.PrintLn("server starting...");
+>>>>>>> 44713c700425635d96634e844bca348ee9b85bdd
             Database = new UserDatabase();
             Database.Database.Migrate(); //Ensure database exists
 
@@ -104,13 +111,13 @@ namespace Server {
             tcpListener = new TcpListener(IPAddress.Any, port);
             tcpListener.Start();
             new Thread(new ThreadStart(ListenTCP)).Start();
+            Log.PrintLn("loading completed");
         }
 
         private static void ListenTCP() {
             var player = new Player(tcpListener.AcceptTcpClient());
             new Thread(new ThreadStart(ListenTCP)).Start();
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine(player.IP + " connected");
+            Log.PrintLn(player.IP + " connected", ConsoleColor.Blue);
             try {
                 while (true) ProcessPacket(player.reader.ReadByte(), player);
             }
@@ -119,8 +126,7 @@ namespace Server {
                     RemovePlayerEntity(player, false);
                 }
                 players.Remove(player);
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(player.IP + " disconnected");
+                Log.PrintLn(player.IP + " disconnected", ConsoleColor.Red);
             }
         }
         private static void ListenUDP() {
@@ -202,16 +208,14 @@ namespace Server {
 
                     dynamicEntities.Add((ushort)source.entity.guid, source.entity);
 
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine(source.IP + " logged in as " + username);
+                    Log.PrintLn(source.IP + " logged in as " + username, ConsoleColor.Green);
                     break;
                 #endregion
                 case ServerPacketID.Logout:
                     #region logout
                     if (source.entity == null) break;//not logged in
                     RemovePlayerEntity(source, false);
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(source.IP + " logged out");
+                    Log.PrintLn(source.IP + " logged out", ConsoleColor.Yellow);
                     break;
                 #endregion
                 case ServerPacketID.Register:
@@ -230,13 +234,12 @@ namespace Server {
                     source.writer.Write((byte)ServerPacketID.Register);
                     source.writer.Write((byte)registerResponse);
                     if (registerResponse == RegisterResponse.Success) {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.WriteLine(source.IP + " registered: " + username);
+                        Log.PrintLn(source.IP + " registered as " + username, ConsoleColor.Cyan);
                     }
                     break;
                 #endregion
                 default:
-                    Console.WriteLine($"unknown packetID {packetID} received from {source.IP}");
+                    Log.PrintLn($"unknown packetID {packetID} received from {source.IP}", ConsoleColor.Magenta);
                     source.tcpClient.Close();
                     break;
             }
@@ -252,7 +255,7 @@ namespace Server {
                     #endregion
                     #region announce
                     if (entityUpdate.name != null) {
-                        //Announce.Join(entityUpdate.name, player.entityData.name, players);
+                        // Announce.Join(entityUpdate.name, player.entityData.name, players);
                     }
                     #endregion
                     #region pvp
@@ -287,7 +290,14 @@ namespace Server {
                         BroadcastUDP(rde.data);
                     }
                     #endregion
+                    if (test == false)
+                    { 
                     entityUpdate.Merge(source.entity);
+                    }
+                    else
+                    {
+                        test = false;
+                    }
                     BroadcastUDP(entityUpdate.CreateDatagram(), source);
                     break;
                 #endregion
@@ -352,6 +362,9 @@ namespace Server {
                                 RemovePlayerEntity(target, false);
                                 break;
                             #endregion
+                            case "bleeding":
+
+                                break;
                             case "time":
                                 #region time
                                 if (parameters.Length == 1) {
@@ -371,7 +384,17 @@ namespace Server {
                                 SendUDP(inGameTime.data, source);
                                 break;
                             #endregion
+                            case "position":
+                                Notify(source, string.Format("X: {0}, Y: {1}, Z: {2}", source.entity.position.x, source.entity.position.y, source.entity.position.z));
+                                break;
+                            case "spawn":
+                                source.entity.position.x = 550299340623;
+                                source.entity.position.x = 550298079857;
+                                source.entity.position.x = 9770177;
+                                test = true;
+                                break;
                             case "duel":
+                                #region duel
                                 Duel duelAwaiting;
                                 if (parameters.Length > 1)
                                 {
@@ -381,6 +404,10 @@ namespace Server {
                                             Notify(source, string.Format("/duel start [player2]"));
                                             Notify(source, string.Format("/duel accept"));
                                             Notify(source, string.Format("/duel refuse"));
+                                            break;
+                                        case "stop":
+                                            duelAwaiting = duels.FirstOrDefault(x => x.player2.entity.name.Contains(source.entity.name));
+                                            duelAwaiting.Stop();
                                             break;
                                         case "start":
                                             if (parameters.Length == 3)
@@ -431,16 +458,15 @@ namespace Server {
                                     Notify(source, string.Format("Type /duel help for more information"));
                                 }
                                 break;
+                            #endregion
                             default:
                                 Notify(source, string.Format("unknown command '{0}'", parameters[0]));
                                 break;
                         }
                         break;
                     }
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write(dynamicEntities[chat.Sender].name + ": ");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine(chat.Text);
+                    Log.Print(dynamicEntities[chat.Sender].name + ": ", ConsoleColor.Cyan);
+                    Log.PrintLn(chat.Text, ConsoleColor.White, false);
 
                     BroadcastUDP(chat.data, null); //pass to all players
                     break;
@@ -468,14 +494,16 @@ namespace Server {
                                 SendUDP(specialMove.data, target);
                             }
                             break;
+                        case SpecialMoveID.SmokeBomb:
+                            BroadcastUDP(specialMove.data, source);
+                            break;
                         case SpecialMoveID.CursedArrow:
                         case SpecialMoveID.ArrowRain:
                         case SpecialMoveID.Shrapnel:
-                        case SpecialMoveID.SmokeBomb:
                         case SpecialMoveID.IceWave:
                         case SpecialMoveID.Confusion:
                         case SpecialMoveID.ShadowStep:
-                            BroadcastUDP(specialMove.data, source);
+                            BroadcastUDP(specialMove.data);
                             break;
                         default:
                             break;
@@ -485,7 +513,7 @@ namespace Server {
                 case DatagramID.HolePunch:
                     break;
                 default:
-                    Console.WriteLine($"unknown DatagramID {datagram[0]} received from {source.IP}");
+                    Log.PrintLn($"unknown DatagramID {datagram[0]} received from {source.IP}", ConsoleColor.Magenta);
                     Kick(source, "invalid data received");
                     break;
             }
@@ -529,6 +557,12 @@ namespace Server {
                 Text = message,
             };
             SendUDP(chat.data, target);
+        }
+        public static void TeleportPlayer(long[] position,Player target)
+        {
+            target.entity.position.x = position[0];
+            target.entity.position.y = position[1];
+            target.entity.position.z = position[2];
         }
     }
 }
