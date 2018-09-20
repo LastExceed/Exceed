@@ -21,7 +21,7 @@ namespace Server {
         public static UdpClient udpClient;
         public static TcpListener tcpListener;
         public static List<Player> players = new List<Player>();
-        public static List<Duel> duels = new List<Duel>();
+        public static volatile List<Duel> duels = new List<Duel>();
         public static long[] arenaPos = new long[3];
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
         public static UserDatabase Database;
@@ -246,7 +246,7 @@ namespace Server {
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
                     #region antiCheat
-                    string ACmessage = AntiCheat.Inspect(entityUpdate, source.entity);
+                    string ACmessage = AntiCheat.Inspect(entityUpdate, source);
                     if (ACmessage != null) Kick(source, ACmessage);
                     #endregion
                     #region announce
@@ -409,11 +409,25 @@ namespace Server {
                                 {
                                     switch (parameters[1].ToLower())
                                     {
+                                        case "reset":
+                                            #region reset
+                                            if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
+                                            {
+                                                Notify(source, "[Arena] no permission");
+                                                break;
+                                            }
+                                            response = ArenaDatabase.ResetArena();
+                                            if (response == ArenaResponse.ArenaReset)
+                                            {
+                                                Notify(source, string.Format("[Arena] Arena's list reseted !"));
+                                            }
+                                            #endregion
+                                            break;
                                         case "create":
                                            #region arena-create
-                                                if (source.entity.name != "BLACKROCK" && source.entity.name != "test")
+                                                if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                                                 {
-                                                    Notify(source, "no permission");
+                                                    Notify(source, "[Arena] no permission");
                                                     break;
                                                 }
                                             string arenaName = null; ;
@@ -430,20 +444,21 @@ namespace Server {
                                                 response = ArenaDatabase.AddDuelArena(arenaPos, arenaName);
                                                 if (response == ArenaResponse.ArenaCreated)
                                                 {
-                                                    Notify(source, string.Format("Arena initialized !"));
+                                                    Notify(source, string.Format("[Arena] Arena initialized !"));
                                                 }
                                             break;
                                         #endregion
-                                        case "list":
+                                        /*case "list":
                                             #region arena-list
                                             ArenaDatabase.listArena();
                                             break;
                                             #endregion
+                                       */
                                         case "delete":
                                             #region arena-delete
-                                            if (source.entity.name != "BLACKROCK" && source.entity.name != "test")
+                                            if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                                             {
-                                                Notify(source, "no permission");
+                                                Notify(source, "[Arena] no permission");
                                                 break;
                                             }
                                             if (parameters.Length == 3)
@@ -461,10 +476,10 @@ namespace Server {
                                                 switch (response)
                                                 {
                                                     case ArenaResponse.ArenaDeleted:
-                                                        Notify(source, string.Format("Arena deleted !"));
+                                                        Notify(source, string.Format("[Arena] Arena deleted !"));
                                                         break;
                                                     case ArenaResponse.ArenaNotFound:
-                                                        Notify(source, string.Format("Invalid id or arena's name"));
+                                                        Notify(source, string.Format("[Arena] Invalid id or arena's name"));
                                                         break;
                                                 }
                                             }
@@ -513,7 +528,14 @@ namespace Server {
                                         case "stop":
                                             #region stop
                                             duelFinder = duels.FirstOrDefault(x => x.player1.entity.name.Contains(source.entity.name) || x.player2.entity.name.Contains(source.entity.name));
-                                            duelFinder.Stop();
+                                            if (duelFinder != null)
+                                            {
+                                                duelFinder.Stop();
+                                            }
+                                            else
+                                            {
+                                                Notify(source, "[Duel] No duel ongoing");
+                                            }
                                             break;                                       
                                         #endregion
                                         case "start":
@@ -523,16 +545,28 @@ namespace Server {
                                                 target = players.FirstOrDefault(x => x.entity.name.Contains(parameters[2]));
                                                 if (target == null)
                                                 {
-                                                    Notify(source, "invalid target");
+                                                    Notify(source, "[Duel] invalid target");
                                                     break;
                                                 }
-                                                else if(target == source)
+                                                else if(target == source && source.entity.name != "BLIZZY")
                                                 {
-                                                    Notify(source, "Unfortunatly, you can't duel yourself");
+                                                    Notify(source, "[Duel] Unfortunatly, you can't duel yourself");
                                                     break;
                                                 }
-                                                Notify(target, string.Format("{0} wants to duel you ! /duel accept to accept the duel , /duel refuse to refuse it", source.entity.name));
-                                                duels.Add(new Duel(source, target, DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+                                                else if(source.Duel == true)
+                                                {
+                                                    Notify(source, "[Duel] You're already involved in a duel");
+                                                    break;
+                                                }
+                                                else if(target.Duel == true)
+                                                {
+                                                    Notify(source, "[Duel] The target is already involved in a duel");
+                                                    break;
+                                                }
+                                                Notify(target, string.Format("[Duel] {0} wants to duel you ! /duel accept or /duel refuse", source.entity.name));
+                                                var duel = new Duel(source, target, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                                                duels.Add(duel);
+                                                new Thread(() => duel.RunDuel()).Start();
                                             }
                                             else
                                             {
@@ -542,27 +576,35 @@ namespace Server {
                                         #endregion
                                         case "accept":
                                             #region accept
-                                            duelFinder = duels.FirstOrDefault(x => x.player2.entity.name.Contains(source.entity.name));
-                                            if (duelFinder != null)
+                                            duelFinder = duels.LastOrDefault(x => x.player2.entity.name.Contains(source.entity.name));
+                                            if (duelFinder != null && source.Duel == null)
                                             {
                                                 duelFinder.AcceptDuel();
                                             }
+                                            else if(source.Duel == true)
+                                            {
+                                                Notify(source, string.Format("[Duel] Duel already ongoing"));
+                                            }
                                             else
                                             {
-                                                Notify(source, string.Format("No duel request found"));
+                                                Notify(source, string.Format("[Duel] No duel request found"));
                                             }
                                             break;
                                         #endregion
                                         case "refuse":
                                             #region refuse
-                                            duelFinder = duels.FirstOrDefault(x => x.player2.entity.name.Contains(source.entity.name));
-                                            if (duelFinder != null)
+                                            duelFinder = duels.LastOrDefault(x => x.player2.entity.name.Contains(source.entity.name));
+                                            if (duelFinder != null && source.Duel == null)
                                             {
                                                 duelFinder.RefuseDuel();
                                             }
+                                            else if (source.Duel == true)
+                                            {
+                                                Notify(source, string.Format("[Duel] Duel already ongoing"));
+                                            }
                                             else
                                             {
-                                                Notify(source, string.Format("No duel request found"));
+                                                Notify(source, string.Format("[Duel] No duel request found"));
                                             }
                                             break;
                                         #endregion

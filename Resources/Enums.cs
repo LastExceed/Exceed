@@ -62,6 +62,8 @@
     {
         ArenaCreated,
         ArenaDeleted,
-        ArenaNotFound
+        ArenaNotFound,
+        ArenaListEmpty,
+        ArenaReset
     }
 }

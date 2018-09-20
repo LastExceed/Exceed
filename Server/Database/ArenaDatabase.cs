@@ -27,6 +27,20 @@ namespace Server.Database {
             var arena = Arenas.SingleOrDefault(x => x.ArenaId == id);
             return arena;
         }
+        public Arena FetchRandomArena()
+        {
+            int range = Arenas.Count();
+            Random rnd = new Random();
+            int id = rnd.Next(0, range);
+            var arena = Arenas.SingleOrDefault(x => x.ArenaId == id);
+            return arena;
+        }
+        public ArenaResponse ResetArena()
+        {
+            Arenas.RemoveRange(Arenas.ToList());
+            SaveChanges();
+            return ArenaResponse.ArenaReset;
+        }
         public ArenaResponse AddDuelArena(long[] position,string name = null)
         {
             if(name == null)

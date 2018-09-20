@@ -10,6 +10,7 @@ namespace Resources {
         public BinaryReader reader;
         public EntityUpdate entity;
         public bool? Duel;
+        public bool? PreparingTime;
         public ushort? tomb;
         public string MAC;
         public ushort lastTarget;

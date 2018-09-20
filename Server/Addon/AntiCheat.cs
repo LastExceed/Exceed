@@ -3,11 +3,12 @@ using Resources.Packet;
 
 namespace Server.Addon {
     class AntiCheat {
-        public static string Inspect(EntityUpdate current, EntityUpdate previous) {
+        public static string Inspect(EntityUpdate current, Player source) {
+            EntityUpdate previous = source.entity;
             if (current.guid != previous.guid) {
                 return "guid";
             }
-            if (current.hostility != null && current.hostility != 0) {
+            if (current.hostility != null && current.hostility != 0 && source.PreparingTime == null) {
                 return "hostility";
             }
             if(current.appearance != null) {
