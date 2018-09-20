@@ -21,7 +21,7 @@ namespace Server.Migrations
                 {
                     table.PrimaryKey("PK_Clans", x => x.Id);
                 });
-
+       
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
@@ -110,6 +110,8 @@ namespace Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "Clans");
+            migrationBuilder.DropTable(
+                name: "Arenas");
         }
     }
 }

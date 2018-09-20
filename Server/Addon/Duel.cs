@@ -1,21 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Resources;
 using System.Threading.Tasks;
+using Server.Database;
+
 namespace Server.Addon
 {
     public class Duel
     {
-        private Boolean ongoing;
-        public Player winner; 
+        private Boolean ongoing; // status of the duel
+        public Player winner;
+        public Arena arena;
+        public long[] arenaPosition;
+        public ArenaDatabase ArenaDatabase;
         public Player player1;
-        public long[] storedPos1; // initial player1 position
-        public float? storedHp1; // initial player1 position
+        private long[] storedPos1; // initial player1 position
+        private float? storedHp1; // initial player1 position
         public Player player2;
-        public long[] storedPos2; // initial player2 position
-        public float? storedHp2; // initial player2 position
-        public int request_state;// 0 waiting | 1 accepted | 2 refused
+        private long[] storedPos2; // initial player2 position
+        private float? storedHp2; // initial player2 position
+        private int request_state;// 0 waiting | 1 accepted | 2 refused
         private async Task WaitingResponse(long requestInitialTime)
         {
             await Task.Run(() =>
@@ -27,8 +30,7 @@ namespace Server.Addon
                 switch (this.request_state)
                 {
                     case 1:
-                        Server.Notify(this.player1, string.Format("Duel is starting"));
-                        Server.Notify(this.player2, string.Format("Duel is starting"));
+                        NotifyPlayers("Duel is starting");
                         this.ongoing = true;
                         StartDuel();
                         break;
@@ -48,47 +50,50 @@ namespace Server.Addon
             this.player2 = player2;
             WaitingResponse(requestInitialTime);
         }
+        public void ChooseArena()
+        {
+            this.arena = ArenaDatabase.FindArena();
+            this.arenaPosition = new long[]{
+                this.arena.X,
+                this.arena.Y,
+                this.arena.Z
+            };
+        }
         private void StartDuel()
         {
             this.storedPos1 = new long[]{
-                player1.entity.position.x,
-                player1.entity.position.y,
-                player1.entity.position.z,
+                this.player1.entity.position.x,
+                this.player1.entity.position.y,
+                this.player1.entity.position.z,
              };
             this.storedPos2 = new long[]{
-                player2.entity.position.x,
-                player2.entity.position.y,
-                player2.entity.position.z,
+                this.player2.entity.position.x,
+                this.player2.entity.position.y,
+                this.player2.entity.position.z,
              };
-            this.storedHp1 = player1.entity.HP;
-            this.storedHp2 = player2.entity.HP;
+            this.storedHp1 = this.player1.entity.HP;
+            this.storedHp2 = this.player2.entity.HP;
             this.player1.Duel = true;
             this.player2.Duel = true;
-            Server.TeleportPlayer(Server.arenaPos,player1);
-            Server.TeleportPlayer(Server.arenaPos, player2);
+            Server.TeleportPlayer(arenaPosition,this.player1);
+            Server.TeleportPlayer(arenaPosition,this.player2);
             while(this.ongoing == true)
             {
-                if(player1.entity.HP <= 0)
+                if(this.player1.entity.HP <= 0 || this.player2.entity.HP <= 0)
                 {
-                    this.winner = player2;
-                    this.ongoing = false;
-                }
-                else if(player2.entity.HP <= 0)
-                {
-                    this.winner = player1;
+                    this.winner = this.player1.entity.HP <= 0 ? this.player2 : this.player1;
                     this.ongoing = false;
                 }
                 System.Threading.Thread.Sleep(1000);
             }
-            NotifyPlayers(String.Format("{0} won this duel", winner.entity.name));
-            Server.setHp(storedHp1, player1);
-            Server.setHp(storedHp2, player2);
-            Server.TeleportPlayer(storedPos1, player1);
-            Server.TeleportPlayer(storedPos2, player2);
-            player1.Duel = null;
-            player2.Duel = null;
+            NotifyPlayers(String.Format("{0} won this duel", this.winner.entity.name));
+            Server.setHp(this.storedHp1, this.player1);
+            Server.setHp(this.storedHp2, this.player2);
+            Server.TeleportPlayer(this.storedPos1, this.player1);
+            Server.TeleportPlayer(this.storedPos2, this.player2);
+            this.player1.Duel = null;
+            this.player2.Duel = null;
             Server.duels.Remove(this);
-            // Initialize the duel
         }
         public void Stop()
         {
@@ -108,8 +113,8 @@ namespace Server.Addon
         }
         public void NotifyPlayers(string message)
         {
-            Server.Notify(player1, message);
-            Server.Notify(player2, message);
+            Server.Notify(this.player1, message);
+            Server.Notify(this.player2, message);
         }
     }
 }

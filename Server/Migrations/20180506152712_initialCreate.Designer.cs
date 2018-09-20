@@ -52,8 +52,7 @@ namespace Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Clans");
-                });
-
+                });         
             modelBuilder.Entity("Server.Database.Login", b =>
                 {
                     b.Property<uint>("UserId");

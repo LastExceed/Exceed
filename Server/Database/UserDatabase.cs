@@ -33,7 +33,6 @@ namespace Server.Database {
                 clans.HasKey(x => x.Id);
                 clans.Property(x => x.Name).IsRequired();
             }
-
             {
                 var logins = modelBuilder.Entity<Login>();
                 logins.HasKey(x => x.UserId);

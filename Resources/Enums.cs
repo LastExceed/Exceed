@@ -58,4 +58,10 @@
         LoggedIn,
         Playing,
     }
+    public enum ArenaResponse : byte
+    {
+        ArenaCreated,
+        ArenaDeleted,
+        ArenaNotFound
+    }
 }
