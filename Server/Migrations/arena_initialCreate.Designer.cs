@@ -29,11 +29,11 @@ namespace Server.Migrations
                 b.Property<string>("Name")
                     .IsRequired();
 
-                b.Property<long>("X");
+                b.Property<byte[]>("SpawnPosition1");
 
-                b.Property<long>("Y");
+                b.Property<byte[]>("SpawnPosition2");
 
-                b.Property<long>("Z");
+                b.Property<byte[]>("SpawnPosition3");
 
                 b.HasKey("Id");
 

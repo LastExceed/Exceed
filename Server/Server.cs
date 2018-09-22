@@ -22,7 +22,7 @@ namespace Server {
         public static TcpListener tcpListener;
         public static List<Player> players = new List<Player>();
         public static volatile List<Duel> duels = new List<Duel>();
-        public static long[] arenaPos = new long[3];
+        public static long[] currentPos = new long[3];
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
         public static UserDatabase Database;
         public static ArenaDatabase ArenaDatabase;
@@ -404,48 +404,32 @@ namespace Server {
                                 break;
                             case "arena":
                                 #region arena
-                                ArenaResponse response;
+                                ArenaResponse response = ArenaResponse.Null;
                                 if (parameters.Length > 1)
                                 {
                                     switch (parameters[1].ToLower())
                                     {
-                                        case "reset":
-                                            #region reset
+                                        case "setup":
+                                            #region setup
                                             if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                                             {
                                                 Notify(source, "[Arena] no permission");
                                                 break;
                                             }
-                                            response = ArenaDatabase.ResetArena();
-                                            if (response == ArenaResponse.ArenaReset)
+                                            string arenaName = null;
+                                            if (parameters.Length == 3)
                                             {
-                                                Notify(source, string.Format("[Arena] Arena's list reseted !"));
+                                                arenaName = parameters[2].ToLower();
                                             }
-                                            #endregion
-                                            break;
-                                        case "create":
-                                           #region arena-create
-                                                if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
-                                                {
-                                                    Notify(source, "[Arena] no permission");
-                                                    break;
-                                                }
-                                            string arenaName = null; ;
-                                                if (parameters.Length == 3)
-                                                {
-                                                    arenaName = parameters[2].ToLower();
-                                                }
-                                                arenaPos = new long[3]
-                                                {
-                                                source.entity.position.x,
-                                                source.entity.position.y,
-                                                source.entity.position.z
-                                                };
-                                                response = ArenaDatabase.AddDuelArena(arenaPos, arenaName);
-                                                if (response == ArenaResponse.ArenaCreated)
-                                                {
-                                                    Notify(source, string.Format("[Arena] Arena initialized !"));
-                                                }
+                                            response = ArenaDatabase.launchSetupArena(arenaName);
+                                            if(response == ArenaResponse.SetupLaunched)
+                                            {
+                                                Notify(source, String.Format("[Arena] The Setup Arena has been initialized !"));
+                                            }
+                                            else if(response == ArenaResponse.SetupAlreadyLaunched)
+                                            {
+                                                Notify(source, String.Format("[Arena] The Setup Arena has already been initialized."));
+                                            }
                                             break;
                                         #endregion
                                         /*case "list":
@@ -454,6 +438,98 @@ namespace Server {
                                             break;
                                             #endregion
                                        */
+                                        case "set":
+                                            #region setup-set
+                                            if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
+                                            {
+                                                Notify(source, "[Arena] no permission");
+                                                break;
+                                            }
+                                            if (parameters.Length == 3)
+                                            {
+                                                currentPos = new long[3]
+                                                {
+                                                    source.entity.position.x,
+                                                    source.entity.position.y,
+                                                    source.entity.position.z
+                                                };
+                                                switch (parameters[2].ToLower())
+                                                {
+                                                    case "player1":
+                                                        response = ArenaDatabase.setPositionSetupArena(currentPos, ArenaPositionName.player1);
+                                                        break;
+                                                    case "player2":
+                                                        response = ArenaDatabase.setPositionSetupArena(currentPos, ArenaPositionName.player2);
+                                                        break;
+                                                    case "spectator":
+                                                        response = ArenaDatabase.setPositionSetupArena(currentPos, ArenaPositionName.spectator);
+                                                        break;
+                                                    default:
+                                                        Notify(source, String.Format("Syntax : /arena set player1|player2|spectator"));
+                                                        break;
+                                                }
+                                                if(response == ArenaResponse.SetupPositionSet)
+                                                {
+                                                    Notify(source, String.Format("[Arena] Parameters {0} has been successfully updated",parameters[2].ToLower()));
+                                                }
+                                                else if(response == ArenaResponse.SetupEmpty)
+                                                {
+                                                    Notify(source, String.Format("[Arena] The Setup Arena hasn't been initialized"));
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Notify(source, String.Format("Syntax : /arena set player1|player2|spectator"));
+                                            }
+                                            break;
+                                        #endregion
+                                        case "name":
+                                            #region setup-name
+                                            if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
+                                            {
+                                                Notify(source, "[Arena] no permission");
+                                                break;
+                                            }
+                                            if (parameters.Length == 3)
+                                            {
+                                                response = ArenaDatabase.setNameArena(parameters[2].ToLower());
+                                                if(response == ArenaResponse.SetupNameSet)
+                                                {
+                                                    Notify(source, String.Format("[Arena] The Setup Arena's name has been changed !"));
+                                                }
+                                                else if(response == ArenaResponse.SetupEmpty)
+                                                {
+                                                    Notify(source, String.Format("[Arena] The Setup Arena hasn't been initialized"));
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Notify(source, String.Format("Syntax : /arena name [newName]"));
+                                            }
+                                            break;
+                                        #endregion
+                                        case "create":
+                                            #region arena-create
+                                            if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
+                                            {
+                                                Notify(source, "[Arena] no permission");
+                                                break;
+                                            }
+                                            response = ArenaDatabase.SaveDuelArena();
+                                            if (response == ArenaResponse.ArenaCreated)
+                                            {
+                                                Notify(source, string.Format("[Arena] Arena has been successfully saved and is operational !"));
+                                            }
+                                            else if(response == ArenaResponse.SetupIncomplete)
+                                            {
+                                                Notify(source, string.Format("[Arena] Setup Arena is incomplete !"));
+                                            }
+                                            else if(response == ArenaResponse.SetupEmpty)
+                                            {
+                                                Notify(source, String.Format("[Arena] The Setup Arena hasn't been initialized"));
+                                            }
+                                            break;
+                                        #endregion
                                         case "delete":
                                             #region arena-delete
                                             if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
@@ -489,10 +565,27 @@ namespace Server {
                                             }
                                             break;
                                         #endregion
+                                        case "reset":
+                                            #region reset
+                                            if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
+                                            {
+                                                Notify(source, "[Arena] no permission");
+                                                break;
+                                            }
+                                            response = ArenaDatabase.ResetArena();
+                                            if (response == ArenaResponse.ArenaReset)
+                                            {
+                                                Notify(source, string.Format("[Arena] Arena's list reseted !"));
+                                            }
+                                            #endregion
+                                            break;
                                         case "help":
                                             #region arena-help
                                             if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                                             {
+                                                Notify(source, string.Format("/arena setup"));
+                                                Notify(source, string.Format("/arena set player1|player2|spectator"));
+                                                Notify(source, string.Format("/arena name [newName]"));
                                                 Notify(source, string.Format("/arena create"));
                                                 Notify(source, string.Format("/arena delete [ArenaId] or /arena delete [Name]"));
                                             }
@@ -608,6 +701,8 @@ namespace Server {
                                             }
                                             break;
                                         #endregion
+                                        case "spectate":
+                                            break;
                                         default:
                                             Notify(source, string.Format("Type /duel help for more information"));
                                             break;

@@ -110,8 +110,6 @@ namespace Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "Clans");
-            migrationBuilder.DropTable(
-                name: "Arenas");
         }
     }
 }

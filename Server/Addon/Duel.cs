@@ -12,7 +12,6 @@ namespace Server.Addon
         private volatile Boolean stop; // Token for stopping duel/thread
         public Player winner;
         public Arena arena;
-        public long[] arenaPosition;
         public ArenaDatabase ArenaDatabase;
         public Player player1;
         private long[] storedPos1; // initial player1 position
@@ -63,16 +62,7 @@ namespace Server.Addon
         {
             #region PickArena
             this.arena = ArenaDatabase.FetchRandomArena();
-            if (this.arena != null)
-            {
-                this.arenaPosition = new long[]{
-                this.arena.X,
-                this.arena.Y,
-                this.arena.Z
-                };
-                //Console.WriteLine(String.Format("Arena {0} : Name -> {1} , X -> {2}, Y -> {3}, Z -> {4}", arena.ArenaId, arena.Name, arena.X, arena.Y, arena.Z));
-            }
-            else
+            if (this.arena == null)
             {
                 NotifyPlayers("[Duel] An error occured : the arena's list is empty");
                 this.stop = true;
@@ -96,8 +86,8 @@ namespace Server.Addon
             this.storedHp2 = this.player2.entity.HP;
             this.player1.Duel = true;
             this.player2.Duel = true;
-            Server.TeleportPlayer(this.arenaPosition, this.player1);
-            Server.TeleportPlayer(this.arenaPosition, this.player2);
+            Server.TeleportPlayer(this.arena.getPosition(ArenaPositionName.player1), this.player1);
+            Server.TeleportPlayer(this.arena.getPosition(ArenaPositionName.player2), this.player2);
             #endregion
         }
         public void LaunchPreparingTime()

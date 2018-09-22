@@ -16,9 +16,9 @@ namespace Server.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     ArenaId = table.Column<uint>(nullable: false),
                     Name = table.Column<string>(nullable: false),
-                    X = table.Column<long>(nullable: false),
-                    Y = table.Column<long>(nullable: false),
-                    Z = table.Column<long>(nullable: false)
+                    SpawnPosition1 = table.Column<byte[]>(nullable: false), // Spawn position of Player 1
+                    SpawnPosition2 = table.Column<byte[]>(nullable: false), // Spawn position of Player 2
+                    SpawnPosition3 = table.Column<byte[]>(nullable: false) // Spawn position of Spectator
                 },
                 constraints: table =>
                    {
