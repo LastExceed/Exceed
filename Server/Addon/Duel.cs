@@ -12,6 +12,7 @@ namespace Server.Addon
         private volatile Boolean stop; // Token for stopping duel/thread
         public Player winner;
         public Arena arena;
+        private List<Player> Spectators;
         public ArenaDatabase ArenaDatabase;
         public Player player1;
         private long[] storedPos1; // initial player1 position
@@ -165,6 +166,11 @@ namespace Server.Addon
         public void RefuseDuel()
         {
             this.request_state = 2;
+        }
+        public void Spectate(Player player)
+        {
+            Server.TeleportPlayer(this.arena.getPosition(ArenaPositionName.spectator),player);
+            this.Spectators.Add(player);
         }
         public void NotifyPlayers(string message)
         {

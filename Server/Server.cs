@@ -101,7 +101,8 @@ namespace Server {
             //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay10.zox"));
             //model.Parse(worldUpdate, 8286770, 8344262, 333);
             #endregion
-
+            //ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay10.zox"));
+            // model.Parse(worldUpdate, 550409259669, 550344299130, 13038224);
             udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             new Thread(new ThreadStart(ListenUDP)).Start();
             tcpListener = new TcpListener(IPAddress.Any, port);
@@ -615,6 +616,7 @@ namespace Server {
                                             Notify(source, string.Format("/duel start [player2]"));
                                             Notify(source, string.Format("/duel accept"));
                                             Notify(source, string.Format("/duel refuse"));
+                                            Notify(source, string.Format("/duel spectate [playerName]"));
                                             Notify(source, string.Format("/duel stop"));
                                             break;
                                         #endregion
@@ -702,6 +704,22 @@ namespace Server {
                                             break;
                                         #endregion
                                         case "spectate":
+                                            #region spectate
+                                            if (parameters.Length == 3)
+                                            {
+                                                var name = parameters[2].ToLower();
+                                                duelFinder = duels.LastOrDefault(x => x.player1.entity.name.Contains(name) || x.player2.entity.name.Contains(name));
+                                                if(duelFinder != null && source.Duel == null)
+                                                {
+                                                    duelFinder.Spectate(source);
+                                                    Notify(source, string.Format("[Duel] You are spectating the duel of {0} !",name));
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Notify(source, string.Format("Syntax: /duel spectate [playerName]"));
+                                            }
+                                            #endregion
                                             break;
                                         default:
                                             Notify(source, string.Format("Type /duel help for more information"));
