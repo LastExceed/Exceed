@@ -57,6 +57,7 @@ namespace Server.Addon
             this.player2 = player2;
             this.requestInitialTime = requestInitialTime;
             this.ArenaDatabase = new ArenaDatabase();
+            this.Spectators = new List<Player>();
             #endregion
         }
         public void PickArena()
@@ -96,12 +97,13 @@ namespace Server.Addon
             #region launchPreparingTime
             player1.PreparingTime = true;
             player2.PreparingTime = true;
-            Server.setHostility(Hostility.NPC, this.player1);
-            Server.setHostility(Hostility.NPC, this.player2);
+            this.player1.entity.hostility = Hostility.Neutral;
+            this.player2.entity.hostility = Hostility.Neutral;
             NotifyPlayers("[Duel] Duel is starting in 10sd");
             System.Threading.Thread.Sleep(10000);
-            Server.setHostility(Hostility.Player, this.player1);
-            Server.setHostility(Hostility.Player, this.player2);
+            // Server.setHostility(Hostility.Player, this.player1);
+            this.player1.entity.hostility = Hostility.Player;
+            this.player2.entity.hostility = Hostility.Player;
             player1.PreparingTime = null;
             player2.PreparingTime = null;
             NotifyPlayers("[Duel] Go !");
@@ -140,7 +142,6 @@ namespace Server.Addon
             {
                 NotifyPlayers(String.Format("[Duel] {0} won this duel", this.winner.entity.name));
                 RestorePlayersState();
-                Server.duels.Remove(this);
             }
             else
             {
@@ -148,8 +149,8 @@ namespace Server.Addon
                 {
                     RestorePlayersState();
                 }
-                Server.duels.Remove(this);
             }
+            Server.duels.Remove(this);
             #endregion
         }
         public void Stop()
@@ -184,6 +185,10 @@ namespace Server.Addon
             if(player2Accepted)
             {
                 ManageDuel();
+            }
+            else
+            {
+                Server.duels.Remove(this);
             }
             #endregion
         }

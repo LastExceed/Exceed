@@ -138,7 +138,11 @@ namespace Server.Database {
         {
             if (arena.Name != null && arena.SpawnPosition1 != null && arena.SpawnPosition2 != null && arena.SpawnPosition3 != null)
             {
-                if(arena.ArenaId == 0 && Arenas.Count() == 0)
+                if(arena.ArenaId == 0 && Arenas.Count() > 0)
+                {
+                    return false;
+                }
+                else
                 {
                     return true;
                 }

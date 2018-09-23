@@ -10,6 +10,9 @@ namespace Server.Database {
         public byte[] SpawnPosition2 { get; set; }
         public byte[] SpawnPosition3 { get; set; }
 
+        public Arena()
+        {
+        }
         public Arena(uint ArenaId,string Name)
         {
             this.ArenaId = ArenaId;

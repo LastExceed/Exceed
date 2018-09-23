@@ -295,7 +295,7 @@ namespace Server {
                     #region attack
                     var attack = new Attack(datagram);
                     var target = players.FirstOrDefault(p => p.entity?.guid == attack.Target);
-                    if (target != null && target.Duel == false)
+                    if (target != null && ( target.Duel == null || target.Duel == true && source.Duel == true ) && target.entity.hostility != Hostility.Neutral)
                     {
                         source.lastTarget = attack.Target;
                         SendUDP(attack.data, target);
@@ -622,10 +622,12 @@ namespace Server {
                                         #endregion
                                         case "stop":
                                             #region stop
-                                            duelFinder = duels.FirstOrDefault(x => x.player1.entity.name.Contains(source.entity.name) || x.player2.entity.name.Contains(source.entity.name));
+                                            Console.WriteLine(duels.Count());
+                                            duelFinder = duels.LastOrDefault(x => x.player1.entity.name.Contains(source.entity.name) || x.player2.entity.name.Contains(source.entity.name));
                                             if (duelFinder != null)
                                             {
                                                 duelFinder.Stop();
+                                                Console.WriteLine(duels.Count());
                                             }
                                             else
                                             {
@@ -661,6 +663,7 @@ namespace Server {
                                                 Notify(target, string.Format("[Duel] {0} wants to duel you ! /duel accept or /duel refuse", source.entity.name));
                                                 var duel = new Duel(source, target, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
                                                 duels.Add(duel);
+                                                Console.WriteLine(String.Format("{0} ask a duel with {1}, Total Duel ongoing : {2}",source.entity.name,target.entity.name,duels.Count()));
                                                 new Thread(() => duel.RunDuel()).Start();
                                             }
                                             else
@@ -707,19 +710,23 @@ namespace Server {
                                             #region spectate
                                             if (parameters.Length == 3)
                                             {
-                                                var name = parameters[2].ToLower();
+                                                var name = parameters[2];
                                                 duelFinder = duels.LastOrDefault(x => x.player1.entity.name.Contains(name) || x.player2.entity.name.Contains(name));
                                                 if(duelFinder != null && source.Duel == null)
                                                 {
                                                     duelFinder.Spectate(source);
                                                     Notify(source, string.Format("[Duel] You are spectating the duel of {0} !",name));
                                                 }
+                                                else
+                                                {
+                                                    Notify(source, string.Format("[Duel] Invalid Target"));
+                                                }
                                             }
                                             else
                                             {
                                                 Notify(source, string.Format("Syntax: /duel spectate [playerName]"));
                                             }
-                                            #endregion
+                                        #endregion
                                             break;
                                         default:
                                             Notify(source, string.Format("Type /duel help for more information"));
