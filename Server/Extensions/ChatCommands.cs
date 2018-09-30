@@ -47,7 +47,7 @@ namespace Server.Extensions {
                     target.writer.Write((byte)ServerPacketID.BTFO);
                     target.writer.Write(reason);
                     if (command == "ban") {
-                        Server.Database.BanUser(target.entity.name, (int)target.IP.Address, target.MAC, reason);
+                        Server.userDatabase.BanUser(target.entity.name, (int)target.IP.Address, target.MAC, reason);
                     }
                     Server.RemovePlayerEntity(target, false);
                     break;
@@ -78,7 +78,6 @@ namespace Server.Extensions {
                     Server.Notify(source, string.Format("unknown command '{0}'", parameters[0]));
                     break;
             }
-            break;
         }
     }
 }

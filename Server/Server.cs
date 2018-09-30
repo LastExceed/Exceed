@@ -22,82 +22,12 @@ namespace Server {
         public static TcpListener tcpListener;
         public static List<Player> players = new List<Player>();
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
-        public static UserDatabase Database;
+        public static UserDatabase userDatabase;
 
         public static void Start(int port) {
             Log.PrintLn("server starting...");
-            Database = new UserDatabase();
-            Database.Database.Migrate(); //Ensure database exists
-
-            #region models
-            //var rnd = new Random();
-            //for (int i = 8286946; i < 8286946 + 512; i++) {
-            //    for (int j = 8344456; j < 8344456 + 512; j++) {
-            //        var block = new ServerUpdate.BlockDelta() {
-            //            color = new Resources.Utilities.ByteVector() {
-            //                x = 0,
-            //                y = 0,
-            //                z = (byte)rnd.Next(0, 255),
-            //            },
-            //            type = BlockType.solid,
-            //            position = new Resources.Utilities.IntVector() {
-            //                x = i,
-            //                y = j,
-            //                z = 208,
-            //            },
-            //        };
-            //        worldUpdate.blockDeltas.Add(block);
-            //    }
-            //}
-            //x = 543093329157,
-            //y = 546862296355,
-            //z = 14423162
-            //ZoxModel model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Fulcnix_exceedspawn.zox"));
-            //model.Parse(worldUpdate, 8286883, 8344394, 200); 
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern2.zox"));
-            //model.Parse(worldUpdate, 8287010, 8344432, 200);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_Tavern1.zox"));
-            //model.Parse(worldUpdate, 8286919, 8344315, 212); 
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/aster_arena.zox"));
-            //model.Parse(worldUpdate, 8286775, 8344392, 207);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/michael_project1.zox"));
-            //model.Parse(worldUpdate, 8286898, 8344375, 213); 
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
-            //model.Parse(worldUpdate, 8286885, 8344505, 208); 
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/arena/fulcnix_hall.zox"));
-            //model.Parse(worldUpdate, 8286885, 8344629, 208); 
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Tiecz_MountainArena.zox"));
-            //model.Parse(worldUpdate, 8286885, 8344759, 208);
-            ////8397006, 8396937, 127 //near spawn
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay11.zox"));
-            //model.Parse(worldUpdate, 8286770, 8344262, 207);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay12.zox"));
-            //model.Parse(worldUpdate, 8286770, 8344136, 207);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay13.zox"));
-            //model.Parse(worldUpdate, 8286770, 8344010, 207);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay14.zox"));
-            //model.Parse(worldUpdate, 8286770, 8344010, 333);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay01.zox"));
-            //model.Parse(worldUpdate, 8286644, 8344010, 333);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay02.zox"));
-            //model.Parse(worldUpdate, 8286118, 8344010, 333);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay03.zox"));
-            //model.Parse(worldUpdate, 8285992, 8344010, 333);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay04.zox"));
-            //model.Parse(worldUpdate, 8285992, 8344136, 333);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay05.zox"));
-            //model.Parse(worldUpdate, 8285992, 8344262, 333);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay06.zox"));
-            //model.Parse(worldUpdate, 8286118, 8344262, 333);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay07.zox"));
-            //model.Parse(worldUpdate, 8286118, 8344136, 333);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay08.zox"));
-            //model.Parse(worldUpdate, 8286244, 8344136, 333);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay09.zox"));
-            //model.Parse(worldUpdate, 8286244, 8344262, 333);
-            //model = JsonConvert.DeserializeObject<ZoxModel>(File.ReadAllText("models/Aster_CloudyDay10.zox"));
-            //model.Parse(worldUpdate, 8286770, 8344262, 333);
-            #endregion
+            userDatabase = new UserDatabase();
+            userDatabase.Database.Migrate(); //Ensure database exists
 
             udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             new Thread(new ThreadStart(ListenUDP)).Start();
@@ -138,10 +68,10 @@ namespace Server {
             }
         }
 
-        private static void SendUDP(byte[] data, Player target) {
+        public static void SendUDP(byte[] data, Player target) {
             udpClient.Send(data, data.Length, target.RemoteEndPoint);
         }
-        private static void BroadcastUDP(byte[] data, Player toSkip = null) {
+        public static void BroadcastUDP(byte[] data, Player toSkip = null) {
             foreach (var player in players) {
                 if (player != toSkip) {
                     SendUDP(data, player);
@@ -186,7 +116,7 @@ namespace Server {
                         authResponse = AuthResponse.AccountAlreadyActive;
                     }
                     else {
-                        authResponse = Database.AuthUser(username, password, (int)source.IP.Address, source.MAC);
+                        authResponse = userDatabase.AuthUser(username, password, (int)source.IP.Address, source.MAC);
                     }
                     source.writer.Write((byte)ServerPacketID.Login);
                     source.writer.Write((byte)authResponse);
@@ -222,7 +152,7 @@ namespace Server {
                         registerResponse = RegisterResponse.InvalidInput;
                     }
                     else {
-                        registerResponse = Database.RegisterUser(username, email, password);
+                        registerResponse = userDatabase.RegisterUser(username, email, password);
                     }
                     source.writer.Write((byte)ServerPacketID.Register);
                     source.writer.Write((byte)registerResponse);
@@ -297,28 +227,6 @@ namespace Server {
                     #region specialMove
                     var specialMove = new SpecialMove(datagram);
                     SpecialMoveUsed(specialMove, source);
-                    switch (specialMove.Id) {
-                        case SpecialMoveID.Taunt:
-                            target = players.FirstOrDefault(p => p.entity.guid == specialMove.Guid);
-                            if (target != null) {
-                                specialMove.Guid = (ushort)source.entity.guid;
-                                SendUDP(specialMove.data, target);
-                            }
-                            break;
-                        case SpecialMoveID.SmokeBomb:
-                            BroadcastUDP(specialMove.data, source);
-                            break;
-                        case SpecialMoveID.CursedArrow:
-                        case SpecialMoveID.ArrowRain:
-                        case SpecialMoveID.Shrapnel:
-                        case SpecialMoveID.IceWave:
-                        case SpecialMoveID.Confusion:
-                        case SpecialMoveID.ShadowStep:
-                            BroadcastUDP(specialMove.data);
-                            break;
-                        default:
-                            break;
-                    }
                     break;
                 #endregion
                 case DatagramID.HolePunch:
