@@ -17,7 +17,7 @@ using Resources.Packet;
 using Resources.Utilities;
 
 namespace Server {
-    public static class Server {
+    public static partial class Server {
         public static UdpClient udpClient;
         public static TcpListener tcpListener;
         public static List<Player> players = new List<Player>();
@@ -242,47 +242,7 @@ namespace Server {
                 case DatagramID.DynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
-                    #region antiCheat
-                    string ACmessage = AntiCheat.Inspect(entityUpdate, source.entity);
-                    if (ACmessage != null) Kick(source, ACmessage);
-                    #endregion
-                    #region announce
-                    if (entityUpdate.name != null) {
-                        //Announce.Join(entityUpdate.name, player.entityData.name, players);
-                    }
-                    #endregion
-                    #region pvp
-                    entityUpdate.entityFlags |= 1 << 5; //enable friendly fire flag for pvp
-                    #endregion
-                    #region tombstone
-                    if (entityUpdate.HP <= 0 && (source.entity.HP > 0 || source.entity.HP == null)) {
-                        var tombstone = new EntityUpdate() {
-                            guid = AssignGuid(),
-                            position = entityUpdate.position ?? source.entity.position,
-                            hostility = Hostility.Neutral,
-                            entityType = EntityType.None,
-                            appearance = new EntityUpdate.Appearance() {
-                                character_size = new FloatVector() {
-                                    x = 1,
-                                    y = 1,
-                                    z = 1,
-                                },
-                                head_model = 2155,
-                                head_size = 1
-                            },
-                            HP = 100,
-                            name = "tombstone"
-                        };
-                        source.tomb = (ushort)tombstone.guid;
-                        BroadcastUDP(tombstone.CreateDatagram());
-                    }
-                    else if (source.entity.HP <= 0 && entityUpdate.HP > 0 && source.tomb != null) {
-                        var rde = new RemoveDynamicEntity() {
-                            Guid = (ushort)source.tomb,
-                        };
-                        BroadcastUDP(rde.data);
-                    }
-                    #endregion
+                    EntityUpdated(entityUpdate, source);
                     entityUpdate.Merge(source.entity);
                     BroadcastUDP(entityUpdate.CreateDatagram(), source);
                     break;
@@ -290,6 +250,7 @@ namespace Server {
                 case DatagramID.Attack:
                     #region attack
                     var attack = new Attack(datagram);
+                    EntityAttacked(attack, source);
                     source.lastTarget = attack.Target;
                     var target = players.FirstOrDefault(p => p.entity?.guid == attack.Target);
                     if (target != null) SendUDP(attack.data, target);
@@ -298,105 +259,44 @@ namespace Server {
                 case DatagramID.Projectile:
                     #region Projectile
                     var projectile = new Projectile(datagram);
+                    ProjectileCreated(projectile, source);
                     BroadcastUDP(projectile.data, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.Proc:
                     #region proc
                     var proc = new Proc(datagram);
+                    PassiveProcced(proc, source);
                     BroadcastUDP(proc.data, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.Chat:
                     #region chat
                     var chat = new Chat(datagram);
-
-                    if (chat.Text.StartsWith("/")) {
-                        var parameters = chat.Text.Substring(1).Split(" ");
-                        var command = parameters[0].ToLower();
-                        switch (command) {
-                            case "kick":
-                            case "btfo":
-                            case "ban":
-                                #region ban
-                                if (source.entity.name != "BLACKROCK") {
-                                    Notify(source, "no permission");
-                                    break;
-                                }
-                                if (parameters.Length == 1) {
-                                    Notify(source, string.Format("usage example: /kick blackrock"));
-                                    break;
-                                }
-                                target = players.FirstOrDefault(x => x.entity.name.Contains(parameters[1]));
-                                if (target == null) {
-                                    Notify(source, "invalid target");
-                                    break;
-                                };
-                                var reason = "no reason specified";
-                                if (parameters.Length > 2) {
-                                    reason = parameters[2];
-                                }
-                                if (command == "kick") {
-                                    Kick(target, reason);
-                                    break;
-                                }
-                                target.writer.Write((byte)ServerPacketID.BTFO);
-                                target.writer.Write(reason);
-                                if (command == "ban") {
-                                    Database.BanUser(target.entity.name, (int)target.IP.Address, target.MAC, reason);
-                                }
-                                RemovePlayerEntity(target, false);
-                                break;
-                            #endregion
-                            case "bleeding":
-
-                                break;
-                            case "time":
-                                #region time
-                                if (parameters.Length == 1) {
-                                    Notify(source, string.Format("usage example: /time 12:00"));
-                                    break;
-                                }
-                                var clock = parameters[1].Split(":");
-                                if (clock.Length < 2 ||
-                                !int.TryParse(clock[0], out int hour) ||
-                                !int.TryParse(clock[1], out int minute)) {
-                                    Notify(source, string.Format("invalid syntax"));
-                                    break;
-                                }
-                                var inGameTime = new InGameTime() {
-                                    Milliseconds = (hour * 60 + minute) * 60000,
-                                };
-                                SendUDP(inGameTime.data, source);
-                                break;
-                            #endregion
-                            default:
-                                Notify(source, string.Format("unknown command '{0}'", parameters[0]));
-                                break;
-                        }
-                        break;
-                    }
+                    ChatMessageReceived(chat.Text, source);
                     Log.Print(dynamicEntities[chat.Sender].name + ": ", ConsoleColor.Cyan);
                     Log.PrintLn(chat.Text, ConsoleColor.White, false);
-
                     BroadcastUDP(chat.data, null); //pass to all players
                     break;
                 #endregion
                 case DatagramID.Interaction:
                     #region interaction
                     var interaction = new Interaction(datagram);
+                    EntityInteracted(interaction, source);
                     BroadcastUDP(interaction.data, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.RemoveDynamicEntity:
                     #region removeDynamicEntity
                     var remove = new RemoveDynamicEntity(datagram);
+                    EntityRemoved(remove, source);
                     RemovePlayerEntity(source, true);
                     break;
                 #endregion
                 case DatagramID.SpecialMove:
                     #region specialMove
                     var specialMove = new SpecialMove(datagram);
+                    SpecialMoveUsed(specialMove, source);
                     switch (specialMove.Id) {
                         case SpecialMoveID.Taunt:
                             target = players.FirstOrDefault(p => p.entity.guid == specialMove.Guid);
