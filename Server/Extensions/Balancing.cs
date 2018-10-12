@@ -7,12 +7,12 @@ namespace Server.Extensions {
             Server.EntityAttacked += CutDmgInHalf;
         }
 
-        private static void CutDmgInHalf(Attack datagram, Player player) {
-            if (datagram.Damage < 0) {
-                datagram.Damage *= 0.5f; //dmg
+        private static void CutDmgInHalf(Attack attack, Player player) {
+            if (attack.Damage > 0) {
+                attack.Damage *= 0.5f; //dmg
             }
             else {
-                datagram.Damage *= 0.333333f; //heal
+                attack.Damage *= 0.333333f; //heal
             }
         }
     }
