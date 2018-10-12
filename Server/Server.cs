@@ -174,7 +174,7 @@ namespace Server {
                 case DatagramID.DynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
-                    EntityUpdated(entityUpdate, source);
+                    EntityUpdated?.Invoke(entityUpdate, source);
                     entityUpdate.Merge(source.entity);
                     BroadcastUDP(entityUpdate.CreateDatagram(), source);
                     break;
@@ -182,7 +182,7 @@ namespace Server {
                 case DatagramID.Attack:
                     #region attack
                     var attack = new Attack(datagram);
-                    EntityAttacked(attack, source);
+                    EntityAttacked?.Invoke(attack, source);
                     source.lastTarget = attack.Target;
                     var target = players.FirstOrDefault(p => p.entity?.guid == attack.Target);
                     if (target != null) SendUDP(attack.data, target);
@@ -191,21 +191,21 @@ namespace Server {
                 case DatagramID.Projectile:
                     #region Projectile
                     var projectile = new Projectile(datagram);
-                    ProjectileCreated(projectile, source);
+                    ProjectileCreated?.Invoke(projectile, source);
                     BroadcastUDP(projectile.data, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.Proc:
                     #region proc
                     var proc = new Proc(datagram);
-                    PassiveProcced(proc, source);
+                    PassiveProcced?.Invoke(proc, source);
                     BroadcastUDP(proc.data, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.Chat:
                     #region chat
                     var chat = new Chat(datagram);
-                    ChatMessageReceived(chat.Text, source);
+                    ChatMessageReceived?.Invoke(chat.Text, source);
                     Log.Print(dynamicEntities[chat.Sender].name + ": ", ConsoleColor.Cyan);
                     Log.PrintLn(chat.Text, ConsoleColor.White, false);
                     BroadcastUDP(chat.data, null); //pass to all players
@@ -214,21 +214,21 @@ namespace Server {
                 case DatagramID.Interaction:
                     #region interaction
                     var interaction = new Interaction(datagram);
-                    EntityInteracted(interaction, source);
+                    EntityInteracted?.Invoke(interaction, source);
                     BroadcastUDP(interaction.data, source); //pass to all players except source
                     break;
                 #endregion
                 case DatagramID.RemoveDynamicEntity:
                     #region removeDynamicEntity
                     var remove = new RemoveDynamicEntity(datagram);
-                    EntityRemoved(remove, source);
+                    EntityRemoved?.Invoke(remove, source);
                     RemovePlayerEntity(source, true);
                     break;
                 #endregion
                 case DatagramID.SpecialMove:
                     #region specialMove
                     var specialMove = new SpecialMove(datagram);
-                    SpecialMoveUsed(specialMove, source);
+                    SpecialMoveUsed?.Invoke(specialMove, source);
                     break;
                 #endregion
                 case DatagramID.HolePunch:
