@@ -34,6 +34,8 @@ namespace Server {
             tcpListener = new TcpListener(IPAddress.Any, port);
             tcpListener.Start();
             new Thread(new ThreadStart(ListenTCP)).Start();
+
+            Extensions.Extensions.Init();
             Log.PrintLn("loading completed");
         }
 
