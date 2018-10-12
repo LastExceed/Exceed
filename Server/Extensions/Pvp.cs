@@ -12,8 +12,6 @@ namespace Server.Extensions {
 
         private static void EnableFriendlyFireFlag(EntityUpdate entityUpdate, Player player) {
             entityUpdate.entityFlags |= 1 << 5;
-
-            
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Server.Extensions {
             Pvp.Init();
             ChatCommands.Init();
             SpecialMoves.Init();
+            Balancing.Init();
         }
     }
 }
