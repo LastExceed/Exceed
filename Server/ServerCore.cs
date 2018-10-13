@@ -12,7 +12,9 @@ using Microsoft.EntityFrameworkCore;
 using Resources;
 using Resources.Datagram;
 using Resources.Packet;
-
+using Resources.Utilities;
+using Server.Plugins;
+using Server.Extensions;
 namespace Server {
     public static partial class ServerCore {
         public static UdpClient udpClient;
@@ -20,12 +22,10 @@ namespace Server {
         public static List<Player> players = new List<Player>();
         public static Dictionary<ushort, EntityUpdate> dynamicEntities = new Dictionary<ushort, EntityUpdate>();
         public static UserDatabase userDatabase;
-
         public static void Start(int port) {
             Log.PrintLn("server starting...");
             userDatabase = new UserDatabase();
             userDatabase.Database.Migrate(); //Ensure database exists
-
             udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             new Thread(new ThreadStart(ListenUDP)).Start();
             tcpListener = new TcpListener(IPAddress.Any, port);
@@ -33,6 +33,7 @@ namespace Server {
             new Thread(new ThreadStart(ListenTCP)).Start();
 
             Extensions.Extensions.Init();
+            PluginsCore.Init();
             Log.PrintLn("loading completed");
         }
 
