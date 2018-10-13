@@ -14,6 +14,9 @@ namespace Server.Extensions {
             else {
                 attack.Damage *= 0.333333f; //heal
             }
+            if (attack.Target == player.entity.guid) {//players can't damage themselves. this prevents double self heals since selfheal is already applied locally
+                attack.Damage = 0;
+            }
         }
     }
 }
