@@ -4,12 +4,11 @@ using System.Text;
 
 namespace Server.Plugins
 {
-    public class Plugin
+    public class PluginBase
     {
         protected String pluginName;
         public virtual Boolean hasCommands()
         {
-            Console.WriteLine("test");
             return false;
         }
         public String getName()

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Server.Plugins.Duel
 {
-    class DuelCore : Plugin
+    class DuelCore : PluginBase
     {
         public static volatile List<DuelSystem> duels = new List<DuelSystem>();
         public static List<PlayerDuel> players = new List<PlayerDuel>();

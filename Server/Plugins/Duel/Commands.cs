@@ -8,8 +8,8 @@ namespace Server.Plugins.Duel
 {
     class Commands
     {
-        public static Plugin pluginRef;
-        public static void Init(Plugin plugin)
+        public static PluginBase pluginRef;
+        public static void Init(PluginBase plugin)
         {
             Server.ChatMessageReceived += ParseAsCommand;
             pluginRef = plugin;
@@ -19,11 +19,21 @@ namespace Server.Plugins.Duel
             PlayerDuel target;
             PlayerDuel source = DuelCore.players.FirstOrDefault(x => x.entity.guid == sourceTemp.entity.guid);
             DuelSystem duelFinder;
-            if (!message.StartsWith("/duel"))
+            message = message.ToLower();
+            if (!message.StartsWith("/" + pluginRef.getName().ToLower()))
             {
+                if (PluginsCore.pluginsWithCommands.Last().getName() == pluginRef.getName())
+                {
+                    Server.Notify(source, string.Format("unknown command"));
+                }
                 return;
             }
-            var parameters = message.Substring(1 + pluginRef.getName().Length).Split(" ");
+            if (message.Length == 1 + pluginRef.getName().Length)
+            {
+                Server.Notify(source, string.Format("Type /" + pluginRef.getName() + " help for further informations about this command"));
+                return;
+            }
+            var parameters = message.Substring(2 + pluginRef.getName().Length).Split(" ");
             var command = parameters[0].ToLower();
             switch (command)
             {
@@ -145,10 +155,7 @@ namespace Server.Plugins.Duel
                     #endregion
                     break;
                 default:
-                    if (PluginsCore.pluginsWithCommands.Last().getName() == pluginRef.getName())
-                    {
-                        Server.Notify(source, string.Format("Type /duel help for more information"));
-                    }
+                    Server.Notify(source, string.Format("Type /duel help for more information"));
                     break;
             }
         }

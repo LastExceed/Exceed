@@ -6,7 +6,7 @@ using Server.Plugins.Arena.Database;
 
 namespace Server.Plugins.Arena
 {
-    class ArenaCore : Plugin
+    class ArenaCore : PluginBase
     {
         public static ArenaDatabase ArenaDatabase;
         public ArenaCore()
@@ -14,7 +14,7 @@ namespace Server.Plugins.Arena
             ArenaDatabase = new ArenaDatabase();
             ArenaDatabase.Database.Migrate();
             Commands.Init(ArenaDatabase,this);
-            pluginName = "Arena";
+            pluginName = ArenaConfig.pluginName;
         }
         public override Boolean hasCommands()
         {

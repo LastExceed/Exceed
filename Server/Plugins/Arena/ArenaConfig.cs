@@ -2,5 +2,6 @@
 {
     static public class ArenaConfig
     {
+        public static string pluginName = "Arena";
     }
 }

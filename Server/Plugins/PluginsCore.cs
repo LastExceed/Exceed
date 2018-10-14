@@ -5,18 +5,18 @@ namespace Server.Plugins
 {
     public static class PluginsCore
     {
-        public static List<Plugin> pluginsList;
-        public static List<Plugin> pluginsWithCommands;
+        public static List<PluginBase> pluginsList;
+        public static List<PluginBase> pluginsWithCommands;
         public static void Init()
         {
-            pluginsList = new List<Plugin>();
-            pluginsWithCommands = new List<Plugin>();
+            pluginsList = new List<PluginBase>();
+            pluginsWithCommands = new List<PluginBase>();
             foreach (String pluginName in PluginsConfig.pluginsName)
             {
                 var pluginPath = Type.GetType("Server.Plugins." + pluginName + "." + pluginName + "Core");
                 if (pluginPath != null)
                 {
-                    var plugin = (Plugin)Activator.CreateInstance(pluginPath);
+                    var plugin = (PluginBase)Activator.CreateInstance(pluginPath);
                     if (plugin.hasCommands())
                     {
                         pluginsWithCommands.Add(plugin);
