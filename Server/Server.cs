@@ -5,8 +5,6 @@ using System.Threading;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
-
-using Server.Addon;
 using Server.Database;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Resources;
 using Resources.Datagram;
 using Resources.Packet;
-using Resources.Utilities;
 
 namespace Server {
     public static partial class Server {
