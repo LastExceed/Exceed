@@ -112,7 +112,7 @@
     <Compile Include="KeyboardHook.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="BridgeTCPUDP.cs" />
+    <Compile Include="BridgeCore.cs" />
     <Compile Include="ReadWriteProcessMemory.cs" />
     <EmbeddedResource Include="FormChat.resx">
       <DependentUpon>FormChat.cs</DependentUpon>

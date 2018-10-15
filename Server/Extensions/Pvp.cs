@@ -7,7 +7,7 @@ using System.Text;
 namespace Server.Extensions {
     public static class Pvp {
         public static void Init() {
-            Server.EntityUpdated += EnableFriendlyFireFlag;
+            ServerCore.EntityUpdated += EnableFriendlyFireFlag;
         }
 
         private static void EnableFriendlyFireFlag(EntityUpdate entityUpdate, Player player) {

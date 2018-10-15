@@ -15,7 +15,7 @@ namespace Server {
     public delegate void EntityRemovedEventHandler(RemoveDynamicEntity datagram, Player source);
     public delegate void SpecialMoveUsedEventHandler(SpecialMove datagram, Player source);
 
-    public static partial class Server {
+    public static partial class ServerCore {
         public static event EntityUpdatedEventHandler EntityUpdated;
         public static event EntityAttackedEventHandler EntityAttacked;
         public static event ProjectileCreatedEventHandler ProjectileCreated;

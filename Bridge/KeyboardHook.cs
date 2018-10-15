@@ -100,13 +100,13 @@ namespace Bridge {
             if (!isDown) return;//temp fix to prevent activation on release
             switch (key) {
                 case Keys.D4:
-                    BridgeTCPUDP.OnHotkey(Resources.HotkeyID.CtrlSpace);
+                    BridgeCore.OnHotkey(Resources.HotkeyID.CtrlSpace);
                     break;
                 case Keys.D5:
-                    BridgeTCPUDP.OnHotkey(Resources.HotkeyID.SpecialMove2);
+                    BridgeCore.OnHotkey(Resources.HotkeyID.SpecialMove2);
                     break;
                 case Keys.D0:
-                    BridgeTCPUDP.OnHotkey(Resources.HotkeyID.TeleportToTown);
+                    BridgeCore.OnHotkey(Resources.HotkeyID.TeleportToTown);
                     break;
                 default:
                     break;

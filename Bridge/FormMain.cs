@@ -22,10 +22,10 @@ namespace Bridge {
             chat.Show();
             chat.Top = this.Top;
             chat.Left = Left + Width;
-            BridgeTCPUDP.form = this;
+            BridgeCore.form = this;
             CwRam.formMain = this;
-            new Thread(BridgeTCPUDP.ListenFromClientTCP).Start();
-            new Thread(BridgeTCPUDP.Connect).Start();
+            new Thread(BridgeCore.ListenFromClientTCP).Start();
+            new Thread(BridgeCore.Connect).Start();
             keyboardHook = new KeyboardHook();
         }
         private void timerSearchProcess_Tick(object sender, EventArgs e) {
@@ -39,7 +39,7 @@ namespace Bridge {
                 }
                 else {
                     CwRam.RemoveFog();
-                    if (BridgeTCPUDP.status == Resources.BridgeStatus.Playing) CwRam.SetName(linkLabelUser.Text);
+                    if (BridgeCore.status == Resources.BridgeStatus.Playing) CwRam.SetName(linkLabelUser.Text);
                 }
             }
             else {
@@ -108,7 +108,7 @@ namespace Bridge {
         }
 
         private void contextMenuStripUser_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            BridgeTCPUDP.Logout();
+            BridgeCore.Logout();
             OnLogout();
         }
         public void OnLogout() {

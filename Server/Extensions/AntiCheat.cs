@@ -7,13 +7,13 @@ using System.Text;
 namespace Server.Extensions {
     public static class AntiCheat {
         public static void Init() {
-            Server.EntityUpdated += That;
+            ServerCore.EntityUpdated += That;
         }
 
         private static void That(EntityUpdate entityUpdate, Player player) {
             string ACmessage = Inspect(entityUpdate, player.entity);
             if (ACmessage != null) {
-                Server.Kick(player, ACmessage);
+                ServerCore.Kick(player, ACmessage);
             }
         }
 

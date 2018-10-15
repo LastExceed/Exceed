@@ -4,7 +4,7 @@ using Resources.Datagram;
 namespace Server.Extensions {
     public static class Balancing {
         public static void Init() {
-            Server.EntityAttacked += CutDmgInHalf;
+            ServerCore.EntityAttacked += CutDmgInHalf;
         }
 
         private static void CutDmgInHalf(Attack attack, Player player) {
@@ -14,7 +14,7 @@ namespace Server.Extensions {
             //else {
             //    attack.Damage *= 0.333333f; //heal
             //}
-            var target = Server.dynamicEntities[attack.Target];
+            var target = ServerCore.dynamicEntities[attack.Target];
             var dmgReductionByShield = 0f;
             if (target.equipment[(int)Equipment.LeftWeapon].subtype == (byte)ItemSubtypeWeapon.Shield) {
                 dmgReductionByShield += 0.25f;

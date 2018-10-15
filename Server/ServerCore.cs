@@ -14,7 +14,7 @@ using Resources.Datagram;
 using Resources.Packet;
 
 namespace Server {
-    public static partial class Server {
+    public static partial class ServerCore {
         public static UdpClient udpClient;
         public static TcpListener tcpListener;
         public static List<Player> players = new List<Player>();

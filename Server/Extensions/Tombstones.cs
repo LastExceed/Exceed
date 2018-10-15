@@ -9,13 +9,13 @@ using System.Text;
 namespace Server.Extensions {
     public static class Tombstones {
         public static void Init() {
-            Server.EntityUpdated += SpawnTomb;
+            ServerCore.EntityUpdated += SpawnTomb;
         }
 
         private static void SpawnTomb(EntityUpdate entityUpdate, Player player) {
             if (entityUpdate.HP <= 0 && (player.entity.HP > 0 || player.entity.HP == null)) {
                 var tombstone = new EntityUpdate() {
-                    guid = Server.AssignGuid(),
+                    guid = ServerCore.AssignGuid(),
                     position = entityUpdate.position ?? player.entity.position,
                     hostility = Hostility.Neutral,
                     entityType = EntityType.None,
@@ -32,13 +32,13 @@ namespace Server.Extensions {
                     name = "tombstone"
                 };
                 player.tomb = (ushort)tombstone.guid;
-                Server.BroadcastUDP(tombstone.CreateDatagram());
+                ServerCore.BroadcastUDP(tombstone.CreateDatagram());
             }
             else if (player.entity.HP <= 0 && entityUpdate.HP > 0 && player.tomb != null) {
                 var rde = new RemoveDynamicEntity() {
                     Guid = (ushort)player.tomb,
                 };
-                Server.BroadcastUDP(rde.data);
+                ServerCore.BroadcastUDP(rde.data);
             }
         }
     }

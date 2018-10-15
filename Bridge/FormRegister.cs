@@ -41,7 +41,7 @@ namespace Bridge {
 
         private void buttonRegister_Click(object sender, EventArgs e) {
             buttonRegister.Enabled = false;
-            BridgeTCPUDP.Register(textBoxUsername.Text, textBoxEmail.Text, textBoxPassword.Text);
+            BridgeCore.Register(textBoxUsername.Text, textBoxEmail.Text, textBoxPassword.Text);
         }
 
         private void buttonCreate_Click(object sender, EventArgs e) {
@@ -77,39 +77,39 @@ namespace Bridge {
             textBoxUsername.ReadOnly = true;
             textBoxEmail.ReadOnly = true;
             textBoxPassword.ReadOnly = true;
-            BridgeTCPUDP.Login(textBoxUsername.Text, textBoxPassword.Text);
+            BridgeCore.Login(textBoxUsername.Text, textBoxPassword.Text);
         }
 
         public void OnLoginResponse(AuthResponse authResponse) {
             switch (authResponse) {
                 case AuthResponse.Success:
-                    BridgeTCPUDP.form.Log("success\n", Color.Green);
-                    BridgeTCPUDP.form.buttonLoginRegister.Visible = false;
-                    BridgeTCPUDP.form.linkLabelUser.Text = textBoxUsername.Text;
-                    BridgeTCPUDP.form.linkLabelUser.Visible = true;
-                    BridgeTCPUDP.form.buttonClan.Enabled = true;
-                    BridgeTCPUDP.form.buttonClan.Visible = false;
-                    BridgeTCPUDP.form.linkLabelClan.Text = "Prisoners of Irreality";
-                    BridgeTCPUDP.form.linkLabelClan.Visible = true;
+                    BridgeCore.form.Log("success\n", Color.Green);
+                    BridgeCore.form.buttonLoginRegister.Visible = false;
+                    BridgeCore.form.linkLabelUser.Text = textBoxUsername.Text;
+                    BridgeCore.form.linkLabelUser.Visible = true;
+                    BridgeCore.form.buttonClan.Enabled = true;
+                    BridgeCore.form.buttonClan.Visible = false;
+                    BridgeCore.form.linkLabelClan.Text = "Prisoners of Irreality";
+                    BridgeCore.form.linkLabelClan.Visible = true;
                     this.Close();
                     break;
                 case AuthResponse.UnknownUser:
-                    BridgeTCPUDP.form.Log("username does not exist\n", Color.Red);
+                    BridgeCore.form.Log("username does not exist\n", Color.Red);
                     goto default;
                 case AuthResponse.WrongPassword:
-                    BridgeTCPUDP.form.Log("wrong password\n", Color.Red);
+                    BridgeCore.form.Log("wrong password\n", Color.Red);
                     goto default;
                 case AuthResponse.Banned:
-                    BridgeTCPUDP.form.Log("you are banned\n", Color.Red);
+                    BridgeCore.form.Log("you are banned\n", Color.Red);
                     goto default;
                 case AuthResponse.AccountAlreadyActive:
-                    BridgeTCPUDP.form.Log("account already in use\n", Color.Red);
+                    BridgeCore.form.Log("account already in use\n", Color.Red);
                     goto default;
                 case AuthResponse.Unverified:
-                    BridgeTCPUDP.form.Log("unverified (this shouldnt happen)\n", Color.Red);
+                    BridgeCore.form.Log("unverified (this shouldnt happen)\n", Color.Red);
                     goto default;
                 case AuthResponse.UserAlreadyLoggedIn:
-                    BridgeTCPUDP.form.Log("you are already logged in (this shouldn't happen)\n", Color.Red);
+                    BridgeCore.form.Log("you are already logged in (this shouldn't happen)\n", Color.Red);
                     goto default;
                 default:
                     buttonLogin.Enabled = true;

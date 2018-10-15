@@ -15,7 +15,7 @@ using Resources.Packet;
 using Resources.Datagram;
 
 namespace Bridge {
-    static class BridgeTCPUDP {
+    static class BridgeCore {
         public static UdpClient udpToServer;
         public static TcpClient tcpToServer, tcpToClient;
         public static TcpListener tcpListener = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345); //hardcoded because client port can't be changed
