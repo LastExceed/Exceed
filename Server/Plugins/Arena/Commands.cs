@@ -5,7 +5,6 @@ using System.Text;
 using Resources;
 using Server.Plugins.Arena.Database;
 using Server.Plugins.Arena.Resources;
-using CommandsBaseMessages = Server.Plugins.CommandsMessage;
 namespace Server.Plugins.Arena
 {
     class Commands
@@ -95,7 +94,7 @@ namespace Server.Plugins.Arena
                         }
                         if (response == ArenaResponse.SetupPositionSet)
                         {
-                            Server.Notify(source, CommandsMessages.getMessage(String.Format(CommandsMessages.setPositionSuccess, parameters[1])));
+                            Server.Notify(source, CommandsMessages.getMessage(string.Format(CommandsMessages.setPositionSuccess, parameters[1])));
                         }
                         else if (response == ArenaResponse.SetupEmpty)
                         {

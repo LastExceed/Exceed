@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Resources;
+using Server.Plugins.Duel.Resources;
+using CommandsBaseMessages = Server.Plugins.CommandsBaseMessages;
 namespace Server.Plugins.Duel
 {
     class Commands
@@ -19,40 +21,38 @@ namespace Server.Plugins.Duel
             PlayerDuel source = DuelCore.players.FirstOrDefault(x => x.entity.guid == sourceTemp.entity.guid);
             DuelSystem duelFinder;
             message = message.ToLower();
-            if (!message.StartsWith("/" + pluginRef.getName().ToLower()))
+            var commandName = message.Substring(1).Split(" ")[0];
+            if (!(commandName == pluginRef.getName().ToLower()))
             {
                 return false;
             }
             if (message.Length == 1 + pluginRef.getName().Length)
             {
-                Server.Notify(source, string.Format("Type /" + pluginRef.getName() + " help for further informations about this command"));
+                Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseSyntax));
                 return true;
             }
             var parameters = message.Substring(2 + pluginRef.getName().Length).Split(" ");
-            var command = parameters[0].ToLower();
-            switch (command)
+            switch (parameters[0])
             {
                 case "help":
                     #region help
-                    Server.Notify(source, string.Format("/duel start [player2]"));
-                    Server.Notify(source, string.Format("/duel accept"));
-                    Server.Notify(source, string.Format("/duel refuse"));
-                    Server.Notify(source, string.Format("/duel spectate [playerName]"));
-                    Server.Notify(source, string.Format("/duel stop"));
+                    Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.startSyntax));
+                    Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.acceptSyntax));
+                    Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.refuseSyntax));
+                    Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.stopSyntax));
+                    Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.spectateSyntax));
                     break;
                 #endregion
                 case "stop":
                     #region stop
-                    Console.WriteLine(DuelCore.duels.Count());
                     duelFinder = DuelCore.duels.LastOrDefault(x => x.player1.entity.name.Contains(source.entity.name) || x.player2.entity.name.Contains(source.entity.name));
                     if (duelFinder != null)
                     {
                         duelFinder.Stop();
-                        Console.WriteLine(DuelCore.duels.Count());
                     }
                     else
                     {
-                        Server.Notify(source, "[Duel] No duel ongoing");
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseNoDuelRequestFound));
                     }
                     break;
                 #endregion
@@ -60,36 +60,35 @@ namespace Server.Plugins.Duel
                     #region start
                     if (parameters.Length == 3)
                     {
-                        target = DuelCore.players.FirstOrDefault(x => x.entity.name.Contains(parameters[2]));
+                        target = DuelCore.players.FirstOrDefault(x => x.entity.name.Contains(parameters[1]));
                         if (target == null)
                         {
-                            Server.Notify(source, "[Duel] invalid target");
+                            Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseInvalidTarget));
                             break;
                         }
                         else if (target == source && source.entity.name != "BLIZZY")
                         {
-                            Server.Notify(source, "[Duel] Unfortunatly, you can't duel yourself");
+                            Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.startSelfError));
                             break;
                         }
                         else if (source.Duel == true)
                         {
-                            Server.Notify(source, "[Duel] You're already involved in a duel");
+                            Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseAlreadyDueling));
                             break;
                         }
                         else if (target.Duel == true)
                         {
-                            Server.Notify(source, "[Duel] The target is already involved in a duel");
+                            Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.startTargetAlreadyDueling));
                             break;
                         }
-                        Server.Notify(target, string.Format("[Duel] {0} wants to duel you ! /duel accept or /duel refuse", source.entity.name));
+                        Server.Notify(source, CommandsMessages.getMessage(String.Format(CommandsMessages.startAcceptMessage,source.entity.name)));
                         var duel = new DuelSystem(source, target, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
                         DuelCore.duels.Add(duel);
-                        Console.WriteLine(String.Format("{0} ask a duel with {1}, Total Duel ongoing : {2}", source.entity.name, target.entity.name, DuelCore.duels.Count()));
                         new Thread(() => duel.RunDuel()).Start();
                     }
                     else
                     {
-                        Server.Notify(source, string.Format("Syntax : /duel start [player2]"));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.startSyntax));
                     }
                     break;
                 #endregion
@@ -102,11 +101,11 @@ namespace Server.Plugins.Duel
                     }
                     else if (source.Duel == true)
                     {
-                        Server.Notify(source, string.Format("[Duel] Duel already ongoing"));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseAlreadyDueling));
                     }
                     else
                     {
-                        Server.Notify(source, string.Format("[Duel] No duel request found"));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseNoDuelRequestFound));
                     }
                     break;
                 #endregion
@@ -119,33 +118,33 @@ namespace Server.Plugins.Duel
                     }
                     else if (source.Duel == true)
                     {
-                        Server.Notify(source, string.Format("[Duel] Duel already ongoing"));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseAlreadyDueling));
                     }
                     else
                     {
-                        Server.Notify(source, string.Format("[Duel] No duel request found"));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseNoDuelRequestFound));
                     }
                     break;
                 #endregion
                 case "spectate":
                     #region spectate
-                    if (parameters.Length == 3)
+                    if (parameters.Length == 2)
                     {
-                        var name = parameters[2];
+                        var name = parameters[1];
                         duelFinder = DuelCore.duels.LastOrDefault(x => x.player1.entity.name.Contains(name) || x.player2.entity.name.Contains(name));
                         if (duelFinder != null && source.Duel == null)
                         {
                             duelFinder.Spectate(source);
-                            Server.Notify(source, string.Format("[Duel] You are spectating the duel of {0} !", name));
+                            Server.Notify(source, CommandsMessages.getMessage(String.Format(CommandsMessages.spectateSuccess, name)));
                         }
                         else
                         {
-                            Server.Notify(source, string.Format("[Duel] Invalid Target"));
+                            Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseInvalidTarget));
                         }
                     }
                     else
                     {
-                        Server.Notify(source, string.Format("Syntax: /duel spectate [playerName]"));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.spectateSyntax));
                     }
                     #endregion
                     break;

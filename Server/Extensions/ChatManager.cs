@@ -39,7 +39,7 @@ namespace Server.Extensions
                 if (!CommandFound)
                 {
                     var commandName = message.Substring(1).Split(" ")[0];
-                    Server.Notify(source, CommandsMessage.getMessage(String.Format(CommandsMessage.baseUnknowCommand, commandName)));
+                    Server.Notify(source, CommandsBaseMessages.getMessage(String.Format(CommandsBaseMessages.baseUnknowCommand, commandName)));
                 }
             }
         }
