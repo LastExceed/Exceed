@@ -5,7 +5,7 @@ using System.Text;
 using Resources;
 using Server.Plugins.Arena.Database;
 using Server.Plugins.Arena.Resources;
-
+using CommandsBaseMessages = Server.Plugins.CommandsMessage;
 namespace Server.Plugins.Arena
 {
     class Commands
@@ -14,25 +14,21 @@ namespace Server.Plugins.Arena
         public static PluginBase pluginRef;
         public static void Init(ArenaDatabase arenaDatabase, PluginBase plugin)
         {
-            Server.ChatMessageReceived += ParseAsCommand;
             ArenaDatabase = arenaDatabase;
             pluginRef = plugin;
         }
-        private static void ParseAsCommand(string message, Player source)
+        public static Boolean ParseAsCommand(string message, Player source)
         {
             message = message.ToLower();
-            if (!message.StartsWith("/" + pluginRef.getName().ToLower()))
+            var commandName = message.Substring(1).Split(" ")[0];
+            if (!(commandName == pluginRef.getName().ToLower()))
             {
-                if (PluginsCore.pluginsWithCommands.Last().getName() == pluginRef.getName())
-                {
-                    Server.Notify(source, string.Format("unknown command"));
-                }
-                return;
+                return false;
             }
             if (message.Length == 1 + pluginRef.getName().Length)
             {
                 Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseSyntax));
-                return;
+                return true;
             }
             var parameters = message.Substring(2 + pluginRef.getName().Length).Split(" ");
             ArenaResponse response = ArenaResponse.Null;
@@ -43,7 +39,7 @@ namespace Server.Plugins.Arena
                     #region setup
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseNoPermission));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
                     string arenaName = null;
@@ -71,7 +67,7 @@ namespace Server.Plugins.Arena
                     #region setup-set
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseNoPermission));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
                     if (parameters.Length == 2)
@@ -116,7 +112,7 @@ namespace Server.Plugins.Arena
                     #region setup-name
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseNoPermission));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
                     if (parameters.Length == 2)
@@ -141,7 +137,7 @@ namespace Server.Plugins.Arena
                     #region arena-create
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseNoPermission));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
                     if(parameters.Length > 1)
@@ -168,7 +164,7 @@ namespace Server.Plugins.Arena
                     #region arena-delete
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseNoPermission));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
                     if (parameters.Length == 2)
@@ -203,7 +199,7 @@ namespace Server.Plugins.Arena
                     #region reset
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseNoPermission));
+                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
                     if(parameters.Length > 1)
@@ -232,9 +228,9 @@ namespace Server.Plugins.Arena
                     break;
                 #endregion
                 default:
-                    Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseSyntax));
-                    break;
+                    return false;
             }
+            return true;
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Server.Extensions {
         public static void Init() {
             AntiCheat.Init();
             Pvp.Init();
-            ChatCommands.Init();
+            ChatManager.Init();
             SpecialMoves.Init();
             Balancing.Init();
         }

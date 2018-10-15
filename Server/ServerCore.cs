@@ -203,10 +203,7 @@ namespace Server {
                 case DatagramID.Chat:
                     #region chat
                     var chat = new Chat(datagram);
-                    ChatMessageReceived?.Invoke(chat.Text, source);
-                    Log.Print(dynamicEntities[chat.Sender].name + ": ", ConsoleColor.Cyan);
-                    Log.PrintLn(chat.Text, ConsoleColor.White, false);
-                    BroadcastUDP(chat.data, null); //pass to all players
+                    ChatMessageReceived?.Invoke(chat, source);
                     break;
                 #endregion
                 case DatagramID.Interaction:

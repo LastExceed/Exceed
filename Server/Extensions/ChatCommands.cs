@@ -1,21 +1,16 @@
 ﻿using Resources;
 using Resources.Datagram;
 using Resources.Packet;
+using Server.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace Server.Extensions {
+namespace Server.Extensions {
     public static class ChatCommands {
-        public static void Init() {
-            ServerCore.ChatMessageReceived += ParseAsCommand;
-        }
-
-        private static void ParseAsCommand(string message, Player source) {
-            if (!message.StartsWith("/")) {
-                return;
-            }
+        public static Boolean ParseAsCommand(string message, Player source) {
             var parameters = message.Substring(1).Split(" ");
             var command = parameters[0].ToLower();
             switch (command) {
@@ -31,7 +26,7 @@ namespace Server.Extensions {
                         ServerCore.Notify(source, string.Format("usage example: /kick blackrock"));
                         break;
                     }
-                    var target = ServerCore.players.FirstOrDefault(x => x.entity.name.Contains(parameters[1]));
+                    var target = Server.players.FirstOrDefault(x => x.entity.name.Contains(parameters[1]));
                     if (target == null) {
                         ServerCore.Notify(source, "invalid target");
                         break;
@@ -75,9 +70,9 @@ namespace Server.Extensions {
                     break;
                 #endregion
                 default:
-                    ServerCore.Notify(source, string.Format("unknown command '{0}'", parameters[0]));
-                    break;
+                    return false;
             }
+            return true;
         }
     }
 }

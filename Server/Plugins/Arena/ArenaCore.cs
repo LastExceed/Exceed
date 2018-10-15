@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Resources;
 using Server.Plugins.Arena.Database;
 
 namespace Server.Plugins.Arena
@@ -19,6 +20,10 @@ namespace Server.Plugins.Arena
         public override Boolean hasCommands()
         {
             return true;
+        }
+        public override Boolean analyzeCommand(string message,Player source)
+        {
+            return Commands.ParseAsCommand(message, source);
         }
     }
 }

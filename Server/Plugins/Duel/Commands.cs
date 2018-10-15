@@ -11,10 +11,9 @@ namespace Server.Plugins.Duel
         public static PluginBase pluginRef;
         public static void Init(PluginBase plugin)
         {
-            Server.ChatMessageReceived += ParseAsCommand;
             pluginRef = plugin;
         }
-        private static void ParseAsCommand(string message, Player sourceTemp)
+        private static Boolean ParseAsCommand(string message, Player sourceTemp)
         {
             PlayerDuel target;
             PlayerDuel source = DuelCore.players.FirstOrDefault(x => x.entity.guid == sourceTemp.entity.guid);
@@ -22,16 +21,12 @@ namespace Server.Plugins.Duel
             message = message.ToLower();
             if (!message.StartsWith("/" + pluginRef.getName().ToLower()))
             {
-                if (PluginsCore.pluginsWithCommands.Last().getName() == pluginRef.getName())
-                {
-                    Server.Notify(source, string.Format("unknown command"));
-                }
-                return;
+                return false;
             }
             if (message.Length == 1 + pluginRef.getName().Length)
             {
                 Server.Notify(source, string.Format("Type /" + pluginRef.getName() + " help for further informations about this command"));
-                return;
+                return true;
             }
             var parameters = message.Substring(2 + pluginRef.getName().Length).Split(" ");
             var command = parameters[0].ToLower();
@@ -155,9 +150,9 @@ namespace Server.Plugins.Duel
                     #endregion
                     break;
                 default:
-                    Server.Notify(source, string.Format("Type /duel help for more information"));
-                    break;
+                    return false;
             }
+            return true;
         }
     }
 }

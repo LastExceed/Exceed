@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Resources;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,6 +15,10 @@ namespace Server.Plugins
         public String getName()
         {
             return pluginName;
+        }
+        public virtual Boolean analyzeCommand(string message, Player source)
+        {
+            return false;
         }
     }
 }

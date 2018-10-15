@@ -8,7 +8,6 @@ namespace Server.Plugins.Arena.Resources
     {
         // Base Command
         public static readonly string baseSyntax = "Type '/arena help' for further informations about this plugin";
-        public static readonly string baseNoPermission = "You don't have sufficient permission for this command";
         public static readonly string baseSetupNotInitialized = "The Setup Arena hasn't been initialized";
 
         // Setup
