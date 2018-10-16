@@ -10,12 +10,11 @@ using System.Linq;
 using System.Net.NetworkInformation;
 
 using Resources;
-using Resources.Utilities;
 using Resources.Packet;
 using Resources.Datagram;
 
 namespace Bridge {
-    static class BridgeCore {
+    public static partial class BridgeCore {
         public static UdpClient udpToServer;
         public static TcpClient tcpToServer, tcpToClient;
         public static TcpListener tcpListener = new TcpListener(IPAddress.Parse("127.0.0.1"), 12345); //hardcoded because client port can't be changed
@@ -25,7 +24,6 @@ namespace Bridge {
         public static int mapseed;
         public static FormMain form;
         public static Dictionary<long, EntityUpdate> dynamicEntities = new Dictionary<long, EntityUpdate>();
-        public static ushort lastTarget;
         public static Mutex outgoingMutex = new Mutex();
         public static BridgeStatus status = BridgeStatus.Offline;
 
@@ -117,12 +115,11 @@ namespace Bridge {
             }
             while (true) {
                 tcpToClient = tcpListener.AcceptTcpClient();
-                form.Log("client connected\n", Color.Green);
+                ClientConnected?.Invoke();
                 tcpToClient.ReceiveTimeout = 500;
                 tcpToClient.SendTimeout = 500;
-
                 tcpToClient.NoDelay = true;
-                Stream stream = tcpToClient.GetStream();
+                var stream = tcpToClient.GetStream();
                 creader = new BinaryReader(stream);
                 cwriter = new BinaryWriter(stream);
 
@@ -131,6 +128,7 @@ namespace Bridge {
                         version = 42069,
                     });
                     form.Log("client rejected\n", Color.Red);
+                    ClientDisconnected?.Invoke();
                     continue;
                 }
                 status = BridgeStatus.Playing;
@@ -156,8 +154,7 @@ namespace Bridge {
                         break;
                 }
                 dynamicEntities.Remove(guid);
-                form.Log("client disconnected\n", Color.Red);
-                RefreshPlayerlist();
+                ClientDisconnected?.Invoke();
             }
         }
         private static void ListenFromServerTCP() {
@@ -191,30 +188,22 @@ namespace Bridge {
                 case DatagramID.DynamicUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(datagram);
+                    EntityUpdateReceived?.Invoke(entityUpdate);
                     if (status == BridgeStatus.Playing) {
-                        if (entityUpdate.guid == guid) {
-                            CwRam.Teleport(entityUpdate.position);
-                            break;
-                        }
                         SendToClient(entityUpdate);
                     }
-
                     if (dynamicEntities.ContainsKey(entityUpdate.guid)) {
                         entityUpdate.Merge(dynamicEntities[entityUpdate.guid]);
                     }
                     else {
                         dynamicEntities.Add(entityUpdate.guid, entityUpdate);
                     }
-
-                    if (entityUpdate.name != null) {
-                        RefreshPlayerlist();
-                    }
                     break;
                 #endregion
                 case DatagramID.Attack:
                     #region attack
                     var attack = new Attack(datagram);
-                    CwRam.Knockback(attack.Direction);
+                    AttackReceived?.Invoke(attack);
                     var hit = new Hit() {
                         target = attack.Target,
                         damage = attack.Damage,
@@ -233,7 +222,7 @@ namespace Bridge {
                 case DatagramID.Projectile:
                     #region Projectile
                     var projectile = new Projectile(datagram);
-
+                    ProjectileReceived?.Invoke(projectile);
                     var shoot = new Shoot() {
                         attacker = projectile.Source,
                         position = projectile.Position,
@@ -256,22 +245,7 @@ namespace Bridge {
                 case DatagramID.Proc:
                     #region proc
                     var proc = new Proc(datagram);
-                    if (proc.Type == ProcType.Poison && proc.Target == guid) {
-                        var su = new ServerUpdate();
-                        su.hits.Add(new Hit() {
-                            damage = proc.Modifier,
-                            target = guid,
-                            position = dynamicEntities[guid].position,
-                        });
-                        bool tick() {
-                            bool f = status == BridgeStatus.Playing && dynamicEntities[guid].HP > 0;
-                            if (f) {
-                                SendToClient(su);
-                            }
-                            return !f;
-                        }
-                        Tools.DoLater(tick, 500, 7);
-                    }
+                    PassiveProcReceived?.Invoke(proc);
                     var passiveProc = new PassiveProc() {
                         target = proc.Target,
                         type = proc.Type,
@@ -285,33 +259,32 @@ namespace Bridge {
                 case DatagramID.Chat:
                     #region chat
                     var chat = new Chat(datagram);
-                    var chatMessage = new ChatMessage() {
-                        sender = chat.Sender,
-                        message = chat.Text
-                    };
-                    if (status == BridgeStatus.Playing) SendToClient(chatMessage);
-                    if (chat.Sender == 0) {
-                        form.Log(chat.Text + "\n", Color.Magenta);
-                    }
-                    else {
-                        form.Log(dynamicEntities[chat.Sender].name + ": ", Color.Cyan);
-                        form.Log(chat.Text + "\n", Color.White);
+                    ChatMessageReceived?.Invoke(chat);
+                    if (status == BridgeStatus.Playing) {
+                        var chatMessage = new ChatMessage() {
+                            sender = chat.Sender,
+                            message = chat.Text
+                        };
+                        SendToClient(chatMessage);
                     }
                     break;
                 #endregion
                 case DatagramID.Time:
                     #region time
-                    var igt = new InGameTime(datagram);
-
-                    var time = new Time() {
-                        time = igt.Milliseconds
-                    };
-                    if (status == BridgeStatus.Playing) SendToClient(time);
+                    var inGameTime = new InGameTime(datagram);
+                    InGameTimeReceived?.Invoke(inGameTime);
+                    if (status == BridgeStatus.Playing) {
+                        var time = new Time() {
+                            time = inGameTime.Milliseconds
+                        };
+                        SendToClient(time);
+                    }
                     break;
                 #endregion
                 case DatagramID.Interaction:
                     #region interaction
                     var interaction = new Interaction(datagram);
+                    InteractionReceived?.Invoke(interaction);
                     var entityAction = new EntityAction() {
                         chunkX = interaction.ChunkX,
                         chunkY = interaction.ChunkY,
@@ -324,7 +297,7 @@ namespace Bridge {
                 case DatagramID.StaticUpdate:
                     #region staticUpdate
                     var staticUpdate = new StaticUpdate(datagram);
-
+                    StaticUpdateReceived?.Invoke(staticUpdate);
                     var staticEntity = new ServerUpdate.StaticEntity() {
                         chunkX = (int)(staticUpdate.Position.x / (65536 * 256)),
                         chunkY = (int)(staticUpdate.Position.y / (65536 * 256)),
@@ -348,7 +321,7 @@ namespace Bridge {
                 case DatagramID.Particle:
                     #region particle
                     var particleDatagram = new Particle(datagram);
-
+                    ParticleReceived?.Invoke(particleDatagram);
                     var particleSubPacket = new ServerUpdate.Particle() {
                         position = particleDatagram.Position,
                         velocity = particleDatagram.Velocity,
@@ -364,142 +337,28 @@ namespace Bridge {
                         spread = particleDatagram.Spread
                     };
                     serverUpdate.particles.Add(particleSubPacket);
+                    writeServerUpdate = true;
                     break;
                 #endregion
                 case DatagramID.RemoveDynamicEntity:
                     #region RemoveDynamicEntity
                     var rde = new RemoveDynamicEntity(datagram);
+                    DynamicEntityRemoved?.Invoke(rde);
                     entityUpdate = new EntityUpdate() {
                         guid = rde.Guid,
                         hostility = (Hostility)255, //workaround for DC because i dont like packet2
                         HP = 0
                     };
-                    if (status == BridgeStatus.Playing) SendToClient(entityUpdate);
+                    if (status == BridgeStatus.Playing) {
+                        SendToClient(entityUpdate);
+                    }
                     dynamicEntities.Remove(rde.Guid);
-                    RefreshPlayerlist();
                     break;
                 #endregion
                 case DatagramID.SpecialMove:
                     #region speicalMove
                     var specialMove = new SpecialMove(datagram);
-                    switch (specialMove.Id) {
-                        case SpecialMoveID.Taunt:
-                            if (dynamicEntities.ContainsKey(specialMove.Guid)) {
-                                if (status == BridgeStatus.Playing) {
-                                    CwRam.Teleport(dynamicEntities[specialMove.Guid].position);
-                                    CwRam.Freeze(5000);
-                                }
-                            }
-                            break;
-                        case SpecialMoveID.CursedArrow:
-                            break;
-                        case SpecialMoveID.ArrowRain:
-                            break;
-                        case SpecialMoveID.Shrapnel:
-                            var su = new ServerUpdate();
-                            var blood_hit = new Hit() {
-                                damage = 5f,
-                                target = specialMove.Guid,
-                            };
-                            su.hits.Add(blood_hit);
-                            var blood_particles = new ServerUpdate.Particle() {
-                                count = 10,
-                                spread = 2f,
-                                type = ParticleType.Normal,
-                                size = 0.1f,
-                                velocity = new FloatVector() {
-                                    z = 1f,
-                                },
-                                color = new FloatVector() {
-                                    x = 1f,
-                                    y = 0f,
-                                    z = 0f
-                                },
-                                alpha = 1f,
-                            };
-                            su.particles.Add(blood_particles);
-                            bool tick() {
-                                bool f = status == BridgeStatus.Playing && dynamicEntities[specialMove.Guid].HP > 0;
-                                if (f) {
-                                    blood_hit.position = blood_particles.position = dynamicEntities[specialMove.Guid].position;
-                                    SendToClient(su);
-                                }
-                                return !f;
-                            }
-                            Tools.DoLater(tick, 50, 100);
-                            break;
-                        case SpecialMoveID.SmokeBomb:
-                            serverUpdate.particles.Add(new ServerUpdate.Particle() {
-                                count = 1000,
-                                spread = 5f,
-                                type = ParticleType.NoGravity,
-                                size = 5f,
-                                velocity = new Resources.Utilities.FloatVector(),
-                                color = new Resources.Utilities.FloatVector() {
-                                    x = 1f,
-                                    y = 1f,
-                                    z = 1f
-                                },
-                                alpha = 1f,
-                                position = dynamicEntities[specialMove.Guid].position
-                            });
-                            writeServerUpdate = true;
-                            break;
-                        case SpecialMoveID.IceWave:
-                            if (specialMove.Guid != guid) {//distance small enough
-                                CwRam.Freeze(3000);
-                            }
-                            serverUpdate.particles.Add(new ServerUpdate.Particle() {
-                                count = 100,
-                                spread = 4f,
-                                type = ParticleType.NoGravity,
-                                size = 0.3f,
-                                velocity = new FloatVector(),
-                                color = new FloatVector() {
-                                    x = 0f,
-                                    y = 1f,
-                                    z = 1f
-                                },
-                                alpha = 1f,
-                                position = dynamicEntities[specialMove.Guid].position
-                            });
-                            serverUpdate.particles.Add(new ServerUpdate.Particle() {
-                                count = 100,
-                                spread = 10f,
-                                type = ParticleType.NoGravity,
-                                size = 0.1f,
-                                velocity = new FloatVector(),
-                                color = new FloatVector() {
-                                    x = 1f,
-                                    y = 1f,
-                                    z = 1f
-                                },
-                                alpha = 1f,
-                                position = dynamicEntities[specialMove.Guid].position
-                            });
-                            serverUpdate.particles.Add(new ServerUpdate.Particle() {
-                                count = 100,
-                                spread = 2f,
-                                type = ParticleType.NoGravity,
-                                size = 0.7f,
-                                velocity = new FloatVector(),
-                                color = new FloatVector() {
-                                    x = 0f,
-                                    y = 0f,
-                                    z = 1f
-                                },
-                                alpha = 1f,
-                                position = dynamicEntities[specialMove.Guid].position
-                            });
-                            writeServerUpdate = true;
-                            break;
-                        case SpecialMoveID.Confusion:
-                            break;
-                        case SpecialMoveID.ShadowStep:
-                            break;
-                        default:
-                            break;
-                    }
+                    SpecialMoveReceived?.Invoke(specialMove);
                     break;
                 #endregion
                 default:
@@ -513,15 +372,13 @@ namespace Bridge {
                 case PacketID.EntityUpdate:
                     #region entityUpdate
                     var entityUpdate = new EntityUpdate(creader);
+                    EntityUpdateSent?.Invoke(entityUpdate);
                     if (dynamicEntities.ContainsKey(entityUpdate.guid)) {
                         entityUpdate.Filter(dynamicEntities[entityUpdate.guid]);
                         entityUpdate.Merge(dynamicEntities[entityUpdate.guid]);
                     }
                     else {
                         dynamicEntities.Add(entityUpdate.guid, entityUpdate);
-                    }
-                    if (entityUpdate.name != null) {
-                        RefreshPlayerlist();
                     }
                     if (!entityUpdate.IsEmpty) {
                         SendUDP(entityUpdate.CreateDatagram());
@@ -530,60 +387,14 @@ namespace Bridge {
                 #endregion
                 case PacketID.EntityAction:
                     #region entity action
-                    EntityAction entityAction = new EntityAction(creader);
-                    switch (entityAction.type) {
-                        case ActionType.Talk:
-                            #region Talk
-                            break;
-                        #endregion
-                        case ActionType.StaticInteraction:
-                            #region StaticInteraction
-                            ChatMessage x = new ChatMessage() {
-                                message = "You can't use this, your hands are too small.",
-                                sender = 0
-                            };
-                            SendToClient(x);
-                            break;
-                        #endregion
-                        case ActionType.PickUp:
-                            #region PickUp
-                            break;
-                        #endregion
-                        case ActionType.Drop: //send item back to dropper because dropping is disabled to prevent chatspam
-                            #region Drop
-                            if (form.radioButtonDestroy.Checked) {
-                                SendToClient(new ChatMessage() {
-                                    message = "item destroyed",
-                                    sender = 0,
-                                });
-                            }
-                            else {
-                                var serverUpdate = new ServerUpdate();
-                                var pickup = new ServerUpdate.Pickup() {
-                                    guid = guid,
-                                    item = entityAction.item
-                                };
-                                serverUpdate.pickups.Add(pickup);
-                                if (form.radioButtonDuplicate.Checked) {
-                                    serverUpdate.pickups.Add(pickup);
-                                }
-                                SendToClient(serverUpdate);
-                            }
-                            break;
-                        #endregion
-                        case ActionType.CallPet:
-                            #region CallPet
-                            break;
-                        #endregion
-                        default:
-                            //unknown type
-                            break;
-                    }
+                    var entityAction = new EntityAction(creader);
+                    EntityActionSent?.Invoke(entityAction);
                     break;
                 #endregion
                 case PacketID.Hit:
                     #region hit
                     var hit = new Hit(creader);
+                    HitSent?.Invoke(hit);
                     var attack = new Attack() {
                         Target = (ushort)hit.target,
                         Damage = hit.damage,
@@ -595,57 +406,12 @@ namespace Bridge {
                         Critical = hit.critical
                     };
                     SendUDP(attack.data);
-                    lastTarget = attack.Target;
                     break;
                 #endregion
                 case PacketID.PassiveProc:
                     #region passiveProc
                     var passiveProc = new PassiveProc(creader);
-                    switch (passiveProc.type) {
-                        case ProcType.Bulwalk:
-                            SendToClient(new ChatMessage() {
-                                message = string.Format("bulwalk: {0}% dmg reduction", 1.0f - passiveProc.modifier),
-                                sender = 0,
-                            });
-                            break;
-                        case ProcType.WarFrenzy:
-                            CwRam.PlayerEntity.BossBuff = true;
-                            bool DisableBossBuff() {
-                                bool f = status == BridgeStatus.Playing && dynamicEntities[guid].HP > 0;
-                                if (f) {
-                                    CwRam.PlayerEntity.BossBuff = false;
-                                }
-                                return !f;
-                            }
-                            Tools.DoLater(DisableBossBuff, passiveProc.duration, 1);
-                            break;
-                        case ProcType.Camouflage:
-                            break;
-                        case ProcType.Poison:
-                            break;
-                        case ProcType.UnknownA:
-                            break;
-                        case ProcType.ManaShield:
-                            SendToClient(new ChatMessage() {
-                                message = string.Format("manashield: {0}", passiveProc.modifier),
-                                sender = 0,
-                            });
-                            break;
-                        case ProcType.UnknownB:
-                            break;
-                        case ProcType.UnknownC:
-                            break;
-                        case ProcType.FireSpark:
-                            break;
-                        case ProcType.Intuition:
-                            break;
-                        case ProcType.Elusiveness:
-                            break;
-                        case ProcType.Swiftness:
-                            break;
-                        default:
-                            break;
-                    }
+                    PassiveProcSent?.Invoke(passiveProc);
                     var proc = new Proc() {
                         Target = (ushort)passiveProc.target,
                         Type = passiveProc.type,
@@ -658,6 +424,7 @@ namespace Bridge {
                 case PacketID.Shoot:
                     #region shoot
                     var shoot = new Shoot(creader);
+                    ShotSent?.Invoke(shoot);
                     var projectile = new Projectile() {
                         Position = shoot.position,
                         Velocity = shoot.velocity,
@@ -672,26 +439,7 @@ namespace Bridge {
                 case PacketID.Chat:
                     #region chat
                     var chatMessage = new ChatMessage(creader);
-                    if (chatMessage.message.ToLower() == @"/plane") {
-                        Console.Beep();
-                        var serverUpdate = new ServerUpdate() {
-                            blockDeltas = new Vox("model.vox").Parse(),
-                        };
-                        foreach (var block in serverUpdate.blockDeltas) {
-                            block.position.x += 0x802080;//(int)(dynamicEntities[guid].position.x / 0x10000);//8286946;
-                            block.position.y += 0x802080;//(int)(dynamicEntities[guid].position.y / 0x10000);//8344456;
-                            block.position.z += 150;// (int)(dynamicEntities[guid].position.z / 0x10000);//220;
-                        }
-                        SendToClient(serverUpdate);
-                    }
-                    if (chatMessage.message.ToLower() == @"/spawn") {
-                        CwRam.Teleport(new LongVector() {
-                            x = 0x8020800000,
-                            y = 0x8020800000,
-                            z = 0,
-                        });
-                        break;
-                    }
+                    ChatMessageSent?.Invoke(chatMessage);
                     var chat = new Chat() {
                         Sender = guid,//client doesn't send this
                         Text = chatMessage.message
@@ -702,16 +450,19 @@ namespace Bridge {
                 case PacketID.Chunk:
                     #region chunk
                     var chunk = new Chunk(creader);
+                    ChunkDiscovered?.Invoke(chunk);
                     break;
                 #endregion
                 case PacketID.Sector:
                     #region sector
                     var sector = new Sector(creader);
+                    SectorDiscovered?.Invoke(sector);
                     break;
                 #endregion
                 case PacketID.Version:
                     #region version
                     var version = new ProtocolVersion(creader);
+                    VersionSent?.Invoke(version);
                     if (version.version != 3) {
                         version.version = 3;
                         SendToClient(version);
@@ -802,224 +553,10 @@ namespace Bridge {
             }
         }
 
-        public static void RefreshPlayerlist() {
-            form.Invoke((Action)form.listBoxPlayers.Items.Clear);
-            foreach (var dynamicEntity in dynamicEntities.Values.ToList()) {
-                if (dynamicEntity.hostility == Hostility.Player) {
-                    form.Invoke(new Action(() => form.listBoxPlayers.Items.Add(dynamicEntity.name)));
-                }
-            }
-        }
-
-        public static void OnHotkey(HotkeyID hotkey) {
-            if (CwRam.AnyInterfaceOpen) return;
-            if (hotkey == HotkeyID.TeleportToTown) {
-                CwRam.SetMode(Mode.Teleport_To_City, 0);
-                return;
-            }
-            var notification = new ChatMessage() {
-                sender = 0,
-            };
-            bool spec = dynamicEntities[guid].specialization == 1;
-            switch (dynamicEntities[guid].entityClass) {
-                case EntityClass.Rogue when spec:
-                    #region ninja
-                    if (hotkey == HotkeyID.CtrlSpace) {
-                        #region dash
-                        notification.message = "using [dash]";
-                        CwRam.SetMode(Mode.Spin_Run, 0);
-                        #endregion
-                    }
-                    else {
-                        #region blink
-                        notification.message = "using [blink]";
-                        if (dynamicEntities.ContainsKey(lastTarget)) {
-                            CwRam.Teleport(dynamicEntities[lastTarget].position);
-                        }
-                        #endregion
-                    }
-                    break;
-                #endregion
-                case EntityClass.Rogue:
-                    #region assassin
-                    if (hotkey == HotkeyID.CtrlSpace) {
-                        #region confusion
-                        notification.message = "TODO: [confusion]";
-                        var specialMove = new SpecialMove() {
-                            Guid = guid,
-                            Id = SpecialMoveID.Confusion,
-                        };
-                        SendUDP(specialMove.data);
-                        #endregion
-                    }
-                    else {
-                        #region shadow step
-                        notification.message = "TOD: [shadow step]";
-                        var specialMove = new SpecialMove() {
-                            Guid = guid,
-                            Id = SpecialMoveID.ShadowStep,
-                        };
-                        SendUDP(specialMove.data);
-                        #endregion
-                    }
-                    break;
-                #endregion
-                case EntityClass.Warrior when spec:
-                    #region guardian
-                    if (hotkey == HotkeyID.CtrlSpace) {
-                        #region taunt
-                        notification.message = "using [taunt]";
-                        var specialMove = new SpecialMove() {
-                            Guid = lastTarget,
-                            Id = SpecialMoveID.Taunt,
-                        };
-                        SendUDP(specialMove.data);
-                        #endregion
-                    }
-                    else {
-                        #region steel wall
-                        notification.message = "using [steel wall]";
-                        CwRam.SetMode(Mode.Boss_Skill_Block, 0);
-                        #endregion
-                    }
-                    break;
-                #endregion
-                case EntityClass.Warrior:
-                    #region berserk
-                    if (hotkey == HotkeyID.CtrlSpace) {
-                        #region boulder toss
-                        notification.message = "using [boulder toss]";
-                        CwRam.SetMode(Mode.Boulder_Toss, 0);
-                        #endregion
-                    }
-                    else {
-                        #region earth shatter
-                        notification.message = "using [earth shatter]";
-                        CwRam.SetMode(Mode.Earth_Shatter, 0);
-                        #endregion
-                    }
-                    break;
-                #endregion
-                case EntityClass.Mage when spec:
-                    #region watermage
-                    if (hotkey == HotkeyID.CtrlSpace) {
-                        #region splash
-                        notification.message = "using [splash]";
-                        CwRam.SetMode(Mode.Splash, 0);
-                        #endregion
-                    }
-                    else {
-                        #region ice wave
-                        notification.message = "using [ice wave]";
-                        var specialMove = new SpecialMove() {
-                            Guid = guid,
-                            Id = SpecialMoveID.IceWave,
-                        };
-                        SendUDP(specialMove.data);
-                        #endregion
-                    }
-                    break;
-                #endregion
-                case EntityClass.Mage:
-                    #region firemage
-                    if (hotkey == HotkeyID.CtrlSpace) {
-                        #region lava
-                        notification.message = "using [lava]";
-                        CwRam.SetMode(Mode.Lava, 0);
-                        #endregion
-                    }
-                    else {
-                        #region beam
-                        notification.message = "using [fire ray]";
-                        CwRam.SetMode(Mode.FireRay, 0);
-                        #endregion
-                    }
-                    break;
-                #endregion
-                case EntityClass.Ranger when spec:
-                    #region scout
-                    if (hotkey == HotkeyID.CtrlSpace) {
-                        #region shrapnel
-                        notification.message = "using [shrapnel] bleeding test";
-                        var specialMove = new SpecialMove() {
-                            Guid = guid,
-                            Id = SpecialMoveID.Shrapnel,
-                        };
-                        SendUDP(specialMove.data);
-                        #endregion
-                    }
-                    else {
-                        #region smoke bomb
-                        notification.message = "using [smoke bomb]";
-                        var specialMove = new SpecialMove() {
-                            Guid = guid,
-                            Id = SpecialMoveID.SmokeBomb,
-                        };
-                        SendUDP(specialMove.data);
-
-                        var fakeSmoke = new ServerUpdate();
-                        fakeSmoke.particles.Add(new ServerUpdate.Particle() {
-                            count = 1000,
-                            spread = 5f,
-                            type = ParticleType.NoGravity,
-                            size = 0.3f,
-                            velocity = new Resources.Utilities.FloatVector(),
-                            color = new Resources.Utilities.FloatVector() {
-                                x = 1f,
-                                y = 1f,
-                                z = 1f
-                            },
-                            alpha = 1f,
-                            position = dynamicEntities[specialMove.Guid].position
-                        });
-                        SendToClient(fakeSmoke);
-                        #endregion
-                    }
-                    break;
-                #endregion
-                case EntityClass.Ranger:
-                    #region sniper
-                    if (hotkey == HotkeyID.CtrlSpace) {
-                        #region cursed arrow
-                        //TODO
-                        notification.message = "TODO: [cursed arrow]";
-                        #endregion
-                    }
-                    else {
-                        #region arrow rain
-                        //TODO
-                        notification.message = "TODO: [arrow rain]";
-                        //const int rainSize = 7;
-                        //for (int x = 0; x < rainSize; x++) {
-                        //    for (int y = 0; y < rainSize; y++) {
-                        //        var projectile = new Projectile() {
-                        //            Scale = 1f,
-                        //            Type = ProjectileType.Arrow,
-                        //            Source = guid,
-                        //            Velocity = new FloatVector() { x = 0, y = 0, z = -1f },
-                        //            Position = new LongVector() {
-                        //                x = 0x8020800000,//dynamicEntities[guid].position.x + (long)((dynamicEntities[guid].rayHit.x + x - rainSize / 2) * 0x10000),
-                        //                y = 0x8020800000,//dynamicEntities[guid].position.y + (long)((dynamicEntities[guid].rayHit.y + y - rainSize / 2) * 0x10000),
-                        //                z = 0x01000000,//dynamicEntities[guid].position.z + (long)((dynamicEntities[guid].rayHit.z + 10) * 0x10000),
-                        //            }
-                        //        };
-                        //        SendUDP(projectile.data);
-                        //        ProcessDatagram(projectile.data);
-                        //    }
-                        //}
-                        #endregion
-                    }
-                    break;
-                #endregion
-            }
-            CwRam.memory.WriteInt(CwRam.EntityStart + 0x1164, 3);//mana cubes
-            SendToClient(notification);
-        }
-
-        private static void SendUDP(byte[] data) {
+        public static void SendUDP(byte[] data) {
             udpToServer.Send(data, data.Length);
         }
-        private static void SendToClient(Packet packet) {
+        public static void SendToClient(Packet packet) {
             outgoingMutex.WaitOne();
             try {
                 packet.Write(cwriter);

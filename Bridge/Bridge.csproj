@@ -71,7 +71,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BridgeCore_Events.cs" />
     <Compile Include="CwRam.cs" />
+    <Compile Include="Extensions\ExtensionsCore.cs" />
+    <Compile Include="Extensions\Logging.cs" />
+    <Compile Include="Extensions\SpecialMoves.cs" />
+    <Compile Include="Extensions\NameSubjectToChange.cs" />
     <Compile Include="FormChat.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -1,4 +1,5 @@
-﻿using ReadWriteProcessMemory;
+﻿using Bridge.Extensions;
+using ReadWriteProcessMemory;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -12,8 +13,8 @@ namespace Bridge {
         public FormRegister register = new FormRegister();
         public FormChat chat = new FormChat();
         public FormRankings rankings = new FormRankings();
+        public KeyboardHook keyboardHook;
         private bool processAttached = false;
-        private KeyboardHook keyboardHook;
 
         public FormMain(string[]args) {
             InitializeComponent();
@@ -24,9 +25,10 @@ namespace Bridge {
             chat.Left = Left + Width;
             BridgeCore.form = this;
             CwRam.formMain = this;
+            keyboardHook = new KeyboardHook();
             new Thread(BridgeCore.ListenFromClientTCP).Start();
             new Thread(BridgeCore.Connect).Start();
-            keyboardHook = new KeyboardHook();
+            ExtensionsCore.Init();
         }
         private void timerSearchProcess_Tick(object sender, EventArgs e) {
             if (processAttached) {

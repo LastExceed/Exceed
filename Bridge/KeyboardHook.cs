@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -92,25 +90,12 @@ namespace Bridge {
         private Dictionary<Keys, bool> keyboardState = new Dictionary<Keys, bool>();
         private void OnKey(Keys key, bool isDown) {
             if (GetForegroundWindow() != CwRam.memory.process.MainWindowHandle) return;
-
             if (!keyboardState.ContainsKey(key)) keyboardState.Add(key, !isDown);
             if (keyboardState[key] == isDown) return;
             keyboardState[key] = isDown;
-
-            if (!isDown) return;//temp fix to prevent activation on release
-            switch (key) {
-                case Keys.D4:
-                    BridgeCore.OnHotkey(Resources.HotkeyID.CtrlSpace);
-                    break;
-                case Keys.D5:
-                    BridgeCore.OnHotkey(Resources.HotkeyID.SpecialMove2);
-                    break;
-                case Keys.D0:
-                    BridgeCore.OnHotkey(Resources.HotkeyID.TeleportToTown);
-                    break;
-                default:
-                    break;
-            }
+            KeyboardChanged?.Invoke(key, isDown);
         }
+        public delegate void KeyboardChangedEventHandler(Keys key, bool isDown);
+        public event KeyboardChangedEventHandler KeyboardChanged;
     }
 }
