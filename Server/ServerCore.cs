@@ -71,7 +71,7 @@ namespace Server {
             udpClient.Send(data, data.Length, target.RemoteEndPoint);
         }
         public static void BroadcastUDP(byte[] data, Player toSkip = null) {
-            foreach (var player in players) {
+            foreach (var player in players.ToList()) {
                 if (player != toSkip) {
                     SendUDP(data, player);
                 }
