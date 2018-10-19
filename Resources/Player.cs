@@ -9,6 +9,7 @@ namespace Resources {
         public BinaryWriter writer;
         public BinaryReader reader;
         public EntityUpdate entity;
+        public byte Permission;
         public ushort? tomb;
         public string MAC;
         public ushort lastTarget;

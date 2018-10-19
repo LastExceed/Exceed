@@ -1,4 +1,5 @@
-﻿using ReadWriteProcessMemory;
+﻿using Bridge.Extensions;
+using ReadWriteProcessMemory;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -12,8 +13,8 @@ namespace Bridge {
         public FormRegister register = new FormRegister();
         public FormChat chat = new FormChat();
         public FormRankings rankings = new FormRankings();
+        public KeyboardHook keyboardHook;
         private bool processAttached = false;
-        private KeyboardHook keyboardHook;
 
         public FormMain(string[]args) {
             InitializeComponent();
@@ -22,11 +23,12 @@ namespace Bridge {
             chat.Show();
             chat.Top = this.Top;
             chat.Left = Left + Width;
-            BridgeTCPUDP.form = this;
+            BridgeCore.form = this;
             CwRam.formMain = this;
-            new Thread(BridgeTCPUDP.ListenFromClientTCP).Start();
-            new Thread(BridgeTCPUDP.Connect).Start();
             keyboardHook = new KeyboardHook();
+            new Thread(BridgeCore.ListenFromClientTCP).Start();
+            new Thread(BridgeCore.Connect).Start();
+            ExtensionsCore.Init();
         }
         private void timerSearchProcess_Tick(object sender, EventArgs e) {
             if (processAttached) {
@@ -39,7 +41,7 @@ namespace Bridge {
                 }
                 else {
                     CwRam.RemoveFog();
-                    if (BridgeTCPUDP.status == Resources.BridgeStatus.Playing) CwRam.SetName(linkLabelUser.Text);
+                    if (BridgeCore.status == Resources.BridgeStatus.Playing) CwRam.SetName(linkLabelUser.Text);
                 }
             }
             else {
@@ -108,7 +110,7 @@ namespace Bridge {
         }
 
         private void contextMenuStripUser_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            BridgeTCPUDP.Logout();
+            BridgeCore.Logout();
             OnLogout();
         }
         public void OnLogout() {

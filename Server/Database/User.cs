@@ -23,6 +23,7 @@ namespace Server.Database {
             this.Name = username;
             this.Email = email;
             this.PasswordHash = Hashing.Hash(password);
+            this.Permission = 0;
         }
         
         public bool VerifyPassword(string password) {

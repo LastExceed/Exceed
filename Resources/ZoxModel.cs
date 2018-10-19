@@ -3,7 +3,7 @@ using Resources;
 using Resources.Utilities;
 using Resources.Packet;
 
-namespace Server.Addon {
+namespace Resources {
     class ZoxModel {
         public string Creator { get; set; }
         public byte Height { get; set; }
