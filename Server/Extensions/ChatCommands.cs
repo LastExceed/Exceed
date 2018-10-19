@@ -20,10 +20,12 @@ namespace Server.Extensions {
             var command = parameters[0].ToLower();
             switch (command) {
                 case "kick":
+                    break;
                 case "btfo":
+                    break;
                 case "ban":
                     #region ban
-                    if (source.entity.name != "BLACKROCK") {
+                    if (!minimumPermission(source,3)) {
                         ServerCore.Notify(source, "no permission");
                         break;
                     }
@@ -53,7 +55,6 @@ namespace Server.Extensions {
                     break;
                 #endregion
                 case "bleeding":
-
                     break;
                 case "time":
                     #region time
@@ -78,6 +79,14 @@ namespace Server.Extensions {
                     ServerCore.Notify(source, string.Format("unknown command '{0}'", parameters[0]));
                     break;
             }
+        }
+        private static Boolean minimumPermission(Player source,int roleId)
+        {
+            if(source.Permission >= roleId)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

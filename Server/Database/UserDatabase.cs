@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Resources;
+using System;
 using System.Linq;
 
 namespace Server.Database {
@@ -86,6 +87,25 @@ namespace Server.Database {
             var ban = new Ban { Ip = ipAddress, Mac = targetMac, Reason = reason, UserId = user };
             Bans.Add(ban);
             SaveChanges();
+        }
+        public PromoteResponse PromoteUser(string entityName, RoleID roleId)
+        {
+            var user = Users.SingleOrDefault(x => x.Name == entityName);
+            if (user != null)
+            {
+                user.Permission = (byte)roleId;
+                SaveChanges();
+                return PromoteResponse.Success;
+            }
+            else
+            {
+                return PromoteResponse.InvalidTarget;
+            }
+        }
+        public byte getRoleId(string entityName)
+        {
+            var user = Users.SingleOrDefault(x => x.Name == entityName);
+            return user.Permission;
         }
     }
 }

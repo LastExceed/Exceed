@@ -125,6 +125,7 @@ namespace Server {
                         guid = AssignGuid(),
                         name = username,
                     };
+                    source.Permission = userDatabase.getRoleId(username);
                     source.writer.Write((ushort)source.entity.guid);
                     source.writer.Write(Config.mapseed);
 

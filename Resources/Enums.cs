@@ -58,4 +58,16 @@
         LoggedIn,
         Playing,
     }
+    public enum RoleID : byte
+    {
+        Default,
+        Vip,
+        Mod,
+        Admin
+    }
+    public enum PromoteResponse : byte
+    {
+        Success,
+        InvalidTarget
+    }
 }
