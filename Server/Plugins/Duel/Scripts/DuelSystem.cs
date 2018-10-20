@@ -9,6 +9,7 @@ namespace Server.Plugins.Duel
 {
     class DuelSystem
     {
+        private PluginBase pluginRef;
         private volatile Boolean ongoing; // status of the duel
         private volatile Boolean stop; // Token for stopping duel/thread
         public Player winner;
@@ -41,18 +42,19 @@ namespace Server.Plugins.Duel
                     this.ongoing = true;
                     break;
                 case 2:
-                    Server.Notify(this.player1, string.Format("[Duel] {0} refused the duel", this.player2.entity.name));
+                    ServerCore.Notify(this.player1, string.Format("[Duel] {0} refused the duel", this.player2.entity.name));
                     break;
                 default:
-                    Server.Notify(this.player1, string.Format("[Duel] {0} didn't respond within the 30s limit", this.player2.entity.name));
+                    ServerCore.Notify(this.player1, string.Format("[Duel] {0} didn't respond within the 30s limit", this.player2.entity.name));
                     break;
             }
             return ongoing;
             #endregion
         }
-        public DuelSystem(Player player1, Player player2, long requestInitialTime)
+        public DuelSystem(PluginBase pluginRef,Player player1, Player player2, long requestInitialTime)
         {
             #region createDuel
+            this.pluginRef = pluginRef;
             this.ongoing = false;
             this.player1 = player1;
             this.player2 = player2;
@@ -151,7 +153,7 @@ namespace Server.Plugins.Duel
                     RestorePlayersState();
                 }
             }
-            DuelCore.duels.Remove(this);
+            ((DuelCore)pluginRef).duels.Remove(this);
             #endregion
         }
         public void Stop()
@@ -176,8 +178,8 @@ namespace Server.Plugins.Duel
         }
         public void NotifyPlayers(string message)
         {
-            Server.Notify(this.player1, message);
-            Server.Notify(this.player2, message);
+            ServerCore.Notify(this.player1, message);
+            ServerCore.Notify(this.player2, message);
         }
         public void RunDuel()
         {
@@ -189,7 +191,7 @@ namespace Server.Plugins.Duel
             }
             else
             {
-                DuelCore.duels.Remove(this);
+                ((DuelCore)pluginRef).duels.Remove(this);
             }
             #endregion
         }

@@ -7,7 +7,7 @@ namespace Server.Plugins
 {
     public class PluginBase
     {
-        protected String pluginName;
+        public String pluginName;
         public virtual Boolean hasCommands()
         {
             return false;
@@ -19,6 +19,11 @@ namespace Server.Plugins
         public virtual Boolean analyzeCommand(string message, Player source)
         {
             return false;
+        }
+        public virtual List<string> checkDependencies()
+        {
+            var depencies = new List<string>();
+            return depencies;
         }
     }
 }

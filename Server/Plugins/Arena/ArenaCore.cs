@@ -4,26 +4,32 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Resources;
 using Server.Plugins.Arena.Database;
+using Server.Plugins.Arena.Resources;
 
 namespace Server.Plugins.Arena
 {
     class ArenaCore : PluginBase
     {
-        public static ArenaDatabase ArenaDatabase;
+        public ArenaDatabase ArenaDatabase;
+        CommandsBase command;
         public ArenaCore()
         {
             ArenaDatabase = new ArenaDatabase();
             ArenaDatabase.Database.Migrate();
-            Commands.Init(ArenaDatabase,this);
+            command = new Commands(this);
             pluginName = ArenaConfig.pluginName;
         }
         public override Boolean hasCommands()
         {
             return true;
         }
-        public override Boolean analyzeCommand(string message,Player source)
+        public override Boolean analyzeCommand(string message, Player source)
         {
-            return Commands.ParseAsCommand(message, source);
+            return command.ParseAsCommand(message, source);
+        }
+        public override List<string> checkDependencies()
+        {
+            return ArenaConfig.pluginDependencies;
         }
     }
 }

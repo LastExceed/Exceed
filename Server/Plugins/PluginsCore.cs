@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 namespace Server.Plugins
 {
     public static class PluginsCore
     {
         public static List<PluginBase> pluginsList;
         public static List<PluginBase> pluginsWithCommands;
+        public static List<string> DependenciesList;
         public static void Init()
         {
             pluginsList = new List<PluginBase>();
@@ -21,12 +23,23 @@ namespace Server.Plugins
                     {
                         pluginsWithCommands.Add(plugin);
                     }
-                    Log.PrintLn("Plugin \"" + pluginName + "\" has been successfully initialized !", ConsoleColor.Green);
+                    Log.PrintLn(String.Format("Plugin '{0}' has been successfully initialized !",pluginName), ConsoleColor.Green);
                     pluginsList.Add(plugin);
                 }
                 else
                 {
-                    Log.PrintLn("Plugin \""+pluginName+"\" cannot be found !", ConsoleColor.Red);
+                    Log.PrintLn(String.Format("Plugin '{0}' cannot be found !", pluginName), ConsoleColor.Red);
+                }
+            }
+            foreach(PluginBase plugin in pluginsList)
+            {
+                var dependencies = plugin.checkDependencies();
+                foreach(string dependency in dependencies)
+                {
+                    if(!pluginsList.Select(p => p.pluginName).Contains(dependency))
+                    {
+                        Log.PrintLn(String.Format("Plugin '{0}' require the initialization of plugin '{1}' !", plugin.pluginName,dependency), ConsoleColor.Red);
+                    }
                 }
             }
         }

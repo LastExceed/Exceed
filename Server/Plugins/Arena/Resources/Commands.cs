@@ -5,18 +5,14 @@ using System.Text;
 using Resources;
 using Server.Plugins.Arena.Database;
 using Server.Plugins.Arena.Resources;
-namespace Server.Plugins.Arena
+namespace Server.Plugins.Arena.Resources
 {
-    class Commands
+    class Commands : CommandsBase
     {
-        public static ArenaDatabase ArenaDatabase;
-        public static PluginBase pluginRef;
-        public static void Init(ArenaDatabase arenaDatabase, PluginBase plugin)
+        public Commands(PluginBase plugin) : base(plugin)
         {
-            ArenaDatabase = arenaDatabase;
-            pluginRef = plugin;
         }
-        public static Boolean ParseAsCommand(string message, Player source)
+        public override Boolean ParseAsCommand(string message, Player source)
         {
             message = message.ToLower();
             var commandName = message.Substring(1).Split(" ")[0];
@@ -26,7 +22,7 @@ namespace Server.Plugins.Arena
             }
             if (message.Length == 1 + pluginRef.getName().Length)
             {
-                Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseSyntax));
+                ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseSyntax));
                 return true;
             }
             var parameters = message.Substring(2 + pluginRef.getName().Length).Split(" ");
@@ -38,7 +34,7 @@ namespace Server.Plugins.Arena
                     #region setup
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
                     string arenaName = null;
@@ -46,19 +42,19 @@ namespace Server.Plugins.Arena
                     {
                         arenaName = parameters[1];
                     }
-                    else if(parameters.Length > 2)
+                    else if (parameters.Length > 2)
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.setupSyntax));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.setupSyntax));
                         break;
                     }
-                    response = ArenaDatabase.launchSetupArena(arenaName);
+                    response = ((ArenaCore)pluginRef).ArenaDatabase.launchSetupArena(arenaName);
                     if (response == ArenaResponse.SetupLaunched)
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.setupInitialized));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.setupInitialized));
                     }
                     else if (response == ArenaResponse.SetupAlreadyLaunched)
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.setupAlreadyInitialized));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.setupAlreadyInitialized));
                     }
                     break;
                 #endregion
@@ -66,7 +62,7 @@ namespace Server.Plugins.Arena
                     #region setup-set
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
                     if (parameters.Length == 2)
@@ -80,30 +76,30 @@ namespace Server.Plugins.Arena
                         switch (parameters[1])
                         {
                             case "player1":
-                                response = ArenaDatabase.setPositionSetupArena(currentPos, ArenaPositionName.player1);
+                                response = ((ArenaCore)pluginRef).ArenaDatabase.setPositionSetupArena(currentPos, ArenaPositionName.player1);
                                 break;
                             case "player2":
-                                response = ArenaDatabase.setPositionSetupArena(currentPos, ArenaPositionName.player2);
+                                response = ((ArenaCore)pluginRef).ArenaDatabase.setPositionSetupArena(currentPos, ArenaPositionName.player2);
                                 break;
                             case "spectator":
-                                response = ArenaDatabase.setPositionSetupArena(currentPos, ArenaPositionName.spectator);
+                                response = ((ArenaCore)pluginRef).ArenaDatabase.setPositionSetupArena(currentPos, ArenaPositionName.spectator);
                                 break;
                             default:
-                                Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.setSyntax));
+                                ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.setSyntax));
                                 break;
                         }
                         if (response == ArenaResponse.SetupPositionSet)
                         {
-                            Server.Notify(source, CommandsMessages.getMessage(string.Format(CommandsMessages.setPositionSuccess, parameters[1])));
+                            ServerCore.Notify(source, CommandsMessages.getMessage(string.Format(CommandsMessages.setPositionSuccess, parameters[1])));
                         }
                         else if (response == ArenaResponse.SetupEmpty)
                         {
-                            Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseSetupNotInitialized));
+                            ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseSetupNotInitialized));
                         }
                     }
                     else
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.setSyntax));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.setSyntax));
                     }
                     break;
                 #endregion
@@ -111,24 +107,24 @@ namespace Server.Plugins.Arena
                     #region setup-name
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
                     if (parameters.Length == 2)
                     {
-                        response = ArenaDatabase.setNameArena(parameters[1]);
+                        response = ((ArenaCore)pluginRef).ArenaDatabase.setNameArena(parameters[1]);
                         if (response == ArenaResponse.SetupNameSet)
                         {
-                            Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.nameChangeSuccess));
+                            ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.nameChangeSuccess));
                         }
                         else if (response == ArenaResponse.SetupEmpty)
                         {
-                            Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseSetupNotInitialized));
+                            ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseSetupNotInitialized));
                         }
                     }
                     else
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.createSyntax));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.createSyntax));
                     }
                     break;
                 #endregion
@@ -136,26 +132,26 @@ namespace Server.Plugins.Arena
                     #region arena-create
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
-                    if(parameters.Length > 1)
+                    if (parameters.Length > 1)
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.createSyntax));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.createSyntax));
                         break;
                     }
-                    response = ArenaDatabase.SaveDuelArena();
+                    response = ((ArenaCore)pluginRef).ArenaDatabase.SaveDuelArena();
                     if (response == ArenaResponse.ArenaCreated)
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.createSuccess));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.createSuccess));
                     }
                     else if (response == ArenaResponse.SetupIncomplete)
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.createIncomplete));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.createIncomplete));
                     }
                     else if (response == ArenaResponse.SetupEmpty)
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseSetupNotInitialized));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.baseSetupNotInitialized));
                     }
                     break;
                 #endregion
@@ -163,7 +159,7 @@ namespace Server.Plugins.Arena
                     #region arena-delete
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
                     if (parameters.Length == 2)
@@ -172,25 +168,25 @@ namespace Server.Plugins.Arena
                         if (isId)
                         {
                             var id = Int32.Parse(parameters[1]);
-                            response = ArenaDatabase.RemoveDuelArena((uint)id);
+                            response = ((ArenaCore)pluginRef).ArenaDatabase.RemoveDuelArena((uint)id);
                         }
                         else
                         {
-                            response = ArenaDatabase.RemoveDuelArena(parameters[1]);
+                            response = ((ArenaCore)pluginRef).ArenaDatabase.RemoveDuelArena(parameters[1]);
                         }
                         switch (response)
                         {
                             case ArenaResponse.ArenaDeleted:
-                                Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.deleteSuccess));
+                                ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.deleteSuccess));
                                 break;
                             case ArenaResponse.ArenaNotFound:
-                                Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.deleteNotFound));
+                                ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.deleteNotFound));
                                 break;
                         }
                     }
                     else
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.deleteSyntax));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.deleteSyntax));
                     }
                     break;
                 #endregion
@@ -198,18 +194,18 @@ namespace Server.Plugins.Arena
                     #region reset
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
                         break;
                     }
-                    if(parameters.Length > 1)
+                    if (parameters.Length > 1)
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.resetSyntax));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.resetSyntax));
                         break;
                     }
-                    response = ArenaDatabase.ResetArena();
+                    response = ((ArenaCore)pluginRef).ArenaDatabase.ResetArena();
                     if (response == ArenaResponse.ArenaReset)
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.resetSuccess));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.resetSuccess));
                     }
                     #endregion
                     break;
@@ -217,13 +213,15 @@ namespace Server.Plugins.Arena
                     #region arena-help
                     if (source.entity.name != "BLACKROCK" && source.entity.name != "BLIZZY")
                     {
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.setupSyntax));
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.setSyntax));
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.nameSyntax));
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.createSyntax));
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.deleteSyntax));
-                        Server.Notify(source, CommandsMessages.getMessage(CommandsMessages.resetSyntax));
+                        ServerCore.Notify(source, CommandsMessages.getMessage(CommandsBaseMessages.baseNoPermission));
+                        break;
                     }
+                    ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.setupSyntax));
+                    ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.setSyntax));
+                    ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.nameSyntax));
+                    ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.createSyntax));
+                    ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.deleteSyntax));
+                    ServerCore.Notify(source, CommandsMessages.getMessage(CommandsMessages.resetSyntax));
                     break;
                 #endregion
                 default:
