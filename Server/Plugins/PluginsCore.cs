@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Server.Extensions;
+
 namespace Server.Plugins
 {
     public static class PluginsCore
@@ -41,6 +43,10 @@ namespace Server.Plugins
                         Log.PrintLn(String.Format("Plugin '{0}' require the initialization of plugin '{1}' !", plugin.pluginName,dependency), ConsoleColor.Red);
                     }
                 }
+            }
+            if(pluginsWithCommands.Count > 0)
+            {
+                ChatMessage.Desactivate();
             }
         }
     }

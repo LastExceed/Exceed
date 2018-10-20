@@ -10,7 +10,7 @@ namespace Server {
     public delegate void EntityAttackedEventHandler(Attack datagram, Player source);
     public delegate void ProjectileCreatedEventHandler(Projectile datagram, Player source);
     public delegate void PassiveProccedEventHandler(Proc datagram, Player source);
-    public delegate void ChatMessageReceivedEventHandler(Chat message, Player source);
+    public delegate void ChatMessageReceivedEventHandler(Chat chat, Player source);
     public delegate void EntityInteractedEventHandler(Interaction datagram, Player source);
     public delegate void EntityRemovedEventHandler(RemoveDynamicEntity datagram, Player source);
     public delegate void SpecialMoveUsedEventHandler(SpecialMove datagram, Player source);
