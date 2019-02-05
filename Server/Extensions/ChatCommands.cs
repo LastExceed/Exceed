@@ -24,16 +24,16 @@ namespace Server.Extensions {
                 case "ban":
                     #region ban
                     if (source.entity.name != "BLACKROCK") {
-                        ServerCore.Notify(source, "no permission");
+                        source.Notify("no permission");
                         break;
                     }
                     if (parameters.Length == 1) {
-                        ServerCore.Notify(source, string.Format("usage example: /kick blackrock"));
+                        source.Notify($"usage example: /{parameters[0]} blackrock");
                         break;
                     }
                     var target = ServerCore.players.FirstOrDefault(x => x.entity.name.Contains(parameters[1]));
                     if (target == null) {
-                        ServerCore.Notify(source, "invalid target");
+                        source.Notify("invalid target");
                         break;
                     };
                     var reason = "no reason specified";
@@ -58,14 +58,14 @@ namespace Server.Extensions {
                 case "time":
                     #region time
                     if (parameters.Length == 1) {
-                        ServerCore.Notify(source, string.Format("usage example: /time 12:00"));
+                        source.Notify("usage example: /time 12:00");
                         break;
                     }
                     var clock = parameters[1].Split(":");
                     if (clock.Length < 2 ||
                     !int.TryParse(clock[0], out int hour) ||
                     !int.TryParse(clock[1], out int minute)) {
-                        ServerCore.Notify(source, string.Format("invalid syntax"));
+                        source.Notify("invalid syntax");
                         break;
                     }
                     var inGameTime = new InGameTime() {
@@ -75,7 +75,7 @@ namespace Server.Extensions {
                     break;
                 #endregion
                 default:
-                    ServerCore.Notify(source, string.Format("unknown command '{0}'", parameters[0]));
+                    source.Notify($"unknown command '{parameters[0]}'");
                     break;
             }
         }

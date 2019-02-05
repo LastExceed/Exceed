@@ -55,7 +55,7 @@ namespace Bridge {
             status = BridgeStatus.Connected;
 
             form.Log("checking version...", Color.DarkGray);
-            swriter.Write((byte)0);//packetID
+            swriter.Write((byte)ServerPacketID.VersionCheck);
             swriter.Write(Config.bridgeVersion);
         }
         public static void Disconnect() {
@@ -256,19 +256,6 @@ namespace Bridge {
                     writeServerUpdate = true;
                     break;
                 #endregion
-                case DatagramID.Chat:
-                    #region chat
-                    var chat = new Chat(datagram);
-                    ChatMessageReceived?.Invoke(chat);
-                    if (status == BridgeStatus.Playing) {
-                        var chatMessage = new ChatMessage() {
-                            sender = chat.Sender,
-                            message = chat.Text
-                        };
-                        SendToClient(chatMessage);
-                    }
-                    break;
-                #endregion
                 case DatagramID.Time:
                     #region time
                     var inGameTime = new InGameTime(datagram);
@@ -440,11 +427,9 @@ namespace Bridge {
                     #region chat
                     var chatMessage = new ChatMessage(creader);
                     ChatMessageSent?.Invoke(chatMessage);
-                    var chat = new Chat() {
-                        Sender = guid,//client doesn't send this
-                        Text = chatMessage.message
-                    };
-                    SendUDP(chat.data);
+
+                    swriter.Write((byte)ServerPacketID.Chat);
+                    swriter.Write(chatMessage.message);
                     break;
                 #endregion
                 case PacketID.Chunk:
@@ -545,6 +530,21 @@ namespace Bridge {
                     CwRam.memory.process.Kill();
                     var reason = sreader.ReadString();
                     MessageBox.Show(reason);
+                    break;
+                #endregion
+                case ServerPacketID.Chat:
+                    #region chat
+                    var sender = sreader.ReadInt64();
+                    var msg = sreader.ReadString();
+
+                    ChatMessageReceived?.Invoke(sender, msg);
+                    if(status == BridgeStatus.Playing) {
+                        var chatMessage = new ChatMessage {
+                            sender = sender,
+                            message = msg
+                        };
+                        SendToClient(chatMessage);
+                    }
                     break;
                 #endregion
                 default:

@@ -17,7 +17,7 @@ namespace Bridge {
     public delegate void AttackReceivedEventHandler(Attack attack);
     public delegate void ProjectileReceivedEventHandler(Projectile projectile);
     public delegate void PassiveProcReceivedEventHandler(Proc proc);
-    public delegate void ChatMessageReceivedEventHandler(Chat chat);
+    public delegate void ChatMessageReceivedEventHandler(long sender, string chat);
     public delegate void InGameTimeReceivedEventHandler(InGameTime inGameTime);
     public delegate void InteractionReceivedEventHandler(Interaction interaction);
     public delegate void StaticUpdateReceivedEventHandler(StaticUpdate staticUpdate);

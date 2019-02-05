@@ -19,7 +19,6 @@
         Attack,
         Projectile,
         Proc,
-        Chat,
         Time,
         Interaction,
         StaticUpdate,
@@ -36,6 +35,7 @@
         Register,
         BTFO,
         Kick,
+        Chat
     }
     public enum AuthResponse : byte {
         Success,

@@ -27,5 +27,11 @@ namespace Resources {
             reader = new BinaryReader(stream);
             writer = new BinaryWriter(stream);
         }
+
+        public void Notify(string msg) {
+            writer.Write((byte)ServerPacketID.Chat);
+            writer.Write((long)0);
+            writer.Write(msg);
+        }
     }
 }

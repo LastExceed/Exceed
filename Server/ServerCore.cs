@@ -160,6 +160,25 @@ namespace Server {
                     }
                     break;
                 #endregion
+                case ServerPacketID.Chat:
+                    #region chat
+                    var msg = source.reader.ReadString();
+
+                    ChatMessageReceived?.Invoke(msg, source);
+                    Log.Print(source.entity.name + ": ", ConsoleColor.Cyan);
+                    Log.PrintLn(msg, ConsoleColor.White, false);
+
+                    // pass to all players
+                    foreach(var player in players) {
+                        if(player == source) {
+                            continue;
+                        }
+                        player.writer.Write((byte)ServerPacketID.Chat);
+                        player.writer.Write(source.entity.guid);
+                        player.writer.Write(msg);
+                    }
+                    break;
+                #endregion
                 default:
                     Log.PrintLn($"unknown packetID {packetID} received from {source.IP}", ConsoleColor.Magenta);
                     source.tcpClient.Close();
@@ -197,15 +216,6 @@ namespace Server {
                     var proc = new Proc(datagram);
                     PassiveProcced?.Invoke(proc, source);
                     BroadcastUDP(proc.data, source); //pass to all players except source
-                    break;
-                #endregion
-                case DatagramID.Chat:
-                    #region chat
-                    var chat = new Chat(datagram);
-                    ChatMessageReceived?.Invoke(chat.Text, source);
-                    Log.Print(dynamicEntities[chat.Sender].name + ": ", ConsoleColor.Cyan);
-                    Log.PrintLn(chat.Text, ConsoleColor.White, false);
-                    BroadcastUDP(chat.data, null); //pass to all players
                     break;
                 #endregion
                 case DatagramID.Interaction:
@@ -258,7 +268,7 @@ namespace Server {
             }
         }
         public static void Kick(Player target, string reason) {
-            Notify(target, "you got kicked: " + reason);
+            target.Notify("you got kicked: " + reason);
             target.writer.Write((byte)ServerPacketID.Kick);
             RemovePlayerEntity(target, true);
         }
@@ -267,14 +277,6 @@ namespace Server {
             ushort newGuid = 1;
             while (dynamicEntities.ContainsKey(newGuid)) newGuid++;
             return newGuid;
-        }
-
-        public static void Notify(Player target, string message) {
-            var chat = new Chat() {
-                Sender = 0,
-                Text = message,
-            };
-            SendUDP(chat.data, target);
         }
     }
 }

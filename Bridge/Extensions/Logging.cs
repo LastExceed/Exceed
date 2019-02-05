@@ -21,13 +21,13 @@ namespace Bridge.Extensions {
             BridgeCore.ClientDisconnected += RefreshPlayerlist;
         }
 
-        private static void ChatLog(Chat chat) {
-            if (chat.Sender == 0) {
-                BridgeCore.form.Log(chat.Text + "\n", Color.Magenta);
+        private static void ChatLog(long sender, string msg) {
+            if (sender == 0) {
+                BridgeCore.form.Log(msg + "\n", Color.Magenta);
             }
             else {
-                BridgeCore.form.Log(BridgeCore.dynamicEntities[chat.Sender].name + ": ", Color.Cyan);
-                BridgeCore.form.Log(chat.Text + "\n", Color.White);
+                BridgeCore.form.Log(BridgeCore.dynamicEntities[sender].name + ": ", Color.Cyan);
+                BridgeCore.form.Log(msg + "\n", Color.White);
             }
         }
         private static void LogConnect() {
