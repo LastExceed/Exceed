@@ -1,5 +1,2 @@
-[submodule "Resources/CubeworldNetworking"]
-	path = Resources/CubeworldNetworking
-	url = https://github.com/LastExceed/CubeworldNetworking.git
 [submodule "Resources"]
 	branch = master
