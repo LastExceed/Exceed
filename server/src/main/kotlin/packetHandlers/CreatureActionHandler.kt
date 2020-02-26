@@ -5,7 +5,7 @@ import packets.*
 import exceed.*
 
 object CreatureActionHandler : PacketHandler<CreatureAction> {
-	override fun handlePacket(packet: CreatureAction, source: Player) {
+	override suspend fun handlePacket(packet: CreatureAction, source: Player) {
 		when (packet.type) {
 			ActionType.Bomb -> {
 				GetRidOfThis.notify(source, "bombs are disabled")

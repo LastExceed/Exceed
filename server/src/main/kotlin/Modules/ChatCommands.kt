@@ -7,7 +7,7 @@ import utils.Vector2
 
 object ChatCommands {
 	private const val prefix: Char = '/'
-	fun parse(message: String, source: Player): Boolean {
+	suspend fun parse(message: String, source: Player): Boolean {
 		if (!message.startsWith(prefix)) {
 			return false
 		}

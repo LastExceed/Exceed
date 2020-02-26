@@ -6,7 +6,7 @@ import packets.*
 import exceed.Player
 
 object HitHandler : PacketHandler<Hit> {
-	override fun handlePacket(packet: Hit, source: Player) {
+	override suspend fun handlePacket(packet: Hit, source: Player) {
 		if (ClientBugFixes.ignoreSelfHeal(source, packet)) {
 			return
 		}

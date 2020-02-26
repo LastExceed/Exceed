@@ -13,7 +13,7 @@ object GetRidOfThis {
 		)
 	}
 
-	fun notify(session: Player, message: String) {
+	suspend fun notify(session: Player, message: String) {
 		val chatMessage = ChatMessage(0, message)
 		session.send(chatMessage)
 	}

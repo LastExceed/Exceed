@@ -6,7 +6,7 @@ import packets.*
 object Neverland {
 	private val ghostLayer = Layer()
 
-	fun onCreatureUpdate(source: Player, creatureUpdate: CreatureUpdate) {
+	suspend fun onCreatureUpdate(source: Player, creatureUpdate: CreatureUpdate) {
 		if (source.layer == ghostLayer ||
 			source.character.HP > 0f ||
 			creatureUpdate.HP == null ||

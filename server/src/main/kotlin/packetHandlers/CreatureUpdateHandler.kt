@@ -7,7 +7,7 @@ import packets.*
 import exceed.Player
 
 object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
-	override fun handlePacket(packet: CreatureUpdate, source: Player) {
+	override suspend fun handlePacket(packet: CreatureUpdate, source: Player) {
 		Neverland.onCreatureUpdate(source, packet)
 		source.character.update(packet)
 

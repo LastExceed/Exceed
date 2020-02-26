@@ -13,27 +13,29 @@ class Player(
 		private set
 
 	init {
-		layer.addPlayer(this)
-	}
-
-	private val mutex: Mutex = Mutex(false)
-	fun send(packet: Packet) {
+		//TODO: consider disguising a factory function as ctor for suspendability
+		val p = this
 		runBlocking {
-			mutex.lock()
-			try {
-				writer.writeInt(packet.opcode.value)
-				packet.writeTo(writer)
-			} catch (ex: Throwable) {
-				TODO("check which exception is thrown here")
-				//happens when a player disconnected
-				//disconnections are handled by the reading thread
-				//so we dont have to do anything here
-			}
-			mutex.unlock()
+			layer.addPlayer(p)
 		}
 	}
 
-	fun moveTo(destination: Layer) {
+	private val mutex: Mutex = Mutex(false)
+	suspend fun send(packet: Packet) {
+		mutex.lock()
+		try {
+			writer.writeInt(packet.opcode.value)
+			packet.writeTo(writer)
+		} catch (ex: Throwable) {
+			TODO("check which exception is thrown here")
+			//happens when a player disconnected
+			//disconnections are handled by the reading thread
+			//so we dont have to do anything here
+		}
+		mutex.unlock()
+	}
+
+	suspend fun moveTo(destination: Layer) {
 		if (destination == layer) {
 			return
 		}
@@ -43,7 +45,7 @@ class Player(
 		layer = destination
 	}
 
-	fun clearCreatures() {
+	suspend fun clearCreatures() {
 		send(WaveClear())
 		send(WaveClear())
 	}

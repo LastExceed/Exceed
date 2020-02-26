@@ -9,7 +9,7 @@ import exceed.Player
 import kotlinx.coroutines.Dispatchers
 
 object BuffHandler : PacketHandler<Buff> {
-	override fun handlePacket(packet: Buff, source: Player) {
+	override suspend fun handlePacket(packet: Buff, source: Player) {
 		if (packet.type == BuffType.Poison) {
 			applyPoison(source, packet)
 		}

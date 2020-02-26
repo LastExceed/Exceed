@@ -5,7 +5,7 @@ import packets.ChatMessage
 import exceed.Player
 
 object ChatMessageHandler : PacketHandler<ChatMessage> {
-	override fun handlePacket(packet: ChatMessage, source: Player) {
+	override suspend fun handlePacket(packet: ChatMessage, source: Player) {
 		if (ChatCommands.parse(packet.text, source)) {
 			return
 		}

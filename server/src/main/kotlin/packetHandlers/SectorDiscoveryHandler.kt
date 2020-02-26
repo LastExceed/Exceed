@@ -5,7 +5,7 @@ import packets.*
 import exceed.Player
 
 object SectorDiscoveryHandler : PacketHandler<SectorDiscovery> {
-	override fun handlePacket(packet: SectorDiscovery, source: Player) {
+	override suspend fun handlePacket(packet: SectorDiscovery, source: Player) {
 
 	}
 }
