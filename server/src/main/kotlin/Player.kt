@@ -19,7 +19,6 @@ class Player(
 	private val mutex: Mutex = Mutex(false)
 	fun send(packet: Packet) {
 		runBlocking {
-			//TODO: pls no
 			mutex.lock()
 			try {
 				writer.writeInt(packet.opcode.value)

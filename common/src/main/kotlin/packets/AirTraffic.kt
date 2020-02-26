@@ -36,7 +36,7 @@ data class Airship(
 	val destination: Vector3<Long>,
 	val state: AirshipState,
 	val unknownD: Int
-) : CwSerializable {
+) : SubPacket {
 	override suspend fun writeTo(writer: Writer) {
 		writer.writeLong(id)
 		writer.writeInt(unknownA)

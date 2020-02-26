@@ -16,7 +16,7 @@ data class Item(
 	val paddingC: Short,
 	val spirits: Array<Spirit>,
 	val spiritCounter: Int
-) : CwSerializable, SubPacket {
+) : SubPacket {
 	override suspend fun writeTo(writer: Writer) {
 		writer.writeByte(mainType.value)
 		writer.writeByte(subType)
@@ -63,7 +63,7 @@ data class Spirit(
 	val material: Material,
 	val level: Short,
 	val padding: Short
-) : CwSerializable {
+) : SubPacket {
 	override suspend fun writeTo(writer: Writer) {
 		writer.writeVector3Byte(position)
 		writer.writeByte(material.value)
