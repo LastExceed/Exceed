@@ -49,7 +49,7 @@ data class Item(
 				paddingB = reader.readByte(),
 				level = reader.readShort(),
 				paddingC = reader.readShort(),
-				spirits = Array<Spirit>(32) {
+				spirits = Array(32) {
 					Spirit.read(reader)
 				},
 				spiritCounter = reader.readInt()
