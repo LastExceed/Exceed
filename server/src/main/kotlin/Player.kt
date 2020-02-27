@@ -2,6 +2,7 @@ package exceed
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import packets.*
 
 class Player(
@@ -20,9 +21,8 @@ class Player(
 		}
 	}
 
-	private val mutex: Mutex = Mutex(false)
-	suspend fun send(packet: Packet) {
-		mutex.lock()
+	private val mutex = Mutex(false)
+	suspend fun send(packet: Packet) = mutex.withLock {
 		try {
 			writer.writeInt(packet.opcode.value)
 			packet.writeTo(writer)
@@ -32,7 +32,6 @@ class Player(
 			//disconnections are handled by the reading thread
 			//so we dont have to do anything here
 		}
-		mutex.unlock()
 	}
 
 	suspend fun moveTo(destination: Layer) {

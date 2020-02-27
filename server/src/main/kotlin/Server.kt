@@ -32,10 +32,10 @@ object Server {
 		val reader = Reader(socket.openReadChannel())
 		val writer = Writer(socket.openWriteChannel(true))
 		val player = handShake(reader, writer)
-
 		try {
 			while (true) {
 				val opcode = Opcode(reader.readInt())
+
 				when (opcode) {
 					Opcode.CreatureUpdate -> CreatureUpdateHandler.handlePacket(CreatureUpdate.readFrom(reader), player)
 					Opcode.CreatureAction -> CreatureActionHandler.handlePacket(CreatureAction.readFrom(reader), player)
