@@ -1,6 +1,6 @@
 package packets
 
-import kotlinx.coroutines.io.*
+import io.ktor.utils.io.*
 
 class Writer(private val inner: ByteWriteChannel) {
 	suspend fun writeByte(value: Byte) = inner.writeByte(value)

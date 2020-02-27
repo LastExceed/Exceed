@@ -27,7 +27,7 @@ subprojects {
 
 	dependencies {
 		implementation(kotlin("stdlib-jdk8"))
-		implementation("io.ktor", "ktor-network", "1.2.3")
+		implementation("io.ktor", "ktor-network", "1.3.0")
 		//compile("com.google.guava", "guava", "28.0-jre")
 	}
 

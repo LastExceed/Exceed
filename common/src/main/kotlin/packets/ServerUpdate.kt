@@ -1,8 +1,8 @@
 package packets
 
 import io.ktor.util.toByteArray
-import kotlinx.coroutines.io.ByteChannel
-import kotlinx.coroutines.io.close
+import io.ktor.utils.io.ByteChannel
+import io.ktor.utils.io.close
 import utils.*
 
 data class ServerUpdate(

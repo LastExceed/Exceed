@@ -8,6 +8,7 @@ import kotlinx.coroutines.CancellationException
 import packets.*
 import java.io.IOException
 import java.net.InetSocketAddress
+import java.net.SocketException
 
 object Server {
 	private val listener = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(InetSocketAddress(12345))
@@ -52,11 +53,12 @@ object Server {
 				throw cancellationException
 			}
 			println("player disconnected")
-			player.layer.removePlayer(player)
-			idPool.free(player.character.id)
-			socket.dispose()
-			return
+		} catch (ex: Throwable) {
+			println("also disconnect")
 		}
+		player.layer.removePlayer(player)
+		idPool.free(player.character.id)
+		socket.dispose()
 	}
 
 	private suspend fun handShake(reader: Reader, writer: Writer): Player {

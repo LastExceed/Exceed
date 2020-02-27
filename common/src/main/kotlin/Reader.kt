@@ -1,6 +1,6 @@
 package packets
 
-import kotlinx.coroutines.io.*
+import io.ktor.utils.io.*
 
 class Reader(val inner: ByteReadChannel) {
 	constructor(data: ByteArray) : this(ByteReadChannel(data))

@@ -1,8 +1,8 @@
 package packets
 
 import io.ktor.util.toByteArray
-import kotlinx.coroutines.io.ByteChannel
-import kotlinx.coroutines.io.close
+import io.ktor.utils.io.ByteChannel
+import io.ktor.utils.io.close
 import utils.*
 
 data class CreatureUpdate(
@@ -57,8 +57,8 @@ data class CreatureUpdate(
 	val manaCubes: Int? = null
 ) : Packet(Opcode.CreatureUpdate) {
 	override suspend fun writeTo(writer: Writer) {
-		val optionalDataChannel = ByteChannel(true)
-		val optionalDataWriter = Writer(optionalDataChannel)
+		val optionalChannel = ByteChannel(true)
+		val optionalDataWriter = Writer(optionalChannel)
 		val mask = BooleanArray(Long.SIZE_BITS)
 		position?.let {
 			optionalDataWriter.writeVector3Long(it)
@@ -255,8 +255,8 @@ data class CreatureUpdate(
 			mask[47] = true
 		}
 
-		optionalDataChannel.close()
-		val optionalData = optionalDataChannel.toByteArray()
+		optionalChannel.close()
+		val optionalData = optionalChannel.toByteArray()
 
 		val inflatedChannel = ByteChannel(true)
 		val inflatedWriter = Writer(inflatedChannel)
