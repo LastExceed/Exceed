@@ -35,7 +35,6 @@ object Server {
 		try {
 			while (true) {
 				val opcode = Opcode(reader.readInt())
-
 				when (opcode) {
 					Opcode.CreatureUpdate -> CreatureUpdateHandler.handlePacket(CreatureUpdate.readFrom(reader), player)
 					Opcode.CreatureAction -> CreatureActionHandler.handlePacket(CreatureAction.readFrom(reader), player)
@@ -83,7 +82,6 @@ object Server {
 		val creatureUpdate = CreatureUpdate.readFrom(reader)
 		//TODO: make sure bitfield is full
 		//TODO: inspect with anticheat
-
-		return Player(writer, Creature(creatureUpdate), mainLayer)
+		return Player.create(writer, Creature(creatureUpdate), mainLayer)
 	}
 }
