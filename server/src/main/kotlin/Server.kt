@@ -53,12 +53,11 @@ object Server {
 				throw cancellationException
 			}
 			println("player disconnected")
-		} catch (ex: Throwable) {
-			println("also disconnect")
+			player.layer.removePlayer(player)
+			idPool.free(player.character.id)
+			socket.dispose()
+			return
 		}
-		player.layer.removePlayer(player)
-		idPool.free(player.character.id)
-		socket.dispose()
 	}
 
 	private suspend fun handShake(reader: Reader, writer: Writer): Player {
