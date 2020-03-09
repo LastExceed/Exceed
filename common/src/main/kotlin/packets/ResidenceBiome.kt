@@ -2,7 +2,7 @@ package packets
 
 import utils.*
 
-data class SectorDiscovery(
+data class ResidenceBiome(
 	val sector: Vector2<Int>
 ) : Packet(Opcode.ChunkDiscovery) {
 	override suspend fun writeTo(writer: Writer) {
@@ -10,8 +10,8 @@ data class SectorDiscovery(
 	}
 
 	companion object {
-		suspend fun readFrom(reader: Reader): SectorDiscovery {
-			return SectorDiscovery(reader.readVector2Int())
+		suspend fun readFrom(reader: Reader): ResidenceBiome {
+			return ResidenceBiome(reader.readVector2Int())
 		}
 	}
 }

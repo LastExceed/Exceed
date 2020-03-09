@@ -8,7 +8,6 @@ import kotlinx.coroutines.CancellationException
 import packets.*
 import java.io.IOException
 import java.net.InetSocketAddress
-import java.net.SocketException
 
 object Server {
 	private val listener = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(InetSocketAddress(12345))
@@ -44,7 +43,7 @@ object Server {
 					Opcode.Shot -> ShotHandler.handlePacket(Shot.readFrom(reader), player)
 					Opcode.ChatMessage -> ChatMessageHandler.handlePacket(ChatMessage.readFrom(reader, false), player)
 					Opcode.ChunkDiscovery -> ChunkDiscoveryHandler.handlePacket(ChunkDiscovery.readFrom(reader), player)
-					Opcode.SectorDiscovery -> SectorDiscoveryHandler.handlePacket(SectorDiscovery.readFrom(reader), player)
+					Opcode.SectorDiscovery -> ResidenceBiomeHandler.handlePacket(ResidenceBiome.readFrom(reader), player)
 					else -> println("unknown opcode: $opcode")
 				}
 			}
