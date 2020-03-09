@@ -42,7 +42,7 @@ object Server {
 					Opcode.Buff -> BuffHandler.handlePacket(Buff.readFrom(reader), player)
 					Opcode.Shot -> ShotHandler.handlePacket(Shot.readFrom(reader), player)
 					Opcode.ChatMessage -> ChatMessageHandler.handlePacket(ChatMessage.readFrom(reader, false), player)
-					Opcode.ChunkDiscovery -> ChunkDiscoveryHandler.handlePacket(ChunkDiscovery.readFrom(reader), player)
+					Opcode.ChunkDiscovery -> ResidenceChunkHandler.handlePacket(ResidenceChunk.readFrom(reader), player)
 					Opcode.SectorDiscovery -> ResidenceBiomeHandler.handlePacket(ResidenceBiome.readFrom(reader), player)
 					else -> println("unknown opcode: $opcode")
 				}

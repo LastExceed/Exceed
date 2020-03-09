@@ -2,7 +2,7 @@ package packets
 
 import utils.*
 
-data class ChunkDiscovery(
+data class ResidenceChunk(
 	val chunk: Vector2<Int>
 ) : Packet(Opcode.ChunkDiscovery) {
 	override suspend fun writeTo(writer: Writer) {
@@ -10,8 +10,8 @@ data class ChunkDiscovery(
 	}
 
 	companion object {
-		suspend fun readFrom(reader: Reader): ChunkDiscovery {
-			return ChunkDiscovery(reader.readVector2Int())
+		suspend fun readFrom(reader: Reader): ResidenceChunk {
+			return ResidenceChunk(reader.readVector2Int())
 		}
 	}
 }
