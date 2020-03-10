@@ -12,7 +12,7 @@ object Ultimates {
 				val character = source.character
 				val particle = Particle(
 					character.position,
-					character.rayHit,
+					character.aimDisplacement,
 					Vector3(1f, 0.5f, 0f),
 					1f,
 					1f,

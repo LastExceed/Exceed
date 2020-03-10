@@ -4,7 +4,7 @@ import Modules.Ultimates
 import packets.*
 import exceed.*
 
-object CreatureActionHandler : PacketHandler<CreatureAction> {
+object PlayerActionHandler : PacketHandler<CreatureAction> {
 	override suspend fun handlePacket(packet: CreatureAction, source: Player) {
 		when (packet.type) {
 			ActionType.Bomb -> {
@@ -26,7 +26,7 @@ object CreatureActionHandler : PacketHandler<CreatureAction> {
 				source.send(serverUpdate)
 			}
 			ActionType.CallPet -> {
-				if (!source.character.creatureFlags[CreatureFlagsIndex.sprinting.value]) {
+				if (!source.character.flags[CreatureFlagsIndex.sprinting.value]) {
 					Ultimates.cast(source)
 				} else {
 					GetRidOfThis.notify(source, "pets are disabled")

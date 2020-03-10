@@ -29,9 +29,9 @@ object ChatCommands {
 				val creatureUpdate = CreatureUpdate(
 					id = 2L,
 					position = Vector3<Long>(234234, 234234, 0xaa0000),
-					hostility = Hostility(params[1].toByte()),
-					creatureType = CreatureType.Turtle,
-					parentOwner = source.character.id,
+					affiliation = Hostility(params[1].toByte()),
+					race = CreatureType.Turtle,
+					master = source.character.id,
 					name = "test_NPC"
 
 

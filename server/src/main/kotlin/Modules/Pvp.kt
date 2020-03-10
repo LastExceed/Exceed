@@ -4,6 +4,6 @@ import packets.*
 
 object Pvp {
 	fun enable(creatureUpdate: CreatureUpdate): CreatureUpdate {
-		return creatureUpdate.copy(hostility = Hostility.Enemy)
+		return creatureUpdate.copy(affiliation = Hostility.Enemy)
 	}
 }

@@ -8,9 +8,9 @@ object Neverland {
 
 	suspend fun onCreatureUpdate(source: Player, creatureUpdate: CreatureUpdate) {
 		if (source.layer == ghostLayer ||
-			source.character.HP > 0f ||
-			creatureUpdate.HP == null ||
-			creatureUpdate.HP!! > 0f
+			source.character.health > 0f ||
+			creatureUpdate.health == null ||
+			creatureUpdate.health!! > 0f
 		) return
 
 		source.moveTo(ghostLayer)

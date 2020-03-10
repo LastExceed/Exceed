@@ -14,7 +14,7 @@ object AntiCheat {
 		with(creatureUpdate) {
 			//ID
 
-			if (MP != null && MP!! > 1f) {
+			if (mana != null && mana!! > 1f) {
 				trigger("MP hack")
 				return true
 			}

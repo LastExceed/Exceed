@@ -11,49 +11,49 @@ data class CreatureUpdate(
 	val rotation: Vector3<Float>? = null,
 	val velocity: Vector3<Float>? = null,
 	val acceleration: Vector3<Float>? = null,
-	val extraVel: Vector3<Float>? = null,
-	val viewportPitch: Float? = null,
-	val physicsFlags: BooleanArray? = null,
-	val hostility: Hostility? = null,
-	val creatureType: CreatureType? = null,
-	val mode: Mode? = null,
+	val velocityExtra: Vector3<Float>? = null,
+	val climbAnimation: Float? = null,
+	val flagsPhysics: BooleanArray? = null,
+	val affiliation: Hostility? = null,
+	val race: CreatureType? = null,
+	val activity: Mode? = null,
 	val modeTimer: Int? = null,
 	val combo: Int? = null,
-	val lastHitTime: Int? = null,
+	val hitTimeOut: Int? = null,
 	val appearance: Appearance? = null,
-	val creatureFlags: BooleanArray? = null,
-	val roll: Int? = null,
-	val stun: Int? = null,
-	val slow: Int? = null,
-	val ice: Int? = null,
-	val wind: Int? = null,
+	val flags: BooleanArray? = null,
+	val effectTimeDodge: Int? = null,
+	val effectTimeStun: Int? = null,
+	val effectTimeFear: Int? = null,
+	val effectTimeIce: Int? = null,
+	val effectTimeWind: Int? = null,
 	val showPatchTime: Int? = null,
 	val entityClass: EntityClass? = null,
 	val specialization: Byte? = null,
 	val charge: Float? = null,
 	val unused24: Vector3<Float>? = null,
 	val unused25: Vector3<Float>? = null,
-	val rayHit: Vector3<Float>? = null,
-	val HP: Float? = null,
-	val MP: Float? = null,
-	val block: Float? = null,
+	val aimDisplacement: Vector3<Float>? = null,
+	val health: Float? = null,
+	val mana: Float? = null,
+	val blockMeter: Float? = null,
 	val multipliers: Multipliers? = null,
 	val unused31: Byte? = null,
 	val unused32: Byte? = null,
 	val level: Int? = null,
-	val XP: Int? = null,
-	val parentOwner: Long? = null,
+	val experience: Int? = null,
+	val master: Long? = null,
 	val unused36: Long? = null,
 	val powerBase: Byte? = null,
 	val unused38: Int? = null,
 	val unused39: Vector3<Int>? = null,
-	val spawnPos: Vector3<Long>? = null,
+	val home: Vector3<Long>? = null,
 	val unused41: Vector3<Int>? = null,
 	val unused42: Byte? = null,
 	val consumable: Item? = null,
 	val equipment: Equipment? = null,
 	val name: String? = null,
-	val skillDistribution: SkillDistribution? = null,
+	val skillPointDistribution: SkillDistribution? = null,
 	val manaCubes: Int? = null
 ) : Packet(Opcode.CreatureUpdate) {
 	override suspend fun writeTo(writer: Writer) {
@@ -76,27 +76,27 @@ data class CreatureUpdate(
 			optionalDataWriter.writeVector3Float(it)
 			mask[3] = true
 		}
-		extraVel?.let {
+		velocityExtra?.let {
 			optionalDataWriter.writeVector3Float(it)
 			mask[4] = true
 		}
-		viewportPitch?.let {
+		climbAnimation?.let {
 			optionalDataWriter.writeFloat(it)
 			mask[5] = true
 		}
-		physicsFlags?.let {
+		flagsPhysics?.let {
 			optionalDataWriter.writeInt(it.toInt())
 			mask[6] = true
 		}
-		hostility?.let {
+		affiliation?.let {
 			optionalDataWriter.writeByte(it.value)
 			mask[7] = true
 		}
-		creatureType?.let {
+		race?.let {
 			optionalDataWriter.writeInt(it.value)
 			mask[8] = true
 		}
-		mode?.let {
+		activity?.let {
 			optionalDataWriter.writeByte(it.value)
 			mask[9] = true
 		}
@@ -108,7 +108,7 @@ data class CreatureUpdate(
 			optionalDataWriter.writeInt(it)
 			mask[11] = true
 		}
-		lastHitTime?.let {
+		hitTimeOut?.let {
 			optionalDataWriter.writeInt(it)
 			mask[12] = true
 		}
@@ -116,27 +116,27 @@ data class CreatureUpdate(
 			it.writeTo(optionalDataWriter)
 			mask[13] = true
 		}
-		creatureFlags?.let {
+		flags?.let {
 			optionalDataWriter.writeShort(it.toInt().toShort())
 			mask[14] = true
 		}
-		roll?.let {
+		effectTimeDodge?.let {
 			optionalDataWriter.writeInt(it)
 			mask[15] = true
 		}
-		stun?.let {
+		effectTimeStun?.let {
 			optionalDataWriter.writeInt(it)
 			mask[16] = true
 		}
-		slow?.let {
+		effectTimeFear?.let {
 			optionalDataWriter.writeInt(it)
 			mask[17] = true
 		}
-		ice?.let {
+		effectTimeIce?.let {
 			optionalDataWriter.writeInt(it)
 			mask[18] = true
 		}
-		wind?.let {
+		effectTimeWind?.let {
 			optionalDataWriter.writeInt(it)
 			mask[19] = true
 		}
@@ -164,19 +164,19 @@ data class CreatureUpdate(
 			optionalDataWriter.writeVector3Float(it)
 			mask[25] = true
 		}
-		rayHit?.let {
+		aimDisplacement?.let {
 			optionalDataWriter.writeVector3Float(it)
 			mask[26] = true
 		}
-		HP?.let {
+		health?.let {
 			optionalDataWriter.writeFloat(it)
 			mask[27] = true
 		}
-		MP?.let {
+		mana?.let {
 			optionalDataWriter.writeFloat(it)
 			mask[28] = true
 		}
-		block?.let {
+		blockMeter?.let {
 			optionalDataWriter.writeFloat(it)
 			mask[29] = true
 		}
@@ -196,11 +196,11 @@ data class CreatureUpdate(
 			optionalDataWriter.writeInt(it)
 			mask[33] = true
 		}
-		XP?.let {
+		experience?.let {
 			optionalDataWriter.writeInt(it)
 			mask[34] = true
 		}
-		parentOwner?.let {
+		master?.let {
 			optionalDataWriter.writeLong(it)
 			mask[35] = true
 		}
@@ -220,7 +220,7 @@ data class CreatureUpdate(
 			optionalDataWriter.writeVector3Int(it)
 			mask[39] = true
 		}
-		spawnPos?.let {
+		home?.let {
 			optionalDataWriter.writeVector3Long(it)
 			mask[40] = true
 		}
@@ -246,7 +246,7 @@ data class CreatureUpdate(
 			optionalDataWriter.writeByteArray(nameBytes)
 			mask[45] = true
 		}
-		skillDistribution?.let {
+		skillPointDistribution?.let {
 			it.writeTo(optionalDataWriter)
 			mask[46] = true
 		}
@@ -288,49 +288,49 @@ data class CreatureUpdate(
 				rotation = if (mask[1]) inflatedReader.readVector3Float() else null,
 				velocity = if (mask[2]) inflatedReader.readVector3Float() else null,
 				acceleration = if (mask[3]) inflatedReader.readVector3Float() else null,
-				extraVel = if (mask[4]) inflatedReader.readVector3Float() else null,
-				viewportPitch = if (mask[5]) inflatedReader.readFloat() else null,
-				physicsFlags = if (mask[6]) inflatedReader.readInt().toBooleanArray() else null,
-				hostility = if (mask[7]) Hostility(inflatedReader.readByte()) else null,
-				creatureType = if (mask[8]) CreatureType(inflatedReader.readInt()) else null,
-				mode = if (mask[9]) Mode(inflatedReader.readByte()) else null,
+				velocityExtra = if (mask[4]) inflatedReader.readVector3Float() else null,
+				climbAnimation = if (mask[5]) inflatedReader.readFloat() else null,
+				flagsPhysics = if (mask[6]) inflatedReader.readInt().toBooleanArray() else null,
+				affiliation = if (mask[7]) Hostility(inflatedReader.readByte()) else null,
+				race = if (mask[8]) CreatureType(inflatedReader.readInt()) else null,
+				activity = if (mask[9]) Mode(inflatedReader.readByte()) else null,
 				modeTimer = if (mask[10]) inflatedReader.readInt() else null,
 				combo = if (mask[11]) inflatedReader.readInt() else null,
-				lastHitTime = if (mask[12]) inflatedReader.readInt() else null,
+				hitTimeOut = if (mask[12]) inflatedReader.readInt() else null,
 				appearance = if (mask[13]) Appearance.read(inflatedReader) else null,
-				creatureFlags = if (mask[14]) inflatedReader.readShort().toInt().toBooleanArray() else null,
-				roll = if (mask[15]) inflatedReader.readInt() else null,
-				stun = if (mask[16]) inflatedReader.readInt() else null,
-				slow = if (mask[17]) inflatedReader.readInt() else null,
-				ice = if (mask[18]) inflatedReader.readInt() else null,
-				wind = if (mask[19]) inflatedReader.readInt() else null,
+				flags = if (mask[14]) inflatedReader.readShort().toInt().toBooleanArray() else null,
+				effectTimeDodge = if (mask[15]) inflatedReader.readInt() else null,
+				effectTimeStun = if (mask[16]) inflatedReader.readInt() else null,
+				effectTimeFear = if (mask[17]) inflatedReader.readInt() else null,
+				effectTimeIce = if (mask[18]) inflatedReader.readInt() else null,
+				effectTimeWind = if (mask[19]) inflatedReader.readInt() else null,
 				showPatchTime = if (mask[20]) inflatedReader.readInt() else null,
 				entityClass = if (mask[21]) EntityClass(inflatedReader.readByte()) else null,
 				specialization = if (mask[22]) inflatedReader.readByte() else null,
 				charge = if (mask[23]) inflatedReader.readFloat() else null,
 				unused24 = if (mask[24]) inflatedReader.readVector3Float() else null,
 				unused25 = if (mask[25]) inflatedReader.readVector3Float() else null,
-				rayHit = if (mask[26]) inflatedReader.readVector3Float() else null,
-				HP = if (mask[27]) inflatedReader.readFloat() else null,
-				MP = if (mask[28]) inflatedReader.readFloat() else null,
-				block = if (mask[29]) inflatedReader.readFloat() else null,
+				aimDisplacement = if (mask[26]) inflatedReader.readVector3Float() else null,
+				health = if (mask[27]) inflatedReader.readFloat() else null,
+				mana = if (mask[28]) inflatedReader.readFloat() else null,
+				blockMeter = if (mask[29]) inflatedReader.readFloat() else null,
 				multipliers = if (mask[30]) Multipliers.read(inflatedReader) else null,
 				unused31 = if (mask[31]) inflatedReader.readByte() else null,
 				unused32 = if (mask[32]) inflatedReader.readByte() else null,
 				level = if (mask[33]) inflatedReader.readInt() else null,
-				XP = if (mask[34]) inflatedReader.readInt() else null,
-				parentOwner = if (mask[35]) inflatedReader.readLong() else null,
+				experience = if (mask[34]) inflatedReader.readInt() else null,
+				master = if (mask[35]) inflatedReader.readLong() else null,
 				unused36 = if (mask[36]) inflatedReader.readLong() else null,
 				powerBase = if (mask[37]) inflatedReader.readByte() else null,
 				unused38 = if (mask[38]) inflatedReader.readInt() else null,
 				unused39 = if (mask[39]) inflatedReader.readVector3Int() else null,
-				spawnPos = if (mask[40]) inflatedReader.readVector3Long() else null,
+				home = if (mask[40]) inflatedReader.readVector3Long() else null,
 				unused41 = if (mask[41]) inflatedReader.readVector3Int() else null,
 				unused42 = if (mask[42]) inflatedReader.readByte() else null,
 				consumable = if (mask[43]) Item.readFrom(inflatedReader) else null,
 				equipment = if (mask[44]) Equipment.read(inflatedReader) else null,
 				name = if (mask[45]) inflatedReader.readName() else null,
-				skillDistribution = if (mask[46]) SkillDistribution.read(inflatedReader) else null,
+				skillPointDistribution = if (mask[46]) SkillDistribution.read(inflatedReader) else null,
 				manaCubes = if (mask[47]) inflatedReader.readInt() else null
 			)
 		}

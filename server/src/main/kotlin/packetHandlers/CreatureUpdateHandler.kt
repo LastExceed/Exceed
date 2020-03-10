@@ -29,65 +29,65 @@ object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 		if (newData.acceleration != null) {
 			this.acceleration = newData.acceleration!!
 		}
-		if (newData.extraVel != null) {
-			this.extraVel = newData.extraVel!!
+		if (newData.velocityExtra != null) {
+			this.velocityExtra = newData.velocityExtra!!
 		}
-		if (newData.viewportPitch != null) {
-			this.viewportPitch = newData.viewportPitch!!
+		if (newData.climbAnimation != null) {
+			this.climbAnimation = newData.climbAnimation!!
 		}
-		if (newData.physicsFlags != null) {
-			this.physicsFlags = newData.physicsFlags!!
+		if (newData.flagsPhysics != null) {
+			this.flagsPhysics = newData.flagsPhysics!!
 		}
-		if (newData.hostility != null) {
-			this.hostility = newData.hostility!!
+		if (newData.affiliation != null) {
+			this.affiliation = newData.affiliation!!
 		}
-		if (newData.creatureType != null) {
-			this.creatureType = newData.creatureType!!
+		if (newData.race != null) {
+			this.race = newData.race!!
 		}
-		if (newData.mode != null) {
-			this.mode = newData.mode!!
+		if (newData.activity != null) {
+			this.activity = newData.activity!!
 		}
 		if (newData.modeTimer != null) {
-			this.modeTimer = newData.modeTimer!!
+			this.activityTimer = newData.modeTimer!!
 		}
 		if (newData.combo != null) {
 			this.combo = newData.combo!!
 		}
-		if (newData.lastHitTime != null) {
-			this.lastHitTime = newData.lastHitTime!!
+		if (newData.hitTimeOut != null) {
+			this.hitTimeOut = newData.hitTimeOut!!
 		}
 		if (newData.appearance != null) {
 			this.appearance = newData.appearance!!
 		}
-		if (newData.creatureFlags != null) {
-			this.creatureFlags = newData.creatureFlags!!
+		if (newData.flags != null) {
+			this.flags = newData.flags!!
 		}
-		if (newData.roll != null) {
-			this.roll = newData.roll!!
+		if (newData.effectTimeDodge != null) {
+			this.effectTimeDodge = newData.effectTimeDodge!!
 		}
-		if (newData.stun != null) {
-			this.stun = newData.stun!!
+		if (newData.effectTimeStun != null) {
+			this.effectTimeStun = newData.effectTimeStun!!
 		}
-		if (newData.slow != null) {
-			this.slow = newData.slow!!
+		if (newData.effectTimeFear != null) {
+			this.effectTimeFear = newData.effectTimeFear!!
 		}
-		if (newData.ice != null) {
-			this.ice = newData.ice!!
+		if (newData.effectTimeIce != null) {
+			this.effectTimeIce = newData.effectTimeIce!!
 		}
-		if (newData.wind != null) {
-			this.wind = newData.wind!!
+		if (newData.effectTimeWind != null) {
+			this.effectTimeWind = newData.effectTimeWind!!
 		}
 		if (newData.showPatchTime != null) {
 			this.showPatchTime = newData.showPatchTime!!
 		}
 		if (newData.entityClass != null) {
-			this.entityClass = newData.entityClass!!
+			this.combatClass = newData.entityClass!!
 		}
 		if (newData.specialization != null) {
-			this.specialization = newData.specialization!!
+			this.combatSpecialization = newData.specialization!!
 		}
 		if (newData.charge != null) {
-			this.charge = newData.charge!!
+			this.manaCharge = newData.charge!!
 		}
 		if (newData.unused24 != null) {
 			this.unused24 = newData.unused24!!
@@ -95,17 +95,17 @@ object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 		if (newData.unused25 != null) {
 			this.unused25 = newData.unused25!!
 		}
-		if (newData.rayHit != null) {
-			this.rayHit = newData.rayHit!!
+		if (newData.aimDisplacement != null) {
+			this.aimDisplacement = newData.aimDisplacement!!
 		}
-		if (newData.HP != null) {
-			this.HP = newData.HP!!
+		if (newData.health != null) {
+			this.health = newData.health!!
 		}
-		if (newData.MP != null) {
-			this.MP = newData.MP!!
+		if (newData.mana != null) {
+			this.mana = newData.mana!!
 		}
-		if (newData.block != null) {
-			this.block = newData.block!!
+		if (newData.blockMeter != null) {
+			this.blockMeter = newData.blockMeter!!
 		}
 		if (newData.multipliers != null) {
 			this.multipliers = newData.multipliers!!
@@ -119,11 +119,11 @@ object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 		if (newData.level != null) {
 			this.level = newData.level!!
 		}
-		if (newData.XP != null) {
-			this.XP = newData.XP!!
+		if (newData.experience != null) {
+			this.experience = newData.experience!!
 		}
-		if (newData.parentOwner != null) {
-			this.parentOwner = newData.parentOwner!!
+		if (newData.master != null) {
+			this.master = newData.master!!
 		}
 		if (newData.unused36 != null) {
 			this.unused36 = newData.unused36!!
@@ -137,8 +137,8 @@ object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 		if (newData.unused39 != null) {
 			this.unused39 = newData.unused39!!
 		}
-		if (newData.spawnPos != null) {
-			this.spawnPos = newData.spawnPos!!
+		if (newData.home != null) {
+			this.home = newData.home!!
 		}
 		if (newData.unused41 != null) {
 			this.unused41 = newData.unused41!!
@@ -155,8 +155,8 @@ object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 		if (newData.name != null) {
 			this.name = newData.name!!
 		}
-		if (newData.skillDistribution != null) {
-			this.skillDistribution = newData.skillDistribution!!
+		if (newData.skillPointDistribution != null) {
+			this.skillPointDistribution = newData.skillPointDistribution!!
 		}
 		if (newData.manaCubes != null) {
 			this.manaCubes = newData.manaCubes!!

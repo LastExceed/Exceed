@@ -37,7 +37,7 @@ object Server {
 				val opcode = Opcode(reader.readInt())
 				when (opcode) {
 					Opcode.CreatureUpdate -> CreatureUpdateHandler.handlePacket(CreatureUpdate.readFrom(reader), player)
-					Opcode.CreatureAction -> CreatureActionHandler.handlePacket(CreatureAction.readFrom(reader), player)
+					Opcode.CreatureAction -> PlayerActionHandler.handlePacket(CreatureAction.readFrom(reader), player)
 					Opcode.Hit -> HitHandler.handlePacket(Hit.readFrom(reader), player)
 					Opcode.Buff -> BuffHandler.handlePacket(Buff.readFrom(reader), player)
 					Opcode.Shot -> ShotHandler.handlePacket(Shot.readFrom(reader), player)

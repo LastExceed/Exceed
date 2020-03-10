@@ -1,7 +1,6 @@
 package exceed
 
 import Modules.Pvp
-import kotlinx.coroutines.runBlocking
 import packets.*
 
 data class Layer(
@@ -24,7 +23,7 @@ data class Layer(
 
 	suspend fun removeCreature(creature: Creature) {
 		creatures.remove(creature.id)
-		val creatureUpdate = CreatureUpdate(id = creature.id, HP = 0f, hostility = Hostility.Neutral)
+		val creatureUpdate = CreatureUpdate(id = creature.id, health = 0f, affiliation = Hostility.Neutral)
 		broadcast(creatureUpdate)
 	}
 
