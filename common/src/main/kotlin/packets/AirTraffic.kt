@@ -16,7 +16,7 @@ data class AirTraffic(
 		suspend fun readFrom(reader: Reader): AirTraffic {
 			val airTraffic = AirTraffic()
 			repeat(reader.readInt()) {
-				airTraffic.airships.add(Airship.read(reader))
+				airTraffic.airships.add(Airship.readFrom(reader))
 			}
 			return airTraffic
 		}
@@ -53,7 +53,7 @@ data class Airship(
 	}
 
 	companion object {
-		internal suspend fun read(reader: Reader): Airship {
+		internal suspend fun readFrom(reader: Reader): Airship {
 			return Airship(
 				id = reader.readLong(),
 				unknownA = reader.readInt(),

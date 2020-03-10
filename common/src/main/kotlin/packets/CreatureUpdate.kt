@@ -12,12 +12,12 @@ data class CreatureUpdate(
 	val velocity: Vector3<Float>? = null,
 	val acceleration: Vector3<Float>? = null,
 	val velocityExtra: Vector3<Float>? = null,
-	val climbAnimation: Float? = null,
+	val climbAnimationState: Float? = null,
 	val flagsPhysics: BooleanArray? = null,
-	val affiliation: Hostility? = null,
-	val race: CreatureType? = null,
-	val activity: Mode? = null,
-	val modeTimer: Int? = null,
+	val affiliation: Affiliation? = null,
+	val race: Race? = null,
+	val motion: Motion? = null,
+	val motionTime: Int? = null,
 	val combo: Int? = null,
 	val hitTimeOut: Int? = null,
 	val appearance: Appearance? = null,
@@ -28,9 +28,9 @@ data class CreatureUpdate(
 	val effectTimeIce: Int? = null,
 	val effectTimeWind: Int? = null,
 	val showPatchTime: Int? = null,
-	val entityClass: EntityClass? = null,
-	val specialization: Byte? = null,
-	val charge: Float? = null,
+	val combatClass: CombatClass? = null,
+	val combatSubclass: Byte? = null,
+	val manaCharge: Float? = null,
 	val unused24: Vector3<Float>? = null,
 	val unused25: Vector3<Float>? = null,
 	val aimDisplacement: Vector3<Float>? = null,
@@ -80,7 +80,7 @@ data class CreatureUpdate(
 			optionalDataWriter.writeVector3Float(it)
 			mask[4] = true
 		}
-		climbAnimation?.let {
+		climbAnimationState?.let {
 			optionalDataWriter.writeFloat(it)
 			mask[5] = true
 		}
@@ -96,11 +96,11 @@ data class CreatureUpdate(
 			optionalDataWriter.writeInt(it.value)
 			mask[8] = true
 		}
-		activity?.let {
+		motion?.let {
 			optionalDataWriter.writeByte(it.value)
 			mask[9] = true
 		}
-		modeTimer?.let {
+		motionTime?.let {
 			optionalDataWriter.writeInt(it)
 			mask[10] = true
 		}
@@ -144,15 +144,15 @@ data class CreatureUpdate(
 			optionalDataWriter.writeInt(it)
 			mask[20] = true
 		}
-		entityClass?.let {
+		combatClass?.let {
 			optionalDataWriter.writeByte(it.value)
 			mask[21] = true
 		}
-		specialization?.let {
+		combatSubclass?.let {
 			optionalDataWriter.writeByte(it)
 			mask[22] = true
 		}
-		charge?.let {
+		manaCharge?.let {
 			optionalDataWriter.writeFloat(it)
 			mask[23] = true
 		}
@@ -289,15 +289,15 @@ data class CreatureUpdate(
 				velocity = if (mask[2]) inflatedReader.readVector3Float() else null,
 				acceleration = if (mask[3]) inflatedReader.readVector3Float() else null,
 				velocityExtra = if (mask[4]) inflatedReader.readVector3Float() else null,
-				climbAnimation = if (mask[5]) inflatedReader.readFloat() else null,
+				climbAnimationState = if (mask[5]) inflatedReader.readFloat() else null,
 				flagsPhysics = if (mask[6]) inflatedReader.readInt().toBooleanArray() else null,
-				affiliation = if (mask[7]) Hostility(inflatedReader.readByte()) else null,
-				race = if (mask[8]) CreatureType(inflatedReader.readInt()) else null,
-				activity = if (mask[9]) Mode(inflatedReader.readByte()) else null,
-				modeTimer = if (mask[10]) inflatedReader.readInt() else null,
+				affiliation = if (mask[7]) Affiliation(inflatedReader.readByte()) else null,
+				race = if (mask[8]) Race(inflatedReader.readInt()) else null,
+				motion = if (mask[9]) Motion(inflatedReader.readByte()) else null,
+				motionTime = if (mask[10]) inflatedReader.readInt() else null,
 				combo = if (mask[11]) inflatedReader.readInt() else null,
 				hitTimeOut = if (mask[12]) inflatedReader.readInt() else null,
-				appearance = if (mask[13]) Appearance.read(inflatedReader) else null,
+				appearance = if (mask[13]) Appearance.readFrom(inflatedReader) else null,
 				flags = if (mask[14]) inflatedReader.readShort().toInt().toBooleanArray() else null,
 				effectTimeDodge = if (mask[15]) inflatedReader.readInt() else null,
 				effectTimeStun = if (mask[16]) inflatedReader.readInt() else null,
@@ -305,16 +305,16 @@ data class CreatureUpdate(
 				effectTimeIce = if (mask[18]) inflatedReader.readInt() else null,
 				effectTimeWind = if (mask[19]) inflatedReader.readInt() else null,
 				showPatchTime = if (mask[20]) inflatedReader.readInt() else null,
-				entityClass = if (mask[21]) EntityClass(inflatedReader.readByte()) else null,
-				specialization = if (mask[22]) inflatedReader.readByte() else null,
-				charge = if (mask[23]) inflatedReader.readFloat() else null,
+				combatClass = if (mask[21]) CombatClass(inflatedReader.readByte()) else null,
+				combatSubclass = if (mask[22]) inflatedReader.readByte() else null,
+				manaCharge = if (mask[23]) inflatedReader.readFloat() else null,
 				unused24 = if (mask[24]) inflatedReader.readVector3Float() else null,
 				unused25 = if (mask[25]) inflatedReader.readVector3Float() else null,
 				aimDisplacement = if (mask[26]) inflatedReader.readVector3Float() else null,
 				health = if (mask[27]) inflatedReader.readFloat() else null,
 				mana = if (mask[28]) inflatedReader.readFloat() else null,
 				blockMeter = if (mask[29]) inflatedReader.readFloat() else null,
-				multipliers = if (mask[30]) Multipliers.read(inflatedReader) else null,
+				multipliers = if (mask[30]) Multipliers.readFrom(inflatedReader) else null,
 				unused31 = if (mask[31]) inflatedReader.readByte() else null,
 				unused32 = if (mask[32]) inflatedReader.readByte() else null,
 				level = if (mask[33]) inflatedReader.readInt() else null,
@@ -328,9 +328,9 @@ data class CreatureUpdate(
 				unused41 = if (mask[41]) inflatedReader.readVector3Int() else null,
 				unused42 = if (mask[42]) inflatedReader.readByte() else null,
 				consumable = if (mask[43]) Item.readFrom(inflatedReader) else null,
-				equipment = if (mask[44]) Equipment.read(inflatedReader) else null,
+				equipment = if (mask[44]) Equipment.readFrom(inflatedReader) else null,
 				name = if (mask[45]) inflatedReader.readName() else null,
-				skillPointDistribution = if (mask[46]) SkillDistribution.read(inflatedReader) else null,
+				skillPointDistribution = if (mask[46]) SkillDistribution.readFrom(inflatedReader) else null,
 				manaCubes = if (mask[47]) inflatedReader.readInt() else null
 			)
 		}
@@ -417,7 +417,7 @@ data class Appearance(
 	}
 
 	companion object {
-		internal suspend fun read(reader: Reader): Appearance {
+		internal suspend fun readFrom(reader: Reader): Appearance {
 			return Appearance(
 				unknownA = reader.readByte(),
 				unknownB = reader.readByte(),
@@ -474,7 +474,7 @@ data class Multipliers(
 	}
 
 	companion object {
-		internal suspend fun read(reader: Reader): Multipliers {
+		internal suspend fun readFrom(reader: Reader): Multipliers {
 			return Multipliers(
 				health = reader.readFloat(),
 				attackSpeed = reader.readFloat(),
@@ -518,7 +518,7 @@ data class Equipment(
 	}
 
 	companion object {
-		internal suspend fun read(reader: Reader): Equipment {
+		internal suspend fun readFrom(reader: Reader): Equipment {
 			return Equipment(
 				unknown = Item.readFrom(reader),
 				neck = Item.readFrom(reader),
@@ -566,7 +566,7 @@ data class SkillDistribution(
 	}
 
 	companion object {
-		internal suspend fun read(reader: Reader): SkillDistribution {
+		internal suspend fun readFrom(reader: Reader): SkillDistribution {
 			return SkillDistribution(
 				petMaster = reader.readInt(),
 				petRiding = reader.readInt(),
@@ -622,304 +622,304 @@ inline class AppearanceFlagsIndex(val value: Int) {
 		val bossBuff = AppearanceFlagsIndex(9)
 
 
-		val invincibility = AppearanceFlagsIndex(13) //used by dummies
+		val invincible = AppearanceFlagsIndex(13) //used by dummies
 	}
 }
 
-inline class Hostility(val value: Byte) {
+inline class Affiliation(val value: Byte) {
 	companion object {
-		val Player = Hostility(0)
-		val Enemy = Hostility(1)
-		val Unknown2 = Hostility(2)
-		val NPC = Hostility(3)
-		val Unknown4 = Hostility(4)
-		val Pet = Hostility(5)
-		val Neutral = Hostility(6)
+		val Player = Affiliation(0)
+		val Enemy = Affiliation(1)
+		val Unknown2 = Affiliation(2)
+		val NPC = Affiliation(3)
+		val Unknown4 = Affiliation(4)
+		val Pet = Affiliation(5)
+		val Neutral = Affiliation(6)
 	}
 }
 
-inline class CreatureType(val value: Int) {
+inline class Race(val value: Int) {
 	companion object {
-		val ElfMale = CreatureType(0)
-		val ElfFemale = CreatureType(1)
-		val HumanMale = CreatureType(2)
-		val HumanFemale = CreatureType(3)
-		val GoblinMale = CreatureType(4)
-		val GoblinFemale = CreatureType(5)
-		val TerrierBull = CreatureType(6)
-		val LizardmanMale = CreatureType(7)
-		val LizardmanFemale = CreatureType(8)
-		val DwarfMale = CreatureType(9)
-		val DwarfFemale = CreatureType(10)
-		val OrcMale = CreatureType(11)
-		val OrcFemale = CreatureType(12)
-		val FrogmanMale = CreatureType(13)
-		val FrogmanFemale = CreatureType(14)
-		val UndeadMale = CreatureType(15)
-		val UndeadFemale = CreatureType(16)
-		val Skeleton = CreatureType(17)
-		val OldMan = CreatureType(18)
-		val Collie = CreatureType(19)
-		val ShepherdDog = CreatureType(20)
-		val SkullBull = CreatureType(21)
-		val Alpaca = CreatureType(22)
-		val AlpacaBrown = CreatureType(23)
-		val Egg = CreatureType(24)
-		val Turtle = CreatureType(25)
-		val Terrier = CreatureType(26)
-		val TerrierScottish = CreatureType(27)
-		val Wolf = CreatureType(28)
-		val Panther = CreatureType(29)
-		val Cat = CreatureType(30)
-		val CatBrown = CreatureType(31)
-		val CatWhite = CreatureType(32)
-		val Pig = CreatureType(33)
-		val Sheep = CreatureType(34)
-		val Bunny = CreatureType(35)
-		val Porcupine = CreatureType(36)
-		val SlimeGreen = CreatureType(37)
-		val SlimePink = CreatureType(38)
-		val SlimeYellow = CreatureType(39)
-		val SlimeBlue = CreatureType(40)
-		val Frightener = CreatureType(41)
-		val Sandhorror = CreatureType(42)
-		val Wizard = CreatureType(43)
-		val Bandit = CreatureType(44)
-		val Witch = CreatureType(45)
-		val Ogre = CreatureType(46)
-		val Rockling = CreatureType(47)
-		val Gnoll = CreatureType(48)
-		val GnollPolar = CreatureType(49)
-		val Monkey = CreatureType(50)
-		val Gnobold = CreatureType(51)
-		val Insectoid = CreatureType(52)
-		val Hornet = CreatureType(53)
-		val InsectGuard = CreatureType(54)
-		val Crow = CreatureType(55)
-		val Chicken = CreatureType(56)
-		val Seagull = CreatureType(57)
-		val Parrot = CreatureType(58)
-		val Bat = CreatureType(59)
-		val Fly = CreatureType(60)
-		val Midge = CreatureType(61)
-		val Mosquito = CreatureType(62)
-		val RunnerPlain = CreatureType(63)
-		val RunnerLeaf = CreatureType(64)
-		val RunnerSnow = CreatureType(65)
-		val RunnerDesert = CreatureType(66)
-		val Peacock = CreatureType(67)
-		val Frog = CreatureType(68)
-		val CreaturePlant = CreatureType(69)
-		val CreatureRadish = CreatureType(70)
-		val Onionling = CreatureType(71)
-		val OnionlingDesert = CreatureType(72)
-		val Devourer = CreatureType(73)
-		val Duckbill = CreatureType(74)
-		val Crocodile = CreatureType(75)
-		val CreatureSpike = CreatureType(76)
-		val Anubis = CreatureType(77)
-		val Horus = CreatureType(78)
-		val Jester = CreatureType(79)
-		val Spectrino = CreatureType(80)
-		val Djinn = CreatureType(81)
-		val Minotaur = CreatureType(82)
-		val NomadMale = CreatureType(83)
-		val NomadFemale = CreatureType(84)
-		val Imp = CreatureType(85)
-		val Spitter = CreatureType(86)
-		val Mole = CreatureType(87)
-		val Biter = CreatureType(88)
-		val Koala = CreatureType(89)
-		val Squirrel = CreatureType(90)
-		val Raccoon = CreatureType(91)
-		val Owl = CreatureType(92)
-		val Penguin = CreatureType(93)
-		val Werewolf = CreatureType(94)
-		val Santa = CreatureType(95)
-		val Zombie = CreatureType(96)
-		val Vampire = CreatureType(97)
-		val Horse = CreatureType(98)
-		val Camel = CreatureType(99)
-		val Cow = CreatureType(100)
-		val Dragon = CreatureType(101)
-		val BeetleDark = CreatureType(102)
-		val BeetleFire = CreatureType(103)
-		val BeetleSnout = CreatureType(104)
-		val BeetleLemon = CreatureType(105)
-		val Crab = CreatureType(106)
-		val CrabSea = CreatureType(107)
-		val Troll = CreatureType(108)
-		val TrollDark = CreatureType(109)
-		val Helldemon = CreatureType(110)
-		val Golem = CreatureType(111)
-		val GolemEmber = CreatureType(112)
-		val GolemSnow = CreatureType(113)
-		val Yeti = CreatureType(114)
-		val Cyclops = CreatureType(115)
-		val Mammoth = CreatureType(116)
-		val Lich = CreatureType(117)
-		val Runegiant = CreatureType(118)
-		val Saurian = CreatureType(119)
-		val Bush = CreatureType(120)
-		val BushSnow = CreatureType(121)
-		val BushSnowberry = CreatureType(122)
-		val PlantCotton = CreatureType(123)
-		val Scrub = CreatureType(124)
-		val ScrubCobweg = CreatureType(125)
-		val ScrubFire = CreatureType(126)
-		val Ginseng = CreatureType(127)
-		val Cactus = CreatureType(128)
-		val ChristmasTree = CreatureType(129)
-		val Thorntree = CreatureType(130)
-		val DepositGold = CreatureType(131)
-		val DepositIron = CreatureType(132)
-		val DepositSilver = CreatureType(133)
-		val DepositSandstone = CreatureType(134)
-		val DepositEmerald = CreatureType(135)
-		val DepositSapphire = CreatureType(136)
-		val DepositRuby = CreatureType(137)
-		val DepositDiamond = CreatureType(138)
-		val DepositIcecrystal = CreatureType(139)
-		val Scarecrow = CreatureType(140)
-		val Aim = CreatureType(141)
-		val Dummy = CreatureType(142)
-		val Vase = CreatureType(143)
-		val Bomb = CreatureType(144)
-		val FishSapphire = CreatureType(145)
-		val FishLemon = CreatureType(146)
-		val Seahorse = CreatureType(147)
-		val Mermaid = CreatureType(148)
-		val Merman = CreatureType(149)
-		val Shark = CreatureType(150)
-		val Bumblebee = CreatureType(151)
-		val Lanternfish = CreatureType(152)
-		val Mawfish = CreatureType(153)
-		val Piranha = CreatureType(154)
-		val Blowfish = CreatureType(155)
+		val ElfMale = Race(0)
+		val ElfFemale = Race(1)
+		val HumanMale = Race(2)
+		val HumanFemale = Race(3)
+		val GoblinMale = Race(4)
+		val GoblinFemale = Race(5)
+		val TerrierBull = Race(6)
+		val LizardmanMale = Race(7)
+		val LizardmanFemale = Race(8)
+		val DwarfMale = Race(9)
+		val DwarfFemale = Race(10)
+		val OrcMale = Race(11)
+		val OrcFemale = Race(12)
+		val FrogmanMale = Race(13)
+		val FrogmanFemale = Race(14)
+		val UndeadMale = Race(15)
+		val UndeadFemale = Race(16)
+		val Skeleton = Race(17)
+		val OldMan = Race(18)
+		val Collie = Race(19)
+		val ShepherdDog = Race(20)
+		val SkullBull = Race(21)
+		val Alpaca = Race(22)
+		val AlpacaBrown = Race(23)
+		val Egg = Race(24)
+		val Turtle = Race(25)
+		val Terrier = Race(26)
+		val TerrierScottish = Race(27)
+		val Wolf = Race(28)
+		val Panther = Race(29)
+		val Cat = Race(30)
+		val CatBrown = Race(31)
+		val CatWhite = Race(32)
+		val Pig = Race(33)
+		val Sheep = Race(34)
+		val Bunny = Race(35)
+		val Porcupine = Race(36)
+		val SlimeGreen = Race(37)
+		val SlimePink = Race(38)
+		val SlimeYellow = Race(39)
+		val SlimeBlue = Race(40)
+		val Frightener = Race(41)
+		val Sandhorror = Race(42)
+		val Wizard = Race(43)
+		val Bandit = Race(44)
+		val Witch = Race(45)
+		val Ogre = Race(46)
+		val Rockling = Race(47)
+		val Gnoll = Race(48)
+		val GnollPolar = Race(49)
+		val Monkey = Race(50)
+		val Gnobold = Race(51)
+		val Insectoid = Race(52)
+		val Hornet = Race(53)
+		val InsectGuard = Race(54)
+		val Crow = Race(55)
+		val Chicken = Race(56)
+		val Seagull = Race(57)
+		val Parrot = Race(58)
+		val Bat = Race(59)
+		val Fly = Race(60)
+		val Midge = Race(61)
+		val Mosquito = Race(62)
+		val RunnerPlain = Race(63)
+		val RunnerLeaf = Race(64)
+		val RunnerSnow = Race(65)
+		val RunnerDesert = Race(66)
+		val Peacock = Race(67)
+		val Frog = Race(68)
+		val CreaturePlant = Race(69)
+		val CreatureRadish = Race(70)
+		val Onionling = Race(71)
+		val OnionlingDesert = Race(72)
+		val Devourer = Race(73)
+		val Duckbill = Race(74)
+		val Crocodile = Race(75)
+		val CreatureSpike = Race(76)
+		val Anubis = Race(77)
+		val Horus = Race(78)
+		val Jester = Race(79)
+		val Spectrino = Race(80)
+		val Djinn = Race(81)
+		val Minotaur = Race(82)
+		val NomadMale = Race(83)
+		val NomadFemale = Race(84)
+		val Imp = Race(85)
+		val Spitter = Race(86)
+		val Mole = Race(87)
+		val Biter = Race(88)
+		val Koala = Race(89)
+		val Squirrel = Race(90)
+		val Raccoon = Race(91)
+		val Owl = Race(92)
+		val Penguin = Race(93)
+		val Werewolf = Race(94)
+		val Santa = Race(95)
+		val Zombie = Race(96)
+		val Vampire = Race(97)
+		val Horse = Race(98)
+		val Camel = Race(99)
+		val Cow = Race(100)
+		val Dragon = Race(101)
+		val BeetleDark = Race(102)
+		val BeetleFire = Race(103)
+		val BeetleSnout = Race(104)
+		val BeetleLemon = Race(105)
+		val Crab = Race(106)
+		val CrabSea = Race(107)
+		val Troll = Race(108)
+		val TrollDark = Race(109)
+		val Helldemon = Race(110)
+		val Golem = Race(111)
+		val GolemEmber = Race(112)
+		val GolemSnow = Race(113)
+		val Yeti = Race(114)
+		val Cyclops = Race(115)
+		val Mammoth = Race(116)
+		val Lich = Race(117)
+		val Runegiant = Race(118)
+		val Saurian = Race(119)
+		val Bush = Race(120)
+		val BushSnow = Race(121)
+		val BushSnowberry = Race(122)
+		val PlantCotton = Race(123)
+		val Scrub = Race(124)
+		val ScrubCobweg = Race(125)
+		val ScrubFire = Race(126)
+		val Ginseng = Race(127)
+		val Cactus = Race(128)
+		val ChristmasTree = Race(129)
+		val Thorntree = Race(130)
+		val DepositGold = Race(131)
+		val DepositIron = Race(132)
+		val DepositSilver = Race(133)
+		val DepositSandstone = Race(134)
+		val DepositEmerald = Race(135)
+		val DepositSapphire = Race(136)
+		val DepositRuby = Race(137)
+		val DepositDiamond = Race(138)
+		val DepositIcecrystal = Race(139)
+		val Scarecrow = Race(140)
+		val Aim = Race(141)
+		val Dummy = Race(142)
+		val Vase = Race(143)
+		val Bomb = Race(144)
+		val FishSapphire = Race(145)
+		val FishLemon = Race(146)
+		val Seahorse = Race(147)
+		val Mermaid = Race(148)
+		val Merman = Race(149)
+		val Shark = Race(150)
+		val Bumblebee = Race(151)
+		val Lanternfish = Race(152)
+		val Mawfish = Race(153)
+		val Piranha = Race(154)
+		val Blowfish = Race(155)
 	}
 }
 
-inline class Mode(val value: Byte) {
+inline class Motion(val value: Byte) {
 	companion object {
-		val Idle = Mode(0)
-		val War_Dual_Wield001 = Mode(1)
-		val War_dual_Wield002 = Mode(2)
-		val Unknown3 = Mode(3)
-		val Unknown4 = Mode(4)
-		val Carge_After_Longsword = Mode(5)
-		val Fists1 = Mode(6)
-		val Fists2 = Mode(7)
-		val Charge_During_Shield = Mode(8)
-		val Shield2 = Mode(9)
-		val Shield1 = Mode(10)
-		val Charge_After_NoWeapon = Mode(11)
-		val Unknown012 = Mode(12)
-		val Longsword2 = Mode(13)
-		val Longsword1 = Mode(14)
-		val Unknown015 = Mode(15)
-		val Unknown016 = Mode(16)
-		val Charge_After_Daggers = Mode(17)
-		val Daggers2 = Mode(18)
-		val Daggers1 = Mode(19)
-		val Fists_After_Kick = Mode(20)
-		val Unknown021 = Mode(21)
-		val Shoot_Arrow = Mode(22)
-		val Charge_After_Crossbow = Mode(23)
-		val Charge_During_Crossbow = Mode(24)
-		val Charge_During_Bow = Mode(25)
-		val Boomerang = Mode(26)
-		val Charge_During_Boomerang = Mode(27)
-		val Beam_Instant = Mode(28)
-		val Unknown029 = Mode(29)
-		val Staff_Fire = Mode(30)
-		val Charge_After_Staff_Fire = Mode(31)
-		val Staff_Water = Mode(32)
-		val Charge_After_Staff_Water = Mode(33)
-		val After_Healing_Stream = Mode(34)
-		val Unknown035 = Mode(35)
-		val Unknown036 = Mode(36)
-		val Charge_After_Bracelet = Mode(37)
-		val Wand = Mode(38)
-		val Bracelets2_Fire = Mode(39)
-		val Bracelets1_Fire = Mode(40)
-		val Bracelets2_Water = Mode(41)
-		val Bracelets1_Water = Mode(42)
-		val Charge_After_Wand_C = Mode(43)
-		val Wand_B = Mode(44)
-		val Charge_After_Wand_B = Mode(45)
-		val Charge_After_Wand = Mode(46)
-		val Smash = Mode(47)
-		val After_Intercept = Mode(48)
-		val After_Teleport = Mode(49)
-		val Shuriken = Mode(50)
-		val Unknown051 = Mode(51)
-		val Unknown052 = Mode(52)
-		val Unknown053 = Mode(53)
-		val After_Smash = Mode(54)
-		val Charge_After_Bow = Mode(55)
-		val Unknown056 = Mode(56)
-		val Greatweapon1 = Mode(57)
-		val Greatweapon3 = Mode(58)
-		val Charge_During_Greatweapon = Mode(59)
-		val Unknown060 = Mode(60)
-		val Charge_After_Greatweapon = Mode(61)
-		val Unknown062 = Mode(62)
-		val Charge_During_NoWeapon = Mode(63)
-		val Charge_During_Dual_Wield = Mode(64)
-		val SpinA = Mode(65)
-		val SpinB = Mode(66)
-		val Greatweapon2 = Mode(67)
-		val Boss_Skill_Knockdown1 = Mode(68)
-		val Boss_Skill_Knockdown22 = Mode(69)
-		val Boss_Skill_Spinkick = Mode(70)
-		val Boss_Skill_Block = Mode(71)
-		val Boss_Skill_Spin = Mode(72)
-		val Boss_Skill_Cry = Mode(73)
-		val Boss_Skill_Stomp = Mode(74)
-		val Boss_Skill_Kick = Mode(75)
-		val Boss_Skill_Knockdown3 = Mode(76)
-		val Boss_Skill_Knockdown4 = Mode(77)
-		val Boss_Skill_Knockdown5 = Mode(78)
-		val Stealth = Mode(79)
-		val Drinking_Potion = Mode(80)
-		val Eat = Mode(81)
-		val Pet_Food = Mode(82)
-		val Sitting = Mode(83)
-		val Sleeping = Mode(84)
-		val Unknown085 = Mode(85)
-		val Cyclone = Mode(86)
-		val FireExplosion_Big = Mode(87)
-		val FireExplosion_After = Mode(88)
-		val Lava = Mode(89)
-		val Splash = Mode(90)
-		val Earth_Shatter = Mode(91)
-		val Clone = Mode(92)
-		val Spin_Run = Mode(93)
-		val FireBeam = Mode(94)
-		val FireRay = Mode(95)
-		val After_Shuriken = Mode(96)
-		val Invalid097 = Mode(97)
-		val Unknown098 = Mode(98)
-		val Invalid099 = Mode(99)
-		val Invalid100 = Mode(100)
-		val SuperBulwalk = Mode(101)
-		val Invalid102 = Mode(102)
-		val SuperManaShield = Mode(103)
-		val Charge_After_Shield = Mode(104)
-		val Teleport_To_City = Mode(105)
-		val Riding = Mode(106)
-		val Boat = Mode(107)
-		val Boulder_Toss = Mode(108)
-		val ManaCube = Mode(109)
-		val Unknown110 = Mode(110)
+		val Idle = Motion(0)
+		val War_Dual_Wield001 = Motion(1)
+		val War_dual_Wield002 = Motion(2)
+		val Unknown3 = Motion(3)
+		val Unknown4 = Motion(4)
+		val Carge_After_Longsword = Motion(5)
+		val Fists1 = Motion(6)
+		val Fists2 = Motion(7)
+		val Charge_During_Shield = Motion(8)
+		val Shield2 = Motion(9)
+		val Shield1 = Motion(10)
+		val Charge_After_NoWeapon = Motion(11)
+		val Unknown012 = Motion(12)
+		val Longsword2 = Motion(13)
+		val Longsword1 = Motion(14)
+		val Unknown015 = Motion(15)
+		val Unknown016 = Motion(16)
+		val Charge_After_Daggers = Motion(17)
+		val Daggers2 = Motion(18)
+		val Daggers1 = Motion(19)
+		val Fists_After_Kick = Motion(20)
+		val Unknown021 = Motion(21)
+		val Shoot_Arrow = Motion(22)
+		val Charge_After_Crossbow = Motion(23)
+		val Charge_During_Crossbow = Motion(24)
+		val Charge_During_Bow = Motion(25)
+		val Boomerang = Motion(26)
+		val Charge_During_Boomerang = Motion(27)
+		val Beam_Instant = Motion(28)
+		val Unknown029 = Motion(29)
+		val Staff_Fire = Motion(30)
+		val Charge_After_Staff_Fire = Motion(31)
+		val Staff_Water = Motion(32)
+		val Charge_After_Staff_Water = Motion(33)
+		val After_Healing_Stream = Motion(34)
+		val Unknown035 = Motion(35)
+		val Unknown036 = Motion(36)
+		val Charge_After_Bracelet = Motion(37)
+		val Wand = Motion(38)
+		val Bracelets2_Fire = Motion(39)
+		val Bracelets1_Fire = Motion(40)
+		val Bracelets2_Water = Motion(41)
+		val Bracelets1_Water = Motion(42)
+		val Charge_After_Wand_C = Motion(43)
+		val Wand_B = Motion(44)
+		val Charge_After_Wand_B = Motion(45)
+		val Charge_After_Wand = Motion(46)
+		val Smash = Motion(47)
+		val After_Intercept = Motion(48)
+		val After_Teleport = Motion(49)
+		val Shuriken = Motion(50)
+		val Unknown051 = Motion(51)
+		val Unknown052 = Motion(52)
+		val Unknown053 = Motion(53)
+		val After_Smash = Motion(54)
+		val Charge_After_Bow = Motion(55)
+		val Unknown056 = Motion(56)
+		val Greatweapon1 = Motion(57)
+		val Greatweapon3 = Motion(58)
+		val Charge_During_Greatweapon = Motion(59)
+		val Unknown060 = Motion(60)
+		val Charge_After_Greatweapon = Motion(61)
+		val Unknown062 = Motion(62)
+		val Charge_During_NoWeapon = Motion(63)
+		val Charge_During_Dual_Wield = Motion(64)
+		val SpinA = Motion(65)
+		val SpinB = Motion(66)
+		val Greatweapon2 = Motion(67)
+		val Boss_Skill_Knockdown1 = Motion(68)
+		val Boss_Skill_Knockdown22 = Motion(69)
+		val Boss_Skill_Spinkick = Motion(70)
+		val Boss_Skill_Block = Motion(71)
+		val Boss_Skill_Spin = Motion(72)
+		val Boss_Skill_Cry = Motion(73)
+		val Boss_Skill_Stomp = Motion(74)
+		val Boss_Skill_Kick = Motion(75)
+		val Boss_Skill_Knockdown3 = Motion(76)
+		val Boss_Skill_Knockdown4 = Motion(77)
+		val Boss_Skill_Knockdown5 = Motion(78)
+		val Stealth = Motion(79)
+		val Drinking_Potion = Motion(80)
+		val Eat = Motion(81)
+		val Pet_Food = Motion(82)
+		val Sitting = Motion(83)
+		val Sleeping = Motion(84)
+		val Unknown085 = Motion(85)
+		val Cyclone = Motion(86)
+		val FireExplosion_Big = Motion(87)
+		val FireExplosion_After = Motion(88)
+		val Lava = Motion(89)
+		val Splash = Motion(90)
+		val Earth_Shatter = Motion(91)
+		val Clone = Motion(92)
+		val Spin_Run = Motion(93)
+		val FireBeam = Motion(94)
+		val FireRay = Motion(95)
+		val After_Shuriken = Motion(96)
+		val Invalid097 = Motion(97)
+		val Unknown098 = Motion(98)
+		val Invalid099 = Motion(99)
+		val Invalid100 = Motion(100)
+		val SuperBulwalk = Motion(101)
+		val Invalid102 = Motion(102)
+		val SuperManaShield = Motion(103)
+		val Charge_After_Shield = Motion(104)
+		val Teleport_To_City = Motion(105)
+		val Riding = Motion(106)
+		val Boat = Motion(107)
+		val Boulder_Toss = Motion(108)
+		val ManaCube = Motion(109)
+		val Unknown110 = Motion(110)
 	}
 }
 
-inline class EntityClass(val value: Byte) {
+inline class CombatClass(val value: Byte) {
 	companion object {
-		val Warrior = EntityClass(1)
-		val Ranger = EntityClass(2)
-		val Mage = EntityClass(3)
-		val Rogue = EntityClass(4)
+		val Warrior = CombatClass(1)
+		val Ranger = CombatClass(2)
+		val Mage = CombatClass(3)
+		val Rogue = CombatClass(4)
 	}
 }

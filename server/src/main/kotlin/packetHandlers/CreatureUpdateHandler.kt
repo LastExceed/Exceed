@@ -32,8 +32,8 @@ object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 		if (newData.velocityExtra != null) {
 			this.velocityExtra = newData.velocityExtra!!
 		}
-		if (newData.climbAnimation != null) {
-			this.climbAnimation = newData.climbAnimation!!
+		if (newData.climbAnimationState != null) {
+			this.climbAnimationState = newData.climbAnimationState!!
 		}
 		if (newData.flagsPhysics != null) {
 			this.flagsPhysics = newData.flagsPhysics!!
@@ -44,11 +44,11 @@ object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 		if (newData.race != null) {
 			this.race = newData.race!!
 		}
-		if (newData.activity != null) {
-			this.activity = newData.activity!!
+		if (newData.motion != null) {
+			this.motion = newData.motion!!
 		}
-		if (newData.modeTimer != null) {
-			this.activityTimer = newData.modeTimer!!
+		if (newData.motionTime != null) {
+			this.motionTime = newData.motionTime!!
 		}
 		if (newData.combo != null) {
 			this.combo = newData.combo!!
@@ -80,14 +80,14 @@ object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 		if (newData.showPatchTime != null) {
 			this.showPatchTime = newData.showPatchTime!!
 		}
-		if (newData.entityClass != null) {
-			this.combatClass = newData.entityClass!!
+		if (newData.combatClass != null) {
+			this.combatClass = newData.combatClass!!
 		}
-		if (newData.specialization != null) {
-			this.combatSpecialization = newData.specialization!!
+		if (newData.combatSubclass != null) {
+			this.combatSubclass = newData.combatSubclass!!
 		}
-		if (newData.charge != null) {
-			this.manaCharge = newData.charge!!
+		if (newData.manaCharge != null) {
+			this.manaCharge = newData.manaCharge!!
 		}
 		if (newData.unused24 != null) {
 			this.unused24 = newData.unused24!!

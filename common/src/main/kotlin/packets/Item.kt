@@ -50,7 +50,7 @@ data class Item(
 				level = reader.readShort(),
 				paddingC = reader.readShort(),
 				spirits = Array(32) {
-					Spirit.read(reader)
+					Spirit.readFrom(reader)
 				},
 				spiritCounter = reader.readInt()
 			)
@@ -72,7 +72,7 @@ data class Spirit(
 	}
 
 	companion object {
-		internal suspend fun read(reader: Reader): Spirit {
+		internal suspend fun readFrom(reader: Reader): Spirit {
 			return Spirit(
 				position = reader.readVector3Byte(),
 				material = Material(reader.readByte()),

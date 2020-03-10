@@ -29,8 +29,8 @@ object ChatCommands {
 				val creatureUpdate = CreatureUpdate(
 					id = 2L,
 					position = Vector3<Long>(234234, 234234, 0xaa0000),
-					affiliation = Hostility(params[1].toByte()),
-					race = CreatureType.Turtle,
+					affiliation = Affiliation(params[1].toByte()),
+					race = Race.Turtle,
 					master = source.character.id,
 					name = "test_NPC"
 
@@ -59,7 +59,7 @@ object ChatCommands {
 					0,
 					1,
 					1,
-					CreatureType.Turtle,
+					Race.Turtle,
 					1,
 					0,
 					MissionState.InProgress,

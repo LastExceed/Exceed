@@ -23,7 +23,7 @@ data class Layer(
 
 	suspend fun removeCreature(creature: Creature) {
 		creatures.remove(creature.id)
-		val creatureUpdate = CreatureUpdate(id = creature.id, health = 0f, affiliation = Hostility.Neutral)
+		val creatureUpdate = CreatureUpdate(id = creature.id, health = 0f, affiliation = Affiliation.Neutral)
 		broadcast(creatureUpdate)
 	}
 
