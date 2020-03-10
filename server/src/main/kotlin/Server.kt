@@ -31,7 +31,40 @@ object Server {
 		println("new connection")
 		val reader = Reader(socket.openReadChannel())
 		val writer = Writer(socket.openWriteChannel(true))
-		val player = handShake(reader, writer)
+
+		if (Opcode(reader.readInt()) != Opcode.ProtocolVersion) {
+			socket.dispose()
+			return
+		}
+
+		val protocolVersion = ProtocolVersion.readFrom(reader)
+		if (protocolVersion.version != 3) {
+			ProtocolVersion(3).writeTo(writer)
+			socket.dispose()
+			return
+		}
+
+		val join = Join(0, idPool.claim(), ByteArray(0x1168))
+		writer.writeInt(join.opcode.value)
+		join.writeTo(writer)
+
+		if (Opcode(reader.readInt()) != Opcode.CreatureUpdate) {
+			socket.dispose()
+			idPool.free(join.assignedID)
+			return
+		}
+
+		val creatureUpdate = CreatureUpdate.readFrom(reader)//TODO: inspect with anticheat
+
+		val character = try {
+			Creature(creatureUpdate)
+		} catch (ex: KotlinNullPointerException) { //TODO: use null-checks instead of try/catch
+			socket.dispose()
+			idPool.free(join.assignedID)
+			return
+		}
+
+		val player = Player.create(writer, character, mainLayer)
 		try {
 			while (true) {
 				val opcode = Opcode(reader.readInt())
@@ -57,29 +90,5 @@ object Server {
 			socket.dispose()
 			return
 		}
-	}
-
-	private suspend fun handShake(reader: Reader, writer: Writer): Player {
-		var nextOpcode = Opcode(reader.readInt())
-		if (nextOpcode != Opcode.ProtocolVersion) {
-			TODO("expected ${Opcode.ProtocolVersion}")
-		}
-		val protocolVersion = ProtocolVersion.readFrom(reader)
-		if (protocolVersion.version != 3) {
-			TODO("wrong protocol version")
-		}
-
-		val join = Join(0, idPool.claim(), ByteArray(0x1168))
-		writer.writeInt(join.opcode.value)
-		join.writeTo(writer)
-
-		nextOpcode = Opcode(reader.readInt())
-		if (nextOpcode != Opcode.CreatureUpdate) {
-			TODO("expected ${Opcode.CreatureUpdate}")
-		}
-		val creatureUpdate = CreatureUpdate.readFrom(reader)
-		//TODO: make sure bitfield is full
-		//TODO: inspect with anticheat
-		return Player.create(writer, Creature(creatureUpdate), mainLayer)
 	}
 }
