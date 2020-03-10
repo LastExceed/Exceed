@@ -459,14 +459,14 @@ data class Appearance(
 }
 
 data class Multipliers(
-	var HP: Float,
+	var health: Float,
 	var attackSpeed: Float,
 	var damage: Float,
 	var armor: Float,
 	var resi: Float
 ) : SubPacket {
 	override suspend fun writeTo(writer: Writer) {
-		writer.writeFloat(HP)
+		writer.writeFloat(health)
 		writer.writeFloat(attackSpeed)
 		writer.writeFloat(damage)
 		writer.writeFloat(armor)
@@ -476,7 +476,7 @@ data class Multipliers(
 	companion object {
 		internal suspend fun read(reader: Reader): Multipliers {
 			return Multipliers(
-				HP = reader.readFloat(),
+				health = reader.readFloat(),
 				attackSpeed = reader.readFloat(),
 				damage = reader.readFloat(),
 				armor = reader.readFloat(),
