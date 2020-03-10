@@ -2,12 +2,12 @@ package packets
 
 class Join(
 	val unknown: Int,
-	val creatureID: Long,
+	val assignedID: CreatureID,
 	val junk: ByteArray
 ) : Packet(Opcode.Join) {
 	override suspend fun writeTo(writer: Writer) {
 		writer.writeInt(unknown)
-		writer.writeLong(creatureID)
+		writer.writeLong(assignedID.value)
 		writer.writeByteArray(junk)
 	}
 
@@ -15,7 +15,7 @@ class Join(
 		suspend fun readFrom(reader: Reader): Join {
 			return Join(
 				unknown = reader.readInt(),
-				creatureID = reader.readLong(),
+				assignedID = CreatureID(reader.readLong()),
 				junk = reader.readByteArray(0x1168)
 			)
 		}

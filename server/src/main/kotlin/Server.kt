@@ -69,9 +69,7 @@ object Server {
 			TODO("wrong protocol version")
 		}
 
-		val newID = idPool.claim()
-
-		val join = Join(0, newID, ByteArray(0x1168))
+		val join = Join(0, idPool.claim(), ByteArray(0x1168))
 		writer.writeInt(join.opcode.value)
 		join.writeTo(writer)
 

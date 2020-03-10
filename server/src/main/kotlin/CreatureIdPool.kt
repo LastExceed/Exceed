@@ -1,24 +1,24 @@
 package exceed
 
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import packets.CreatureID
 
 class CreatureIdPool {
-	private val ids = mutableListOf<Long>()
+	private val claimed = mutableListOf<Long>()
 	private val mutex = Mutex()
 
-	suspend fun claim(): Long = mutex.withLock {
+	suspend fun claim(): CreatureID = mutex.withLock {
 		var newID = 0L
-		while (ids.contains(newID)) {
+		while (claimed.contains(newID)) {
 			newID++
 		}
-		ids.add(newID)
+		claimed.add(newID)
 
-		newID
+		CreatureID(newID)
 	}
 
-	fun free(id: Long) {
-		ids.remove(id)
+	fun free(id: CreatureID) {
+		claimed.remove(id.value)
 	}
 }

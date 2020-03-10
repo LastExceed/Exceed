@@ -4,8 +4,8 @@ import Modules.Pvp
 import packets.*
 
 data class Layer(
-	val creatures: MutableMap<Long, Creature> = mutableMapOf(),
-	val players: MutableMap<Long, Player> = mutableMapOf()
+	val creatures: MutableMap<CreatureID, Creature> = mutableMapOf(),
+	val players: MutableMap<CreatureID, Player> = mutableMapOf()
 ) {
 	suspend fun broadcast(packet: Packet, toSkip: Player? = null) {
 		for (player in players.values) {

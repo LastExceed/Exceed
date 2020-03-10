@@ -6,7 +6,7 @@ import io.ktor.utils.io.close
 import utils.*
 
 data class CreatureUpdate(
-	val id: Long,
+	val id: CreatureID,
 	val position: Vector3<Long>? = null,
 	val rotation: Vector3<Float>? = null,
 	val velocity: Vector3<Float>? = null,
@@ -42,7 +42,7 @@ data class CreatureUpdate(
 	val unused32: Byte? = null,
 	val level: Int? = null,
 	val experience: Int? = null,
-	val master: Long? = null,
+	val master: CreatureID? = null,
 	val unused36: Long? = null,
 	val powerBase: Byte? = null,
 	val unused38: Int? = null,
@@ -201,7 +201,7 @@ data class CreatureUpdate(
 			mask[34] = true
 		}
 		master?.let {
-			optionalDataWriter.writeLong(it)
+			optionalDataWriter.writeLong(it.value)
 			mask[35] = true
 		}
 		unused36?.let {
@@ -261,7 +261,7 @@ data class CreatureUpdate(
 		val inflatedChannel = ByteChannel(true)
 		val inflatedWriter = Writer(inflatedChannel)
 
-		inflatedWriter.writeLong(id)
+		inflatedWriter.writeLong(id.value)
 		inflatedWriter.writeLong(mask.toLong())
 		inflatedWriter.writeByteArray(optionalData)
 
@@ -279,7 +279,7 @@ data class CreatureUpdate(
 			val inflated = Zlib.inflate(deflated)
 			val inflatedReader = Reader(inflated)
 
-			val id = inflatedReader.readLong()
+			val id = CreatureID(inflatedReader.readLong())
 			val mask = inflatedReader.readLong().toBooleanArray()
 
 			return CreatureUpdate(
@@ -319,7 +319,7 @@ data class CreatureUpdate(
 				unused32 = if (mask[32]) inflatedReader.readByte() else null,
 				level = if (mask[33]) inflatedReader.readInt() else null,
 				experience = if (mask[34]) inflatedReader.readInt() else null,
-				master = if (mask[35]) inflatedReader.readLong() else null,
+				master = if (mask[35]) CreatureID(inflatedReader.readLong()) else null,
 				unused36 = if (mask[36]) inflatedReader.readLong() else null,
 				powerBase = if (mask[37]) inflatedReader.readByte() else null,
 				unused38 = if (mask[38]) inflatedReader.readInt() else null,
@@ -342,6 +342,8 @@ data class CreatureUpdate(
 		}
 	}
 }
+
+inline class CreatureID(val value: Long)
 
 data class Appearance(
 	var unknownA: Byte,

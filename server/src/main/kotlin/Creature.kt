@@ -5,7 +5,7 @@ import utils.FlagSet
 import utils.Vector3
 
 data class Creature(
-	val id: Long,
+	val id: CreatureID,
 	var position: Vector3<Long>,
 	var rotation: Vector3<Float>,
 	var velocity: Vector3<Float>,
@@ -41,7 +41,7 @@ data class Creature(
 	var unused32: Byte,
 	var level: Int,
 	var experience: Int,
-	var master: Long,
+	var master: CreatureID,
 	var unused36: Long,
 	var powerBase: Byte,
 	var unused38: Int,

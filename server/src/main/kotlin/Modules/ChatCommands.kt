@@ -27,8 +27,8 @@ object ChatCommands {
 			}
 			"npc" -> {
 				val creatureUpdate = CreatureUpdate(
-					id = 2L,
-					position = Vector3<Long>(234234, 234234, 0xaa0000),
+					id = CreatureID(2L),
+					position = Vector3(234234, 234234, 0xaa0000),
 					affiliation = Affiliation(params[1].toByte()),
 					race = Race.Turtle,
 					master = source.character.id,

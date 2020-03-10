@@ -3,8 +3,8 @@ package packets
 import utils.*
 
 data class Hit(
-	val attacker: Long,
-	val target: Long,
+	val attacker: CreatureID,
+	val target: CreatureID,
 	val damage: Float,
 	val critical: Boolean,
 	val stuntime: Int,
@@ -17,8 +17,8 @@ data class Hit(
 	val paddingB: Byte
 ) : Packet(Opcode.Hit), SubPacket {
 	override suspend fun writeTo(writer: Writer) {
-		writer.writeLong(attacker)
-		writer.writeLong(target)
+		writer.writeLong(attacker.value)
+		writer.writeLong(target.value)
 		writer.writeFloat(damage)
 		writer.writeBoolean(critical); writer.pad(3)
 		writer.writeInt(stuntime)
@@ -34,8 +34,8 @@ data class Hit(
 	companion object {
 		suspend fun readFrom(reader: Reader): Hit {
 			return Hit(
-				attacker = reader.readLong(),
-				target = reader.readLong(),
+				attacker = CreatureID(reader.readLong()),
+				target = CreatureID(reader.readLong()),
 				damage = reader.readFloat(),
 				critical = reader.readInt() > 0,
 				stuntime = reader.readInt(),
