@@ -1,6 +1,7 @@
 package exceed
 
 import packets.*
+import utils.FlagSet
 import utils.Vector3
 
 data class Creature(
@@ -11,7 +12,7 @@ data class Creature(
 	var acceleration: Vector3<Float>,
 	var velocityExtra: Vector3<Float>,
 	var climbAnimationState: Float,
-	var flagsPhysics: BooleanArray,
+	var flagsPhysics: FlagSet<PhysicsFlag>,
 	var affiliation: Affiliation,
 	var race: Race,
 	var motion: Motion,
@@ -19,7 +20,7 @@ data class Creature(
 	var combo: Int,
 	var hitTimeOut: Int,
 	var appearance: Appearance,
-	var flags: BooleanArray,
+	var flags: FlagSet<CreatureFlag>,
 	var effectTimeDodge: Int,
 	var effectTimeStun: Int,
 	var effectTimeFear: Int,

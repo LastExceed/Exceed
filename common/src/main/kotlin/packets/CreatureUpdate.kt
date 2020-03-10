@@ -13,7 +13,7 @@ data class CreatureUpdate(
 	val acceleration: Vector3<Float>? = null,
 	val velocityExtra: Vector3<Float>? = null,
 	val climbAnimationState: Float? = null,
-	val flagsPhysics: BooleanArray? = null,
+	val flagsPhysics: FlagSet<PhysicsFlag>? = null,
 	val affiliation: Affiliation? = null,
 	val race: Race? = null,
 	val motion: Motion? = null,
@@ -21,7 +21,7 @@ data class CreatureUpdate(
 	val combo: Int? = null,
 	val hitTimeOut: Int? = null,
 	val appearance: Appearance? = null,
-	val flags: BooleanArray? = null,
+	val flags: FlagSet<CreatureFlag>? = null,
 	val effectTimeDodge: Int? = null,
 	val effectTimeStun: Int? = null,
 	val effectTimeFear: Int? = null,
@@ -85,7 +85,7 @@ data class CreatureUpdate(
 			mask[5] = true
 		}
 		flagsPhysics?.let {
-			optionalDataWriter.writeInt(it.toInt())
+			optionalDataWriter.writeInt(it.inner.toInt())
 			mask[6] = true
 		}
 		affiliation?.let {
@@ -117,7 +117,7 @@ data class CreatureUpdate(
 			mask[13] = true
 		}
 		flags?.let {
-			optionalDataWriter.writeShort(it.toInt().toShort())
+			optionalDataWriter.writeShort(it.inner.toShort())
 			mask[14] = true
 		}
 		effectTimeDodge?.let {
@@ -290,7 +290,7 @@ data class CreatureUpdate(
 				acceleration = if (mask[3]) inflatedReader.readVector3Float() else null,
 				velocityExtra = if (mask[4]) inflatedReader.readVector3Float() else null,
 				climbAnimationState = if (mask[5]) inflatedReader.readFloat() else null,
-				flagsPhysics = if (mask[6]) inflatedReader.readInt().toBooleanArray() else null,
+				flagsPhysics = if (mask[6]) FlagSet(inflatedReader.readInt().toBooleanArray()) else null,
 				affiliation = if (mask[7]) Affiliation(inflatedReader.readByte()) else null,
 				race = if (mask[8]) Race(inflatedReader.readInt()) else null,
 				motion = if (mask[9]) Motion(inflatedReader.readByte()) else null,
@@ -298,7 +298,7 @@ data class CreatureUpdate(
 				combo = if (mask[11]) inflatedReader.readInt() else null,
 				hitTimeOut = if (mask[12]) inflatedReader.readInt() else null,
 				appearance = if (mask[13]) Appearance.readFrom(inflatedReader) else null,
-				flags = if (mask[14]) inflatedReader.readShort().toInt().toBooleanArray() else null,
+				flags = if (mask[14]) FlagSet(inflatedReader.readShort().toBooleanArray()) else null,
 				effectTimeDodge = if (mask[15]) inflatedReader.readInt() else null,
 				effectTimeStun = if (mask[16]) inflatedReader.readInt() else null,
 				effectTimeFear = if (mask[17]) inflatedReader.readInt() else null,
@@ -347,8 +347,8 @@ data class Appearance(
 	var unknownA: Byte,
 	var unknownB: Byte,
 	var hairColor: Vector3<Byte>,
-	var flags: BooleanArray,
 	var unknownC: Byte,
+	var flags: FlagSet<AppearanceFlag>,
 	var creatureSize: Vector3<Float>,
 	var headModel: Short,
 	var hairModel: Short,
@@ -383,8 +383,8 @@ data class Appearance(
 		writer.writeByte(unknownA)
 		writer.writeByte(unknownB)
 		writer.writeVector3Byte(hairColor)
-		writer.writeShort(flags.toInt().toShort())
 		writer.writeByte(unknownC)
+		writer.writeShort(flags.inner.toShort())
 		writer.writeVector3Float(creatureSize)
 		writer.writeShort(headModel)
 		writer.writeShort(hairModel)
@@ -422,8 +422,8 @@ data class Appearance(
 				unknownA = reader.readByte(),
 				unknownB = reader.readByte(),
 				hairColor = reader.readVector3Byte(),
-				flags = reader.readShort().toInt().toBooleanArray(),
 				unknownC = reader.readByte(),
+				flags = FlagSet(reader.readShort().toBooleanArray()),
 				creatureSize = reader.readVector3Float(),
 				headModel = reader.readShort(),
 				hairModel = reader.readShort(),
@@ -584,45 +584,45 @@ data class SkillDistribution(
 	}
 }
 
-inline class PhysicsFlagsIndex(val value: Int) {
+inline class PhysicsFlag(override val value: Int) : FlagSetKey {
 	companion object {
-		val onGround = PhysicsFlagsIndex(0)
-		val swimming = PhysicsFlagsIndex(1)
-		val touchingWall = PhysicsFlagsIndex(2)
+		val onGround = PhysicsFlag(0)
+		val swimming = PhysicsFlag(1)
+		val touchingWall = PhysicsFlag(2)
 
 
-		val pushingWall = PhysicsFlagsIndex(5)
-		val pushingObject = PhysicsFlagsIndex(6)
+		val pushingWall = PhysicsFlag(5)
+		val pushingObject = PhysicsFlag(6)
 	}
 }
 
-inline class CreatureFlagsIndex(val value: Int) {
+inline class CreatureFlag(override val value: Int) : FlagSetKey {
 	companion object {
-		val climbing = CreatureFlagsIndex(0)
+		val climbing = CreatureFlag(0)
 
-		val aiming = CreatureFlagsIndex(2)
+		val aiming = CreatureFlag(2)
 
-		val gliding = CreatureFlagsIndex(4)
-		val friendlyFire = CreatureFlagsIndex(5)
-		val sprinting = CreatureFlagsIndex(6)
+		val gliding = CreatureFlag(4)
+		val friendlyFire = CreatureFlag(5)
+		val sprinting = CreatureFlag(6)
 
 
-		val lamp = CreatureFlagsIndex(9)
-		val sniping = CreatureFlagsIndex(10)
+		val lamp = CreatureFlag(9)
+		val sniping = CreatureFlag(10)
 	}
 }
 
-inline class AppearanceFlagsIndex(val value: Int) {
+inline class AppearanceFlag(override val value: Int) : FlagSetKey {
 	companion object {
-		val fourLegged = AppearanceFlagsIndex(0)
-		val canFly = AppearanceFlagsIndex(1)
+		val fourLegged = AppearanceFlag(0)
+		val canFly = AppearanceFlag(1)
 
 
-		val stuck = AppearanceFlagsIndex(8) //used by dummies
-		val bossBuff = AppearanceFlagsIndex(9)
+		val stuck = AppearanceFlag(8) //used by dummies
+		val bossBuff = AppearanceFlag(9)
 
 
-		val invincible = AppearanceFlagsIndex(13) //used by dummies
+		val invincible = AppearanceFlag(13) //used by dummies
 	}
 }
 

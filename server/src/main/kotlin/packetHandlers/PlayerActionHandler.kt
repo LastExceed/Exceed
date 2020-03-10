@@ -26,7 +26,7 @@ object PlayerActionHandler : PacketHandler<CreatureAction> {
 				source.send(serverUpdate)
 			}
 			ActionType.CallPet -> {
-				if (!source.character.flags[CreatureFlagsIndex.sprinting.value]) {
+				if (!source.character.flags[CreatureFlag.sprinting]) {
 					Ultimates.cast(source)
 				} else {
 					GetRidOfThis.notify(source, "pets are disabled")
