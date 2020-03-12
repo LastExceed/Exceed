@@ -338,7 +338,7 @@ data class CreatureUpdate(
 		private suspend fun Reader.readName(): String {
 			val stringBytes = this.readByteArray(16)
 			val nameWithNulls = stringBytes.toString(Charsets.UTF_8)
-			return nameWithNulls.subSequence(0, nameWithNulls.indexOf(Char.MIN_VALUE)) as String
+			return nameWithNulls.subSequence(0, nameWithNulls.indexOf(Char.MIN_VALUE)) as String //TODO: handle absence of nulls
 		}
 	}
 }
@@ -586,7 +586,7 @@ data class SkillDistribution(
 	}
 }
 
-inline class PhysicsFlag(override val value: Int) : FlagSetKey {
+inline class PhysicsFlag(override val value: Int) : FlagSetIndex {
 	companion object {
 		val onGround = PhysicsFlag(0)
 		val swimming = PhysicsFlag(1)
@@ -598,7 +598,7 @@ inline class PhysicsFlag(override val value: Int) : FlagSetKey {
 	}
 }
 
-inline class CreatureFlag(override val value: Int) : FlagSetKey {
+inline class CreatureFlag(override val value: Int) : FlagSetIndex {
 	companion object {
 		val climbing = CreatureFlag(0)
 
@@ -614,7 +614,7 @@ inline class CreatureFlag(override val value: Int) : FlagSetKey {
 	}
 }
 
-inline class AppearanceFlag(override val value: Int) : FlagSetKey {
+inline class AppearanceFlag(override val value: Int) : FlagSetIndex {
 	companion object {
 		val fourLegged = AppearanceFlag(0)
 		val canFly = AppearanceFlag(1)
