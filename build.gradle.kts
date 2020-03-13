@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	kotlin("jvm") version "1.3.61"
+	kotlin("jvm") version "1.3.70"
 	id("org.openjfx.javafxplugin") version "0.0.8"
 }
 
@@ -11,7 +11,7 @@ allprojects {
 
 	tasks.withType<KotlinCompile> {
 		kotlinOptions {
-			jvmTarget = "11"
+			jvmTarget = "13"
 			freeCompilerArgs = listOf("-XXLanguage:+InlineClasses")
 		}
 	}
@@ -27,13 +27,7 @@ subprojects {
 
 	dependencies {
 		implementation(kotlin("stdlib-jdk8"))
-		implementation("io.ktor", "ktor-network", "1.3.0")
-		//compile("com.google.guava", "guava", "28.0-jre")
-	}
-
-	java {
-		targetCompatibility = JavaVersion.VERSION_11
-		sourceCompatibility = JavaVersion.VERSION_11
+		implementation("io.ktor", "ktor-network", "1.3.+")
 	}
 }
 
@@ -57,6 +51,11 @@ project(":client") {
 			"javafx.web",
 			"javafx.swing"
 		)
+
+		java {
+			targetCompatibility = JavaVersion.VERSION_13
+			sourceCompatibility = JavaVersion.VERSION_13
+		}
 	}
 	dependencies {
 		implementation(project(":common"))
