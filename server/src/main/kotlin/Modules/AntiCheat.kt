@@ -36,7 +36,7 @@ object AntiCheat {
 			velocityExtra?.let {
 				var limitXY = 0.1f //game doesnt reset all the way to 0
 				var limitZ = 0f
-				if (combatClass ?: previous.combatClass == CombatClass.Ranger) {
+				if (combatClassMajor ?: previous.combatClassMajor == CombatClassMajor.Ranger) {
 					limitXY = 33.5f
 					limitZ = 15.8f
 				}
@@ -55,7 +55,6 @@ object AntiCheat {
 				}
 			}
 			flagsPhysics?.let {
-
 			}
 			affiliation?.let {
 				if (it != Affiliation.Player) {
@@ -63,7 +62,7 @@ object AntiCheat {
 				}
 			}
 			race?.let {
-				if (it !in Race.ElfMale.value..Race.UndeadFemale.value || it == Race.TerrierBull) {
+				if (it.value !in Race.ElfMale.value..Race.UndeadFemale.value || it == Race.TerrierBull) {
 					return "race"
 				}
 			}
@@ -71,7 +70,6 @@ object AntiCheat {
 				//TODO:motion AC
 			}
 			motionTime?.let {
-
 			}
 			combo?.let {
 				if (it < 0) {
@@ -79,7 +77,6 @@ object AntiCheat {
 				}
 			}
 			hitTimeOut?.let {
-
 			}
 			appearance?.let {
 				//TODO: this will be alot of work
@@ -90,8 +87,8 @@ object AntiCheat {
 				}
 
 				if (it[CreatureFlag.sniping]) {
-					val isRanger = combatClass ?: previous.combatClass == CombatClass.Ranger
-					val isSubclass0 = combatSubclass ?: previous.combatSubclass == 0.toByte()
+					val isRanger = combatClassMajor ?: previous.combatClassMajor == CombatClassMajor.Ranger
+					val isSubclass0 = combatClassMinor ?: previous.combatClassMinor == CombatClassMinor.Ranger.Sniper
 					if (!isRanger || !isSubclass0) {
 						return "flags.sniping"
 					}
@@ -106,7 +103,6 @@ object AntiCheat {
 				}
 			}
 			effectTimeStun?.let {
-
 			}
 			effectTimeFear?.let {
 				if (it != 0) {
@@ -124,16 +120,15 @@ object AntiCheat {
 				}
 			}
 			showPatchTime?.let {
-
 			}
-			combatClass?.let {
+			combatClassMajor?.let {
 				if (it.value !in 1..4) {
-					//invalid class
+					return "class"
 				}
 			}
-			combatSubclass?.let {
-				if (it !in 0..1) {
-					//invalid subclass
+			combatClassMinor?.let {
+				if (it.value !in 0..1) {
+					return "subclass"
 				}
 			}
 			manaCharge?.let {
@@ -151,12 +146,12 @@ object AntiCheat {
 			}
 			mana?.let {
 				if (it > 1f) {
-					//too much mana
+					return "mana"
 				}
 			}
 			blockMeter?.let {
 				if (it > 1f) {
-					//impossible block meter
+					return "blockMeter"
 				}
 			}
 			multipliers?.let {
@@ -177,10 +172,8 @@ object AntiCheat {
 				}
 			}
 			unused31?.let {
-
 			}
 			unused32?.let {
-
 			}
 			level?.let {
 				level?.let {
@@ -190,7 +183,6 @@ object AntiCheat {
 				}
 			}
 			experience?.let {
-
 			}
 			master?.let {
 				if (it != CreatureID(0)) {
@@ -198,44 +190,118 @@ object AntiCheat {
 				}
 			}
 			unused36?.let {
-
 			}
 			powerBase?.let {
-
 			}
 			unused38?.let {
-
 			}
 			unused39?.let {
-
 			}
 			home?.let {
-
 			}
 			unused41?.let {
-
 			}
 			unused42?.let {
-
 			}
 			consumable?.let {
-
 			}
 			equipment?.let {
-				fun Item.inspect(): Boolean {
-					if (this.rarity.value > Rarity.Legendary.value) {
-						//mythic
+				fun Item.inspect(
+					allowedTypeMajor: ItemTypeMajor,
+					maxSpirits: Int,
+					allowedMaterials: Set<Material>
+				) {
+					if (typeMajor != allowedTypeMajor) {
+					}
+					if (randomSeed < 0) {
+					}
+					if (recipe != ItemTypeMajor.None) {
+					}
+					if (rarity > Rarity.Legendary) {
 					}
 					if (computePower(this.level.toInt()) > computePower(source.character.level)) {
-						//not enough power to wear this item
 					}
-					return true
+					spirits.forEach { spirit ->
+						if (spirit.level > level) {
+						}
+						val allowedMaterials = setOf(
+							Material.Fire,
+							Material.Unholy,
+							Material.IceSpirit,
+							Material.Wind,
+							material
+						)
+						if (allowedMaterials.contains(spirit.material)) {
+						}
+						//padding
+						//position
+					}
+					if (spiritCounter > maxSpirits) {
+					}
+					//paddingA
+					//adapted
+					//paddingB
+					//paddingC
+
+					//TODO: typeMinor & material
 				}
-				//maintype/subtype: based on slot
-				//material: based on slot and class
+
+				val allowedMaterialsAccessories = setOf(Material.Gold, Material.Silver)
+				val allowedMaterialArmor = when (combatClassMajor) {
+					CombatClassMajor.Warrior -> setOf(
+						Material.Iron,
+						Material.Obsidian,
+						Material.Saurian,
+						Material.Ice
+					)
+					CombatClassMajor.Ranger -> setOf(
+						Material.Parrot,
+						Material.Linen
+					)
+					CombatClassMajor.Mage -> setOf(
+						Material.Licht,
+						Material.Silk
+					)
+					CombatClassMajor.Rogue -> setOf(
+						Material.Cotton
+					)
+					else -> setOf()
+				} + setOf( //these can be worn by any class
+					Material.Bone,
+					Material.Mammoth,
+					Material.Gold
+				)
+
+				it.neck.inspect(ItemTypeMajor.Amulet, 0, allowedMaterialsAccessories)
+				it.leftRing.inspect(ItemTypeMajor.Ring, 0, allowedMaterialsAccessories)
+				it.rightRing.inspect(ItemTypeMajor.Ring, 0, allowedMaterialsAccessories)
+
+				it.chest.inspect(ItemTypeMajor.Chest, 32, allowedMaterialArmor)
+				it.feet.inspect(ItemTypeMajor.Boots, 32, allowedMaterialArmor)
+				it.hands.inspect(ItemTypeMajor.Gloves, 32, allowedMaterialArmor)
+				it.shoulder.inspect(ItemTypeMajor.Shoulder, 32, allowedMaterialArmor)
+
+				it.lamp.inspect(ItemTypeMajor.Lamp, 0, setOf(Material.Iron))
+				it.special.inspect(ItemTypeMajor.Special, 0, setOf(Material.Wood))
+				it.pet.inspect(ItemTypeMajor.Pet, 0, setOf(Material.None))
+
+				//TODO
+
+				//it.unknown.inspect()
+
+				//it.leftWeapon.inspect(ItemMainType.Weapon)
+				//it.rightWeapon.inspect(ItemMainType.Weapon)
+
+				//- if righthand is 2hand weapon, lefthand must be empty
+				//- lefthand cannot be 2hand weapon
+				//- 2hand weapon can hold 32 spirits, 1hand 16
+				//- allowed material depends on weapon type
+
 			}
 			name?.let {
-				
+				if (it.length !in 1..15) {
+
+				}
 			}
 			skillPointDistribution?.let {
 
