@@ -124,6 +124,8 @@ inline class ItemTypeMajor(val value: Byte) {
 }
 
 inline class Rarity(val value: Byte) {
+	operator fun compareTo(other: Rarity) = this.value.compareTo(other.value)
+
 	companion object {
 		var Normal = Rarity(0)
 		var Uncommon = Rarity(1)
