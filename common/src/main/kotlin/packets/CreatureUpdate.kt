@@ -329,16 +329,10 @@ data class CreatureUpdate(
 				unused42 = if (mask[42]) inflatedReader.readByte() else null,
 				consumable = if (mask[43]) Item.readFrom(inflatedReader) else null,
 				equipment = if (mask[44]) Equipment.readFrom(inflatedReader) else null,
-				name = if (mask[45]) inflatedReader.readName() else null,
+				name = if (mask[45]) inflatedReader.readByteArray(16).toString(Charsets.UTF_8).trimEnd(Char.MIN_VALUE) else null,
 				skillPointDistribution = if (mask[46]) SkillDistribution.readFrom(inflatedReader) else null,
 				manaCubes = if (mask[47]) inflatedReader.readInt() else null
 			)
-		}
-
-		private suspend fun Reader.readName(): String {
-			val stringBytes = this.readByteArray(16)
-			val nameWithNulls = stringBytes.toString(Charsets.UTF_8)
-			return nameWithNulls.subSequence(0, nameWithNulls.indexOf(Char.MIN_VALUE)) as String //TODO: handle absence of nulls
 		}
 	}
 }
