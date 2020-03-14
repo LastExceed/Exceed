@@ -169,10 +169,10 @@ inline class Material(val value: Byte) {
 		var Linen = Material(26)
 		var Cotton = Material(27)
 		//...
-		//var Fire = Material(128)
-		//var Unholy = Material(129)
-		//var IceSpirit = Material(130)
-		//var Wind = Material(131)
+		var Fire = Material(-128)
+		var Unholy = Material(-127)
+		var IceSpirit = Material(-126)
+		var Wind = Material(-125)
 	}
 }
 
