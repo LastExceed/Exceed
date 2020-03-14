@@ -28,8 +28,8 @@ data class CreatureUpdate(
 	val effectTimeIce: Int? = null,
 	val effectTimeWind: Int? = null,
 	val showPatchTime: Int? = null,
-	val combatClass: CombatClass? = null,
-	val combatSubclass: Byte? = null,
+	val combatClassMajor: CombatClassMajor? = null,
+	val combatClassMinor: CombatClassMinor? = null,
 	val manaCharge: Float? = null,
 	val unused24: Vector3<Float>? = null,
 	val unused25: Vector3<Float>? = null,
@@ -144,12 +144,12 @@ data class CreatureUpdate(
 			optionalDataWriter.writeInt(it)
 			mask[20] = true
 		}
-		combatClass?.let {
+		combatClassMajor?.let {
 			optionalDataWriter.writeByte(it.value)
 			mask[21] = true
 		}
-		combatSubclass?.let {
-			optionalDataWriter.writeByte(it)
+		combatClassMinor?.let {
+			optionalDataWriter.writeByte(it.value)
 			mask[22] = true
 		}
 		manaCharge?.let {
@@ -305,8 +305,8 @@ data class CreatureUpdate(
 				effectTimeIce = if (mask[18]) inflatedReader.readInt() else null,
 				effectTimeWind = if (mask[19]) inflatedReader.readInt() else null,
 				showPatchTime = if (mask[20]) inflatedReader.readInt() else null,
-				combatClass = if (mask[21]) CombatClass(inflatedReader.readByte()) else null,
-				combatSubclass = if (mask[22]) inflatedReader.readByte() else null,
+				combatClassMajor = if (mask[21]) CombatClassMajor(inflatedReader.readByte()) else null,
+				combatClassMinor = if (mask[22]) CombatClassMinor(inflatedReader.readByte())else null,
 				manaCharge = if (mask[23]) inflatedReader.readFloat() else null,
 				unused24 = if (mask[24]) inflatedReader.readVector3Float() else null,
 				unused25 = if (mask[25]) inflatedReader.readVector3Float() else null,
@@ -917,11 +917,33 @@ inline class Motion(val value: Byte) {
 	}
 }
 
-inline class CombatClass(val value: Byte) {
+inline class CombatClassMajor(val value: Byte) {
 	companion object {
-		val Warrior = CombatClass(1)
-		val Ranger = CombatClass(2)
-		val Mage = CombatClass(3)
-		val Rogue = CombatClass(4)
+		val Warrior = CombatClassMajor(1)
+		val Ranger = CombatClassMajor(2)
+		val Mage = CombatClassMajor(3)
+		val Rogue = CombatClassMajor(4)
+	}
+}
+
+inline class CombatClassMinor(val value: Byte) {
+	object Warrior {
+		val Berserker = CombatClassMinor(0)
+		val Guardian = CombatClassMinor(1)
+	}
+
+	object Ranger {
+		val Sniper = CombatClassMinor(0)
+		val Scout = CombatClassMinor(1)
+	}
+
+	object Mage {
+		val Water = CombatClassMinor(0)
+		val Fire = CombatClassMinor(1)
+	}
+
+	object Rogue {
+		val Assassin = CombatClassMinor(0)
+		val Ninja = CombatClassMinor(1)
 	}
 }

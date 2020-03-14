@@ -1,34 +1,40 @@
 package packets
 
 import utils.*
+import utils.readVector3Byte
+import utils.writeVector3Byte
 
 data class Item(
-	val mainType: ItemMainType,
-	val subType: Byte,
+	val typeMajor: ItemTypeMajor,
+	val typeMinor: ItemTypeMinor,
 	val paddingA: Short,
 	val randomSeed: Int,
-	val recipe: ItemMainType,
+	val recipe: ItemTypeMajor,
+	val paddingB: Byte,
+	val paddingC: Short,
 	val rarity: Rarity,
 	val material: Material,
-	val adapted: Boolean,
-	val paddingB: Byte,
+	val flags: FlagSet<ItemFlag>,
+	val paddingD: Byte,
 	val level: Short,
-	val paddingC: Short,
+	val paddingE: Short,
 	val spirits: Array<Spirit>,
 	val spiritCounter: Int
 ) : SubPacket {
 	override suspend fun writeTo(writer: Writer) {
-		writer.writeByte(mainType.value)
-		writer.writeByte(subType)
+		writer.writeByte(typeMajor.value)
+		writer.writeByte(typeMinor.value)
 		writer.writeShort(paddingA)
 		writer.writeInt(randomSeed)
-		writer.writeByte(recipe.value); writer.pad(3)
+		writer.writeByte(recipe.value)
+		writer.writeByte(paddingB)
+		writer.writeShort(paddingC)
 		writer.writeByte(rarity.value)
 		writer.writeByte(material.value)
-		writer.writeBoolean(adapted)
-		writer.writeByte(paddingB)
+		writer.writeByte(flags.inner.toByte())
+		writer.writeByte(paddingD)
 		writer.writeShort(level)
-		writer.writeShort(paddingC)
+		writer.writeShort(paddingE)
 		spirits.forEach {
 			it.writeTo(writer)
 		}
@@ -37,18 +43,21 @@ data class Item(
 
 	companion object {
 		internal suspend fun readFrom(reader: Reader): Item {
+
 			return Item(
-				mainType = ItemMainType(reader.readByte()),
-				subType = reader.readByte(),
+				typeMajor = ItemTypeMajor(reader.readByte()),
+				typeMinor = ItemTypeMinor(reader.readByte()),
 				paddingA = reader.readShort(),
 				randomSeed = reader.readInt(),
-				recipe = ItemMainType(reader.readInt().toByte()),//TODO: cleanup
+				recipe = ItemTypeMajor(reader.readByte()),
+				paddingB = reader.readByte(),
+				paddingC = reader.readShort(),
 				rarity = Rarity(reader.readByte()),
 				material = Material(reader.readByte()),
-				adapted = reader.readBoolean(),
-				paddingB = reader.readByte(),
+				flags = FlagSet(reader.readByte().toBooleanArray()),
+				paddingD = reader.readByte(),
 				level = reader.readShort(),
-				paddingC = reader.readShort(),
+				paddingE = reader.readShort(),
 				spirits = Array(32) {
 					Spirit.readFrom(reader)
 				},
@@ -83,34 +92,34 @@ data class Spirit(
 	}
 }
 
-inline class ItemMainType(val value: Byte) {
+inline class ItemTypeMajor(val value: Byte) {
 	companion object {
-		var None = ItemMainType(0)
-		var Food = ItemMainType(1)
-		var Formula = ItemMainType(2)
-		var Weapon = ItemMainType(3)
-		var Chest = ItemMainType(4)
-		var Gloves = ItemMainType(5)
-		var Boots = ItemMainType(6)
-		var Shoulder = ItemMainType(7)
-		var Amulet = ItemMainType(8)
-		var Ring = ItemMainType(9)
-		var Block = ItemMainType(10)
-		var Resource = ItemMainType(11)
-		var Coin = ItemMainType(12)
-		var PlatinumCoin = ItemMainType(13)
-		var Leftovers = ItemMainType(14)
-		var Beak = ItemMainType(15)
-		var Painting = ItemMainType(16)
-		var Vase = ItemMainType(17)
-		var Candle = ItemMainType(18)
-		var Pet = ItemMainType(19)
-		var PetFood = ItemMainType(20)
-		var Quest = ItemMainType(21)
-		var Unknown = ItemMainType(22)
-		var Special = ItemMainType(23)
-		var Lamp = ItemMainType(24)
-		var ManaCube = ItemMainType(25)
+		var None = ItemTypeMajor(0)
+		var Food = ItemTypeMajor(1)
+		var Formula = ItemTypeMajor(2)
+		var Weapon = ItemTypeMajor(3)
+		var Chest = ItemTypeMajor(4)
+		var Gloves = ItemTypeMajor(5)
+		var Boots = ItemTypeMajor(6)
+		var Shoulder = ItemTypeMajor(7)
+		var Amulet = ItemTypeMajor(8)
+		var Ring = ItemTypeMajor(9)
+		var Block = ItemTypeMajor(10)
+		var Resource = ItemTypeMajor(11)
+		var Coin = ItemTypeMajor(12)
+		var PlatinumCoin = ItemTypeMajor(13)
+		var Leftovers = ItemTypeMajor(14)
+		var Beak = ItemTypeMajor(15)
+		var Painting = ItemTypeMajor(16)
+		var Vase = ItemTypeMajor(17)
+		var Candle = ItemTypeMajor(18)
+		var Pet = ItemTypeMajor(19)
+		var PetFood = ItemTypeMajor(20)
+		var Quest = ItemTypeMajor(21)
+		var Unknown = ItemTypeMajor(22)
+		var Special = ItemTypeMajor(23)
+		var Lamp = ItemTypeMajor(24)
+		var ManaCube = ItemTypeMajor(25)
 	}
 }
 
@@ -130,11 +139,13 @@ inline class Material(val value: Byte) {
 		var None = Material(0)
 		var Iron = Material(1)
 		var Wood = Material(2)
+
 		//
 		//
 		var Obsidian = Material(5)
 		var Unknown = Material(6)
 		var Bone = Material(7)
+
 		//
 		//
 		//
@@ -163,28 +174,101 @@ inline class Material(val value: Byte) {
 	}
 }
 
-inline class ItemSubTypeWeapon(val value: Byte) {
+inline class ItemTypeMinor(val value: Byte) {
+	object Food {
+		val Cookie = ItemTypeMinor(0)
+		val LifePotion = ItemTypeMinor(1)
+		val CactusPotion = ItemTypeMinor(2)
+		val ManaPotion = ItemTypeMinor(3)
+		val GinsengSoup = ItemTypeMinor(4)
+		val SnowberryMash = ItemTypeMinor(5)
+		val MushroomSpit = ItemTypeMinor(6)
+		val Bomb = ItemTypeMinor(7)
+		val PineappleSlice = ItemTypeMinor(8)
+		val PumpkinMuffin = ItemTypeMinor(9)
+	}
+
+	object Weapon {
+		val Sword = ItemTypeMinor(0)
+		val Axe = ItemTypeMinor(1)
+		val Mace = ItemTypeMinor(2)
+		val Dagger = ItemTypeMinor(3)
+		val Fist = ItemTypeMinor(4)
+		val Longsword = ItemTypeMinor(5)
+		val Bow = ItemTypeMinor(6)
+		val Crossbow = ItemTypeMinor(7)
+		val Boomerang = ItemTypeMinor(8)
+		val Arrow = ItemTypeMinor(9)
+		val Staff = ItemTypeMinor(10)
+		val Wand = ItemTypeMinor(11)
+		val Bracelet = ItemTypeMinor(12)
+		val Shield = ItemTypeMinor(13)
+		val Quiver = ItemTypeMinor(14)
+		val Greatsword = ItemTypeMinor(15)
+		val Greataxe = ItemTypeMinor(16)
+		val Greatmace = ItemTypeMinor(17)
+		val Pitchfork = ItemTypeMinor(18)
+		val Pickaxe = ItemTypeMinor(19)
+		val Torch = ItemTypeMinor(20)
+	}
+
+	object Resource {
+		val Nugget = ItemTypeMinor(0)
+		val Log = ItemTypeMinor(1)
+		val Feather = ItemTypeMinor(2)
+		val Horn = ItemTypeMinor(3)
+		val Claw = ItemTypeMinor(4)
+		val Fiber = ItemTypeMinor(5)
+		val Cobweb = ItemTypeMinor(6)
+		val Hair = ItemTypeMinor(7)
+		val Crystal = ItemTypeMinor(8)
+		val Yarn = ItemTypeMinor(9)
+		val Cube = ItemTypeMinor(10)
+		val Capsule = ItemTypeMinor(11)
+		val Flask = ItemTypeMinor(12)
+		val Orb = ItemTypeMinor(13)
+		val Spirit = ItemTypeMinor(14)
+		val Mushroom = ItemTypeMinor(15)
+		val Pumpkin = ItemTypeMinor(16)
+		val Pineapple = ItemTypeMinor(17)
+		val RadishSlice = ItemTypeMinor(18)
+		val ShimmerMushroom = ItemTypeMinor(19)
+		val GinsengRoot = ItemTypeMinor(20)
+		val OnionSlice = ItemTypeMinor(21)
+		val Heartflower = ItemTypeMinor(22)
+		val PricklyPear = ItemTypeMinor(23)
+		val Iceflower = ItemTypeMinor(24)
+		val Soulflower = ItemTypeMinor(25)
+		val WaterFlask = ItemTypeMinor(26)
+		val Snowberry = ItemTypeMinor(27)
+	}
+
+	object Candle {
+		val Red = ItemTypeMinor(0)
+		val Green = ItemTypeMinor(1)
+	}
+
+	object Quest {
+		val AmuletYellow = ItemTypeMinor(0)
+		val AmuletBlue = ItemTypeMinor(1)
+		val Jewelcase = ItemTypeMinor(2)
+		val Key = ItemTypeMinor(3)
+		val Medicine = ItemTypeMinor(4)
+		val Anitvenom = ItemTypeMinor(5)
+		val Bandaid = ItemTypeMinor(6)
+		val Crutch = ItemTypeMinor(7)
+		val Bandage = ItemTypeMinor(8)
+		val Salve = ItemTypeMinor(9)
+	}
+
+	object Special {
+		val HangGlider = ItemTypeMinor(0)
+		val Boat = ItemTypeMinor(1)
+	}
+}
+
+inline class ItemFlag(override val value: Int) : FlagSetIndex {
 	companion object {
-		val Sword = ItemSubTypeWeapon(0)
-		val Axe = ItemSubTypeWeapon(1)
-		val Mace = ItemSubTypeWeapon(2)
-		val Dagger = ItemSubTypeWeapon(3)
-		val Fist = ItemSubTypeWeapon(4)
-		val Longsword = ItemSubTypeWeapon(5)
-		val Bow = ItemSubTypeWeapon(6)
-		val Crossbow = ItemSubTypeWeapon(7)
-		val Boomerang = ItemSubTypeWeapon(8)
-		val Arrow = ItemSubTypeWeapon(9)
-		val Staff = ItemSubTypeWeapon(10)
-		val Wand = ItemSubTypeWeapon(11)
-		val Bracelet = ItemSubTypeWeapon(12)
-		val Shield = ItemSubTypeWeapon(13)
-		val Quiver = ItemSubTypeWeapon(14)
-		val Greatsword = ItemSubTypeWeapon(15)
-		val Greataxe = ItemSubTypeWeapon(16)
-		val Greatmace = ItemSubTypeWeapon(17)
-		val Pitchfork = ItemSubTypeWeapon(18)
-		val Pickaxe = ItemSubTypeWeapon(19)
-		val Torch = ItemSubTypeWeapon(20)
+		val adapted = ItemFlag(0)
 	}
 }

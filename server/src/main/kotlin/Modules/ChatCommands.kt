@@ -3,6 +3,7 @@ package Modules
 import packets.*
 import utils.Vector3
 import exceed.*
+import utils.FlagSet
 import utils.Vector2
 
 object ChatCommands {
@@ -76,37 +77,39 @@ object ChatCommands {
 				source.send(su)
 			}
 			"skillpoint" -> {
-				val su = ServerUpdate()
-				val pickup = Pickup(
-					source.character.id,
-					Item(
-						ItemMainType.ManaCube,
-						1,
-						0,
-						0,
-						ItemMainType.None,
-						Rarity.Normal,
-						Material.None,
-						false,
-						0,
-						1,
-						0,
-						Array<Spirit>(32) {
-							Spirit(
-								Vector3(0, 0, 0),
-								Material.None,
-								1,
-								0
-							)
-						},
-						0
-					)
-				)
-				su.pickups.add(pickup)
-				su.pickups.add(pickup)
-				su.pickups.add(pickup)
-				su.pickups.add(pickup)
-				source.send(su)
+//				val su = ServerUpdate()
+//				val pickup = Pickup(
+//					source.character.id,
+//					Item(
+//						ItemMainType.ManaCube,
+//						ItemSubTypeResource.Capsule,
+//						0,
+//						0,
+//						ItemMainType.None,
+//						0,
+//						0,
+//						Rarity.Normal,
+//						Material.None,
+//						FlagSet(0.toBooleanArray()),
+//						0,
+//						1,
+//						0,
+//						Array<Spirit>(32) {
+//							Spirit(
+//								Vector3(0, 0, 0),
+//								Material.None,
+//								1,
+//								0
+//							)
+//						},
+//						0
+//					)
+//				)
+//				su.pickups.add(pickup)
+//				su.pickups.add(pickup)
+//				su.pickups.add(pickup)
+//				su.pickups.add(pickup)
+//				source.send(su)
 			}
 		}
 		return true

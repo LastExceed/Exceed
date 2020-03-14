@@ -80,11 +80,11 @@ object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 		if (newData.showPatchTime != null) {
 			this.showPatchTime = newData.showPatchTime!!
 		}
-		if (newData.combatClass != null) {
-			this.combatClass = newData.combatClass!!
+		if (newData.combatClassMajor != null) {
+			this.combatClassMajor = newData.combatClassMajor!!
 		}
-		if (newData.combatSubclass != null) {
-			this.combatSubclass = newData.combatSubclass!!
+		if (newData.combatClassMinor != null) {
+			this.combatClassMinor = newData.combatClassMinor!!
 		}
 		if (newData.manaCharge != null) {
 			this.manaCharge = newData.manaCharge!!

@@ -26,8 +26,8 @@ object Balancing {
 	//buff staffs cuz they're hard as fuck to aim
 
 	private fun Item.isShield(): Boolean {
-		return this.mainType == ItemMainType.Weapon &&
-				this.subType == ItemSubTypeWeapon.Shield.value
+		return this.typeMajor == ItemTypeMajor.Weapon &&
+				this.typeMinor == ItemTypeMinor.Weapon.Shield
 	}
 
 }
