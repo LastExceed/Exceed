@@ -3,10 +3,22 @@ package Modules
 import exceed.GetRidOfThis.computePower
 import exceed.Player
 import packets.*
+import utils.Vector3
 import kotlin.math.sqrt
 
 object AntiCheat {
-	private const val LEVEL_CAP = 500
+	fun <T> T.expect(expected: T) {
+		if (this != expected) {
+			//TODO
+		}
+	}
+
+	fun <T> T.expect(expected: Set<T>) {
+		if (!expected.contains(this)) {
+			//TODO
+		}
+	}
+
 	fun inspect(creatureUpdate: CreatureUpdate, source: Player): String? {
 		val previous = source.character
 
@@ -67,7 +79,102 @@ object AntiCheat {
 				}
 			}
 			motion?.let {
-				//TODO:motion AC
+				val allowedMotions = setOf(
+					Motion.Idle,
+					Motion.UnarmedM1a,
+					Motion.UnarmedM1b,
+					Motion.UnarmedM2,
+					Motion.UnarmedM2Charging,
+					Motion.Drinking,
+					Motion.Eating,
+					Motion.PetFoodPresent,
+					Motion.Sitting,
+					Motion.Sleeping,
+					Motion.Riding,
+					Motion.Boat
+				) + when (combatClassMajor ?: previous.combatClassMajor) {
+					CombatClassMajor.Warrior -> setOf(
+						Motion.DualWieldM1a,
+						Motion.DualWieldM1b,
+						Motion.DualWieldM2Charging,
+						Motion.GreatweaponM1a,
+						Motion.GreatweaponM1b,
+						Motion.GreatweaponM1c,
+						Motion.GreatweaponM2Charging,
+						Motion.ShieldM1a,
+						Motion.ShieldM1b,
+						Motion.ShieldM2,
+						Motion.ShieldM2Charging,
+						Motion.Smash,
+						Motion.Cyclone
+					) + when (combatClassMinor ?: previous.combatClassMinor) {
+						CombatClassMinor.Warrior.Berserker -> setOf(
+							Motion.GreatweaponM2Berserker
+						)
+						CombatClassMinor.Warrior.Guardian -> setOf(
+							Motion.GreatweaponM2Guardian
+						)
+						else -> error("subclass should be sanity checked already")
+					}
+					CombatClassMajor.Ranger -> setOf(
+						Motion.ShootArrow,
+						Motion.BowM2,
+						Motion.BowM2Charging,
+						Motion.CrossbowM2,
+						Motion.CrossbowM2Charging,
+						Motion.BoomerangM1,
+						Motion.BoomerangM2Charging,
+						Motion.Kick
+					)
+					CombatClassMajor.Mage -> setOf(
+						Motion.Teleport
+					) + when (combatClassMinor ?: previous.combatClassMinor) {
+						CombatClassMinor.Mage.Fire -> setOf(
+							Motion.StaffFireM1,
+							Motion.StaffFireM2,
+							Motion.WandFireM1,
+							Motion.WandFireM2,
+							Motion.BraceletsFireM1a,
+							Motion.BraceletsFireM1b,
+							Motion.BraceletFireM2,
+							Motion.FireExplosionShort
+						)
+						CombatClassMinor.Mage.Water -> setOf(
+							Motion.StaffWaterM1,
+							Motion.StaffWaterM2,
+							Motion.WandWaterM1,
+							Motion.WandWaterM2,
+							Motion.BraceletsWaterM1a,
+							Motion.BraceletsWaterM1b,
+							Motion.BraceletWaterM2,
+							Motion.HealingStream
+						)
+						else -> error("subclass should be sanity checked already")
+					}
+					CombatClassMajor.Rogue -> setOf(
+						Motion.LongswordM1a,
+						Motion.LongswordM1b,
+						Motion.LongswordM2,
+						Motion.DaggersM1a,
+						Motion.DaggersM1b,
+						Motion.DaggersM2,
+						Motion.FistsM2,
+						Motion.Intercept,
+						Motion.Stealth
+					) + when (combatClassMinor ?: previous.combatClassMinor) {
+						CombatClassMinor.Rogue.Assassin -> setOf(
+
+						)
+						CombatClassMinor.Rogue.Ninja -> setOf(
+							Motion.Shuriken
+						)
+						else -> error("subclass should be sanity checked already")
+					}
+					else -> error("class should be sanity checked already")
+				}
+
+				if (!allowedMotions.contains(it)) {
+				}
 			}
 			motionTime?.let {
 			}
@@ -79,7 +186,14 @@ object AntiCheat {
 			hitTimeOut?.let {
 			}
 			appearance?.let {
-				//TODO: this will be alot of work
+//				for (value in 0..15) {
+//					flags[AppearanceFlag(value)].expect(false)
+//				}
+
+				//unknownA
+				//unknownB
+				//hairColor
+				//unknownC
 			}
 			flags?.let {
 				if (it[CreatureFlag.friendlyFire]) {
@@ -177,7 +291,7 @@ object AntiCheat {
 			}
 			level?.let {
 				level?.let {
-					if (it !in 1..LEVEL_CAP) {
+					if (it !in 1..500) {
 						return "level"
 					}
 				}
@@ -224,7 +338,7 @@ object AntiCheat {
 					spirits.forEach { spirit ->
 						if (spirit.level > level) {
 						}
-						val allowedMaterials = setOf(
+						val allowedMaterials = setOf( //intentional name shadowing
 							Material.Fire,
 							Material.Unholy,
 							Material.IceSpirit,
