@@ -28,6 +28,7 @@ subprojects {
 	dependencies {
 		implementation(kotlin("stdlib-jdk8"))
 		implementation("io.ktor", "ktor-network", "1.3.+")
+		testImplementation(kotlin("test-junit5"))
 	}
 }
 
