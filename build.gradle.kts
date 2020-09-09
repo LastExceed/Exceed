@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	kotlin("jvm") version "1.3.70"
+	kotlin("jvm") version "1.4.0"
 	id("org.openjfx.javafxplugin") version "0.0.8"
 }
 
@@ -27,7 +27,7 @@ subprojects {
 
 	dependencies {
 		implementation(kotlin("stdlib-jdk8"))
-		implementation("io.ktor", "ktor-network", "1.3.+")
+		implementation("io.ktor", "ktor-network", "1.4.+")
 		testImplementation(kotlin("test-junit5"))
 	}
 }

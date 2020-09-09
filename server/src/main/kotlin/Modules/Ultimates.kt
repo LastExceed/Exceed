@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import packets.*
 import utils.Vector3
 import exceed.*
+import packets.utils.*
 
 object Ultimates {
 	fun cast(source: Player) {
@@ -22,7 +23,7 @@ object Ultimates {
 					0
 				)
 				val sound = Sound(
-					GetRidOfThis.creatureToSoundPosition(character.position),
+					Utils.creatureToSoundPosition(character.position),
 					SoundType.FireHit
 				)
 				val su = ServerUpdate()

@@ -1,8 +1,10 @@
 package packets
 
+import packets.utils.*
 import utils.*
 import utils.readVector3Byte
 import utils.writeVector3Byte
+import kotlin.math.*
 
 data class Item(
 	val typeMajor: ItemTypeMajor,
@@ -40,6 +42,31 @@ data class Item(
 		}
 		writer.writeInt(spiritCounter)
 	}
+
+	val hp: Float
+		get() {
+			if (typeMajor.value !in 3..7) return 0f
+
+			val multiplierTypeMajor = if (typeMajor == ItemTypeMajor.Chest) 1f else 0.5f
+
+			var hp_mod = 8L * randomSeed % 21
+			if (hp_mod < 0) {
+				hp_mod += 4294967296
+			}
+			val multiplierRandom = 2f - (hp_mod / 20f) + when (material) {
+				Material.Iron -> 1f
+				Material.Linen -> 0.5f
+				Material.Cotton -> 0.75f
+				else -> 0f
+			}
+
+			val multiplierRarity = 2f.pow(rarity.value * 0.25f)
+
+			val lvl = level + spiritCounter * 0.1f
+			val multiplierLevel = 2f.pow((1f - (1f / Utils.levelScalingFactor(lvl))) * 3f)
+
+			return 5f * multiplierTypeMajor * multiplierLevel * multiplierRarity * multiplierRandom
+		}
 
 	companion object {
 		internal suspend fun readFrom(reader: Reader): Item {

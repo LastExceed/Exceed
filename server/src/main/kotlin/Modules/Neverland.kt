@@ -10,7 +10,7 @@ object Neverland {
 		if (source.layer == ghostLayer ||
 			source.character.health > 0f ||
 			creatureUpdate.health == null ||
-			creatureUpdate.health!! > 0f
+			creatureUpdate.health!! <= 0f //TODO: why isnt this smartcasted ?
 		) return
 
 		source.moveTo(ghostLayer)
@@ -32,5 +32,14 @@ object Neverland {
 
 		val time = DayTime(0, -10_100_000)
 		source.send(time)
+
+		val tombstone = CreatureUpdate(
+			id = CreatureIdPool.claim(),
+			position = source.character.position,
+			health = 1f,
+			affiliation = Affiliation.Neutral
+		)
+
+		source.send(tombstone)
 	}
 }

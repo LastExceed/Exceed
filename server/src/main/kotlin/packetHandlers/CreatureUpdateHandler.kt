@@ -8,12 +8,9 @@ import exceed.Player
 
 object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 	override suspend fun handlePacket(packet: CreatureUpdate, source: Player) {
-		Neverland.onCreatureUpdate(source, packet)
+		//Neverland.onCreatureUpdate(source, packet)
 		source.character.update(packet)
-
-		Pvp.enable(packet)
-
-		source.layer.broadcast(packet, source)
+		source.layer.broadcast(Pvp.makeAttackable(packet), source)
 	}
 
 	private fun Creature.update(newData: CreatureUpdate) {

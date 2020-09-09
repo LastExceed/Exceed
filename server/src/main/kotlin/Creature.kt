@@ -1,8 +1,8 @@
 package exceed
 
 import packets.*
-import utils.FlagSet
-import utils.Vector3
+import packets.utils.*
+import utils.*
 
 data class Creature(
 	val id: CreatureID,
@@ -160,4 +160,10 @@ data class Creature(
 			manaCubes
 		)
 	}
+
+	val chunk: Vector2<Int>
+		get() = Vector2(
+			(position.x / Utils.SIZE_CHUNK).toInt(),
+			(position.y / Utils.SIZE_CHUNK).toInt()
+		)
 }

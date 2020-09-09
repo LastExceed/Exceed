@@ -2,8 +2,8 @@ package exceed.packetHandlers
 
 import Modules.Balancing
 import Modules.ClientBugFixes
+import exceed.*
 import packets.*
-import exceed.Player
 
 object HitHandler : PacketHandler<Hit> {
 	override suspend fun handlePacket(packet: Hit, source: Player) {

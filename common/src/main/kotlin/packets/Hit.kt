@@ -53,10 +53,11 @@ data class Hit(
 
 inline class DamageType(val value: Byte) {
 	companion object {
+		val Default = DamageType(0)
 		val Block = DamageType(1)
-		val Normal = DamageType(2)
+		val Unknown = DamageType(2)
 		val Miss = DamageType(3)
-		val Invisible = DamageType(4)
+		val Dodge = DamageType(4)
 		val Absorb = DamageType(5)
 		val Invisible2 = DamageType(6)
 	}

@@ -33,7 +33,7 @@ object BuffHandler : PacketHandler<Buff> {
 					source.layer.creatures[buff.target]!!.position,
 					Vector3(0f, 0f, 0f),
 					false,
-					DamageType.Normal,
+					DamageType.Unknown,
 					false,
 					0
 				)

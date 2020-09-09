@@ -60,6 +60,7 @@ data class CreatureUpdate(
 		val optionalChannel = ByteChannel(true)
 		val optionalDataWriter = Writer(optionalChannel)
 		val mask = BooleanArray(Long.SIZE_BITS)
+
 		position?.let {
 			optionalDataWriter.writeVector3Long(it)
 			mask[0] = true

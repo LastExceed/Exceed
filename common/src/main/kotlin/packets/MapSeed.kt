@@ -1,7 +1,7 @@
 package packets
 
 class MapSeed(
-	val seed: Int = 0
+	val seed: Int
 ) : Packet(Opcode.MapSeed) {
 	override suspend fun writeTo(writer: Writer) {
 		writer.writeInt(seed)

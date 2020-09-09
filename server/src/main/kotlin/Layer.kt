@@ -8,7 +8,7 @@ data class Layer(
 	val players: MutableMap<CreatureID, Player> = mutableMapOf()
 ) {
 	suspend fun broadcast(packet: Packet, toSkip: Player? = null) {
-		for (player in players.values) {
+		for (player in players.values) { //TODO: concurrent modification apparently
 			if (player == toSkip) continue
 			player.send(packet)
 		}
@@ -17,8 +17,7 @@ data class Layer(
 	suspend fun addCreature(creature: Creature) {
 		creatures[creature.id] = creature
 		val creatureUpdate = creature.toCreatureUpdate()
-		Pvp.enable(creatureUpdate)
-		broadcast(creatureUpdate)
+		broadcast(Pvp.makeAttackable(creatureUpdate))
 	}
 
 	suspend fun removeCreature(creature: Creature) {
@@ -30,8 +29,7 @@ data class Layer(
 	suspend fun addPlayer(player: Player) {
 		creatures.values.forEach {
 			val creatureUpdate = it.copy().toCreatureUpdate()
-			Pvp.enable(creatureUpdate)
-			player.send(creatureUpdate)
+			player.send(Pvp.makeAttackable(creatureUpdate))
 		}
 		addCreature(player.character)
 		players[player.character.id] = player

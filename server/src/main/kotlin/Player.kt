@@ -3,6 +3,8 @@ package exceed
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import packets.*
+import packets.Writer
+import java.io.*
 
 class Player private constructor(
 	private var writer: Writer,
@@ -14,12 +16,11 @@ class Player private constructor(
 	private val mutex = Mutex(false)
 
 	suspend fun send(packet: Packet) {
-		mutex.withLock(this) {
+		mutex.withLock {//TODO: IllegalStateException: Already locked
 			try {
 				writer.writeInt(packet.opcode.value)
 				packet.writeTo(writer)
-			} catch (ex: Throwable) {
-				TODO("check which exception is thrown here")
+			} catch (ex: IOException) {
 				//happens when a player disconnected
 				//disconnections are handled by the reading thread
 				//so we dont have to do anything here

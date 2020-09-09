@@ -1,10 +1,9 @@
 package Modules
 
-import exceed.GetRidOfThis.computePower
 import exceed.Player
 import packets.*
-import utils.Vector3
-import kotlin.math.sqrt
+import packets.utils.*
+import kotlin.math.*
 
 object AntiCheat {
 	fun <T> T.expect(expected: T) {
@@ -31,6 +30,9 @@ object AntiCheat {
 				//return "position"
 			}
 			rotation?.let {
+				if (it.z !in -0.1f..0.1f) {
+					return "rotation.pitch"
+				}
 				if (it.y !in -90f..90f) {
 					return "rotation.roll"
 				}
@@ -42,8 +44,15 @@ object AntiCheat {
 				//can change with abilites
 			}
 			acceleration?.let {
-				//max 80 when normal
-				//max 113,1370849898476 when diagonal
+				val limitXY = sqrt(2 * 80f.pow(2)) //113,1370849898476
+				val actualXY = sqrt(it.x.pow(2) + it.y.pow(2))
+
+				if (actualXY > limitXY) {
+					return "acceleration.XY"
+				}
+				if (it.z != 0f) {
+					return "acceleration.Z"
+				}
 			}
 			velocityExtra?.let {
 				var limitXY = 0.1f //game doesnt reset all the way to 0
@@ -53,7 +62,7 @@ object AntiCheat {
 					limitZ = 15.8f
 				}
 
-				val actualXY = sqrt(it.x * it.x + it.y * it.y)
+				val actualXY = sqrt(it.x.pow(2) + it.y.pow(2))
 				if (actualXY > limitXY) {
 					return "velocityExtra.XY"
 				}
@@ -67,6 +76,7 @@ object AntiCheat {
 				}
 			}
 			flagsPhysics?.let {
+
 			}
 			affiliation?.let {
 				if (it != Affiliation.Player) {
@@ -75,6 +85,7 @@ object AntiCheat {
 			}
 			race?.let {
 				if (it.value !in Race.ElfMale.value..Race.UndeadFemale.value || it == Race.TerrierBull) {
+					//terrierBull is inside that range but not valid
 					return "race"
 				}
 			}
@@ -177,6 +188,9 @@ object AntiCheat {
 				}
 			}
 			motionTime?.let {
+				if (it < 0 || (it > 10_000 && motion ?: previous.motion != Motion.Idle)) {
+					return "animation time"
+				}
 			}
 			combo?.let {
 				if (it < 0) {
@@ -184,6 +198,9 @@ object AntiCheat {
 				}
 			}
 			hitTimeOut?.let {
+				if (it < 0) {
+					return "hitTimeOut"
+				}
 			}
 			appearance?.let {
 //				for (value in 0..15) {
@@ -255,6 +272,9 @@ object AntiCheat {
 			unused25?.let {
 			}
 			aimDisplacement?.let {
+				if (sqrt(it.x.pow(2) + it.y.pow(2) + it.z.pow(2)) > 60f) {
+					return "aimDisplacement"
+				}
 			}
 			health?.let {
 			}
@@ -333,7 +353,7 @@ object AntiCheat {
 					}
 					if (rarity > Rarity.Legendary) {
 					}
-					if (computePower(this.level.toInt()) > computePower(source.character.level)) {
+					if (Utils.computePower(this.level.toInt()) > Utils.computePower(source.character.level)) {
 					}
 					spirits.forEach { spirit ->
 						if (spirit.level > level) {

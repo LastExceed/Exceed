@@ -29,7 +29,7 @@ object PlayerActionHandler : PacketHandler<CreatureAction> {
 				if (!source.character.flags[CreatureFlag.sprinting]) {
 					Ultimates.cast(source)
 				} else {
-					GetRidOfThis.notify(source, "pets are disabled")
+					//GetRidOfThis.notify(source, "pets are disabled")
 				}
 			}
 			else -> {

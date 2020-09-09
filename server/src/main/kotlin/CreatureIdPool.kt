@@ -4,7 +4,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import packets.CreatureID
 
-class CreatureIdPool {
+object CreatureIdPool {
 	private val claimed = mutableListOf<Long>()
 	private val mutex = Mutex()
 

@@ -3,19 +3,19 @@ package exceed
 import exceed.packetHandlers.*
 import io.ktor.network.selector.ActorSelectorManager
 import io.ktor.network.sockets.*
+import io.ktor.network.sockets.Socket
 import kotlinx.coroutines.*
 import kotlinx.coroutines.CancellationException
 import packets.*
 import java.io.IOException
-import java.net.InetSocketAddress
+import java.net.*
 
 object Server {
 	private val listener = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(InetSocketAddress(12345))
 	private val mainLayer = Layer()
-	private val idPool = CreatureIdPool()
 
 	suspend fun start() {
-		idPool.claim() //claim 0 because its reserved for server messages
+		CreatureIdPool.claim() //claim 0 because its reserved for server messages
 		println("start listening")
 		supervisorScope {
 			while (true) {
@@ -28,7 +28,7 @@ object Server {
 	}
 
 	private suspend fun handleNewConnection(socket: Socket) {
-		println("new connection")
+		println("new connection " + socket.remoteAddress)
 		val reader = Reader(socket.openReadChannel())
 		val writer = Writer(socket.openWriteChannel(true))
 
@@ -44,13 +44,13 @@ object Server {
 			return
 		}
 
-		val join = Join(0, idPool.claim(), ByteArray(0x1168))
+		val join = Join(0, CreatureIdPool.claim(), ByteArray(0x1168))
 		writer.writeInt(join.opcode.value)
 		join.writeTo(writer)
 
 		if (Opcode(reader.readInt()) != Opcode.CreatureUpdate) {
 			socket.dispose()
-			idPool.free(join.assignedID)
+			CreatureIdPool.free(join.assignedID)
 			return
 		}
 
@@ -60,11 +60,12 @@ object Server {
 			Creature(creatureUpdate)
 		} catch (ex: KotlinNullPointerException) { //TODO: use null-checks instead of try/catch
 			socket.dispose()
-			idPool.free(join.assignedID)
+			CreatureIdPool.free(join.assignedID)
 			return
 		}
 
 		val player = Player.create(writer, character, mainLayer)
+		player.send(MapSeed(3302))
 		try {
 			while (true) {
 				val opcode = Opcode(reader.readInt())
@@ -80,13 +81,10 @@ object Server {
 					else -> println("unknown opcode: $opcode")
 				}
 			}
-		} catch (cancellationException: CancellationException) {
-			if (cancellationException.cause !is IOException) {
-				throw cancellationException
-			}
+		} catch (cancellationException: SocketException) {
 			println("player disconnected")
 			player.layer.removePlayer(player)
-			idPool.free(player.character.id)
+			CreatureIdPool.free(player.character.id)
 			socket.dispose()
 			return
 		}
