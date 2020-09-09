@@ -1,0 +1,6 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Datasource local storage ignored files
+/../../../../../../:\dev\repos\KotlinJVM2\Exceed\.idea/dataSources/
+/dataSources.local.xml

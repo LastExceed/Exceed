@@ -1,65 +1,27 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	kotlin("jvm") version "1.4.0"
-	id("org.openjfx.javafxplugin") version "0.0.8"
+    kotlin("jvm") version "1.4.0"
+    application
+}
+group = "me.lastexceed"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
 }
 
-allprojects {
-	group = "LastExceed"
-	version = "1.0-SNAPSHOT"
-
-	tasks.withType<KotlinCompile> {
-		kotlinOptions {
-			jvmTarget = "13"
-			freeCompilerArgs = listOf("-XXLanguage:+InlineClasses")
-		}
-	}
+dependencies {
+    implementation(kotlin("stdlib-jdk8"))
+    implementation("io.ktor", "ktor-network", "1.4.+")
 }
 
-subprojects {
-	apply(plugin = "java")
-	apply(plugin = "org.jetbrains.kotlin.jvm")
-
-	repositories {
-		mavenCentral()
-	}
-
-	dependencies {
-		implementation(kotlin("stdlib-jdk8"))
-		implementation("io.ktor", "ktor-network", "1.4.+")
-		testImplementation(kotlin("test-junit5"))
-	}
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "13"
+        freeCompilerArgs = listOf("-XXLanguage:+InlineClasses")
+    }
 }
-
-project(":server") {
-	dependencies {
-		implementation(project(":common"))
-	}
-}
-
-project(":client") {
-	apply(plugin = "org.openjfx.javafxplugin")
-	repositories {
-		maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
-	}
-	javafx {
-		version = "13.0.1"
-		modules(
-			"javafx.controls",
-			"javafx.fxml",
-			"javafx.media",
-			"javafx.web",
-			"javafx.swing"
-		)
-
-		java {
-			targetCompatibility = JavaVersion.VERSION_13
-			sourceCompatibility = JavaVersion.VERSION_13
-		}
-	}
-	dependencies {
-		implementation(project(":common"))
-		implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
-	}
+application {
+    mainClassName = "MainKt"
 }
