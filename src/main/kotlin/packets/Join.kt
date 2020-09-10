@@ -13,8 +13,8 @@ class Join(
 		writer.writeByteArray(junk)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): Join {
+	companion object : CwDeserializer<Join> {
+		override suspend fun readFrom(reader: Reader): Join {
 			return Join(
 				unknown = reader.readInt(),
 				assignedID = CreatureID(reader.readLong()),

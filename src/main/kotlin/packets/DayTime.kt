@@ -11,8 +11,8 @@ data class DayTime(
 		writer.writeInt(time)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): DayTime {
+	companion object : CwDeserializer<DayTime> {
+		override suspend fun readFrom(reader: Reader): DayTime {
 			return DayTime(
 				day = reader.readInt(),
 				time = reader.readInt()

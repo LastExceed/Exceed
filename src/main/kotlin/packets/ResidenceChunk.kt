@@ -9,8 +9,8 @@ data class ResidenceChunk(
 		writer.writeVector2Int(chunk)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): ResidenceChunk {
+	companion object : CwDeserializer<ResidenceChunk> {
+		override suspend fun readFrom(reader: Reader): ResidenceChunk {
 			return ResidenceChunk(reader.readVector2Int())
 		}
 	}

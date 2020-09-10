@@ -14,7 +14,7 @@ data class ChatMessage(
 		writer.writeByteArray(text.toByteArray(Charsets.UTF_16LE))
 	}
 
-	companion object {
+	companion object { //TODO: CwDeserializer<ChatMessage>
 		suspend fun readFrom(reader: Reader, readSender: Boolean): ChatMessage {
 			return ChatMessage(
 				sender = if (readSender) CreatureID(reader.readLong()) else null,

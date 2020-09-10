@@ -273,8 +273,8 @@ data class CreatureUpdate(
 		writer.writeByteArray(deflated)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): CreatureUpdate {
+	companion object : CwDeserializer<CreatureUpdate> {
+		override suspend fun readFrom(reader: Reader): CreatureUpdate {
 			val length = reader.readInt()
 			val deflated = reader.readByteArray(length)
 			val inflated = Zlib.inflate(deflated)

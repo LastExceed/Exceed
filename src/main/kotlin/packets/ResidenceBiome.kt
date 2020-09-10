@@ -9,8 +9,8 @@ data class ResidenceBiome(
 		writer.writeVector2Int(sector)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): ResidenceBiome {
+	companion object : CwDeserializer<ResidenceBiome> {
+		override suspend fun readFrom(reader: Reader): ResidenceBiome {
 			return ResidenceBiome(reader.readVector2Int())
 		}
 	}

@@ -21,8 +21,8 @@ data class CreatureAction(
 		writer.writeShort(unknownC)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): CreatureAction {
+	companion object : CwDeserializer<CreatureAction> {
+		override suspend fun readFrom(reader: Reader): CreatureAction {
 			return CreatureAction(
 				item = Item.readFrom(reader),
 				chunk = reader.readVector2Int(),

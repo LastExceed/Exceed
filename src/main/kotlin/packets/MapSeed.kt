@@ -9,8 +9,8 @@ class MapSeed(
 		writer.writeInt(seed)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): MapSeed {
+	companion object : CwDeserializer<MapSeed> {
+		override suspend fun readFrom(reader: Reader): MapSeed {
 			return MapSeed(reader.readInt())
 		}
 	}

@@ -12,8 +12,8 @@ data class AirTraffic(
 		}
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): AirTraffic {
+	companion object : CwDeserializer<AirTraffic> {
+		override suspend fun readFrom(reader: Reader): AirTraffic {
 			val airTraffic = AirTraffic()
 			repeat(reader.readInt()) {
 				airTraffic.airships.add(Airship.readFrom(reader))

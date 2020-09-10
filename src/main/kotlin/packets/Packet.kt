@@ -1,5 +1,7 @@
 package packets
 
+import utils.*
+
 abstract class Packet(val opcode: Opcode) : CwSerializable
 
 inline class Opcode(val value: Int) {
@@ -24,4 +26,12 @@ inline class Opcode(val value: Int) {
 		val ProtocolVersion = Opcode(17)
 		val ServerFull = Opcode(18)
 	}
+}
+
+interface CwSerializable {
+	suspend fun writeTo(writer: Writer)
+}
+
+interface CwDeserializer<T> {
+	suspend fun readFrom(reader: Reader): T
 }

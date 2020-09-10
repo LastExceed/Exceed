@@ -31,8 +31,8 @@ data class Hit(
 		writer.writeByte(paddingB)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): Hit {
+	companion object : CwDeserializer<Hit> {
+		override suspend fun readFrom(reader: Reader): Hit {
 			return Hit(
 				attacker = CreatureID(reader.readLong()),
 				target = CreatureID(reader.readLong()),

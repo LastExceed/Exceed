@@ -64,7 +64,14 @@ data class Item(
 			val lvl = level + spiritCounter * 0.1f
 			val multiplierLevel = 2f.pow((1f - (1f / Utils.levelScalingFactor(lvl))) * 3f)
 
-			return 5f * multiplierTypeMajor * multiplierLevel * multiplierRarity * multiplierRandom
+			return setOf(
+				multiplierLevel,
+				multiplierRandom,
+				multiplierRarity,
+				multiplierTypeMajor
+			).fold(5f) { accumulator, multiplier ->
+				accumulator * multiplier
+			}
 		}
 
 	companion object {

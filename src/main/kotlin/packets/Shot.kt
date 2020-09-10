@@ -41,8 +41,8 @@ data class Shot(
 		writer.writeFloat(unknownD)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): Shot {
+	companion object : CwDeserializer<Shot> {
+		override suspend fun readFrom(reader: Reader): Shot {
 			return Shot(
 				attacker = reader.readLong(),
 				chunk = reader.readVector2Int(),

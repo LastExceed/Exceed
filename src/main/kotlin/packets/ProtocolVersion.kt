@@ -9,8 +9,8 @@ data class ProtocolVersion(
 		writer.writeInt(version)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): ProtocolVersion {
+	companion object : CwDeserializer<ProtocolVersion> {
+		override suspend fun readFrom(reader: Reader): ProtocolVersion {
 			return ProtocolVersion(reader.readInt())
 		}
 	}

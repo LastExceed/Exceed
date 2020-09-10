@@ -25,8 +25,8 @@ data class Buff(
 		writer.writeLong(creatureID3.value)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): Buff {
+	companion object : CwDeserializer<Buff> {
+		override suspend fun readFrom(reader: Reader): Buff {
 			return Buff(
 				source = CreatureID(reader.readLong()),
 				target = CreatureID(reader.readLong()),

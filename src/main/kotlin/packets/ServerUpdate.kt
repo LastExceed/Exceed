@@ -50,8 +50,8 @@ data class ServerUpdate(
 		writer.writeByteArray(deflated)
 	}
 
-	companion object {
-		suspend fun readFrom(reader: Reader): ServerUpdate {
+	companion object : CwDeserializer<ServerUpdate> {
+		override suspend fun readFrom(reader: Reader): ServerUpdate {
 			val serverUpdate = ServerUpdate()
 
 			val length = reader.readInt()
