@@ -1,20 +1,3 @@
-# User-specific stuff
-.idea/**/workspace.xml
-
-# Generated files
+.idea
 build
-
-# Gradle
 .gradle
-.idea/**/gradle.xml
-.idea/**/libraries
-
-# When using Gradle or Maven with auto-import, you should exclude module files,
-# since they will be recreated and may cause churn.
-.idea/modules
-.idea/modules.xml
-.idea/*.iml
-
-# Other files that a gradle project generates
-.idea/jarRepositories.xml
-.idea/misc.xml
