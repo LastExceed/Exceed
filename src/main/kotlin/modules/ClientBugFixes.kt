@@ -1,6 +1,6 @@
 package modules
 
-import packets.*
+import me.lastexceed.cubeworldnetworking.packets.*
 import Player
 
 object ClientBugFixes {

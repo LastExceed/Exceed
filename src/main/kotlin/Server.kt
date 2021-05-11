@@ -3,8 +3,9 @@ import io.ktor.network.selector.ActorSelectorManager
 import io.ktor.network.sockets.*
 import io.ktor.network.sockets.Socket
 import kotlinx.coroutines.*
-import packets.*
-import utils.*
+import modules.*
+import me.lastexceed.cubeworldnetworking.packets.*
+import me.lastexceed.cubeworldnetworking.utils.*
 import java.net.*
 
 object Server {
@@ -18,7 +19,13 @@ object Server {
 			while (true) {
 				val socket = listener.accept()
 				launch {
-					handleNewConnection(socket)
+					try {
+						handleNewConnection(socket)
+					} catch (exception: Exception) {
+						exception.printStackTrace()
+						println(exception)
+					}
+
 				}
 			}
 		}
@@ -51,7 +58,7 @@ object Server {
 			return
 		}
 
-		val creatureUpdate = CreatureUpdate.readFrom(reader)//TODO: inspect with anticheat
+		val creatureUpdate = CreatureUpdate.readFrom(reader)
 
 		val character = try {
 			Creature(creatureUpdate)
@@ -61,8 +68,18 @@ object Server {
 			return
 		}
 
-		val player = Player.create(writer, character, mainLayer)
-		player.send(MapSeed(3302))
+		//TODO: deduplicate (CreatureUpdateHandler)
+		val ACmessage = AntiCheat.inspect(creatureUpdate, character)
+		if (ACmessage != null) {
+			writer.writeInt(Opcode.ChatMessage.value)
+			ChatMessage(CreatureID(0), ACmessage).writeTo(writer)
+			delay(100)
+			socket.dispose()
+			return
+		}
+
+		val player = Player.create(socket, writer, character, mainLayer)
+		player.send(MapSeed(225))
 		try {
 			while (true) {
 				val opcode = Opcode(reader.readInt())
@@ -78,12 +95,24 @@ object Server {
 					else -> println("unknown opcode: $opcode")
 				}
 			}
-		} catch (cancellationException: SocketException) {
-			println("player disconnected")
-			player.layer.removePlayer(player)
-			CreatureIdPool.free(player.character.id)
-			socket.dispose()
-			return
+		} catch (exception: Exception) {
+			when (exception) {
+				is SocketException,
+				is CancellationException -> {
+					println("player disconnected")
+					player.layer.removePlayer(player)
+					CreatureIdPool.free(player.character.id)
+					socket.dispose()
+					return
+				}
+				else -> throw exception
+			}
+
 		}
+	}
+
+	suspend fun notify(session: Player, message: String) {
+		val chatMessage = ChatMessage(CreatureID(0), message)
+		session.send(chatMessage)
 	}
 }

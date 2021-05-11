@@ -1,8 +1,8 @@
 package modules
 
-import packets.*
+import me.lastexceed.cubeworldnetworking.packets.*
 import Player
-import utils.*
+import me.lastexceed.cubeworldnetworking.utils.*
 
 object ChatCommands {
 	private const val prefix: Char = '/'
@@ -54,8 +54,8 @@ object ChatCommands {
 				println("spawning quest")
 				val mission = Mission(
 					Vector2(
-						(source.character.position.x / Utils.SIZE_BIOME).toInt(),
-						(source.character.position.y / Utils.SIZE_BIOME).toInt()
+						(source.character.position.x / Utils.SIZE_ZONE).toInt() / 8 + params[1].toInt(),
+						(source.character.position.y / Utils.SIZE_ZONE).toInt() / 8 + params[2].toInt()
 					),
 					1,
 					1,
@@ -65,13 +65,13 @@ object ChatCommands {
 					Race(1000),//Race.Turtle,
 					500,
 					1,
-					MissionState.Ready,
+					MissionState.InProgress,
 					0x0101,
 					100,
 					100,
 					Vector2(
-						(source.character.position.x / Utils.SIZE_BIOME).toInt(),
-						(source.character.position.y / Utils.SIZE_BIOME).toInt()
+						(source.character.position.x / Utils.SIZE_ZONE).toInt(),
+						(source.character.position.y / Utils.SIZE_ZONE).toInt()
 					)
 				)
 				val sound = Sound(
@@ -120,7 +120,7 @@ object ChatCommands {
 			}
 			"dmg" -> {
 				val h = Hit(
-					attacker = CreatureID(0),//CreatureID(source.character.id.value % 2 + 1),
+					attacker = CreatureID(source.character.id.value % 2 + 1),
 					target = source.character.id,
 					damage = 1f,
 					critical = true,
@@ -138,8 +138,22 @@ object ChatCommands {
 				su.hits.add(h)
 				source.send(su)
 			}
-			"ihp" -> {
-				Utils.notify(source, "" + source.character.equipment.rightWeapon.hp)
+			"buff" -> {
+				val buff = Buff(
+					CreatureID(0),
+					source.character.id,
+					BuffType(params[1].toByte()),
+					0,
+					0,
+					5000f,
+					5000,
+					0,
+					CreatureID(0)
+				)
+
+				val su = ServerUpdate()
+				su.buffs.add(buff)
+				source.layer.broadcast(su)
 			}
 		}
 		return true

@@ -1,23 +1,23 @@
 package packetHandlers
 
 import modules.Ultimates
-import packets.*
+import me.lastexceed.cubeworldnetworking.packets.*
 import Player
 
 object PlayerActionHandler : PacketHandler<CreatureAction> {
 	override suspend fun handlePacket(packet: CreatureAction, source: Player) {
 		when (packet.type) {
 			ActionType.Bomb -> {
-				Utils.notify(source, "bombs are disabled")
+				Server.notify(source, "bombs are disabled")
 			}
 			ActionType.Talk -> {
-				Utils.notify(source, "quests coming soon(tm)")
+				Server.notify(source, "quests coming soon(tm)")
 			}
 			ActionType.ObjectInteraction -> {
-				Utils.notify(source, "object interactions are disabled")
+				Server.notify(source, "object interactions are disabled")
 			}
 			ActionType.PickUp -> {
-				Utils.notify(source, "you shouldn't be able to do that")
+				Server.notify(source, "you shouldn't be able to do that")
 			}
 			ActionType.Drop -> {
 				val serverUpdate = ServerUpdate()

@@ -1,6 +1,6 @@
 package modules
 
-import packets.*
+import me.lastexceed.cubeworldnetworking.packets.*
 
 object Pvp {
 	fun makeAttackable(creatureUpdate: CreatureUpdate): CreatureUpdate {
@@ -8,7 +8,7 @@ object Pvp {
 		if (editedFlags != null) {
 			editedFlags[CreatureFlag.friendlyFire] = true
 		}
-		return creatureUpdate.copy(flags = editedFlags, multipliers = Multipliers(1f, 1f, 1f, 10f, 10f))
+		return creatureUpdate.copy(flags = editedFlags, multipliers = Multipliers(100f, 1f, 1f, 1f, 1f))
 		//return creatureUpdate.copy(affiliation = Affiliation.Enemy)
 	}
 }

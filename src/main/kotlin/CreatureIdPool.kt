@@ -1,6 +1,5 @@
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import packets.CreatureID
+import kotlinx.coroutines.sync.*
+import me.lastexceed.cubeworldnetworking.packets.*
 
 object CreatureIdPool {
 	private val claimed = mutableListOf<Long>()

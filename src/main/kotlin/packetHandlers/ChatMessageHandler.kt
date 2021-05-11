@@ -1,7 +1,7 @@
 package packetHandlers
 
 import modules.ChatCommands
-import packets.ChatMessage
+import me.lastexceed.cubeworldnetworking.packets.*
 import Player
 
 object ChatMessageHandler : PacketHandler<ChatMessage> {

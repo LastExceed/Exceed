@@ -1,5 +1,6 @@
-import packets.*
-import utils.*
+import me.lastexceed.cubeworldnetworking.packets.*
+import me.lastexceed.cubeworldnetworking.utils.*
+import kotlin.math.*
 
 data class Creature(
 	val id: CreatureID,
@@ -12,8 +13,8 @@ data class Creature(
 	var flagsPhysics: FlagSet<PhysicsFlag>,
 	var affiliation: Affiliation,
 	var race: Race,
-	var motion: Motion,
-	var motionTime: Int,
+	var animation: Animation,
+	var animationTime: Int,
 	var combo: Int,
 	var hitTimeOut: Int,
 	var appearance: Appearance,
@@ -63,8 +64,8 @@ data class Creature(
 		flagsPhysics = creatureUpdate.flagsPhysics!!,
 		affiliation = creatureUpdate.affiliation!!,
 		race = creatureUpdate.race!!,
-		motion = creatureUpdate.motion!!,
-		motionTime = creatureUpdate.motionTime!!,
+		animation = creatureUpdate.animation!!,
+		animationTime = creatureUpdate.animationTime!!,
 		combo = creatureUpdate.combo!!,
 		hitTimeOut = creatureUpdate.hitTimeOut!!,
 		appearance = creatureUpdate.appearance!!,
@@ -116,8 +117,8 @@ data class Creature(
 			flagsPhysics,
 			affiliation,
 			race,
-			motion,
-			motionTime,
+			animation,
+			animationTime,
 			combo,
 			hitTimeOut,
 			appearance,
@@ -158,9 +159,199 @@ data class Creature(
 		)
 	}
 
+	fun update(newData: CreatureUpdate) {
+		newData.position?.let {
+			position = it
+		}
+		newData.rotation?.let {
+			rotation = it
+		}
+		newData.velocity?.let {
+			velocity = it
+		}
+		newData.acceleration?.let {
+			acceleration = it
+		}
+		newData.velocityExtra?.let {
+			velocityExtra = it
+		}
+		newData.climbAnimationState?.let {
+			climbAnimationState = it
+		}
+		newData.flagsPhysics?.let {
+			flagsPhysics = it
+		}
+		newData.affiliation?.let {
+			affiliation = it
+		}
+		newData.race?.let {
+			race = it
+		}
+		newData.animation?.let {
+			animation = it
+		}
+		newData.animationTime?.let {
+			animationTime = it
+		}
+		newData.combo?.let {
+			combo = it
+		}
+		newData.hitTimeOut?.let {
+			hitTimeOut = it
+		}
+		newData.appearance?.let {
+			appearance = it
+		}
+		newData.flags?.let {
+			flags = it
+		}
+		newData.effectTimeDodge?.let {
+			effectTimeDodge = it
+		}
+		newData.effectTimeStun?.let {
+			effectTimeStun = it
+		}
+		newData.effectTimeFear?.let {
+			effectTimeFear = it
+		}
+		newData.effectTimeIce?.let {
+			effectTimeIce = it
+		}
+		newData.effectTimeWind?.let {
+			effectTimeWind = it
+		}
+		newData.showPatchTime?.let {
+			showPatchTime = it
+		}
+		newData.combatClassMajor?.let {
+			combatClassMajor = it
+		}
+		newData.combatClassMinor?.let {
+			combatClassMinor = it
+		}
+		newData.manaCharge?.let {
+			manaCharge = it
+		}
+		newData.unused24?.let {
+			unused24 = it
+		}
+		newData.unused25?.let {
+			unused25 = it
+		}
+		newData.aimDisplacement?.let {
+			aimDisplacement = it
+		}
+		newData.health?.let {
+			health = it
+		}
+		newData.mana?.let {
+			mana = it
+		}
+		newData.blockMeter?.let {
+			blockMeter = it
+		}
+		newData.multipliers?.let {
+			multipliers = it
+		}
+		newData.unused31?.let {
+			unused31 = it
+		}
+		newData.unused32?.let {
+			unused32 = it
+		}
+		newData.level?.let {
+			level = it
+		}
+		newData.experience?.let {
+			experience = it
+		}
+		newData.master?.let {
+			master = it
+		}
+		newData.unused36?.let {
+			unused36 = it
+		}
+		newData.powerBase?.let {
+			powerBase = it
+		}
+		newData.unused38?.let {
+			unused38 = it
+		}
+		newData.unused39?.let {
+			unused39 = it
+		}
+		newData.home?.let {
+			home = it
+		}
+		newData.unused41?.let {
+			unused41 = it
+		}
+		newData.unused42?.let {
+			unused42 = it
+		}
+		newData.consumable?.let {
+			consumable = it
+		}
+		newData.equipment?.let {
+			equipment = it
+		}
+		newData.name?.let {
+			name = it
+		}
+		newData.skillPointDistribution?.let {
+			skillPointDistribution = it
+		}
+		newData.manaCubes?.let {
+			manaCubes = it
+		}
+	}
+
 	val chunk: Vector2<Int>
 		get() = Vector2(
 			(position.x / Utils.SIZE_CHUNK).toInt(),
 			(position.y / Utils.SIZE_CHUNK).toInt()
 		)
+
+	val healthMaximum: Float
+		get() {
+			val multiplierLevel = 2f.pow((1f - Utils.levelScalingFactor(level)) * 3f)
+
+			val multiplierAffiliation =
+				if (affiliation == Affiliation.Player) 2f
+				else 2f.pow(powerBase * 0.25f)
+
+			val multiplierCombatClass = when (combatClassMajor) {
+				CombatClassMajor.Warrior -> 1.3f * if (combatClassMinor == CombatClassMinor.Warrior.Guardian) 1.25f else 1f
+				CombatClassMajor.Ranger -> 1.1f
+				CombatClassMajor.Mage -> 1f
+				CombatClassMajor.Rogue -> 1.2f
+				else -> error("this should be sanitized")
+			}
+
+			val baseMaximum = listOf(
+				multiplierLevel,
+				multipliers.health,
+				multiplierAffiliation,
+				multiplierCombatClass
+			).fold(1f) { accumulator, multiplier ->
+				accumulator * multiplier
+			}
+
+			return baseMaximum + listOf(
+				equipment.chest.hp,
+				equipment.feet.hp,
+				equipment.hands.hp,
+				equipment.shoulder.hp,
+				equipment.leftWeapon.hp,
+				equipment.rightWeapon.hp,
+
+				equipment.unknown.hp,
+				equipment.neck.hp,
+				equipment.leftRing.hp,
+				equipment.rightRing.hp,
+				equipment.lamp.hp,
+				equipment.special.hp,
+				equipment.pet.hp
+			).sum()
+		}
 }

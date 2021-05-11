@@ -1,9 +1,9 @@
 package modules
 
-import packets.*
+import me.lastexceed.cubeworldnetworking.packets.*
 import Player
 import kotlinx.coroutines.*
-import utils.*
+import me.lastexceed.cubeworldnetworking.utils.*
 
 object Ultimates {
 	fun cast(source: Player) {

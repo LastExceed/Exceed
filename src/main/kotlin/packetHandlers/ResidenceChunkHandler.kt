@@ -1,6 +1,6 @@
 package packetHandlers
 
-import packets.ResidenceChunk
+import me.lastexceed.cubeworldnetworking.packets.*
 import Player
 
 object ResidenceChunkHandler : PacketHandler<ResidenceChunk> {

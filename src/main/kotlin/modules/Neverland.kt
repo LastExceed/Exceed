@@ -2,7 +2,7 @@ package exceed.Modules
 
 import Layer
 import Player
-import packets.*
+import me.lastexceed.cubeworldnetworking.packets.*
 
 object Neverland {
 	private val ghostLayer = Layer()

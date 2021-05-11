@@ -3,7 +3,7 @@ package packetHandlers
 import modules.Balancing
 import modules.ClientBugFixes
 import Player
-import packets.*
+import me.lastexceed.cubeworldnetworking.packets.*
 
 object HitHandler : PacketHandler<Hit> {
 	override suspend fun handlePacket(packet: Hit, source: Player) {

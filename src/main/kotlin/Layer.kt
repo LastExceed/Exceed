@@ -1,12 +1,12 @@
 import modules.Pvp
-import packets.*
+import me.lastexceed.cubeworldnetworking.packets.*
 
 data class Layer(
 	val creatures: MutableMap<CreatureID, Creature> = mutableMapOf(),
 	val players: MutableMap<CreatureID, Player> = mutableMapOf()
 ) {
 	suspend fun broadcast(packet: Packet, toSkip: Player? = null) {
-		for (player in players.values) { //TODO: concurrent modification apparently
+		for (player in players.values.toList()) { //TODO: concurrent modification apparently
 			if (player == toSkip) continue
 			player.send(packet)
 		}

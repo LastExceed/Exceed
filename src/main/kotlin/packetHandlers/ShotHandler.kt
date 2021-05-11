@@ -1,7 +1,7 @@
 package packetHandlers
 
 import Player
-import packets.*
+import me.lastexceed.cubeworldnetworking.packets.*
 
 object ShotHandler : PacketHandler<Shot> {
 	override suspend fun handlePacket(packet: Shot, source: Player) {

@@ -1,11 +1,13 @@
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import packets.*
-import utils.Writer
+import io.ktor.network.sockets.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.*
+import me.lastexceed.cubeworldnetworking.packets.*
+import me.lastexceed.cubeworldnetworking.utils.Writer
 import java.io.*
 
 class Player private constructor(
-	private var writer: Writer,
+	private val socket: Socket,
+	private val writer: Writer,
 	val character: Creature,
 	layer: Layer
 ) {
@@ -41,9 +43,13 @@ class Player private constructor(
 		send(WaveClear())
 	}
 
+	suspend fun kick(reason: String) {
+		socket.dispose()
+	}
+
 	companion object {
-		suspend fun create(writer: Writer, character: Creature, layer: Layer) =
-			Player(writer, character, layer).also {
+		suspend fun create(socket: Socket, writer: Writer, character: Creature, layer: Layer) =
+			Player(socket, writer, character, layer).also {
 				layer.addPlayer(it)
 			}
 	}
