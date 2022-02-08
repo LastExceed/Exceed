@@ -2,7 +2,7 @@ package exceed.Modules
 
 import Layer
 import Player
-import me.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.packets.*
 
 object Neverland {
 	private val ghostLayer = Layer()
@@ -16,19 +16,18 @@ object Neverland {
 
 		source.moveTo(ghostLayer)
 
-		val buff = Buff(
+		val statusEffect = StatusEffect(
 			source.character.id,
 			source.character.id,
-			BuffType.Camouflage,
-			0,
-			0,
+			StatusEffect.Type.Camouflage,
 			99999f,
 			Int.MAX_VALUE,
 			0,
 			source.character.id
 		)
-		val su = ServerUpdate()
-		su.buffs.add(buff)
+		val su = ServerUpdate(
+			statusEffects = listOf(statusEffect)
+		)
 		source.send(su)
 
 		val time = DayTime(0, -10_100_000)

@@ -1,8 +1,8 @@
 package modules
 
-import me.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.packets.*
 import Player
-import me.lastexceed.cubeworldnetworking.utils.*
+import com.github.lastexceed.cubeworldnetworking.utils.*
 
 object ChatCommands {
 	private const val prefix: Char = '/'
@@ -12,7 +12,7 @@ object ChatCommands {
 		}
 		val params = message.trimStart(prefix).split(' ')
 
-		when (params[0].toLowerCase()) {
+		when (params[0].lowercase()) {
 			"seed" -> {
 				if (params.size != 1) {
 					//invalid syntax
@@ -38,13 +38,15 @@ object ChatCommands {
 				source.send(creatureUpdate)
 			}
 			"sound" -> {
-				val serverUpdate = ServerUpdate()
 				val sound = Sound(
 					Utils.creatureToSoundPosition(source.character.position),
 					SoundType(params[1].toInt())
 				)
-				serverUpdate.sounds.add(sound)
-				source.send(serverUpdate)
+				source.send(
+					ServerUpdate(
+						sounds = listOf(sound)
+					)
+				)
 			}
 			"time" -> {
 				val time = DayTime(0, params[1].toInt())
@@ -78,13 +80,13 @@ object ChatCommands {
 					Utils.creatureToSoundPosition(source.character.position),
 					SoundType.Gate
 				)
-				val su = ServerUpdate()
-				su.missions.add(mission)
-				su.sounds.add(sound)
+				val su = ServerUpdate(
+					missions = listOf(mission),
+					sounds = listOf(sound)
+				)
 				source.send(su)
 			}
 			"skillpoint" -> {
-				val su = ServerUpdate()
 				val pickup = Pickup(
 					source.character.id,
 					Item(
@@ -101,7 +103,7 @@ object ChatCommands {
 						0,
 						1,
 						0,
-						Array<Spirit>(32) {
+						Array(32) {
 							Spirit(
 								Vector3(0, 0, 0),
 								Material.None,
@@ -112,14 +114,13 @@ object ChatCommands {
 						0
 					)
 				)
-				su.pickups.add(pickup)
-				su.pickups.add(pickup)
-				su.pickups.add(pickup)
-				su.pickups.add(pickup)
+				val su = ServerUpdate(
+					pickups = listOf(pickup, pickup, pickup, pickup)
+				)
 				source.send(su)
 			}
 			"dmg" -> {
-				val h = Hit(
+				val hit = Hit(
 					attacker = CreatureID(source.character.id.value % 2 + 1),
 					target = source.character.id,
 					damage = 1f,
@@ -134,25 +135,25 @@ object ChatCommands {
 					paddingB = 0
 				)
 
-				val su = ServerUpdate()
-				su.hits.add(h)
+				val su = ServerUpdate(
+					hits = listOf(hit)
+				)
 				source.send(su)
 			}
-			"buff" -> {
-				val buff = Buff(
+			"statuseffect" -> {
+				val statusEffect = StatusEffect(
 					CreatureID(0),
 					source.character.id,
-					BuffType(params[1].toByte()),
-					0,
-					0,
+					StatusEffect.Type(params[1].toInt()),
 					5000f,
 					5000,
 					0,
 					CreatureID(0)
 				)
 
-				val su = ServerUpdate()
-				su.buffs.add(buff)
+				val su = ServerUpdate(
+					statusEffects = listOf(statusEffect)
+				)
 				source.layer.broadcast(su)
 			}
 		}

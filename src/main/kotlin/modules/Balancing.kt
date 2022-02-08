@@ -1,6 +1,6 @@
 package modules
 
-import me.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.packets.*
 import Player
 
 object Balancing {

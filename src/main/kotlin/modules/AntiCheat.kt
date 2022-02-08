@@ -1,8 +1,8 @@
 package modules
 
 import Creature
-import me.lastexceed.cubeworldnetworking.packets.*
-import me.lastexceed.cubeworldnetworking.utils.*
+import com.github.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.utils.*
 import kotlin.math.*
 
 object AntiCheat {

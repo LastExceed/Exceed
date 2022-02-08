@@ -1,8 +1,7 @@
 import io.ktor.network.sockets.*
-import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
-import me.lastexceed.cubeworldnetworking.packets.*
-import me.lastexceed.cubeworldnetworking.utils.Writer
+import com.github.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.utils.Writer
 import java.io.*
 
 class Player private constructor(
@@ -18,7 +17,7 @@ class Player private constructor(
 	suspend fun send(packet: Packet) {
 		mutex.withLock {//TODO: IllegalStateException: Already locked
 			try {
-				writer.writeInt(packet.opcode.value)
+				writer.writeInt(packet.packetId.value)
 				packet.writeTo(writer)
 			} catch (ex: IOException) {
 				//happens when a player disconnected

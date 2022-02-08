@@ -1,7 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-	kotlin("jvm") version "1.5.0"
+	kotlin("jvm") version "1.6.10"
 }
 group = "me.lastexceed"
 version = "1.0-SNAPSHOT"
@@ -12,6 +10,6 @@ repositories {
 }
 
 dependencies {
-	implementation("io.ktor", "ktor-network", "1.5.+")
-	implementation("me.lastexceed", "CubeworldNetworking", "1.0-SNAPSHOT")
+	implementation("io.ktor", "ktor-network", "2.0.+")
+	implementation("com.github.lastexceed", "CubeworldNetworking", "1.1.0")
 }

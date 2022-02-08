@@ -4,7 +4,7 @@ suspend fun main() {
 	Server.start()
 }
 
-
+//todo: sugar for sending server update with 1 subpacket
 
 //TODO: features
 //login

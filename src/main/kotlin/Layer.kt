@@ -1,5 +1,5 @@
 import modules.Pvp
-import me.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.packets.*
 
 data class Layer(
 	val creatures: MutableMap<CreatureID, Creature> = mutableMapOf(),

@@ -1,7 +1,7 @@
 package packetHandlers
 
 import modules.Ultimates
-import me.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.packets.*
 import Player
 
 object PlayerActionHandler : PacketHandler<CreatureAction> {
@@ -20,9 +20,10 @@ object PlayerActionHandler : PacketHandler<CreatureAction> {
 				Server.notify(source, "you shouldn't be able to do that")
 			}
 			ActionType.Drop -> {
-				val serverUpdate = ServerUpdate()
 				val pickup = Pickup(source.character.id, packet.item)
-				serverUpdate.pickups.add(pickup)
+				val serverUpdate = ServerUpdate(
+					pickups = listOf(pickup)
+				)
 				source.send(serverUpdate)
 			}
 			ActionType.CallPet -> {

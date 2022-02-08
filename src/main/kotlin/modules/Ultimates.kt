@@ -1,13 +1,13 @@
 package modules
 
-import me.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.packets.*
 import Player
 import kotlinx.coroutines.*
-import me.lastexceed.cubeworldnetworking.utils.*
+import com.github.lastexceed.cubeworldnetworking.utils.*
 
 object Ultimates {
 	fun cast(source: Player) {
-		GlobalScope.launch {
+		GlobalScope.launch { //todo: pls no
 			fun createDragonFirePacket(): ServerUpdate {
 				val character = source.character
 				val particle = Particle(
@@ -25,9 +25,10 @@ object Ultimates {
 					Utils.creatureToSoundPosition(character.position),
 					SoundType.FireHit
 				)
-				val su = ServerUpdate()
-				su.particles.add(particle)
-				su.sounds.add(sound)
+				val su = ServerUpdate(
+					particles = listOf(particle),
+					sounds = listOf(sound)
+				)
 				return su
 			}
 			source.layer.broadcast(createDragonFirePacket())

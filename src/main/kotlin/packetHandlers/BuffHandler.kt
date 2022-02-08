@@ -3,37 +3,37 @@ package packetHandlers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import me.lastexceed.cubeworldnetworking.packets.*
-import me.lastexceed.cubeworldnetworking.utils.*
+import com.github.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.utils.*
 import Player
 import kotlinx.coroutines.Dispatchers
 
-object BuffHandler : PacketHandler<Buff> {
-	override suspend fun handlePacket(packet: Buff, source: Player) {
-		val su = ServerUpdate()
-
-		if (packet.type == BuffType.Poison) {
+object BuffHandler : PacketHandler<StatusEffect> {
+	override suspend fun handlePacket(packet: StatusEffect, source: Player) {
+		val sound = if (packet.type == StatusEffect.Type.Poison) {
 			applyPoison(source, packet)
-			val sound = Sound(
+			Sound(
 				Utils.creatureToSoundPosition(source.character.position),
 				SoundType.FireTrap
 			)
-			su.sounds.add(sound)
-		}
-		su.buffs.add(packet)
+		} else null
+		val su = ServerUpdate(
+			sounds = if (sound != null) listOf(sound) else emptyList(), //todo: ugly
+			statusEffects = listOf(packet)
+		)
 		source.layer.broadcast(su, source)
 	}
 
-	private fun applyPoison(source: Player, buff: Buff) {
-		val targetPlayer = source.layer.players[buff.target]!!
+	private fun applyPoison(source: Player, statusEffect: StatusEffect) {
+		val targetPlayer = source.layer.players[statusEffect.target]!!
 		GlobalScope.launch(Dispatchers.IO) {
 			fun createPoisonTick(): ServerUpdate {
-				val target = source.layer.creatures[buff.target]!!
+				val target = source.layer.creatures[statusEffect.target]!!
 
 				val poisonTick = Hit(
 					source.character.id,
-					buff.target,
-					buff.modifier,
+					statusEffect.target,
+					statusEffect.modifier,
 					false,
 					0,
 					0,
@@ -48,14 +48,15 @@ object BuffHandler : PacketHandler<Buff> {
 					Utils.creatureToSoundPosition(target.position),
 					SoundType.Absorb
 				)
-				val su = ServerUpdate()
-				su.hits.add(poisonTick)
-				su.sounds.add(sound)
+				val su = ServerUpdate(
+					hits = listOf(poisonTick),
+					sounds = listOf(sound)
+				)
 				return su
 			}
 
 			targetPlayer.send(createPoisonTick())
-			repeat(buff.duration / 500) {
+			repeat(statusEffect.duration / 500) {
 				delay(500)
 				targetPlayer.send(createPoisonTick())
 			}

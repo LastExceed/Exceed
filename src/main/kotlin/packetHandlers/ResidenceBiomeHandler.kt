@@ -1,6 +1,6 @@
 package packetHandlers
 
-import me.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.packets.*
 import Player
 
 object ResidenceBiomeHandler : PacketHandler<ResidenceBiome> {

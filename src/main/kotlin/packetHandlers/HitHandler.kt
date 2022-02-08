@@ -3,7 +3,7 @@ package packetHandlers
 import modules.Balancing
 import modules.ClientBugFixes
 import Player
-import me.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.packets.*
 
 object HitHandler : PacketHandler<Hit> {
 	override suspend fun handlePacket(packet: Hit, source: Player) {
@@ -11,8 +11,9 @@ object HitHandler : PacketHandler<Hit> {
 			return
 		}
 
-		val su = ServerUpdate()
-		su.hits.add(Balancing.adjustDamage(packet, source))
+		val su = ServerUpdate(
+			hits = listOf(Balancing.adjustDamage(packet, source))
+		)
 		source.layer.broadcast(su)
 	}
 }
