@@ -1,12 +1,12 @@
 plugins {
 	kotlin("jvm") version "1.6.10"
 }
-group = "me.lastexceed"
+group = "com.github.lastexceed"
 version = "1.0-SNAPSHOT"
 
 repositories {
 	mavenCentral()
-	mavenLocal()
+	maven("https://jitpack.io")
 }
 
 dependencies {
