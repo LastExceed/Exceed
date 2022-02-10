@@ -35,41 +35,41 @@ object AntiCheat {
 		Animation.PetFoodPresent,
 		Animation.Sleeping
 	)
-	private val allowedMaterialsAccessories = setOf(Material.Gold, Material.Silver)
+	private val allowedMaterialsAccessories = setOf(Item.Material.Gold, Item.Material.Silver)
 	private val allowedRarities = setOf(
-		Rarity.Normal,
-		Rarity.Uncommon,
-		Rarity.Rare,
-		Rarity.Epic,
-		Rarity.Legendary
+		Item.Rarity.Normal,
+		Item.Rarity.Uncommon,
+		Item.Rarity.Rare,
+		Item.Rarity.Epic,
+		Item.Rarity.Legendary
 	)
 	private val subTypesSpecial = setOf(
-		ItemTypeMinor.Special.Boat,
-		ItemTypeMinor.Special.HangGlider
+		Item.Type.Minor.Special.Boat,
+		Item.Type.Minor.Special.HangGlider
 	)
 	private val allowedWeaponMaterials = mapOf(
-		ItemTypeMinor.Weapon.Sword to setOf(Material.Iron, Material.Obsidian, Material.Bone),
-		ItemTypeMinor.Weapon.Axe to setOf(Material.Iron),
-		ItemTypeMinor.Weapon.Mace to setOf(Material.Iron),
-		ItemTypeMinor.Weapon.Dagger to setOf(Material.Iron),
-		ItemTypeMinor.Weapon.Fist to setOf(Material.Iron),
-		ItemTypeMinor.Weapon.Longsword to setOf(Material.Iron),
-		ItemTypeMinor.Weapon.Bow to setOf(Material.Wood),
-		ItemTypeMinor.Weapon.Crossbow to setOf(Material.Wood),
-		ItemTypeMinor.Weapon.Boomerang to setOf(Material.Wood),
-		ItemTypeMinor.Weapon.Staff to setOf(Material.Wood),
-		ItemTypeMinor.Weapon.Wand to setOf(Material.Wood),
-		ItemTypeMinor.Weapon.Bracelet to setOf(Material.Gold, Material.Silver),
-		ItemTypeMinor.Weapon.Shield to setOf(Material.Iron, Material.Wood),
-		ItemTypeMinor.Weapon.Greatsword to setOf(Material.Iron),
-		ItemTypeMinor.Weapon.Greataxe to setOf(Material.Iron, Material.Saurian),
-		ItemTypeMinor.Weapon.Greatmace to setOf(Material.Iron, Material.Wood),
+		Item.Type.Minor.Weapon.Sword to setOf(Item.Material.Iron, Item.Material.Obsidian, Item.Material.Bone),
+		Item.Type.Minor.Weapon.Axe to setOf(Item.Material.Iron),
+		Item.Type.Minor.Weapon.Mace to setOf(Item.Material.Iron),
+		Item.Type.Minor.Weapon.Dagger to setOf(Item.Material.Iron),
+		Item.Type.Minor.Weapon.Fist to setOf(Item.Material.Iron),
+		Item.Type.Minor.Weapon.Longsword to setOf(Item.Material.Iron),
+		Item.Type.Minor.Weapon.Bow to setOf(Item.Material.Wood),
+		Item.Type.Minor.Weapon.Crossbow to setOf(Item.Material.Wood),
+		Item.Type.Minor.Weapon.Boomerang to setOf(Item.Material.Wood),
+		Item.Type.Minor.Weapon.Staff to setOf(Item.Material.Wood),
+		Item.Type.Minor.Weapon.Wand to setOf(Item.Material.Wood),
+		Item.Type.Minor.Weapon.Bracelet to setOf(Item.Material.Gold, Item.Material.Silver),
+		Item.Type.Minor.Weapon.Shield to setOf(Item.Material.Iron, Item.Material.Wood),
+		Item.Type.Minor.Weapon.Greatsword to setOf(Item.Material.Iron),
+		Item.Type.Minor.Weapon.Greataxe to setOf(Item.Material.Iron, Item.Material.Saurian),
+		Item.Type.Minor.Weapon.Greatmace to setOf(Item.Material.Iron, Item.Material.Wood),
 
-		ItemTypeMinor.Weapon.Arrow to setOf(Material.None),
-		ItemTypeMinor.Weapon.Quiver to setOf(Material.None),
-		ItemTypeMinor.Weapon.Pitchfork to setOf(Material.None),
-		ItemTypeMinor.Weapon.Pickaxe to setOf(Material.None),
-		ItemTypeMinor.Weapon.Torch to setOf(Material.None),
+		Item.Type.Minor.Weapon.Arrow to setOf(Item.Material.None),
+		Item.Type.Minor.Weapon.Quiver to setOf(Item.Material.None),
+		Item.Type.Minor.Weapon.Pitchfork to setOf(Item.Material.None),
+		Item.Type.Minor.Weapon.Pickaxe to setOf(Item.Material.None),
+		Item.Type.Minor.Weapon.Torch to setOf(Item.Material.None),
 	)
 	private val allowedAppearance = mapOf(
 		Race.ElfMale to AppearanceReference(
@@ -375,86 +375,86 @@ object AntiCheat {
 
 	private fun getAllowedMaterialsArmor(combatClassMajor: CombatClassMajor) = when (combatClassMajor) {
 		CombatClassMajor.Warrior -> setOf(
-			Material.Iron,
-			Material.Obsidian,
-			Material.Saurian,
-			Material.Ice
+			Item.Material.Iron,
+			Item.Material.Obsidian,
+			Item.Material.Saurian,
+			Item.Material.Ice
 		)
 		CombatClassMajor.Ranger -> setOf(
-			Material.Parrot,
-			Material.Linen
+			Item.Material.Parrot,
+			Item.Material.Linen
 		)
 		CombatClassMajor.Mage -> setOf(
-			Material.Licht,
-			Material.Silk
+			Item.Material.Licht,
+			Item.Material.Silk
 		)
 		CombatClassMajor.Rogue -> setOf(
-			Material.Cotton
+			Item.Material.Cotton
 		)
 		else -> setOf()
 	} + setOf( //these can be worn by any class
-		Material.Bone,
-		Material.Mammoth,
-		Material.Gold
+		Item.Material.Bone,
+		Item.Material.Mammoth,
+		Item.Material.Gold
 	)
 
 	private fun getAllowedWeaponTypes(combatClassMajor: CombatClassMajor) = when (combatClassMajor) {
 		CombatClassMajor.Warrior -> setOf(
-			ItemTypeMinor.Weapon.Sword,
-			ItemTypeMinor.Weapon.Axe,
-			ItemTypeMinor.Weapon.Mace,
-			ItemTypeMinor.Weapon.Shield,
-			ItemTypeMinor.Weapon.Greatsword,
-			ItemTypeMinor.Weapon.Greataxe,
-			ItemTypeMinor.Weapon.Greatmace
+			Item.Type.Minor.Weapon.Sword,
+			Item.Type.Minor.Weapon.Axe,
+			Item.Type.Minor.Weapon.Mace,
+			Item.Type.Minor.Weapon.Shield,
+			Item.Type.Minor.Weapon.Greatsword,
+			Item.Type.Minor.Weapon.Greataxe,
+			Item.Type.Minor.Weapon.Greatmace
 		)
 		CombatClassMajor.Ranger -> setOf(
-			ItemTypeMinor.Weapon.Bow,
-			ItemTypeMinor.Weapon.Crossbow,
-			ItemTypeMinor.Weapon.Boomerang,
-			ItemTypeMinor.Weapon.Quiver
+			Item.Type.Minor.Weapon.Bow,
+			Item.Type.Minor.Weapon.Crossbow,
+			Item.Type.Minor.Weapon.Boomerang,
+			Item.Type.Minor.Weapon.Quiver
 		)
 		CombatClassMajor.Mage -> setOf(
-			ItemTypeMinor.Weapon.Staff,
-			ItemTypeMinor.Weapon.Wand,
-			ItemTypeMinor.Weapon.Bracelet,
+			Item.Type.Minor.Weapon.Staff,
+			Item.Type.Minor.Weapon.Wand,
+			Item.Type.Minor.Weapon.Bracelet,
 		)
 		CombatClassMajor.Rogue -> setOf(
-			ItemTypeMinor.Weapon.Dagger,
-			ItemTypeMinor.Weapon.Fist,
-			ItemTypeMinor.Weapon.Longsword,
+			Item.Type.Minor.Weapon.Dagger,
+			Item.Type.Minor.Weapon.Fist,
+			Item.Type.Minor.Weapon.Longsword,
 		)
 		else -> error("class should be sanitized")
 	} + setOf(//class agnostic
-		ItemTypeMinor.Weapon.Pitchfork,
-		ItemTypeMinor.Weapon.Pickaxe,
-		ItemTypeMinor.Weapon.Torch,
-		ItemTypeMinor.Weapon.Arrow
+		Item.Type.Minor.Weapon.Pitchfork,
+		Item.Type.Minor.Weapon.Pickaxe,
+		Item.Type.Minor.Weapon.Torch,
+		Item.Type.Minor.Weapon.Arrow
 	)
 
-	private fun getWeaponHandCount(weaponType: ItemTypeMinor) = when (weaponType) {
-		ItemTypeMinor.Weapon.Longsword,
-		ItemTypeMinor.Weapon.Bow,
-		ItemTypeMinor.Weapon.Crossbow,
-		ItemTypeMinor.Weapon.Boomerang,
-		ItemTypeMinor.Weapon.Staff,
-		ItemTypeMinor.Weapon.Wand,
-		ItemTypeMinor.Weapon.Greatsword,
-		ItemTypeMinor.Weapon.Greataxe,
-		ItemTypeMinor.Weapon.Greatmace,
-		ItemTypeMinor.Weapon.Pitchfork -> 2
+	private fun getWeaponHandCount(weaponType: Item.Type.Minor) = when (weaponType) {
+		Item.Type.Minor.Weapon.Longsword,
+		Item.Type.Minor.Weapon.Bow,
+		Item.Type.Minor.Weapon.Crossbow,
+		Item.Type.Minor.Weapon.Boomerang,
+		Item.Type.Minor.Weapon.Staff,
+		Item.Type.Minor.Weapon.Wand,
+		Item.Type.Minor.Weapon.Greatsword,
+		Item.Type.Minor.Weapon.Greataxe,
+		Item.Type.Minor.Weapon.Greatmace,
+		Item.Type.Minor.Weapon.Pitchfork -> 2
 
-//		ItemTypeMinor.Weapon.Bracelet,
-//		ItemTypeMinor.Weapon.Shield,
-//		ItemTypeMinor.Weapon.Quiver,
-//		ItemTypeMinor.Weapon.Arrow,
-//		ItemTypeMinor.Weapon.Sword,
-//		ItemTypeMinor.Weapon.Axe,
-//		ItemTypeMinor.Weapon.Mace,
-//		ItemTypeMinor.Weapon.Dagger,
-//		ItemTypeMinor.Weapon.Fist,
-//		ItemTypeMinor.Weapon.Pickaxe,
-//		ItemTypeMinor.Weapon.Torch -> 1
+//		Item.Type.Minor.Weapon.Bracelet,
+//		Item.Type.Minor.Weapon.Shield,
+//		Item.Type.Minor.Weapon.Quiver,
+//		Item.Type.Minor.Weapon.Arrow,
+//		Item.Type.Minor.Weapon.Sword,
+//		Item.Type.Minor.Weapon.Axe,
+//		Item.Type.Minor.Weapon.Mace,
+//		Item.Type.Minor.Weapon.Dagger,
+//		Item.Type.Minor.Weapon.Fist,
+//		Item.Type.Minor.Weapon.Pickaxe,
+//		Item.Type.Minor.Weapon.Torch -> 1
 
 		else -> 1
 	}
@@ -579,14 +579,14 @@ object AntiCheat {
 					it.weaponSize.expect(reference.weaponSize, "appearance.weaponSize")
 				}
 				flags?.let {
-					it[CreatureFlag.friendlyFire].expect(false, "flags.friendlyFire")
+					it[CreatureFlag.FriendlyFire].expect(false, "flags.friendlyFire")
 					val isRanger = current.combatClassMajor == CombatClassMajor.Ranger
 					val isSniper = current.combatClassMinor == CombatClassMinor.Ranger.Sniper
 					if (!isRanger || !isSniper) {
-						it[CreatureFlag.sniping].expect(false, "flags.sniping")
+						it[CreatureFlag.Sniping].expect(false, "flags.sniping")
 					}
-					if (current.equipment.lamp.typeMajor == ItemTypeMajor.None) {
-						it[CreatureFlag.lamp].expect(false, "flags.lamp")
+					if (current.equipment.lamp.typeMajor == Item.Type.Major.None) {
+						it[CreatureFlag.Lamp].expect(false, "flags.lamp")
 					}
 				}
 				effectTimeDodge?.expectIn(0..600, "effectTimeDodge")
@@ -595,8 +595,8 @@ object AntiCheat {
 				effectTimeIce?.expectMinimum(0, "effectTimeIce")
 				effectTimeWind?.expectMaximum(5000, "effectTimeWind")
 				showPatchTime?.let {}
-				combatClassMajor?.value?.toInt()?.expectIn(1..4, "combatClassMajor")
-				combatClassMinor?.value?.toInt()?.expectIn(0..1, "combatClassMinor")
+				combatClassMajor?.ordinal?.expectIn(1..4, "combatClassMajor")
+				combatClassMinor?.ordinal?.expectIn(0..1, "combatClassMinor")
 				manaCharge?.expectMaximum(current.mana, "manaCharge") //might go negative with blocking bug
 				unused24?.let {}
 				unused25?.let {}
@@ -611,7 +611,7 @@ object AntiCheat {
 					if (current.combatClassMajor != CombatClassMajor.Mage
 						&& current.animationTime > 1000
 						&& current.animation !in setOf(Animation.Stealth, Animation.ShieldM2Charging)
-						&& !current.flags[CreatureFlag.sniping]) {//TODO: assassin camo
+						&& !current.flags[CreatureFlag.Sniping]) {//TODO: assassin camo
 						//TODO: leaving stealth still generates mp for some time
 						//it.expectMaximum(previous.mana, "mana")
 					}
@@ -643,10 +643,10 @@ object AntiCheat {
 				unused41?.let {}
 				unused42?.let {}
 				consumable?.let {
-					if (it.typeMajor == ItemTypeMajor.None) return@let
+					if (it.typeMajor == Item.Type.Major.None) return@let
 
-					it.typeMajor.expect(ItemTypeMajor.Food, "consumable.typeMajor")
-					it.rarity.expect(Rarity.Normal, "consumable.rarity")
+					it.typeMajor.expect(Item.Type.Major.Food, "consumable.typeMajor")
+					it.rarity.expect(Item.Rarity.Normal, "consumable.rarity")
 
 					val powerAllowed = Utils.computePower(current.level)
 					val powerActual = Utils.computePower(it.level.toInt())
@@ -656,20 +656,20 @@ object AntiCheat {
 				}
 				equipment?.let {
 					mapOf(
-						it::unknown to ItemTypeMajor.None,
-						it::neck to ItemTypeMajor.Amulet,
-						it::chest to ItemTypeMajor.Chest,
-						it::feet to ItemTypeMajor.Boots,
-						it::hands to ItemTypeMajor.Gloves,
-						it::shoulder to ItemTypeMajor.Shoulder,
-						it::leftWeapon to ItemTypeMajor.Weapon,
-						it::rightWeapon to ItemTypeMajor.Weapon,
-						it::leftRing to ItemTypeMajor.Ring,
-						it::rightRing to ItemTypeMajor.Ring,
-						it::lamp to ItemTypeMajor.Lamp,
-						it::special to ItemTypeMajor.Special,
-						it::pet to ItemTypeMajor.Pet
-					).filterNot { it.key.get().typeMajor == ItemTypeMajor.None }.forEach {
+						it::unknown to Item.Type.Major.None,
+						it::neck to Item.Type.Major.Amulet,
+						it::chest to Item.Type.Major.Chest,
+						it::feet to Item.Type.Major.Boots,
+						it::hands to Item.Type.Major.Gloves,
+						it::shoulder to Item.Type.Major.Shoulder,
+						it::leftWeapon to Item.Type.Major.Weapon,
+						it::rightWeapon to Item.Type.Major.Weapon,
+						it::leftRing to Item.Type.Major.Ring,
+						it::rightRing to Item.Type.Major.Ring,
+						it::lamp to Item.Type.Major.Lamp,
+						it::special to Item.Type.Major.Special,
+						it::pet to Item.Type.Major.Pet
+					).filterNot { it.key.get().typeMajor == Item.Type.Major.None }.forEach {
 						val item = it.key.get()
 						val prefix = "equipment." + it.key.name
 
@@ -677,28 +677,28 @@ object AntiCheat {
 
 						val classMajor = current.combatClassMajor
 						val allowedMaterials = when (it.value) {
-							ItemTypeMajor.Weapon -> {
+							Item.Type.Major.Weapon -> {
 								item.typeMinor.expectIn(getAllowedWeaponTypes(classMajor), "$prefix.typeMinor")
 								allowedWeaponMaterials[item.typeMinor]!!
 							}
-							ItemTypeMajor.Chest,
-							ItemTypeMajor.Boots,
-							ItemTypeMajor.Gloves,
-							ItemTypeMajor.Shoulder -> getAllowedMaterialsArmor(classMajor)
+							Item.Type.Major.Chest,
+							Item.Type.Major.Boots,
+							Item.Type.Major.Gloves,
+							Item.Type.Major.Shoulder -> getAllowedMaterialsArmor(classMajor)
 
-							ItemTypeMajor.Amulet,
-							ItemTypeMajor.Ring -> allowedMaterialsAccessories
+							Item.Type.Major.Amulet,
+							Item.Type.Major.Ring -> allowedMaterialsAccessories
 
-							ItemTypeMajor.Special -> {
+							Item.Type.Major.Special -> {
 								item.typeMinor.expectIn(subTypesSpecial, "$prefix.typeMinor")
-								setOf(Material.Wood)
+								setOf(Item.Material.Wood)
 							}
-							ItemTypeMajor.Lamp -> setOf(Material.Iron)
-							else -> setOf(Material.None)
+							Item.Type.Major.Lamp -> setOf(Item.Material.Iron)
+							else -> setOf(Item.Material.None)
 						}
 						item.material.expectIn(allowedMaterials, "$prefix.material")
 						//item.randomSeed.expectMinimum(0, "$prefix.randomSeed")
-						item.recipe.expect(ItemTypeMajor.None, "$prefix.recipe")
+						item.recipe.expect(Item.Type.Major.None, "$prefix.recipe")
 						item.rarity.expectIn(allowedRarities, "$prefix.rarity")
 
 						val powerAllowed = Utils.computePower(current.level)
@@ -706,16 +706,16 @@ object AntiCheat {
 						powerActual.expectIn(1..powerAllowed, "$prefix.level")
 
 						val spiritLimit =
-							32//if (item.typeMajor == ItemTypeMajor.Weapon) getWeaponHandCount(item.typeMinor) * 16 else 0
+							32//if (item.typeMajor == Item.Type.Major.Weapon) getWeaponHandCount(item.typeMinor) * 16 else 0
 						item.spiritCounter.expectIn(0..spiritLimit, "$prefix.spiritCounter")
 
 						item.spirits.take(item.spiritCounter).forEach {
 							@Suppress("NAME_SHADOWING") //intentional
 							val allowedMaterials = setOf(
-								Material.Fire,
-								Material.Unholy,
-								Material.IceSpirit,
-								Material.Wind,
+								Item.Material.Fire,
+								Item.Material.Unholy,
+								Item.Material.IceSpirit,
+								Item.Material.Wind,
 								item.material
 							)
 							//it.material.expectIn(allowedMaterials, "$prefix.spirits[?].material")
@@ -723,9 +723,9 @@ object AntiCheat {
 						}
 					}
 					val r =
-						if (it.rightWeapon.typeMajor == ItemTypeMajor.None) 0 else getWeaponHandCount(it.rightWeapon.typeMinor)
+						if (it.rightWeapon.typeMajor == Item.Type.Major.None) 0 else getWeaponHandCount(it.rightWeapon.typeMinor)
 					val l =
-						if (it.leftWeapon.typeMajor == ItemTypeMajor.None) 0 else getWeaponHandCount(it.leftWeapon.typeMinor)
+						if (it.leftWeapon.typeMajor == Item.Type.Major.None) 0 else getWeaponHandCount(it.leftWeapon.typeMinor)
 					(r + l).expectMaximum(2, "equipment.dualwield")
 					//ranger can hold 2h weapon in either hand
 

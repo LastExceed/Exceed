@@ -17,13 +17,13 @@ object Ultimates {
 					1f,
 					1f,
 					30,
-					ParticleType.Spark,
+					Particle.Type.Spark,
 					10f,
 					0
 				)
 				val sound = Sound(
 					Utils.creatureToSoundPosition(character.position),
-					SoundType.FireHit
+					Sound.Type.FireHit
 				)
 				val su = ServerUpdate(
 					particles = listOf(particle),

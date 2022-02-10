@@ -84,9 +84,9 @@ object Server {
 				val opcode = PacketId(reader.readInt())
 				when (opcode) {
 					PacketId.CreatureUpdate -> CreatureUpdateHandler.handlePacket(CreatureUpdate.readFrom(reader), player)
-					PacketId.CreatureAction -> PlayerActionHandler.handlePacket(CreatureAction.readFrom(reader), player)
+					PacketId.CreatureAction -> CreatureActionHandler.handlePacket(CreatureAction.readFrom(reader), player)
 					PacketId.Hit -> HitHandler.handlePacket(Hit.readFrom(reader), player)
-					PacketId.StatusEffect -> BuffHandler.handlePacket(StatusEffect.readFrom(reader), player)
+					PacketId.StatusEffect -> StatusEffectHandler.handlePacket(StatusEffect.readFrom(reader), player)
 					PacketId.Shot -> ShotHandler.handlePacket(Shot.readFrom(reader), player)
 					PacketId.ChatMessage -> ChatMessageHandler.handlePacket(ChatMessage.readFrom(reader, false), player)
 					PacketId.ChunkDiscovery -> ResidenceChunkHandler.handlePacket(ResidenceChunk.readFrom(reader), player)

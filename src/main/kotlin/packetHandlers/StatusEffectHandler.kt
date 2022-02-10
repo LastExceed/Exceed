@@ -8,13 +8,13 @@ import com.github.lastexceed.cubeworldnetworking.utils.*
 import Player
 import kotlinx.coroutines.Dispatchers
 
-object BuffHandler : PacketHandler<StatusEffect> {
+object StatusEffectHandler : PacketHandler<StatusEffect> {
 	override suspend fun handlePacket(packet: StatusEffect, source: Player) {
 		val sound = if (packet.type == StatusEffect.Type.Poison) {
 			applyPoison(source, packet)
 			Sound(
 				Utils.creatureToSoundPosition(source.character.position),
-				SoundType.FireTrap
+				Sound.Type.FireTrap
 			)
 		} else null
 		val su = ServerUpdate(
@@ -40,13 +40,13 @@ object BuffHandler : PacketHandler<StatusEffect> {
 					target.position,
 					Vector3(0f, 0f, 0f),
 					false,
-					DamageType.Unknown,
+					Hit.Type.Unknown,
 					false,
 					0
 				)
 				val sound = Sound(
 					Utils.creatureToSoundPosition(target.position),
-					SoundType.Absorb
+					Sound.Type.Absorb
 				)
 				val su = ServerUpdate(
 					hits = listOf(poisonTick),

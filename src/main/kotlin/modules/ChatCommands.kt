@@ -40,7 +40,7 @@ object ChatCommands {
 			"sound" -> {
 				val sound = Sound(
 					Utils.creatureToSoundPosition(source.character.position),
-					SoundType(params[1].toInt())
+					Sound.Type.values()[params[1].toInt()]
 				)
 				source.send(
 					ServerUpdate(
@@ -64,10 +64,10 @@ object ChatCommands {
 					1,
 					1,
 					1,
-					Race(1000),//Race.Turtle,
+					Race.Turtle,
 					500,
 					1,
-					MissionState.InProgress,
+					Mission.State.InProgress,
 					0x0101,
 					100,
 					100,
@@ -78,7 +78,7 @@ object ChatCommands {
 				)
 				val sound = Sound(
 					Utils.creatureToSoundPosition(source.character.position),
-					SoundType.Gate
+					Sound.Type.Gate
 				)
 				val su = ServerUpdate(
 					missions = listOf(mission),
@@ -90,23 +90,23 @@ object ChatCommands {
 				val pickup = Pickup(
 					source.character.id,
 					Item(
-						ItemTypeMajor.ManaCube,
-						ItemTypeMinor(0),
+						Item.Type.Major.ManaCube,
+						Item.Type.Minor(0),
 						0,
 						0,
-						ItemTypeMajor.None,
+						Item.Type.Major.None,
 						0,
 						0,
-						Rarity.Normal,
-						Material.None,
+						Item.Rarity.Normal,
+						Item.Material.None,
 						FlagSet(BooleanArray(8)),
 						0,
 						1,
 						0,
 						Array(32) {
-							Spirit(
+							Item.Spirit(
 								Vector3(0, 0, 0),
-								Material.None,
+								Item.Material.None,
 								1,
 								0
 							)
@@ -130,7 +130,7 @@ object ChatCommands {
 					position = source.character.position,
 					direction = Vector3(0f, 0f, 0f),
 					isYellow = false,
-					damageType = DamageType(params[1].toByte()),
+					type = Hit.Type.values()[params[1].toInt()],
 					flash = true,
 					paddingB = 0
 				)
@@ -144,7 +144,7 @@ object ChatCommands {
 				val statusEffect = StatusEffect(
 					CreatureID(0),
 					source.character.id,
-					StatusEffect.Type(params[1].toInt()),
+					StatusEffect.Type.values()[params[1].toInt()],
 					5000f,
 					5000,
 					0,

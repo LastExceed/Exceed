@@ -10,6 +10,6 @@ object ChatMessageHandler : PacketHandler<ChatMessage> {
 			return
 		val packet2 = packet.copy(sender = source.character.id)
 		source.layer.broadcast(packet2)
-		println(packet.text)
+		println("${source.character.name}: ${packet.text}")
 	}
 }
