@@ -27,13 +27,8 @@ object Neverland {
 			0,
 			source.character.id
 		)
-		val su = ServerUpdate(
-			statusEffects = listOf(statusEffect)
-		)
-		source.send(su)
-
-		val time = DayTime(0, -10_100_000)
-		source.send(time)
+		source.send(ServerUpdate(statusEffects = listOf(statusEffect)))
+		source.send(DayTime(0, -10_100_000))
 
 		val tombstone = CreatureUpdate(
 			id = CreatureIdPool.claim(),

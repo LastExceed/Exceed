@@ -21,10 +21,7 @@ object CreatureActionHandler : PacketHandler<CreatureAction> {
 			}
 			CreatureAction.Type.Drop -> {
 				val pickup = Pickup(source.character.id, packet.item)
-				val serverUpdate = ServerUpdate(
-					pickups = listOf(pickup)
-				)
-				source.send(serverUpdate)
+				source.send(ServerUpdate(pickups = listOf(pickup)))
 			}
 			CreatureAction.Type.CallPet -> {
 				if (!source.character.flags[CreatureFlag.Sprinting]) {
@@ -33,9 +30,7 @@ object CreatureActionHandler : PacketHandler<CreatureAction> {
 					//Utils.notify(source, "pets are disabled")
 				}
 			}
-			else -> {
-				println("unknown creature action type " + packet.type)
-			}
+			else -> println("unknown creature action type " + packet.type)
 		}
 	}
 }

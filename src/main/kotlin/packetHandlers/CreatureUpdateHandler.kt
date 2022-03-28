@@ -7,10 +7,9 @@ import modules.*
 
 object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 	override suspend fun handlePacket(packet: CreatureUpdate, source: Player) {
-		val ACmessage = AntiCheat.inspect(packet, source.character)
-		if (ACmessage != null) {
-			println(ACmessage + source.character.name)
-			Server.notify(source, ACmessage)
+		AntiCheat.inspect(packet, source.character)?.let {
+			println(it + source.character.name)
+			Server.notify(source, it)
 			//delay(100)
 			//source.kick(ACmessage)
 		}

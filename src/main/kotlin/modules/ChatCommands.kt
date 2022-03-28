@@ -17,12 +17,8 @@ object ChatCommands {
 				if (params.size != 1) {
 					//invalid syntax
 				}
-				val seed = params[1].toIntOrNull()
-				if (seed == null) {
-					//invalid seed
-				}
-				val mapSeed = MapSeed(seed!!)
-				source.send(mapSeed)
+				val seed = params[1].toInt()
+				source.send(MapSeed(seed))
 			}
 			"npc" -> {
 				val creatureUpdate = CreatureUpdate(
@@ -32,8 +28,6 @@ object ChatCommands {
 					race = Race.Santa,
 					master = source.character.id,
 					name = "test_NPC"
-
-
 				)
 				source.send(creatureUpdate)
 			}
@@ -49,8 +43,7 @@ object ChatCommands {
 				)
 			}
 			"time" -> {
-				val time = DayTime(0, params[1].toInt())
-				source.send(time)
+				source.send(DayTime(0, params[1].toInt()))
 			}
 			"q" -> {
 				println("spawning quest")
@@ -80,11 +73,11 @@ object ChatCommands {
 					Utils.creatureToSoundPosition(source.character.position),
 					Sound.Type.Gate
 				)
-				val su = ServerUpdate(
+				val serverUpdate = ServerUpdate(
 					missions = listOf(mission),
 					sounds = listOf(sound)
 				)
-				source.send(su)
+				source.send(serverUpdate)
 			}
 			"skillpoint" -> {
 				val pickup = Pickup(
@@ -114,10 +107,10 @@ object ChatCommands {
 						0
 					)
 				)
-				val su = ServerUpdate(
+				val serverUpdate = ServerUpdate(
 					pickups = listOf(pickup, pickup, pickup, pickup)
 				)
-				source.send(su)
+				source.send(serverUpdate)
 			}
 			"dmg" -> {
 				val hit = Hit(
@@ -135,10 +128,7 @@ object ChatCommands {
 					paddingB = 0
 				)
 
-				val su = ServerUpdate(
-					hits = listOf(hit)
-				)
-				source.send(su)
+				source.send(ServerUpdate(hits = listOf(hit)))
 			}
 			"statuseffect" -> {
 				val statusEffect = StatusEffect(
@@ -153,10 +143,7 @@ object ChatCommands {
 					CreatureID(0)
 				)
 
-				val su = ServerUpdate(
-					statusEffects = listOf(statusEffect)
-				)
-				source.layer.broadcast(su)
+				source.layer.broadcast(ServerUpdate(statusEffects = listOf(statusEffect)))
 			}
 		}
 		return true

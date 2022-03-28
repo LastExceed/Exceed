@@ -7,12 +7,13 @@ import com.github.lastexceed.cubeworldnetworking.utils.*
 
 object Ultimates {
 	fun cast(source: Player) {
-		GlobalScope.launch { //todo: pls no
-			fun createDragonFirePacket(): ServerUpdate {
-				val character = source.character
+		GlobalScope.launch {//todo: pls no
+			repeat(10 + 1) {
+				if (it > 0) delay(100)
+
 				val particle = Particle(
-					character.position,
-					character.aimDisplacement,
+					source.character.position,
+					source.character.aimDisplacement,
 					Vector3(1f, 0.5f, 0f),
 					1f,
 					1f,
@@ -22,19 +23,16 @@ object Ultimates {
 					0
 				)
 				val sound = Sound(
-					Utils.creatureToSoundPosition(character.position),
+					Utils.creatureToSoundPosition(source.character.position),
 					Sound.Type.FireHit
 				)
-				val su = ServerUpdate(
+
+				val serverUpdate = ServerUpdate(
 					particles = listOf(particle),
 					sounds = listOf(sound)
 				)
-				return su
-			}
-			source.layer.broadcast(createDragonFirePacket())
-			repeat(10) {
-				delay(100)
-				source.layer.broadcast(createDragonFirePacket())
+
+				source.layer.broadcast(serverUpdate)
 			}
 		}
 	}

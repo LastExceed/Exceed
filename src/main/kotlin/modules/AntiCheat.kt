@@ -398,39 +398,40 @@ object AntiCheat {
 		Item.Material.Gold
 	)
 
-	private fun getAllowedWeaponTypes(combatClassMajor: CombatClassMajor) = when (combatClassMajor) {
-		CombatClassMajor.Warrior -> setOf(
-			Item.Type.Minor.Weapon.Sword,
-			Item.Type.Minor.Weapon.Axe,
-			Item.Type.Minor.Weapon.Mace,
-			Item.Type.Minor.Weapon.Shield,
-			Item.Type.Minor.Weapon.Greatsword,
-			Item.Type.Minor.Weapon.Greataxe,
-			Item.Type.Minor.Weapon.Greatmace
+	private fun getAllowedWeaponTypes(combatClassMajor: CombatClassMajor) =
+		when (combatClassMajor) {
+			CombatClassMajor.Warrior -> setOf(
+				Item.Type.Minor.Weapon.Sword,
+				Item.Type.Minor.Weapon.Axe,
+				Item.Type.Minor.Weapon.Mace,
+				Item.Type.Minor.Weapon.Shield,
+				Item.Type.Minor.Weapon.Greatsword,
+				Item.Type.Minor.Weapon.Greataxe,
+				Item.Type.Minor.Weapon.Greatmace
+			)
+			CombatClassMajor.Ranger -> setOf(
+				Item.Type.Minor.Weapon.Bow,
+				Item.Type.Minor.Weapon.Crossbow,
+				Item.Type.Minor.Weapon.Boomerang,
+				Item.Type.Minor.Weapon.Quiver
+			)
+			CombatClassMajor.Mage -> setOf(
+				Item.Type.Minor.Weapon.Staff,
+				Item.Type.Minor.Weapon.Wand,
+				Item.Type.Minor.Weapon.Bracelet,
+			)
+			CombatClassMajor.Rogue -> setOf(
+				Item.Type.Minor.Weapon.Dagger,
+				Item.Type.Minor.Weapon.Fist,
+				Item.Type.Minor.Weapon.Longsword,
+			)
+			else -> error("class should be sanity checked already")
+		} + setOf(//class agnostic
+			Item.Type.Minor.Weapon.Pitchfork,
+			Item.Type.Minor.Weapon.Pickaxe,
+			Item.Type.Minor.Weapon.Torch,
+			Item.Type.Minor.Weapon.Arrow
 		)
-		CombatClassMajor.Ranger -> setOf(
-			Item.Type.Minor.Weapon.Bow,
-			Item.Type.Minor.Weapon.Crossbow,
-			Item.Type.Minor.Weapon.Boomerang,
-			Item.Type.Minor.Weapon.Quiver
-		)
-		CombatClassMajor.Mage -> setOf(
-			Item.Type.Minor.Weapon.Staff,
-			Item.Type.Minor.Weapon.Wand,
-			Item.Type.Minor.Weapon.Bracelet,
-		)
-		CombatClassMajor.Rogue -> setOf(
-			Item.Type.Minor.Weapon.Dagger,
-			Item.Type.Minor.Weapon.Fist,
-			Item.Type.Minor.Weapon.Longsword,
-		)
-		else -> error("class should be sanitized")
-	} + setOf(//class agnostic
-		Item.Type.Minor.Weapon.Pitchfork,
-		Item.Type.Minor.Weapon.Pickaxe,
-		Item.Type.Minor.Weapon.Torch,
-		Item.Type.Minor.Weapon.Arrow
-	)
 
 	private fun getWeaponHandCount(weaponType: Item.Type.Minor) = when (weaponType) {
 		Item.Type.Minor.Weapon.Longsword,
@@ -611,7 +612,8 @@ object AntiCheat {
 					if (current.combatClassMajor != CombatClassMajor.Mage
 						&& current.animationTime > 1000
 						&& current.animation !in setOf(Animation.Stealth, Animation.ShieldM2Charging)
-						&& !current.flags[CreatureFlag.Sniping]) {//TODO: assassin camo
+						&& !current.flags[CreatureFlag.Sniping]
+					) {//TODO: assassin camo
 						//TODO: leaving stealth still generates mp for some time
 						//it.expectMaximum(previous.mana, "mana")
 					}
@@ -722,10 +724,8 @@ object AntiCheat {
 							//it.level.expect(1..item.level, "$prefix.spirits[?].level")
 						}
 					}
-					val r =
-						if (it.rightWeapon.typeMajor == Item.Type.Major.None) 0 else getWeaponHandCount(it.rightWeapon.typeMinor)
-					val l =
-						if (it.leftWeapon.typeMajor == Item.Type.Major.None) 0 else getWeaponHandCount(it.leftWeapon.typeMinor)
+					val r = if (it.rightWeapon.typeMajor == Item.Type.Major.None) 0 else getWeaponHandCount(it.rightWeapon.typeMinor)
+					val l = if (it.leftWeapon.typeMajor == Item.Type.Major.None) 0 else getWeaponHandCount(it.leftWeapon.typeMinor)
 					(r + l).expectMaximum(2, "equipment.dualwield")
 					//ranger can hold 2h weapon in either hand
 

@@ -5,10 +5,9 @@ import Player
 
 object ClientBugFixes {
 	//self heals are already applied client-side so the server musn't apply them again
-	fun ignoreSelfHeal(source: Player, hit: Hit): Boolean {
-		return hit.damage < 0f &&
-				hit.target == source.character.id
-	}
+	fun ignoreSelfHeal(source: Player, hit: Hit) =
+		hit.damage < 0f && hit.target == source.character.id
+
 	//groudheal shenanigans:
 	//- a single shot creates 1 - 3 stacked puddles depending on computer performance
 	//- equipping a bracelet in the right hand doubles the amount of stacked puddles created by a single shot

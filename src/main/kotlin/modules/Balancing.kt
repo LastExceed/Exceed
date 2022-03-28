@@ -25,9 +25,6 @@ object Balancing {
 	//add burning to make fire mages viable
 	//buff staffs cuz they're hard as fuck to aim
 
-	private fun Item.isShield(): Boolean {
-		return this.typeMajor == Item.Type.Major.Weapon &&
-				this.typeMinor == Item.Type.Minor.Weapon.Shield
-	}
-
+	private fun Item.isShield() =
+		typeMajor == Item.Type.Major.Weapon && typeMinor == Item.Type.Minor.Weapon.Shield
 }

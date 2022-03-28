@@ -8,8 +8,7 @@ object ChatMessageHandler : PacketHandler<ChatMessage> {
 	override suspend fun handlePacket(packet: ChatMessage, source: Player) {
 		if (ChatCommands.parse(packet.text, source))
 			return
-		val packet2 = packet.copy(sender = source.character.id)
-		source.layer.broadcast(packet2)
+		source.layer.broadcast(packet.copy(sender = source.character.id))
 		println("${source.character.name}: ${packet.text}")
 	}
 }

@@ -7,6 +7,7 @@ suspend fun main() {
 //todo: sugar for sending server update with 1 subpacket
 
 //TODO: features
+//all damage visible to everyone by setting packet receiver as damage source
 //login
 //join/leave messages
 //anticheat - character visuals, illegal items, ect
