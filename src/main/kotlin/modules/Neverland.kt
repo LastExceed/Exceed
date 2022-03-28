@@ -20,6 +20,8 @@ object Neverland {
 			source.character.id,
 			source.character.id,
 			StatusEffect.Type.Camouflage,
+			0,
+			0,
 			99999f,
 			Int.MAX_VALUE,
 			0,

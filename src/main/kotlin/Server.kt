@@ -35,7 +35,7 @@ object Server {
 		val reader = Reader(socket.openReadChannel())
 		val writer = Writer(socket.openWriteChannel(true))
 
-		if (PacketId(reader.readInt()) != PacketId.ProtocolVersion) {
+		if (PacketId.readFrom(reader) != PacketId.ProtocolVersion) {
 			socket.dispose()
 			return
 		}
@@ -48,10 +48,10 @@ object Server {
 		}
 
 		val join = Join(0, CreatureIdPool.claim(), ByteArray(0x1168))
-		writer.writeInt(join.packetId.value)
+		join.packetId.writeTo(writer)
 		join.writeTo(writer)
 
-		if (PacketId(reader.readInt()) != PacketId.CreatureUpdate) {
+		if (PacketId.readFrom(reader) != PacketId.CreatureUpdate) {
 			socket.dispose()
 			CreatureIdPool.free(join.assignedID)
 			return
@@ -70,7 +70,7 @@ object Server {
 		//TODO: deduplicate (CreatureUpdateHandler)
 		val ACmessage = AntiCheat.inspect(creatureUpdate, character)
 		if (ACmessage != null) {
-			writer.writeInt(PacketId.ChatMessage.value)
+			PacketId.ChatMessage.writeTo(writer)
 			ChatMessage(CreatureID(0), ACmessage).writeTo(writer)
 			delay(100)
 			socket.dispose()
@@ -81,7 +81,7 @@ object Server {
 		player.send(MapSeed(225))
 		try {
 			while (true) {
-				val opcode = PacketId(reader.readInt())
+				val opcode = PacketId.readFrom(reader)
 				when (opcode) {
 					PacketId.CreatureUpdate -> CreatureUpdateHandler.handlePacket(CreatureUpdate.readFrom(reader), player)
 					PacketId.CreatureAction -> CreatureActionHandler.handlePacket(CreatureAction.readFrom(reader), player)

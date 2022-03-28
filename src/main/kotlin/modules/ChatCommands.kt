@@ -145,6 +145,8 @@ object ChatCommands {
 					CreatureID(0),
 					source.character.id,
 					StatusEffect.Type.values()[params[1].toInt()],
+					0,
+					0,
 					5000f,
 					5000,
 					0,

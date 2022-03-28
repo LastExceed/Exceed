@@ -564,7 +564,7 @@ object AntiCheat {
 					it.handRotation.expect(Vector3(0f, 0f, 0f), "appearance.handRotation")
 					it.feetRotation.expect(0f, "appearance.feetRotation")
 					it.wingRotation.expect(0f, "appearance.wingRotation")
-					it.tail_rotation.expect(0f, "appearance.tail_rotation")
+					it.tailRotation.expect(0f, "appearance.tail_rotation")
 
 					val reference = allowedAppearance[current.race]!!
 					it.creatureSize.expect(reference.creatureSize, "appearance.creature.Size")

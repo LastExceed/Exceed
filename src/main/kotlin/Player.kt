@@ -17,7 +17,7 @@ class Player private constructor(
 	suspend fun send(packet: Packet) {
 		mutex.withLock {//TODO: IllegalStateException: Already locked
 			try {
-				writer.writeInt(packet.packetId.value)
+				packet.packetId.writeTo(writer)
 				packet.writeTo(writer)
 			} catch (ex: IOException) {
 				//happens when a player disconnected
