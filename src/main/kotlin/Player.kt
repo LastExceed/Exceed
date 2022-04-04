@@ -2,6 +2,7 @@ import io.ktor.network.sockets.*
 import kotlinx.coroutines.sync.*
 import com.github.lastexceed.cubeworldnetworking.packets.*
 import com.github.lastexceed.cubeworldnetworking.utils.Writer
+import kotlinx.coroutines.delay
 import java.io.*
 
 class Player private constructor(
@@ -43,6 +44,8 @@ class Player private constructor(
 	}
 
 	suspend fun kick(reason: String) {
+		layer.announce("kicked ${character.name} because of $reason")
+		delay(100)
 		socket.dispose()
 	}
 
