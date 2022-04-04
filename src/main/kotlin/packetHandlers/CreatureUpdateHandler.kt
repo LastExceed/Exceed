@@ -1,8 +1,8 @@
 package packetHandlers
 
-import com.github.lastexceed.cubeworldnetworking.packets.*
 import Player
-import kotlinx.coroutines.*
+import Server
+import com.github.lastexceed.cubeworldnetworking.packets.CreatureUpdate
 import modules.*
 
 object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {

@@ -17,18 +17,15 @@ object Neverland {
 		source.moveTo(ghostLayer)
 
 		val statusEffect = StatusEffect(
-			source.character.id,
-			source.character.id,
-			StatusEffect.Type.Camouflage,
-			0,
-			0,
-			99999f,
-			Int.MAX_VALUE,
-			0,
-			source.character.id
+			source = source.character.id,
+			target = source.character.id,
+			type = StatusEffect.Type.Camouflage,
+			modifier = 99999f,
+			duration = Int.MAX_VALUE,
+			creatureId3 = source.character.id
 		)
-		source.send(ServerUpdate(statusEffects = listOf(statusEffect)))
-		source.send(DayTime(0, -10_100_000))
+		source.send(Miscellaneous(statusEffects = listOf(statusEffect)))
+		source.send(WorldClock(0, -10_100_000))
 
 		val tombstone = CreatureUpdate(
 			id = CreatureIdPool.claim(),

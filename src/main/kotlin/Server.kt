@@ -47,13 +47,13 @@ object Server {
 			return
 		}
 
-		val join = Join(0, CreatureIdPool.claim(), ByteArray(0x1168))
+		val join = PlayerInitialization(assignedId = CreatureIdPool.claim())
 		join.packetId.writeTo(writer)
 		join.writeTo(writer)
 
 		if (PacketId.readFrom(reader) != PacketId.CreatureUpdate) {
 			socket.dispose()
-			CreatureIdPool.free(join.assignedID)
+			CreatureIdPool.free(join.assignedId)
 			return
 		}
 
@@ -63,35 +63,33 @@ object Server {
 			Creature(creatureUpdate)
 		} catch (ex: KotlinNullPointerException) { //TODO: use null-checks instead of try/catch
 			socket.dispose()
-			CreatureIdPool.free(join.assignedID)
+			CreatureIdPool.free(join.assignedId)
 			return
 		}
 
 		//TODO: deduplicate (CreatureUpdateHandler)
-		val ACmessage = AntiCheat.inspect(creatureUpdate, character)
-		if (ACmessage != null) {
+		AntiCheat.inspect(creatureUpdate, character)?.let {
 			PacketId.ChatMessage.writeTo(writer)
-			ChatMessage(CreatureID(0), ACmessage).writeTo(writer)
-			delay(100)
-			socket.dispose()
-			return
+			ChatMessage.FromServer(CreatureId(0), it).writeTo(writer)
+			//delay(100)
+			//socket.dispose()
+			//return
 		}
 
 		val player = Player.create(socket, writer, character, mainLayer)
 		player.send(MapSeed(225))
 		try {
 			while (true) {
-				val opcode = PacketId.readFrom(reader)
-				when (opcode) {
+				when (val packetId = PacketId.readFrom(reader)) {
 					PacketId.CreatureUpdate -> CreatureUpdateHandler.handlePacket(CreatureUpdate.readFrom(reader), player)
 					PacketId.CreatureAction -> CreatureActionHandler.handlePacket(CreatureAction.readFrom(reader), player)
 					PacketId.Hit -> HitHandler.handlePacket(Hit.readFrom(reader), player)
 					PacketId.StatusEffect -> StatusEffectHandler.handlePacket(StatusEffect.readFrom(reader), player)
-					PacketId.Shot -> ShotHandler.handlePacket(Shot.readFrom(reader), player)
-					PacketId.ChatMessage -> ChatMessageHandler.handlePacket(ChatMessage.readFrom(reader, false), player)
+					PacketId.Projectile -> ProjectileHandler.handlePacket(Projectile.readFrom(reader), player)
+					PacketId.ChatMessage -> ChatMessageHandler.handlePacket(ChatMessage.FromClient.readFrom(reader), player)
 					PacketId.ChunkDiscovery -> ResidenceChunkHandler.handlePacket(ResidenceChunk.readFrom(reader), player)
 					PacketId.SectorDiscovery -> ResidenceBiomeHandler.handlePacket(ResidenceBiome.readFrom(reader), player)
-					else -> println("unknown opcode: $opcode")
+					else -> println("unknown opcode: $packetId")
 				}
 			}
 		} catch (exception: Exception) {
@@ -111,7 +109,7 @@ object Server {
 	}
 
 	suspend fun notify(session: Player, message: String) {
-		val chatMessage = ChatMessage(CreatureID(0), message)
+		val chatMessage = ChatMessage.FromServer(CreatureId(0), message)
 		session.send(chatMessage)
 	}
 }

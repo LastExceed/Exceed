@@ -8,7 +8,7 @@ object Pvp {
 			flags = creatureUpdate.flags?.apply {//todo: copy
 				set(CreatureFlag.FriendlyFire, true)
 			},
-			multipliers = Multipliers(100f, 1f, 1f, 1f, 1f),
+			//multipliers = Multipliers(100f, 1f, 1f, 1f, 1f),
 			//affiliation = Affiliation.Enemy
 		)
 }

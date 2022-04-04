@@ -14,7 +14,7 @@ object HitHandler : PacketHandler<Hit> {
 		val damageAdjustedHit = Balancing.adjustDamage(packet, source)
 
 		source.layer.broadcast(
-			ServerUpdate(hits = listOf(damageAdjustedHit))
+			Miscellaneous(hits = listOf(damageAdjustedHit))
 		)
 	}
 }

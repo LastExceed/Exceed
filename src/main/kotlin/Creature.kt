@@ -3,7 +3,7 @@ import com.github.lastexceed.cubeworldnetworking.utils.*
 import kotlin.math.*
 
 data class Creature(
-	val id: CreatureID,
+	val id: CreatureId,
 	var position: Vector3<Long>,
 	var rotation: Vector3<Float>,
 	var velocity: Vector3<Float>,
@@ -39,7 +39,7 @@ data class Creature(
 	var unused32: Byte,
 	var level: Int,
 	var experience: Int,
-	var master: CreatureID,
+	var master: CreatureId,
 	var unused36: Long,
 	var powerBase: Byte,
 	var unused38: Int,
@@ -79,25 +79,25 @@ data class Creature(
 		combatClassMajor = creatureUpdate.combatClassMajor!!,
 		combatClassMinor = creatureUpdate.combatClassMinor!!,
 		manaCharge = creatureUpdate.manaCharge!!,
-		unused24 = creatureUpdate.unused24!!,
-		unused25 = creatureUpdate.unused25!!,
+		unused24 = creatureUpdate.unknown24!!,
+		unused25 = creatureUpdate.unknown25!!,
 		aimDisplacement = creatureUpdate.aimDisplacement!!,
 		health = creatureUpdate.health!!,
 		mana = creatureUpdate.mana!!,
-		blockMeter = creatureUpdate.blockMeter!!,
+		blockMeter = creatureUpdate.blockingGauge!!,
 		multipliers = creatureUpdate.multipliers!!,
-		unused31 = creatureUpdate.unused31!!,
-		unused32 = creatureUpdate.unused32!!,
+		unused31 = creatureUpdate.unknown31!!,
+		unused32 = creatureUpdate.unknown32!!,
 		level = creatureUpdate.level!!,
 		experience = creatureUpdate.experience!!,
 		master = creatureUpdate.master!!,
-		unused36 = creatureUpdate.unused36!!,
+		unused36 = creatureUpdate.unknown36!!,
 		powerBase = creatureUpdate.powerBase!!,
-		unused38 = creatureUpdate.unused38!!,
-		unused39 = creatureUpdate.unused39!!,
+		unused38 = creatureUpdate.unknown38!!,
+		unused39 = creatureUpdate.homeChunk!!,
 		home = creatureUpdate.home!!,
-		unused41 = creatureUpdate.unused41!!,
-		unused42 = creatureUpdate.unused42!!,
+		unused41 = creatureUpdate.chunkToReveal!!,
+		unused42 = creatureUpdate.unknown42!!,
 		consumable = creatureUpdate.consumable!!,
 		equipment = creatureUpdate.equipment!!,
 		name = creatureUpdate.name!!,
@@ -232,10 +232,10 @@ data class Creature(
 		newData.manaCharge?.let {
 			manaCharge = it
 		}
-		newData.unused24?.let {
+		newData.unknown24?.let {
 			unused24 = it
 		}
-		newData.unused25?.let {
+		newData.unknown25?.let {
 			unused25 = it
 		}
 		newData.aimDisplacement?.let {
@@ -247,16 +247,16 @@ data class Creature(
 		newData.mana?.let {
 			mana = it
 		}
-		newData.blockMeter?.let {
+		newData.blockingGauge?.let {
 			blockMeter = it
 		}
 		newData.multipliers?.let {
 			multipliers = it
 		}
-		newData.unused31?.let {
+		newData.unknown31?.let {
 			unused31 = it
 		}
-		newData.unused32?.let {
+		newData.unknown32?.let {
 			unused32 = it
 		}
 		newData.level?.let {
@@ -268,25 +268,25 @@ data class Creature(
 		newData.master?.let {
 			master = it
 		}
-		newData.unused36?.let {
+		newData.unknown36?.let {
 			unused36 = it
 		}
 		newData.powerBase?.let {
 			powerBase = it
 		}
-		newData.unused38?.let {
+		newData.unknown38?.let {
 			unused38 = it
 		}
-		newData.unused39?.let {
+		newData.homeChunk?.let {
 			unused39 = it
 		}
 		newData.home?.let {
 			home = it
 		}
-		newData.unused41?.let {
+		newData.chunkToReveal?.let {
 			unused41 = it
 		}
-		newData.unused42?.let {
+		newData.unknown42?.let {
 			unused42 = it
 		}
 		newData.consumable?.let {
@@ -306,10 +306,10 @@ data class Creature(
 		}
 	}
 
-	val chunk: Vector2<Int>
+	val zone: Vector2<Int>
 		get() = Vector2(
-			(position.x / Utils.SIZE_CHUNK).toInt(),
-			(position.y / Utils.SIZE_CHUNK).toInt()
+			(position.x / Utils.SIZE_ZONE).toInt(),
+			(position.y / Utils.SIZE_ZONE).toInt()
 		)
 
 	val healthMaximum: Float
@@ -338,20 +338,20 @@ data class Creature(
 			}
 
 			return baseMaximum + listOf(
-				equipment.chest.hp,
-				equipment.feet.hp,
-				equipment.hands.hp,
-				equipment.shoulder.hp,
-				equipment.leftWeapon.hp,
-				equipment.rightWeapon.hp,
+				equipment.chest.healthPoints,
+				equipment.feet.healthPoints,
+				equipment.hands.healthPoints,
+				equipment.shoulder.healthPoints,
+				equipment.leftWeapon.healthPoints,
+				equipment.rightWeapon.healthPoints,
 
-				equipment.unknown.hp,
-				equipment.neck.hp,
-				equipment.leftRing.hp,
-				equipment.rightRing.hp,
-				equipment.lamp.hp,
-				equipment.special.hp,
-				equipment.pet.hp
+				equipment.unknown.healthPoints,
+				equipment.neck.healthPoints,
+				equipment.leftRing.healthPoints,
+				equipment.rightRing.healthPoints,
+				equipment.lamp.healthPoints,
+				equipment.special.healthPoints,
+				equipment.pet.healthPoints
 			).sum()
 		}
 }

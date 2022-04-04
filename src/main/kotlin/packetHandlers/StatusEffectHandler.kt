@@ -17,15 +17,17 @@ object StatusEffectHandler : PacketHandler<StatusEffect> {
 				listOf(
 					Sound(
 						Utils.creatureToSoundPosition(source.character.position),
-						Sound.Type.FireTrap
+						Sound.Type.FireTrap,
+						0,
+						0
 					)
 				)
 			} else emptyList()
-		val serverUpdate = ServerUpdate(
+		val miscellaneous = Miscellaneous(
 			sounds = soundList,
 			statusEffects = listOf(packet)
 		)
-		source.layer.broadcast(serverUpdate, source)
+		source.layer.broadcast(miscellaneous, source)
 	}
 
 	private fun applyPoison(source: Player, statusEffect: StatusEffect) {
@@ -37,29 +39,27 @@ object StatusEffectHandler : PacketHandler<StatusEffect> {
 				//todo: support non-players
 				val targetPlayer = source.layer.players[statusEffect.target]!! //todo: sanity check
 				val damageTick = Hit(
-					source.character.id,
-					statusEffect.target,
-					statusEffect.modifier,
-					false,
-					0,
-					0,
-					targetPlayer.character.position,
-					Vector3(0f, 0f, 0f),
-					false,
-					Hit.Type.Unknown,
-					false,
-					0
+					attacker = source.character.id,
+					target = statusEffect.target,
+					damage = statusEffect.modifier,
+					critical = false,
+					stuntime = 0,
+					position = targetPlayer.character.position,
+					direction = Vector3(0f, 0f, 0f),
+					isYellow = false,
+					type = Hit.Type.Unknown,
+					flash = false
 				)
 				val sound = Sound(
-					Utils.creatureToSoundPosition(targetPlayer.character.position),
-					Sound.Type.Absorb
+					position = Utils.creatureToSoundPosition(targetPlayer.character.position),
+					type = Sound.Type.Absorb
 				)
-				val serverUpdate = ServerUpdate(
+				val miscellaneous = Miscellaneous(
 					hits = listOf(damageTick),
 					sounds = listOf(sound)
 				)
 
-				targetPlayer.send(serverUpdate)
+				targetPlayer.send(miscellaneous)
 			}
 		}
 	}

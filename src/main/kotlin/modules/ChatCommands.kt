@@ -3,6 +3,7 @@ package modules
 import com.github.lastexceed.cubeworldnetworking.packets.*
 import Player
 import com.github.lastexceed.cubeworldnetworking.utils.*
+import kotlinx.coroutines.delay
 
 object ChatCommands {
 	private const val prefix: Char = '/'
@@ -22,7 +23,7 @@ object ChatCommands {
 			}
 			"npc" -> {
 				val creatureUpdate = CreatureUpdate(
-					id = CreatureID(99L),
+					id = CreatureId(99L),
 					position = source.character.position,
 					affiliation = Affiliation.NPC,
 					race = Race.Santa,
@@ -36,14 +37,10 @@ object ChatCommands {
 					Utils.creatureToSoundPosition(source.character.position),
 					Sound.Type.values()[params[1].toInt()]
 				)
-				source.send(
-					ServerUpdate(
-						sounds = listOf(sound)
-					)
-				)
+				source.send(Miscellaneous(sounds = listOf(sound)))
 			}
 			"time" -> {
-				source.send(DayTime(0, params[1].toInt()))
+				source.send(WorldClock(0, params[1].toInt()))
 			}
 			"q" -> {
 				println("spawning quest")
@@ -70,51 +67,45 @@ object ChatCommands {
 					)
 				)
 				val sound = Sound(
-					Utils.creatureToSoundPosition(source.character.position),
-					Sound.Type.Gate
+					position = Utils.creatureToSoundPosition(source.character.position),
+					type = Sound.Type.Gate
 				)
-				val serverUpdate = ServerUpdate(
+				val miscellaneous = Miscellaneous(
 					missions = listOf(mission),
 					sounds = listOf(sound)
 				)
-				source.send(serverUpdate)
+				source.send(miscellaneous)
 			}
 			"skillpoint" -> {
 				val pickup = Pickup(
 					source.character.id,
 					Item(
-						Item.Type.Major.ManaCube,
-						Item.Type.Minor(0),
-						0,
-						0,
-						Item.Type.Major.None,
-						0,
-						0,
-						Item.Rarity.Normal,
-						Item.Material.None,
-						FlagSet(BooleanArray(8)),
-						0,
-						1,
-						0,
-						Array(32) {
+						typeMajor = Item.Type.Major.ManaCube,
+						typeMinor = Item.Type.Minor(0),
+						randomSeed = 0,
+						recipe = Item.Type.Major.None,
+						rarity = Item.Rarity.Normal,
+						material = Item.Material.None,
+						flags = FlagSet(BooleanArray(8)),
+						level = 0,
+						spirits = Array(32) {
 							Item.Spirit(
-								Vector3(0, 0, 0),
-								Item.Material.None,
-								1,
-								0
+								position = Vector3(0, 0, 0),
+								material = Item.Material.None,
+								level = 1
 							)
 						},
-						0
+						spiritCounter = 0
 					)
 				)
-				val serverUpdate = ServerUpdate(
+				val miscellaneous = Miscellaneous(
 					pickups = listOf(pickup, pickup, pickup, pickup)
 				)
-				source.send(serverUpdate)
+				source.send(miscellaneous)
 			}
 			"dmg" -> {
 				val hit = Hit(
-					attacker = CreatureID(source.character.id.value % 2 + 1),
+					attacker = CreatureId(source.character.id.value % 2 + 1),
 					target = source.character.id,
 					damage = 1f,
 					critical = true,
@@ -128,22 +119,107 @@ object ChatCommands {
 					paddingB = 0
 				)
 
-				source.send(ServerUpdate(hits = listOf(hit)))
+				source.send(Miscellaneous(hits = listOf(hit)))
 			}
 			"statuseffect" -> {
 				val statusEffect = StatusEffect(
-					CreatureID(0),
-					source.character.id,
-					StatusEffect.Type.values()[params[1].toInt()],
-					0,
-					0,
-					5000f,
-					5000,
-					0,
-					CreatureID(0)
+					source = CreatureId(0),
+					target = source.character.id,
+					type = StatusEffect.Type.values()[params[1].toInt()],
+					paddingA = params[1].toByte(),
+					modifier = 5000f,
+					duration = 5000,
+					creatureId3 = CreatureId(0)
 				)
 
-				source.layer.broadcast(ServerUpdate(statusEffects = listOf(statusEffect)))
+				source.layer.broadcast(Miscellaneous(statusEffects = listOf(statusEffect)))
+			}
+			"heal" -> {
+				val hit = Hit(
+					attacker = CreatureId(0),
+					target = source.character.id,
+					damage = -5000f,
+					critical = false,
+					stuntime = 0,
+					position = source.character.position,
+					direction = Vector3(0f, 0f, 0f),
+					isYellow = false,
+					type = Hit.Type.Default,
+					flash = true,
+				)
+
+				source.send(Miscellaneous(hits = listOf(hit)))
+			}
+			"tp" -> {
+				val serverEntity = CreatureUpdate(
+					CreatureId(0),
+					source.layer.creatures[CreatureId(params[1].toLong())]!!.position,
+					affiliation = Affiliation.Pet,
+					animation = Animation.Riding
+				)
+				source.send(serverEntity)
+				delay(100)
+				source.clearCreatures() //todo: deduplicate
+				source.layer.creatures.forEach { source.send(it.value.toCreatureUpdate()) }//todo: what happens when you receive other creature updates in between?
+			}
+			"reload" -> {
+				source.clearCreatures()
+				source.layer.creatures.forEach { source.send(it.value.toCreatureUpdate()) }
+			}
+			"particle" -> {
+				val particle = Particle(
+					position = source.character.position,
+					velocity = Vector3(0f, 0f, 1f),
+					color = Vector3(0f, 0f, 1f),
+					alpha = 1f,
+					size = 1f,
+					count = 50,
+					type = Particle.Type.NoGravity,
+					paddingA = params[1].toByte(),
+					spread = 1f
+				)
+
+				source.send(Miscellaneous(particles = listOf(particle)))
+			}
+
+			"projectile" -> {
+				val projectile = Projectile(
+					attacker = CreatureId(99L),
+					chunk = Vector2(-1, -1),
+					position = source.character.position.copy(z = source.character.position.z + 0x40000L),
+					velocity = Vector3(15f, 15f, 15f),
+					legacyDamage = 0f,
+					scale = 5f,
+					mana = 1f,
+					particles = 1f,
+					skill = 0,
+					type = Projectile.Type.Boulder,
+					paddingD = params[1].toByte()
+				)
+
+				source.send(Miscellaneous(projectiles = listOf(projectile)))
+			}
+
+			"worldobjects" -> {
+				val thelist = WorldObject.Type.values.mapIndexed { index, it ->
+					WorldObject(
+						chunk = source.character.zone,
+						objectID = it.ordinal,
+						type = it,
+						position = source.character.position.copy(
+							x = source.character.position.x + index % 9 * Utils.SIZE_BLOCK * 2,
+							y = source.character.position.y + index / 9 * Utils.SIZE_BLOCK * 2
+						),
+						orientation = WorldObject.Orientation.South,
+						paddingE = 1,
+						size = Vector3(1f, 1f, 1f),
+						isClosed = true,
+						transformTime = 1000,
+						interactor = source.character.id.value
+					)
+				}
+
+				source.send(Miscellaneous(worldObjects = thelist))
 			}
 		}
 		return true

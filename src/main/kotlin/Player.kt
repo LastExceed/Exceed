@@ -38,8 +38,8 @@ class Player private constructor(
 	}
 
 	suspend fun clearCreatures() {
-		send(WaveClear())
-		send(WaveClear())
+		send(ServerTick())
+		send(ServerTick())
 	}
 
 	suspend fun kick(reason: String) {

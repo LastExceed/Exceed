@@ -12,27 +12,26 @@ object Ultimates {
 				if (it > 0) delay(100)
 
 				val particle = Particle(
-					source.character.position,
-					source.character.aimDisplacement,
-					Vector3(1f, 0.5f, 0f),
-					1f,
-					1f,
-					30,
-					Particle.Type.Spark,
-					10f,
-					0
+					position = source.character.position,
+					velocity = source.character.aimDisplacement,
+					color = Vector3(1f, 0.5f, 0f),
+					alpha = 1f,
+					size = 1f,
+					count = 30,
+					type = Particle.Type.Spark,
+					spread = 10f
 				)
 				val sound = Sound(
-					Utils.creatureToSoundPosition(source.character.position),
-					Sound.Type.FireHit
+					position = Utils.creatureToSoundPosition(source.character.position),
+					type = Sound.Type.FireHit
 				)
 
-				val serverUpdate = ServerUpdate(
+				val miscellaneous = Miscellaneous(
 					particles = listOf(particle),
 					sounds = listOf(sound)
 				)
 
-				source.layer.broadcast(serverUpdate)
+				source.layer.broadcast(miscellaneous)
 			}
 		}
 	}

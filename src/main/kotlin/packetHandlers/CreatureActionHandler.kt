@@ -20,8 +20,9 @@ object CreatureActionHandler : PacketHandler<CreatureAction> {
 				Server.notify(source, "you shouldn't be able to do that")
 			}
 			CreatureAction.Type.Drop -> {
+				println(packet)
 				val pickup = Pickup(source.character.id, packet.item)
-				source.send(ServerUpdate(pickups = listOf(pickup)))
+				source.send(Miscellaneous(pickups = listOf(pickup)))
 			}
 			CreatureAction.Type.CallPet -> {
 				if (!source.character.flags[CreatureFlag.Sprinting]) {

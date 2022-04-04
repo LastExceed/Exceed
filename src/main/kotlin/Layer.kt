@@ -2,8 +2,8 @@ import modules.Pvp
 import com.github.lastexceed.cubeworldnetworking.packets.*
 
 data class Layer(
-	val creatures: MutableMap<CreatureID, Creature> = mutableMapOf(),
-	val players: MutableMap<CreatureID, Player> = mutableMapOf()
+	val creatures: MutableMap<CreatureId, Creature> = mutableMapOf(),
+	val players: MutableMap<CreatureId, Player> = mutableMapOf()
 ) {
 	suspend fun broadcast(packet: Packet, toSkip: Player? = null) {
 		for (player in players.values.toList()) { //TODO: concurrent modification apparently

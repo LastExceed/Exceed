@@ -460,8 +460,8 @@ object AntiCheat {
 		else -> 1
 	}
 
-	private val lastFireSpam = mutableMapOf<CreatureID, Long>()
-	private val lastAnimation = mutableMapOf<CreatureID, Long>(
+	private val lastFireSpam = mutableMapOf<CreatureId, Long>()
+	private val lastAnimation = mutableMapOf<CreatureId, Long>(
 
 	)
 
@@ -599,8 +599,8 @@ object AntiCheat {
 				combatClassMajor?.ordinal?.expectIn(1..4, "combatClassMajor")
 				combatClassMinor?.ordinal?.expectIn(0..1, "combatClassMinor")
 				manaCharge?.expectMaximum(current.mana, "manaCharge") //might go negative with blocking bug
-				unused24?.let {}
-				unused25?.let {}
+				unknown24?.let {}
+				unknown25?.let {}
 				aimDisplacement?.let {
 					val distance = sqrt(it.x.pow(2) + it.y.pow(2) + it.z.pow(2))
 					//TODO: exceeds when moving
@@ -618,7 +618,7 @@ object AntiCheat {
 						//it.expectMaximum(previous.mana, "mana")
 					}
 				}
-				blockMeter?.let {
+				blockingGauge?.let {
 					it.expectMaximum(1f, "blockMeter")
 					if (current.animation in setOf(Animation.ShieldM2Charging, Animation.DualWieldM2Charging, Animation.GreatweaponM2Charging, Animation.UnarmedM2Charging)) {
 						//TODO: quick release and recharge breaks this
@@ -632,18 +632,18 @@ object AntiCheat {
 					it.resi.expect(1f, "multipliers.resi")
 					it.armor.expect(1f, "multipliers.armor")
 				}
-				unused31?.let {}
-				unused32?.let {}
+				unknown31?.let {}
+				unknown32?.let {}
 				level?.expectIn(1..500, "level")
 				experience?.expectIn(0..Utils.computeMaxExperience(current.level), "experience")
-				master?.expect(CreatureID(0), "master")
-				unused36?.let {}
+				master?.expect(CreatureId(0), "master")
+				unknown36?.let {}
 				powerBase?.let {}
-				unused38?.let {}
-				unused39?.let {}
+				unknown38?.let {}
+				homeChunk?.let {}
 				home?.let {}
-				unused41?.let {}
-				unused42?.let {}
+				chunkToReveal?.let {}
+				unknown42?.let {}
 				consumable?.let {
 					if (it.typeMajor == Item.Type.Major.None) return@let
 
