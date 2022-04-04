@@ -78,25 +78,8 @@ object ChatCommands {
 			}
 			"skillpoint" -> {
 				val pickup = Pickup(
-					source.character.id,
-					Item(
-						typeMajor = Item.Type.Major.ManaCube,
-						typeMinor = Item.Type.Minor(0),
-						randomSeed = 0,
-						recipe = Item.Type.Major.None,
-						rarity = Item.Rarity.Normal,
-						material = Item.Material.None,
-						flags = FlagSet(BooleanArray(8)),
-						level = 0,
-						spirits = Array(32) {
-							Item.Spirit(
-								position = Vector3(0, 0, 0),
-								material = Item.Material.None,
-								level = 1
-							)
-						},
-						spiritCounter = 0
-					)
+					interactor = source.character.id,
+					item = Item.void.copy(typeMajor = Item.Type.Major.ManaCube)
 				)
 				val miscellaneous = Miscellaneous(
 					pickups = listOf(pickup, pickup, pickup, pickup)
