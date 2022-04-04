@@ -18,13 +18,7 @@ object Server {
 			while (true) {
 				val socket = listener.accept()
 				launch {
-					try {
-						handleNewConnection(socket)
-					} catch (exception: Exception) {
-						exception.printStackTrace()
-						println(exception)
-					}
-
+					handleNewConnection(socket)
 				}
 			}
 		}
@@ -33,7 +27,7 @@ object Server {
 	private suspend fun handleNewConnection(socket: Socket) {
 		println("new connection " + socket.remoteAddress)
 		val reader = Reader(socket.openReadChannel())
-		val writer = Writer(socket.openWriteChannel(true))
+		val writer = ByteWriteChannelAdapter(socket.openWriteChannel(true))
 
 		if (PacketId.readFrom(reader) != PacketId.ProtocolVersion) {
 			socket.dispose()
@@ -85,10 +79,11 @@ object Server {
 		}
 
 		val player = Player.create(socket, writer, character, mainLayer)
+		announce(player.layer, "[+] ${player.character.name}")
 		player.send(MapSeed(225))
 		try {
 			while (true) {
-				when (val packetId = PacketId.readFrom(reader)) {
+				when (PacketId.readFrom(reader)) {
 					PacketId.CreatureUpdate -> CreatureUpdateHandler.handlePacket(CreatureUpdate.readFrom(reader), player)
 					PacketId.CreatureAction -> CreatureActionHandler.handlePacket(CreatureAction.readFrom(reader), player)
 					PacketId.Hit -> HitHandler.handlePacket(Hit.readFrom(reader), player)
@@ -97,27 +92,36 @@ object Server {
 					PacketId.ChatMessage -> ChatMessageHandler.handlePacket(ChatMessage.FromClient.readFrom(reader), player)
 					PacketId.ChunkDiscovery -> ResidenceChunkHandler.handlePacket(ResidenceChunk.readFrom(reader), player)
 					PacketId.SectorDiscovery -> ResidenceBiomeHandler.handlePacket(ResidenceBiome.readFrom(reader), player)
-					else -> println("unknown opcode: $packetId")
+					else -> throw IllegalStateException("unexpected packet id")
 				}
 			}
 		} catch (exception: Exception) {
+			//todo: do this properly
 			when (exception) {
 				is SocketException,
 				is CancellationException -> {
-					println("player disconnected")
-					player.layer.removePlayer(player)
-					CreatureIdPool.free(player.character.id)
-					socket.dispose()
-					return
 				}
-				else -> throw exception
+				is IllegalStateException -> {
+					notify(player, "invalid data received")
+					delay(100)
+				}
+				else -> exception.printStackTrace()
 			}
-
+			player.layer.removePlayer(player)
+			announce(player.layer, "[-] ${player.character.name}")
+			CreatureIdPool.free(player.character.id)
+			socket.dispose()
 		}
 	}
 
 	suspend fun notify(session: Player, message: String) {
-		val chatMessage = ChatMessage.FromServer(CreatureId(0), message)
-		session.send(chatMessage)
+		session.send(ChatMessage.FromServer(CreatureId(0), message))
+	}
+
+	suspend fun announce(layer: Layer, message: String) {
+		layer.players.values.forEach {
+			notify(it, message)
+		}
+		println(message)
 	}
 }
