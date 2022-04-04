@@ -47,13 +47,16 @@ object Server {
 			return
 		}
 
-		val join = PlayerInitialization(assignedId = CreatureIdPool.claim())
-		join.packetId.writeTo(writer)
-		join.writeTo(writer)
+		val assignedId = CreatureIdPool.claim()
+
+		PlayerInitialization(assignedId = assignedId).run {
+			packetId.writeTo(writer)
+			writeTo(writer)
+		}
 
 		if (PacketId.readFrom(reader) != PacketId.CreatureUpdate) {
 			socket.dispose()
-			CreatureIdPool.free(join.assignedId)
+			CreatureIdPool.free(assignedId)
 			return
 		}
 
@@ -63,8 +66,13 @@ object Server {
 			Creature(creatureUpdate)
 		} catch (ex: KotlinNullPointerException) { //TODO: use null-checks instead of try/catch
 			socket.dispose()
-			CreatureIdPool.free(join.assignedId)
+			CreatureIdPool.free(assignedId)
 			return
+		}
+
+		MapSeed(225).run {
+			packetId.writeTo(writer)
+			writeTo(writer)
 		}
 
 		//TODO: deduplicate (CreatureUpdateHandler)
