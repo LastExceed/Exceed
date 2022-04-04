@@ -44,7 +44,7 @@ class Player private constructor(
 	}
 
 	suspend fun kick(reason: String) {
-		layer.announce("kicked ${character.name} because of $reason")
+		layer.announce("kicked ${character.name} because $reason")
 		delay(100)
 		socket.dispose()
 	}

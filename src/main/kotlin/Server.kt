@@ -99,12 +99,8 @@ object Server {
 			//todo: do this properly
 			when (exception) {
 				is SocketException,
-				is CancellationException -> {
-				}
-				is IllegalStateException -> {
-					player.notify("invalid data received")
-					delay(100)
-				}
+				is CancellationException -> {}
+				is IllegalStateException -> player.kick("invalid data received")
 				else -> exception.printStackTrace()
 			}
 			player.layer.removePlayer(player)
