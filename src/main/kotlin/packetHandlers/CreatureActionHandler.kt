@@ -8,16 +8,16 @@ object CreatureActionHandler : PacketHandler<CreatureAction> {
 	override suspend fun handlePacket(packet: CreatureAction, source: Player) {
 		when (packet.type) {
 			CreatureAction.Type.Bomb -> {
-				Server.notify(source, "bombs are disabled")
+				source.notify("bombs are disabled")
 			}
 			CreatureAction.Type.Talk -> {
-				Server.notify(source, "quests coming soon(tm)")
+				source.notify("quests coming soon(tm)")
 			}
 			CreatureAction.Type.ObjectInteraction -> {
-				Server.notify(source, "object interactions are disabled")
+				source.notify("object interactions are disabled")
 			}
 			CreatureAction.Type.PickUp -> {
-				Server.notify(source, "you shouldn't be able to do that")
+				source.notify("you shouldn't be able to do that")
 			}
 			CreatureAction.Type.Drop -> {
 				println(packet)

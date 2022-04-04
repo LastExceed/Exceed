@@ -79,7 +79,7 @@ object Server {
 		}
 
 		val player = Player.create(socket, writer, character, mainLayer)
-		announce(player.layer, "[+] ${player.character.name}")
+		player.layer.announce("[+] ${player.character.name}")
 		player.send(MapSeed(225))
 		try {
 			while (true) {
@@ -102,26 +102,15 @@ object Server {
 				is CancellationException -> {
 				}
 				is IllegalStateException -> {
-					notify(player, "invalid data received")
+					player.notify("invalid data received")
 					delay(100)
 				}
 				else -> exception.printStackTrace()
 			}
 			player.layer.removePlayer(player)
-			announce(player.layer, "[-] ${player.character.name}")
+			player.layer.announce("[-] ${player.character.name}")
 			CreatureIdPool.free(player.character.id)
 			socket.dispose()
 		}
-	}
-
-	suspend fun notify(session: Player, message: String) {
-		session.send(ChatMessage.FromServer(CreatureId(0), message))
-	}
-
-	suspend fun announce(layer: Layer, message: String) {
-		layer.players.values.forEach {
-			notify(it, message)
-		}
-		println(message)
 	}
 }

@@ -52,4 +52,8 @@ class Player private constructor(
 				layer.addPlayer(it)
 			}
 	}
+
+	suspend fun notify(message: String) {
+		send(ChatMessage.FromServer(CreatureId(0), message))
+	}
 }

@@ -37,4 +37,11 @@ data class Layer(
 		players.remove(player.character.id)
 		removeCreature(player.character)
 	}
+
+	suspend fun announce(message: String) {
+		players.values.forEach {
+			it.notify(message)
+		}
+		println(message)
+	}
 }
