@@ -1,17 +1,33 @@
 package modules
 
-import com.github.lastexceed.cubeworldnetworking.packets.*
 import Player
-import com.github.lastexceed.cubeworldnetworking.utils.*
+import com.github.lastexceed.cubeworldnetworking.packets.*
 import kotlinx.coroutines.delay
+import java.io.File
 
 object ChatCommands {
 	private const val prefix: Char = '/'
+	private val adminPassword = File("admin_pw").let {
+		if (it.createNewFile()) {
+			it.writeText("change-me")
+		}
+		it.readText()
+	}
+
 	suspend fun parse(message: String, source: Player): Boolean {
 		if (!message.startsWith(prefix)) {
 			return false
 		}
 		val params = message.trimStart(prefix).split(' ')
+
+		if (params.size == 2 && params[0].lowercase() == "login" && params[1] == adminPassword) {
+			source.isAdmin = true
+			return true
+		}
+		if (!source.isAdmin) {
+			source.notify("only admins can use commands for now")
+			return true
+		}
 
 		when (params[0].lowercase()) {
 			"time" -> {

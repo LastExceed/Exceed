@@ -9,7 +9,8 @@ class Player private constructor(
 	private val socket: Socket,
 	private val writer: Writer,
 	val character: Creature,
-	layer: Layer
+	layer: Layer,
+	var isAdmin: Boolean = false
 ) {
 	var layer = layer
 		private set
