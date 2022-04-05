@@ -20,8 +20,13 @@ object ChatCommands {
 		}
 		val params = message.trimStart(prefix).split(' ')
 
-		if (params.size == 2 && params[0].lowercase() == "login" && params[1] == adminPassword) {
-			source.isAdmin = true
+		if (params[0].lowercase() == "login" && params.size == 2) {
+			if (params[1] == adminPassword) {
+				source.isAdmin = true
+				source.notify("logged in")
+			} else {
+				source.notify("wrong password")
+			}
 			return true
 		}
 		if (!source.isAdmin) {
