@@ -1,7 +1,6 @@
 package packetHandlers
 
 import Player
-import Server
 import com.github.lastexceed.cubeworldnetworking.packets.CreatureUpdate
 import modules.*
 
@@ -12,6 +11,8 @@ object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 		}
 		//Neverland.onCreatureUpdate(source, packet)
 		source.character.update(packet)
+
+		if (TrafficReduction.shouldIgnore(packet)) return
 		source.layer.broadcast(Pvp.makeAttackable(packet), source)
 	}
 }
