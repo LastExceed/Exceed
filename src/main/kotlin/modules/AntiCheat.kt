@@ -473,19 +473,28 @@ object AntiCheat {
 
 				position?.let {}
 				rotation?.let {
-					//TODO: swimming
-					//it.x.expectIn(-0.1f..0.1f, "rotation.pitch")
+					if ((flagsPhysics ?: previous.flagsPhysics)[PhysicsFlag.Swimming]) {
+						it.x.expectIn(-60f..0.1f, "rotation.pitch")
+					} else {
+						it.x.expectIn(-0.1f..0.1f, "rotation.pitch")
+					}
 					it.y.expectIn(-90f..90f, "rotation.roll")
-					//rotation.z.expectIn(-180f..180f, "rotation.yaw")
-					//TODO: overflows while attacking
+					if ((animationTime ?: previous.animationTime) > 1500) { //overflows while attacking
+						it.z.expectIn(-180f..180f, "rotation.yaw")
+					}
 				}
 				velocity?.let {}//can change with abilites
 				acceleration?.let {
 					val actualXY = sqrt(it.x.pow(2) + it.y.pow(2))
-					//TODO: glider fucks this up
-					//actualXY.expectIn(0f..accelLimitXY, "acceleration.XY")
-					//TODO: swimming up
-					//it.z.expect(0f, "acceleration.Z")
+					if (!(flags ?: previous.flags)[CreatureFlag.Gliding]) {
+						actualXY.expectIn(0f..accelLimitXY, "acceleration.XY")
+					}
+					if ((flagsPhysics ?: previous.flagsPhysics)[PhysicsFlag.Swimming]) {
+						it.z.expectIn(-80f..80f, "acceleration.Z")
+					} else {
+						it.z.expect(0f, "acceleration.Z")
+					}
+
 
 				}
 				velocityExtra?.let {
@@ -603,8 +612,8 @@ object AntiCheat {
 				unknown25?.let {}
 				aimDisplacement?.let {
 					val distance = sqrt(it.x.pow(2) + it.y.pow(2) + it.z.pow(2))
-					//TODO: exceeds when moving
-					//distance.expectIn(0f..62f, "aimDisplacement")
+					//maximum is 60 + some rounding errors by default, exceeds when moving
+					distance.expectIn(0f..63f, "aimDisplacement")
 				}
 				health?.expectMaximum(current.healthMaximum * 1.01f, "health")//TODO: fix rounding errors
 				mana?.let {
@@ -678,7 +687,7 @@ object AntiCheat {
 						item.typeMajor.expect(it.value, "$prefix.typeMajor")
 
 						val classMajor = current.combatClassMajor
-						val allowedMaterials = when (it.value) {
+						val allowedItemMaterials = when (it.value) {
 							Item.Type.Major.Weapon -> {
 								item.typeMinor.expectIn(getAllowedWeaponTypes(classMajor), "$prefix.typeMinor")
 								allowedWeaponMaterials[item.typeMinor]!!
@@ -698,7 +707,7 @@ object AntiCheat {
 							Item.Type.Major.Lamp -> setOf(Item.Material.Iron)
 							else -> setOf(Item.Material.None)
 						}
-						item.material.expectIn(allowedMaterials, "$prefix.material")
+						item.material.expectIn(allowedItemMaterials, "$prefix.material")
 						//item.randomSeed.expectMinimum(0, "$prefix.randomSeed")
 						item.recipe.expect(Item.Type.Major.None, "$prefix.recipe")
 						item.rarity.expectIn(allowedRarities, "$prefix.rarity")
@@ -707,21 +716,20 @@ object AntiCheat {
 						val powerActual = Utils.computePower(item.level.toInt())
 						powerActual.expectIn(1..powerAllowed, "$prefix.level")
 
-						val spiritLimit =
-							32//if (item.typeMajor == Item.Type.Major.Weapon) getWeaponHandCount(item.typeMinor) * 16 else 0
+						val spiritLimit = 32//if (item.typeMajor == Item.Type.Major.Weapon) getWeaponHandCount(item.typeMinor) * 16 else 0
 						item.spiritCounter.expectIn(0..spiritLimit, "$prefix.spiritCounter")
 
-						item.spirits.take(item.spiritCounter).forEach {
-							@Suppress("NAME_SHADOWING") //intentional
-							val allowedMaterials = setOf(
-								Item.Material.Fire,
-								Item.Material.Unholy,
-								Item.Material.IceSpirit,
-								Item.Material.Wind,
-								item.material
-							)
-							//it.material.expectIn(allowedMaterials, "$prefix.spirits[?].material")
-							//it.level.expect(1..item.level, "$prefix.spirits[?].level")
+						@Suppress("NAME_SHADOWING") //intentional
+						val allowedSpiritMaterials = setOf(
+							Item.Material.Fire,
+							Item.Material.Unholy,
+							Item.Material.IceSpirit,
+							Item.Material.Wind,
+							item.material
+						)
+						item.spirits.take(item.spiritCounter).forEachIndexed { index, spirit ->
+							//spirit.material.expectIn(allowedSpiritMaterials, "$prefix.spirit#$index.material")
+							spirit.level.toInt().expectIn(1..item.level, "$prefix.spirits[?].level")
 						}
 					}
 					val r = if (it.rightWeapon.typeMajor == Item.Type.Major.None) 0 else getWeaponHandCount(it.rightWeapon.typeMinor)
@@ -732,7 +740,25 @@ object AntiCheat {
 				}
 				name?.length?.expectIn(1..15, "name")
 				skillPointDistribution?.let {
-					//TODO: must not exceed available points
+					listOf(
+						it::petMaster,
+						it::petRiding,
+						it::sailing,
+						it::climbing,
+						it::hangGliding,
+						it::swimming,
+						it::ability1,
+						it::ability2,
+						it::ability3,
+						it::ability4,
+						it::ability5
+					).run {
+						val available = ((level ?: previous.level) - 1) * 2
+						forEach {
+							it.get().expectMinimum(0, "skillPoints.${it.name}")
+						}
+						map { it.get() }.sum().expectMaximum(available, "skillPoints.total")
+					}
 				}
 				manaCubes?.expectMinimum(0, "manaCubes")
 			}
