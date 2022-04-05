@@ -1,5 +1,5 @@
 plugins {
-	kotlin("jvm") version "1.6.10"
+	kotlin("jvm") version "1.6.20"
 }
 group = "com.github.lastexceed"
 version = "1.0-SNAPSHOT"
