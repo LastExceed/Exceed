@@ -28,25 +28,25 @@ data class Creature(
 	var combatClassMajor: CombatClassMajor,
 	var combatClassMinor: CombatClassMinor,
 	var manaCharge: Float,
-	var unused24: Vector3<Float>,
-	var unused25: Vector3<Float>,
+	var unknown24: Vector3<Float>,
+	var unknown25: Vector3<Float>,
 	var aimDisplacement: Vector3<Float>,
 	var health: Float,
 	var mana: Float,
 	var blockMeter: Float,
 	var multipliers: Multipliers,
-	var unused31: Byte,
-	var unused32: Byte,
+	var unknown31: Byte,
+	var unknown32: Byte,
 	var level: Int,
 	var experience: Int,
 	var master: CreatureId,
-	var unused36: Long,
+	var unknown36: Long,
 	var powerBase: Byte,
-	var unused38: Int,
-	var unused39: Vector3<Int>,
+	var unknown38: Int,
+	var homeChunk: Vector3<Int>,
 	var home: Vector3<Long>,
-	var unused41: Vector3<Int>,
-	var unused42: Byte,
+	var chunkToReveal: Vector3<Int>,
+	var unknown42: Byte,
 	var consumable: Item,
 	var equipment: Equipment,
 	var name: String,
@@ -79,25 +79,25 @@ data class Creature(
 		combatClassMajor = creatureUpdate.combatClassMajor!!,
 		combatClassMinor = creatureUpdate.combatClassMinor!!,
 		manaCharge = creatureUpdate.manaCharge!!,
-		unused24 = creatureUpdate.unknown24!!,
-		unused25 = creatureUpdate.unknown25!!,
+		unknown24 = creatureUpdate.unknown24!!,
+		unknown25 = creatureUpdate.unknown25!!,
 		aimDisplacement = creatureUpdate.aimDisplacement!!,
 		health = creatureUpdate.health!!,
 		mana = creatureUpdate.mana!!,
 		blockMeter = creatureUpdate.blockingGauge!!,
 		multipliers = creatureUpdate.multipliers!!,
-		unused31 = creatureUpdate.unknown31!!,
-		unused32 = creatureUpdate.unknown32!!,
+		unknown31 = creatureUpdate.unknown31!!,
+		unknown32 = creatureUpdate.unknown32!!,
 		level = creatureUpdate.level!!,
 		experience = creatureUpdate.experience!!,
 		master = creatureUpdate.master!!,
-		unused36 = creatureUpdate.unknown36!!,
+		unknown36 = creatureUpdate.unknown36!!,
 		powerBase = creatureUpdate.powerBase!!,
-		unused38 = creatureUpdate.unknown38!!,
-		unused39 = creatureUpdate.homeChunk!!,
+		unknown38 = creatureUpdate.unknown38!!,
+		homeChunk = creatureUpdate.homeChunk!!,
 		home = creatureUpdate.home!!,
-		unused41 = creatureUpdate.chunkToReveal!!,
-		unused42 = creatureUpdate.unknown42!!,
+		chunkToReveal = creatureUpdate.chunkToReveal!!,
+		unknown42 = creatureUpdate.unknown42!!,
 		consumable = creatureUpdate.consumable!!,
 		equipment = creatureUpdate.equipment!!,
 		name = creatureUpdate.name!!,
@@ -132,25 +132,25 @@ data class Creature(
 			combatClassMajor,
 			combatClassMinor,
 			manaCharge,
-			unused24,
-			unused25,
+			unknown24,
+			unknown25,
 			aimDisplacement,
 			health,
 			mana,
 			blockMeter,
 			multipliers,
-			unused31,
-			unused32,
+			unknown31,
+			unknown32,
 			level,
 			experience,
 			master,
-			unused36,
+			unknown36,
 			powerBase,
-			unused38,
-			unused39,
+			unknown38,
+			homeChunk,
 			home,
-			unused41,
-			unused42,
+			chunkToReveal,
+			unknown42,
 			consumable,
 			equipment,
 			name,
@@ -233,10 +233,10 @@ data class Creature(
 			manaCharge = it
 		}
 		newData.unknown24?.let {
-			unused24 = it
+			unknown24 = it
 		}
 		newData.unknown25?.let {
-			unused25 = it
+			unknown25 = it
 		}
 		newData.aimDisplacement?.let {
 			aimDisplacement = it
@@ -254,10 +254,10 @@ data class Creature(
 			multipliers = it
 		}
 		newData.unknown31?.let {
-			unused31 = it
+			unknown31 = it
 		}
 		newData.unknown32?.let {
-			unused32 = it
+			unknown32 = it
 		}
 		newData.level?.let {
 			level = it
@@ -269,25 +269,25 @@ data class Creature(
 			master = it
 		}
 		newData.unknown36?.let {
-			unused36 = it
+			unknown36 = it
 		}
 		newData.powerBase?.let {
 			powerBase = it
 		}
 		newData.unknown38?.let {
-			unused38 = it
+			unknown38 = it
 		}
 		newData.homeChunk?.let {
-			unused39 = it
+			homeChunk = it
 		}
 		newData.home?.let {
 			home = it
 		}
 		newData.chunkToReveal?.let {
-			unused41 = it
+			chunkToReveal = it
 		}
 		newData.unknown42?.let {
-			unused42 = it
+			unknown42 = it
 		}
 		newData.consumable?.let {
 			consumable = it
