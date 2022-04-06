@@ -17,9 +17,7 @@ object StatusEffectHandler : PacketHandler<StatusEffect> {
 				listOf(
 					Sound(
 						Utils.creatureToSoundPosition(source.character.position),
-						Sound.Type.FireTrap,
-						0,
-						0
+						Sound.Type.FireTrap
 					)
 				)
 			} else emptyList()
