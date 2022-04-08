@@ -5,7 +5,9 @@ import com.github.lastexceed.cubeworldnetworking.packets.*
 import com.github.lastexceed.cubeworldnetworking.utils.*
 import modules.AntiCheat
 import packetHandlers.*
+import java.io.File
 import java.net.SocketException
+import java.time.LocalTime
 
 object Server {
 	private val listener = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(InetSocketAddress("0.0.0.0", 12345))
@@ -101,7 +103,15 @@ object Server {
 				is SocketException,
 				is CancellationException -> {}
 				is IllegalStateException -> player.kick("invalid data received")
-				else -> exception.printStackTrace()
+				else -> {
+					val timestamp = LocalTime.now()
+					println("!!! CRASH !!! $timestamp")
+					File("crash-${timestamp.toString().replace(":", "_")}.log").run {
+						createNewFile()
+						appendText(exception.stackTraceToString())
+						appendText(player.character.toString())
+					}
+				}
 			}
 			player.layer.removePlayer(player)
 			player.layer.announce("[-] ${player.character.name}")
