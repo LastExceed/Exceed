@@ -1,20 +1,18 @@
 package modules
 
+import Creature
 import com.github.lastexceed.cubeworldnetworking.packets.*
-import Player
 
 object Balancing {
 	private const val SHIELD_DEFENSE = 0.25f
 
-	fun adjustDamage(hit: Hit, source: Player): Hit {
+	fun adjustDamage(hit: Hit, target: Creature): Hit {
 		var gearDefense = 0f
 
-		val targetEquipment = source.layer.creatures[hit.target]!!.equipment
-
-		if (targetEquipment.leftWeapon.isShield()) {
+		if (target.equipment.leftWeapon.isShield()) {
 			gearDefense += SHIELD_DEFENSE
 		}
-		if (targetEquipment.rightWeapon.isShield()) {
+		if (target.equipment.rightWeapon.isShield()) {
 			gearDefense += SHIELD_DEFENSE
 		}
 

@@ -10,11 +10,7 @@ object HitHandler : PacketHandler<Hit> {
 		if (ClientBugFixes.ignoreSelfHeal(source, packet)) {
 			return
 		}
-
-		val damageAdjustedHit = Balancing.adjustDamage(packet, source)
-
-		source.layer.broadcast(
-			Miscellaneous(hits = listOf(damageAdjustedHit))
-		)
+		val target = source.layer.creatures[packet.target] ?: return //in case target disconnected in this moment
+		source.layer.broadcast(Miscellaneous(hits = listOf(Balancing.adjustDamage(packet, target))))
 	}
 }
