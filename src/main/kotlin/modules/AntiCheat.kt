@@ -473,24 +473,26 @@ object AntiCheat {
 
 				position?.let {}
 				rotation?.let {
-					if ((flagsPhysics ?: previous.flagsPhysics)[PhysicsFlag.Swimming]) {
-						it.x.expectIn(-60f..0.1f, "rotation.pitch")
-					} else {
-						it.x.expectIn(-0.1f..0.1f, "rotation.pitch")
-					}
+					//usually 0, except
+					//- rounding errors
+					//- 60f..0 when swimming (or shortly afterwards)
+					//- 20f when teleporting
+					it.x.expectIn(-Float.MAX_VALUE..Float.MAX_VALUE, "rotation.pitch")
 					it.y.expectIn(-90f..90f, "rotation.roll")
-					if ((animationTime ?: previous.animationTime) > 1500) { //overflows while attacking
+					if (current.animationTime > 10_000) { //overflows while attacking
 						it.z.expectIn(-180f..180f, "rotation.yaw")
 					}
 				}
 				velocity?.let {}//can change with abilites
 				acceleration?.let {
 					val actualXY = sqrt(it.x.pow(2) + it.y.pow(2))
-					if (!(flags ?: previous.flags)[CreatureFlag.Gliding]) {
-						actualXY.expectIn(0f..accelLimitXY, "acceleration.XY")
+					if (!current.flags[CreatureFlag.Gliding]) {
+						//actualXY.expectIn(0f..accelLimitXY, "acceleration.XY")
 					}
-					if ((flagsPhysics ?: previous.flagsPhysics)[PhysicsFlag.Swimming]) {
+					if (current.flagsPhysics[PhysicsFlag.Swimming]) {
 						it.z.expectIn(-80f..80f, "acceleration.Z")
+					} else if (current.flags[CreatureFlag.Climbing]){
+						it.z.expectIn(setOf(0f, -16f, 16f), "acceleration.Z")
 					} else {
 						it.z.expect(0f, "acceleration.Z")
 					}
@@ -613,7 +615,7 @@ object AntiCheat {
 				aimDisplacement?.let {
 					val distance = sqrt(it.x.pow(2) + it.y.pow(2) + it.z.pow(2))
 					//maximum is 60 + some rounding errors by default, exceeds when moving
-					distance.expectIn(0f..63f, "aimDisplacement")
+					//distance.expectIn(0f..63f, "aimDisplacement")
 				}
 				health?.expectMaximum(current.healthMaximum * 1.01f, "health")//TODO: fix rounding errors
 				mana?.let {
@@ -628,7 +630,7 @@ object AntiCheat {
 					}
 				}
 				blockingGauge?.let {
-					it.expectMaximum(1f, "blockMeter")
+					it.expectMaximum(1f, "blockingGauge")
 					if (current.animation in setOf(Animation.ShieldM2Charging, Animation.DualWieldM2Charging, Animation.GreatweaponM2Charging, Animation.UnarmedM2Charging)) {
 						//TODO: quick release and recharge breaks this
 						//it.expectMaximum(previous.blockMeter, "blockMeter")
@@ -729,11 +731,11 @@ object AntiCheat {
 						)
 						item.spirits.take(item.spiritCounter).forEachIndexed { index, spirit ->
 							//spirit.material.expectIn(allowedSpiritMaterials, "$prefix.spirit#$index.material")
-							spirit.level.toInt().expectIn(1..item.level, "$prefix.spirits[?].level")
+							//spirit.level.toInt().expectIn(1..item.level, "$prefix.spirit#$index.level")
 						}
 					}
-					val r = if (it.rightWeapon.typeMajor == Item.Type.Major.None) 0 else getWeaponHandCount(it.rightWeapon.typeMinor)
-					val l = if (it.leftWeapon.typeMajor == Item.Type.Major.None) 0 else getWeaponHandCount(it.leftWeapon.typeMinor)
+					val r = if (it.rightWeapon == Item.void) 0 else getWeaponHandCount(it.rightWeapon.typeMinor)
+					val l = if (it.leftWeapon == Item.void) 0 else getWeaponHandCount(it.leftWeapon.typeMinor)
 					(r + l).expectMaximum(2, "equipment.dualwield")
 					//ranger can hold 2h weapon in either hand
 
@@ -753,7 +755,7 @@ object AntiCheat {
 						it::ability4,
 						it::ability5
 					).run {
-						val available = ((level ?: previous.level) - 1) * 2
+						val available = (current.level - 1) * 2
 						forEach {
 							it.get().expectMinimum(0, "skillPoints.${it.name}")
 						}
