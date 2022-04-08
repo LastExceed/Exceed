@@ -5,7 +5,6 @@ import com.github.lastexceed.cubeworldnetworking.packets.*
 
 object ProjectileHandler : PacketHandler<Projectile> {
 	override suspend fun handlePacket(packet: Projectile, source: Player) {
-		println(packet)
 		source.layer.broadcast(
 			Miscellaneous(projectiles = listOf(packet)),
 			source
