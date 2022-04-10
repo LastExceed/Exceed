@@ -666,7 +666,7 @@ object AntiCheat {
 					val powerActual = Utils.computePower(it.level.toInt())
 
 					powerActual.expectIn(1..powerAllowed, "consumable.level")
-					it.spiritCounter.expect(0, "consumable.spiritCounter")
+					//it.spiritCounter.expect(0, "consumable.spiritCounter")
 				}
 				equipment?.let {
 					mapOf(
