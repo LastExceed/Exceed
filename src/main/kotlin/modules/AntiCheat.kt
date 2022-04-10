@@ -479,9 +479,10 @@ object AntiCheat {
 					//- 20f when teleporting
 					it.x.expectIn(-Float.MAX_VALUE..Float.MAX_VALUE, "rotation.pitch")
 					it.y.expectIn(-90f..90f, "rotation.roll")
-					if (current.animationTime > 10_000) { //overflows while attacking
-						it.z.expectIn(-180f..180f, "rotation.yaw")
-					}
+					it.z.isFinite().expect(true, "rotation.yaw.isFinite")
+//					if (current.animationTime > 10_000) { //overflows while attacking
+//						it.z.expectIn(-180f..180f, "rotation.yaw")
+//					}
 				}
 				velocity?.let {}//can change with abilites
 				acceleration?.let {
