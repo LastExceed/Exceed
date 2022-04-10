@@ -504,8 +504,8 @@ object AntiCheat {
 					var limitXY = 0.1f //game doesnt reset all the way to 0
 					var limitZ = 0f
 					if (current.combatClassMajor == CombatClassMajor.Ranger) {
-						limitXY = 33.500004f
-						limitZ = 15.8f
+						limitXY = 35f
+						limitZ = 17f
 					}
 
 					val actualXY = sqrt(it.x.pow(2) + it.y.pow(2))
