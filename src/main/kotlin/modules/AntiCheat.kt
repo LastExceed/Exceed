@@ -486,10 +486,10 @@ object AntiCheat {
 				}
 				velocity?.let {}//can change with abilites
 				acceleration?.let {
-					val actualXY = sqrt(it.x.pow(2) + it.y.pow(2))
-					if (!current.flags[CreatureFlag.Gliding]) {
-						//actualXY.expectIn(0f..accelLimitXY, "acceleration.XY")
-					}
+//					val actualXY = sqrt(it.x.pow(2) + it.y.pow(2))
+//					if (!current.flags[CreatureFlag.Gliding]) {
+//						actualXY.expectIn(0f..accelLimitXY, "acceleration.XY")
+//					}
 					if (current.flagsPhysics[PhysicsFlag.Swimming]) {
 						it.z.expectIn(-80f..80f, "acceleration.Z")
 					} else if (current.flags[CreatureFlag.Climbing]){
