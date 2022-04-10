@@ -722,18 +722,17 @@ object AntiCheat {
 						val spiritLimit = 32//if (item.typeMajor == Item.Type.Major.Weapon) getWeaponHandCount(item.typeMinor) * 16 else 0
 						item.spiritCounter.expectIn(0..spiritLimit, "$prefix.spiritCounter")
 
-						@Suppress("NAME_SHADOWING") //intentional
-						val allowedSpiritMaterials = setOf(
-							Item.Material.Fire,
-							Item.Material.Unholy,
-							Item.Material.IceSpirit,
-							Item.Material.Wind,
-							item.material
-						)
-						item.spirits.take(item.spiritCounter).forEachIndexed { index, spirit ->
-							//spirit.material.expectIn(allowedSpiritMaterials, "$prefix.spirit#$index.material")
-							//spirit.level.toInt().expectIn(1..item.level, "$prefix.spirit#$index.level")
-						}
+//						val allowedSpiritMaterials = setOf(
+//							Item.Material.Fire,
+//							Item.Material.Unholy,
+//							Item.Material.IceSpirit,
+//							Item.Material.Wind,
+//							item.material
+//						)
+//						item.spirits.take(item.spiritCounter).forEachIndexed { index, spirit ->
+//							spirit.material.expectIn(allowedSpiritMaterials, "$prefix.spirit#$index.material")
+//							spirit.level.toInt().expectIn(1..item.level, "$prefix.spirit#$index.level")
+//						}
 					}
 					val r = if (it.rightWeapon == Item.void) 0 else getWeaponHandCount(it.rightWeapon.typeMinor)
 					val l = if (it.leftWeapon == Item.void) 0 else getWeaponHandCount(it.leftWeapon.typeMinor)
