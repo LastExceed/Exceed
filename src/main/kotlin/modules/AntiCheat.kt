@@ -741,7 +741,7 @@ object AntiCheat {
 					//ranger can hold 2h weapon in either hand
 
 				}
-				name?.length?.expectIn(1..15, "name")
+				name?.length?.expectIn(1..15, "name.length")
 				skillPointDistribution?.let {
 					listOf(
 						it::petMaster,
