@@ -3,6 +3,7 @@ import io.ktor.network.sockets.*
 import kotlinx.coroutines.*
 import com.github.lastexceed.cubeworldnetworking.packets.*
 import com.github.lastexceed.cubeworldnetworking.utils.*
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import modules.AntiCheat
 import packetHandlers.*
 import java.io.File
@@ -20,7 +21,13 @@ object Server {
 			while (true) {
 				val socket = listener.accept()
 				launch {
-					handleNewConnection(socket)
+					try {
+						handleNewConnection(socket)
+					} catch (ex: Exception) {
+						//usually when cubeworld-servers.com checks the online status
+						//todo: logging
+					}
+					socket.dispose()
 				}
 			}
 		}
@@ -32,27 +39,31 @@ object Server {
 		val writer = ByteWriteChannelAdapter(socket.openWriteChannel(true))
 
 		if (PacketId.readFrom(reader) != PacketId.ProtocolVersion) {
-			socket.dispose()
 			return
 		}
 
 		val protocolVersion = ProtocolVersion.readFrom(reader)
 		if (protocolVersion.version != 3) {
 			ProtocolVersion(3).writeTo(writer)
-			socket.dispose()
 			return
 		}
 
 		val assignedId = CreatureIdPool.claim()
+		try {
+			handleNewPlayer(socket, reader, writer, assignedId)
+		} catch (ex: Exception) {
+			//todo: logging
+		}
+		CreatureIdPool.free(assignedId)
+	}
 
+	private suspend fun handleNewPlayer(socket: Socket, reader: Reader, writer: Writer, assignedId: CreatureId) {
 		PlayerInitialization(assignedId = assignedId).run {
 			packetId.writeTo(writer)
 			writeTo(writer)
 		}
 
 		if (PacketId.readFrom(reader) != PacketId.CreatureUpdate) {
-			socket.dispose()
-			CreatureIdPool.free(assignedId)
 			return
 		}
 
@@ -61,29 +72,20 @@ object Server {
 		val character = try {
 			Creature(creatureUpdate)
 		} catch (ex: KotlinNullPointerException) { //TODO: use null-checks instead of try/catch
-			socket.dispose()
-			CreatureIdPool.free(assignedId)
 			return
 		}
 
-		MapSeed(225).run {
-			packetId.writeTo(writer)
-			writeTo(writer)
-		}
-
-		//TODO: deduplicate (CreatureUpdateHandler)
 		AntiCheat.inspect(creatureUpdate, character)?.let {
 			PacketId.ChatMessage.writeTo(writer)
 			ChatMessage.FromServer(CreatureId(0), it).writeTo(writer)
-			//delay(100)
-			//socket.dispose()
-			//return
+			delay(100)
+			return
 		}
 
 		val player = Player.create(socket, writer, character, mainLayer)
-		player.layer.announce("[+] ${player.character.name}")
-		player.send(MapSeed(225))
 		try {
+			player.layer.announce("[+] ${player.character.name}")
+			player.send(MapSeed(225))
 			while (true) {
 				when (PacketId.readFrom(reader)) {
 					PacketId.CreatureUpdate -> CreatureUpdateHandler.handlePacket(CreatureUpdate.readFrom(reader), player)
@@ -115,8 +117,6 @@ object Server {
 			}
 			player.layer.removePlayer(player)
 			player.layer.announce("[-] ${player.character.name}")
-			CreatureIdPool.free(player.character.id)
-			socket.dispose()
 		}
 	}
 }
