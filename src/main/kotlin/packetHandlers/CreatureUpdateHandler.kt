@@ -23,12 +23,6 @@ object CreatureUpdateHandler : PacketHandler<CreatureUpdate> {
 		if (!filtered.isEmpty()) {
 			source.layer.broadcast(Pvp.makeAttackable(filtered), source)
 			sentData.update(filtered)
-
-			val sound = Sound(
-				Utils.creatureToSoundPosition(source.character.position),
-				Sound.Type.CraftProc
-			)
-			source.send(Miscellaneous(sounds = listOf(sound)))
 		}
 	}
 }
