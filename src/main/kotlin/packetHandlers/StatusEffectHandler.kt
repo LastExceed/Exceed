@@ -15,14 +15,14 @@ object StatusEffectHandler : PacketHandler<StatusEffect> {
 				applyPoison(source, packet)
 
 				listOf(
-					Sound(
+					SoundEffect(
 						Utils.creatureToSoundPosition(source.character.position),
-						Sound.Type.FireTrap
+						SoundEffect.Sound.FireTrap
 					)
 				)
 			} else emptyList()
-		val miscellaneous = Miscellaneous(
-			sounds = soundList,
+		val miscellaneous = WorldUpdate(
+			soundEffects = soundList,
 			statusEffects = listOf(packet)
 		)
 		source.layer.broadcast(miscellaneous, source)
@@ -47,13 +47,13 @@ object StatusEffectHandler : PacketHandler<StatusEffect> {
 					type = Hit.Type.Unknown,
 					flash = false
 				)
-				val sound = Sound(
+				val sound = SoundEffect(
 					position = Utils.creatureToSoundPosition(targetPlayer.character.position),
-					type = Sound.Type.Absorb
+					sound = SoundEffect.Sound.Absorb
 				)
-				val miscellaneous = Miscellaneous(
+				val miscellaneous = WorldUpdate(
 					hits = listOf(damageTick),
-					sounds = listOf(sound)
+					soundEffects = listOf(sound)
 				)
 
 				targetPlayer.send(miscellaneous)

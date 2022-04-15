@@ -36,14 +36,14 @@ object ChatCommands {
 
 		when (params[0].lowercase()) {
 			"time" -> {
-				source.send(WorldClock(0, params[1].toInt()))
+				source.send(GameDateTime(0, params[1].toInt()))
 			}
 			"skillpoint" -> {
 				val pickup = Pickup(
 					interactor = source.character.id,
 					item = Item.void.copy(typeMajor = Item.Type.Major.ManaCube)
 				)
-				val miscellaneous = Miscellaneous(
+				val miscellaneous = WorldUpdate(
 					pickups = listOf(pickup, pickup, pickup, pickup)
 				)
 				source.send(miscellaneous)
@@ -63,6 +63,28 @@ object ChatCommands {
 			"reload" -> {
 				source.clearCreatures()
 				source.layer.creatures.forEach { source.send(it.value.toCreatureUpdate()) }
+			}
+			"day" -> {
+				source.layer.broadcast(GameDateTime(0, 20_000_000))
+			}
+			"speed" -> {
+				val camo = StatusEffect(
+					source.character.id,
+					source.character.id,
+					StatusEffect.Type.Camouflage,
+					modifier = 99999f,
+					duration = 10_000,
+					creatureId3 = source.character.id
+				)
+				val speed = StatusEffect(
+					source.character.id,
+					source.character.id,
+					StatusEffect.Type.Swiftness,
+					modifier = 99999f,
+					duration = 10_000,
+					creatureId3 = source.character.id
+				)
+				source.send(WorldUpdate(statusEffects = listOf(speed, camo)))
 			}
 		}
 		return true

@@ -21,14 +21,14 @@ object Ultimates {
 					type = Particle.Type.Spark,
 					spread = 10f
 				)
-				val sound = Sound(
+				val sound = SoundEffect(
 					position = Utils.creatureToSoundPosition(source.character.position),
-					type = Sound.Type.FireHit
+					sound = SoundEffect.Sound.FireHit
 				)
 
-				val miscellaneous = Miscellaneous(
+				val miscellaneous = WorldUpdate(
 					particles = listOf(particle),
-					sounds = listOf(sound)
+					soundEffects = listOf(sound)
 				)
 
 				source.layer.broadcast(miscellaneous)

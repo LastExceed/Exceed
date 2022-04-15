@@ -24,8 +24,8 @@ object Neverland {
 			duration = Int.MAX_VALUE,
 			creatureId3 = source.character.id
 		)
-		source.send(Miscellaneous(statusEffects = listOf(statusEffect)))
-		source.send(WorldClock(0, -10_100_000))
+		source.send(WorldUpdate(statusEffects = listOf(statusEffect)))
+		source.send(GameDateTime(0, -10_100_000))
 
 		val tombstone = CreatureUpdate(
 			id = CreatureIdPool.claim(),

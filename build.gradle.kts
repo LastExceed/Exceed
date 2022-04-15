@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
 	implementation("io.ktor", "ktor-network", "2.0.+")
-	implementation("com.github.lastexceed", "CubeworldNetworking", "1.3.51")
+	implementation("com.github.lastexceed", "CubeworldNetworking", "1.4.0")
 }
 
 application {

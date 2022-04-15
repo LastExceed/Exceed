@@ -11,6 +11,6 @@ object HitHandler : PacketHandler<Hit> {
 			return
 		}
 		val target = source.layer.creatures[packet.target] ?: return //in case target disconnected in this moment
-		source.layer.broadcast(Miscellaneous(hits = listOf(Balancing.adjustDamage(packet, target))))
+		source.layer.broadcast(WorldUpdate(hits = listOf(Balancing.adjustDamage(packet, target))))
 	}
 }

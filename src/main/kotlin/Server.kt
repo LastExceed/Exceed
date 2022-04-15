@@ -130,7 +130,7 @@ suspend fun getNextPacket(reader: Reader) =
 		PacketId.StatusEffect -> StatusEffect
 		PacketId.Projectile -> Projectile
 		PacketId.ChatMessage -> ChatMessage.FromClient
-		PacketId.ChunkDiscovery -> ResidenceChunk
-		PacketId.SectorDiscovery -> ResidenceBiome
+		PacketId.ResidenceBiome -> ResidenceChunk
+		PacketId.ResidenceChunk -> ResidenceBiome
 		else -> throw IllegalStateException("unexpected packet id")
 	}.readFrom(reader)
