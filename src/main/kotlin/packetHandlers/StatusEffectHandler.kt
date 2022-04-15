@@ -29,13 +29,12 @@ object StatusEffectHandler : PacketHandler<StatusEffect> {
 	}
 
 	private fun applyPoison(source: Player, statusEffect: StatusEffect) {
-
-		GlobalScope.launch(Dispatchers.IO) {//todo: pls no
+		//todo: support non-players
+		val targetPlayer = source.layer.players[statusEffect.target] ?: return
+		targetPlayer.scope.launch {
 			repeat(statusEffect.duration / 500 + 1) {
 				if (it != 0) delay(500)
 
-				//todo: support non-players
-				val targetPlayer = source.layer.players[statusEffect.target]!! //todo: sanity check
 				val damageTick = Hit(
 					attacker = source.character.id,
 					target = statusEffect.target,

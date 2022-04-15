@@ -7,7 +7,7 @@ import com.github.lastexceed.cubeworldnetworking.utils.*
 
 object Ultimates {
 	fun cast(source: Player) {
-		GlobalScope.launch {//todo: pls no
+		source.scope.launch {
 			repeat(10 + 1) {
 				if (it > 0) delay(100)
 

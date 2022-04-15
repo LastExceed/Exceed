@@ -2,7 +2,7 @@ import io.ktor.network.sockets.*
 import kotlinx.coroutines.sync.*
 import com.github.lastexceed.cubeworldnetworking.packets.*
 import com.github.lastexceed.cubeworldnetworking.utils.Writer
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import java.io.*
 
 class Player private constructor(
@@ -12,19 +12,22 @@ class Player private constructor(
 	layer: Layer,
 	var isAdmin: Boolean = false
 ) {
+	val scope = CoroutineScope(Job() + Dispatchers.IO)
 	var layer = layer
 		private set
 	private val mutex = Mutex(false)
 
 	suspend fun send(packet: Packet) {
-		mutex.withLock {//TODO: IllegalStateException: Already locked
-			try {
-				packet.packetId.writeTo(writer)
-				packet.writeTo(writer)
-			} catch (ex: IOException) {
-				//happens when a player disconnected
-				//disconnections are handled by the reading thread
-				//so we dont have to do anything here
+		scope.launch {
+			mutex.withLock {//TODO: IllegalStateException: Already locked
+				try {
+					packet.packetId.writeTo(writer)
+					packet.writeTo(writer)
+				} catch (ex: IOException) {
+					//happens when a player disconnected
+					//disconnections are handled by the reading thread
+					//so we dont have to do anything here
+				}
 			}
 		}
 	}

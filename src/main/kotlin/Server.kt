@@ -116,6 +116,7 @@ object Server {
 				}
 			}
 			player.layer.removePlayer(player)
+			player.scope.cancel()
 			player.layer.announce("[-] ${player.character.name}")
 		}
 	}
