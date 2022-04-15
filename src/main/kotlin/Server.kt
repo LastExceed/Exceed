@@ -87,19 +87,19 @@ object Server {
 			player.layer.announce("[+] ${player.character.name}")
 			player.send(MapSeed(225))
 			while (true) {
-				when (PacketId.readFrom(reader)) {
-					PacketId.CreatureUpdate -> CreatureUpdateHandler.handlePacket(CreatureUpdate.readFrom(reader), player)
-					PacketId.CreatureAction -> CreatureActionHandler.handlePacket(CreatureAction.readFrom(reader), player)
-					PacketId.Hit -> HitHandler.handlePacket(Hit.readFrom(reader), player)
-					PacketId.StatusEffect -> StatusEffectHandler.handlePacket(StatusEffect.readFrom(reader), player)
-					PacketId.Projectile -> ProjectileHandler.handlePacket(Projectile.readFrom(reader), player)
-					PacketId.ChatMessage -> ChatMessageHandler.handlePacket(ChatMessage.FromClient.readFrom(reader), player)
-					PacketId.ChunkDiscovery -> ResidenceChunkHandler.handlePacket(ResidenceChunk.readFrom(reader), player)
-					PacketId.SectorDiscovery -> ResidenceBiomeHandler.handlePacket(ResidenceBiome.readFrom(reader), player)
-					else -> throw IllegalStateException("unexpected packet id")
+				when (val packet = getNextPacket(reader)) {
+					is CreatureUpdate -> CreatureUpdateHandler.handlePacket(packet, player)
+					is CreatureAction -> CreatureActionHandler.handlePacket(packet, player)
+					is Hit -> HitHandler.handlePacket(packet, player)
+					is StatusEffect -> StatusEffectHandler.handlePacket(packet, player)
+					is Projectile -> ProjectileHandler.handlePacket(packet, player)
+					is ChatMessage.FromClient -> ChatMessageHandler.handlePacket(packet, player)
+					is ResidenceChunk -> ResidenceChunkHandler.handlePacket(packet, player)
+					is ResidenceBiome -> ResidenceBiomeHandler.handlePacket(packet, player)
+					else -> error("unexpected packet type ${packet::class}")
 				}
 			}
-		} catch (exception: Exception) {
+		} catch (exception: Throwable) {
 			//todo: do this properly
 			when (exception) {
 				is SocketException,
@@ -121,3 +121,16 @@ object Server {
 		}
 	}
 }
+
+suspend fun getNextPacket(reader: Reader) =
+	when (PacketId.readFrom(reader)) {
+		PacketId.CreatureUpdate -> CreatureUpdate
+		PacketId.CreatureAction -> CreatureAction
+		PacketId.Hit -> Hit
+		PacketId.StatusEffect -> StatusEffect
+		PacketId.Projectile -> Projectile
+		PacketId.ChatMessage -> ChatMessage.FromClient
+		PacketId.ChunkDiscovery -> ResidenceChunk
+		PacketId.SectorDiscovery -> ResidenceBiome
+		else -> throw IllegalStateException("unexpected packet id")
+	}.readFrom(reader)
