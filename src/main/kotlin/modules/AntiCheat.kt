@@ -279,124 +279,182 @@ object AntiCheat {
 		val weaponSize: Float
 	)
 
-	private fun getAllowedAnimations(classMajor: CombatClassMajor, classMinor: CombatClassMinor) = setOf(
-		Animation.Idle,
-		Animation.UnarmedM1a,
-		Animation.UnarmedM1b,
-		Animation.UnarmedM2,
-		Animation.UnarmedM2Charging,
-		Animation.Drinking,
-		Animation.Eating,
-		Animation.PetFoodPresent,
-		Animation.Sitting,
-		Animation.Sleeping,
-		Animation.Riding,
-		Animation.Boat
-	) + when (classMajor) {
-		CombatClassMajor.Warrior -> setOf(
-			Animation.DualWieldM1a,
-			Animation.DualWieldM1b,
-			Animation.DualWieldM2Charging,
-			Animation.GreatweaponM1a,
-			Animation.GreatweaponM1b,
-			Animation.GreatweaponM1c,
-			Animation.GreatweaponM2Charging,
-			Animation.ShieldM1a,
-			Animation.ShieldM1b,
-			Animation.ShieldM2,
-			Animation.ShieldM2Charging,
-			Animation.Smash,
-			Animation.Cyclone
-		) + when (classMinor) {
-			CombatClassMinor.Warrior.Berserker -> setOf(
-				Animation.GreatweaponM2Berserker
+	private fun getAllowedAnimations(weaponTypeMinor: Item.Type.Minor?, classMajor: CombatClassMajor, classMinor: CombatClassMinor) =
+		setOf(
+			Animation.Idle,
+			Animation.Drinking,
+			Animation.Eating,
+			Animation.PetFoodPresent,
+			Animation.Sitting,
+			Animation.Sleeping,
+			Animation.Riding,
+			Animation.Boat
+		) + when (classMajor) {
+			CombatClassMajor.Warrior ->
+				setOf(
+					Animation.Smash,
+					Animation.Cyclone
+				)
+			CombatClassMajor.Ranger ->
+				setOf(
+					Animation.Kick
+				)
+			CombatClassMajor.Mage ->
+				setOf(
+					Animation.Teleport
+				) + if (classMinor == CombatClassMinor.Mage.Fire)
+					Animation.FireExplosionShort
+				else
+					Animation.HealingStream
+			CombatClassMajor.Rogue ->
+				setOf(
+					Animation.Intercept,
+					Animation.Stealth
+				) + if (classMinor == CombatClassMinor.Rogue.Ninja)
+					setOf(Animation.Shuriken)
+				else
+					setOf()
+			else -> error("class should be sanity checked already")
+		} + when (weaponTypeMinor) {
+			null ->
+				setOf(
+					Animation.UnarmedM2,
+					Animation.UnarmedM2Charging
+				) + if (classMajor == CombatClassMajor.Mage) {
+					if (classMinor == CombatClassMinor.Mage.Water) setOf(
+						Animation.BraceletsWaterM1a,
+						Animation.BraceletsWaterM1b,
+						Animation.BraceletWaterM2
+					) else setOf(
+						Animation.BraceletsFireM1a,
+						Animation.BraceletsFireM1b,
+						Animation.BraceletFireM2
+					)
+				} else setOf(
+					Animation.UnarmedM1a,
+					Animation.UnarmedM1b
+				)
+			Item.Type.Minor.Weapon.Dagger ->
+				setOf(
+					Animation.DaggersM1a,
+					Animation.DaggersM1b,
+					Animation.DaggersM2
+				)
+			Item.Type.Minor.Weapon.Fist ->
+				setOf(
+					Animation.UnarmedM1a,
+					Animation.UnarmedM1b,
+					Animation.FistsM2
+				)
+			Item.Type.Minor.Weapon.Longsword ->
+				setOf(
+					Animation.LongswordM1a,
+					Animation.LongswordM1b,
+					Animation.LongswordM2
+				)
+			Item.Type.Minor.Weapon.Bow ->
+				setOf(
+					Animation.ShootArrow,
+					Animation.BowM2,
+					Animation.BowM2Charging
+				)
+			Item.Type.Minor.Weapon.Crossbow ->
+				setOf(
+					Animation.ShootArrow,
+					Animation.CrossbowM2,
+					Animation.CrossbowM2Charging
+				)
+			Item.Type.Minor.Weapon.Boomerang ->
+				setOf(
+					Animation.BoomerangM1,
+					Animation.BoomerangM2Charging
+				)
+			Item.Type.Minor.Weapon.Staff ->
+				if (classMinor == CombatClassMinor.Mage.Water) setOf(
+					Animation.StaffWaterM1,
+					Animation.StaffWaterM2
+				) else setOf(
+					Animation.StaffFireM1,
+					Animation.StaffFireM2
+				)
+			Item.Type.Minor.Weapon.Wand ->
+				if (classMinor == CombatClassMinor.Mage.Water) setOf(
+					Animation.WandWaterM1,
+					Animation.WandWaterM2,
+				) else setOf(
+					Animation.WandFireM1,
+					Animation.WandFireM2
+				)
+			Item.Type.Minor.Weapon.Bracelet ->
+				if (classMinor == CombatClassMinor.Mage.Water) setOf(
+					Animation.BraceletsWaterM1a,
+					Animation.BraceletsWaterM1b,
+					Animation.BraceletWaterM2
+				) else setOf(
+					Animation.BraceletsFireM1a,
+					Animation.BraceletsFireM1b,
+					Animation.BraceletFireM2
+				)
+			Item.Type.Minor.Weapon.Shield ->
+				setOf(
+					Animation.ShieldM1a,
+					Animation.ShieldM1b,
+					Animation.ShieldM2,
+					Animation.ShieldM2Charging
+				)
+			Item.Type.Minor.Weapon.Greatsword,
+			Item.Type.Minor.Weapon.Greataxe,
+			Item.Type.Minor.Weapon.Greatmace,
+			Item.Type.Minor.Weapon.Pitchfork ->
+				setOf(
+					Animation.GreatweaponM1a,
+					Animation.GreatweaponM1b,
+					Animation.GreatweaponM1c,
+					Animation.GreatweaponM2Charging,
+				) + if (classMinor == CombatClassMinor.Warrior.Guardian)
+					Animation.GreatweaponM2Guardian
+				else
+					Animation.GreatweaponM2Berserker
+//		Item.Type.Minor.Weapon.Sword,
+//		Item.Type.Minor.Weapon.Axe,
+//		Item.Type.Minor.Weapon.Mace,
+//		Item.Type.Minor.Weapon.Arrow,
+//		Item.Type.Minor.Weapon.Quiver,
+//		Item.Type.Minor.Weapon.Pickaxe,
+//		Item.Type.Minor.Weapon.Torch,
+			else -> setOf(
+				Animation.DualWieldM1a,
+				Animation.DualWieldM1b,
+				Animation.UnarmedM2,
+				Animation.UnarmedM2Charging
 			)
-			CombatClassMinor.Warrior.Guardian -> setOf(
-				Animation.GreatweaponM2Guardian
-			)
-			else -> error("subclass should be sanity checked already")
 		}
-		CombatClassMajor.Ranger -> setOf(
-			Animation.ShootArrow,
-			Animation.BowM2,
-			Animation.BowM2Charging,
-			Animation.CrossbowM2,
-			Animation.CrossbowM2Charging,
-			Animation.BoomerangM1,
-			Animation.BoomerangM2Charging,
-			Animation.Kick
-		)
-		CombatClassMajor.Mage -> setOf(
-			Animation.Teleport
-		) + when (classMinor) {
-			CombatClassMinor.Mage.Fire -> setOf(
-				Animation.StaffFireM1,
-				Animation.StaffFireM2,
-				Animation.WandFireM1,
-				Animation.WandFireM2,
-				Animation.BraceletsFireM1a,
-				Animation.BraceletsFireM1b,
-				Animation.BraceletFireM2,
-				Animation.FireExplosionShort
-			)
-			CombatClassMinor.Mage.Water -> setOf(
-				Animation.StaffWaterM1,
-				Animation.StaffWaterM2,
-				Animation.WandWaterM1,
-				Animation.WandWaterM2,
-				Animation.BraceletsWaterM1a,
-				Animation.BraceletsWaterM1b,
-				Animation.BraceletWaterM2,
-				Animation.HealingStream
-			)
-			else -> error("subclass should be sanity checked already")
-		}
-		CombatClassMajor.Rogue -> setOf(
-			Animation.LongswordM1a,
-			Animation.LongswordM1b,
-			Animation.LongswordM2,
-			Animation.DaggersM1a,
-			Animation.DaggersM1b,
-			Animation.DaggersM2,
-			Animation.FistsM2,
-			Animation.Intercept,
-			Animation.Stealth
-		) + when (classMinor) {
-			CombatClassMinor.Rogue.Assassin -> setOf(
 
+	private fun getAllowedMaterialsArmor(combatClassMajor: CombatClassMajor) =
+		when (combatClassMajor) {
+			CombatClassMajor.Warrior -> setOf(
+				Item.Material.Iron,
+				Item.Material.Obsidian,
+				Item.Material.Saurian,
+				Item.Material.Ice
 			)
-			CombatClassMinor.Rogue.Ninja -> setOf(
-				Animation.Shuriken
+			CombatClassMajor.Ranger -> setOf(
+				Item.Material.Parrot,
+				Item.Material.Linen
 			)
-			else -> error("subclass should be sanity checked already")
-		}
-		else -> error("class should be sanity checked already")
-	}
-
-	private fun getAllowedMaterialsArmor(combatClassMajor: CombatClassMajor) = when (combatClassMajor) {
-		CombatClassMajor.Warrior -> setOf(
-			Item.Material.Iron,
-			Item.Material.Obsidian,
-			Item.Material.Saurian,
-			Item.Material.Ice
+			CombatClassMajor.Mage -> setOf(
+				Item.Material.Licht,
+				Item.Material.Silk
+			)
+			CombatClassMajor.Rogue -> setOf(
+				Item.Material.Cotton
+			)
+			else -> setOf()
+		} + setOf( //these can be worn by any class
+			Item.Material.Bone,
+			Item.Material.Mammoth,
+			Item.Material.Gold
 		)
-		CombatClassMajor.Ranger -> setOf(
-			Item.Material.Parrot,
-			Item.Material.Linen
-		)
-		CombatClassMajor.Mage -> setOf(
-			Item.Material.Licht,
-			Item.Material.Silk
-		)
-		CombatClassMajor.Rogue -> setOf(
-			Item.Material.Cotton
-		)
-		else -> setOf()
-	} + setOf( //these can be worn by any class
-		Item.Material.Bone,
-		Item.Material.Mammoth,
-		Item.Material.Gold
-	)
 
 	private fun getAllowedWeaponTypes(combatClassMajor: CombatClassMajor) =
 		when (combatClassMajor) {
@@ -433,37 +491,36 @@ object AntiCheat {
 			Item.Type.Minor.Weapon.Arrow
 		)
 
-	private fun getWeaponHandCount(weaponType: Item.Type.Minor) = when (weaponType) {
-		Item.Type.Minor.Weapon.Longsword,
-		Item.Type.Minor.Weapon.Bow,
-		Item.Type.Minor.Weapon.Crossbow,
-		Item.Type.Minor.Weapon.Boomerang,
-		Item.Type.Minor.Weapon.Staff,
-		Item.Type.Minor.Weapon.Wand,
-		Item.Type.Minor.Weapon.Greatsword,
-		Item.Type.Minor.Weapon.Greataxe,
-		Item.Type.Minor.Weapon.Greatmace,
-		Item.Type.Minor.Weapon.Pitchfork -> 2
+	private fun getWeaponHandCount(weaponType: Item.Type.Minor) =
+		when (weaponType) {
+			Item.Type.Minor.Weapon.Longsword,
+			Item.Type.Minor.Weapon.Bow,
+			Item.Type.Minor.Weapon.Crossbow,
+			Item.Type.Minor.Weapon.Boomerang,
+			Item.Type.Minor.Weapon.Staff,
+			Item.Type.Minor.Weapon.Wand,
+			Item.Type.Minor.Weapon.Greatsword,
+			Item.Type.Minor.Weapon.Greataxe,
+			Item.Type.Minor.Weapon.Greatmace,
+			Item.Type.Minor.Weapon.Pitchfork -> 2
 
-//		Item.Type.Minor.Weapon.Bracelet,
-//		Item.Type.Minor.Weapon.Shield,
-//		Item.Type.Minor.Weapon.Quiver,
-//		Item.Type.Minor.Weapon.Arrow,
-//		Item.Type.Minor.Weapon.Sword,
-//		Item.Type.Minor.Weapon.Axe,
-//		Item.Type.Minor.Weapon.Mace,
-//		Item.Type.Minor.Weapon.Dagger,
-//		Item.Type.Minor.Weapon.Fist,
-//		Item.Type.Minor.Weapon.Pickaxe,
-//		Item.Type.Minor.Weapon.Torch -> 1
+//			Item.Type.Minor.Weapon.Bracelet,
+//			Item.Type.Minor.Weapon.Shield,
+//			Item.Type.Minor.Weapon.Quiver,
+//			Item.Type.Minor.Weapon.Arrow,
+//			Item.Type.Minor.Weapon.Sword,
+//			Item.Type.Minor.Weapon.Axe,
+//			Item.Type.Minor.Weapon.Mace,
+//			Item.Type.Minor.Weapon.Dagger,
+//			Item.Type.Minor.Weapon.Fist,
+//			Item.Type.Minor.Weapon.Pickaxe,
+//			Item.Type.Minor.Weapon.Torch -> 1
 
-		else -> 1
-	}
+			else -> 1
+		}
 
 	private val lastFireSpam = mutableMapOf<CreatureId, Long>()
-	private val lastAnimation = mutableMapOf<CreatureId, Long>(
-
-	)
+	private val lastAnimation = mutableMapOf<CreatureId, Long>()
 
 	fun inspect(creatureUpdate: CreatureUpdate, previous: Creature): String? {
 		val current = previous.copy().apply { update(creatureUpdate) } //TODO: optimize
@@ -517,13 +574,28 @@ object AntiCheat {
 				flagsPhysics?.let {}
 				affiliation?.expect(Affiliation.Player, "affiliation")
 				race?.expectIn(allowedRaces, "race")
-				animation?.expectIn(
-					getAllowedAnimations(
-						current.combatClassMajor,
-						current.combatClassMinor
-					),
-					"animation"
-				)
+				animation?.let {
+					val leftWeaponTypeMinor = current.equipment.leftWeapon.typeMinor
+					val weaponTypeMinor = when {
+						leftWeaponTypeMinor in setOf(
+							Item.Type.Minor.Weapon.Bow,
+							Item.Type.Minor.Weapon.Crossbow,
+							Item.Type.Minor.Weapon.Shield
+						) -> leftWeaponTypeMinor
+
+						current.equipment.rightWeapon.typeMajor == Item.Type.Major.None -> null
+
+						else -> current.equipment.rightWeapon.typeMinor
+					}
+					it.expectIn(
+						getAllowedAnimations(
+							weaponTypeMinor,
+							current.combatClassMajor,
+							current.combatClassMinor
+						),
+						"animation"
+					)
+				}
 				animationTime?.let {
 					it.expectMinimum(0, "animationTime")
 					val animationCurrent = current.animation
@@ -632,9 +704,15 @@ object AntiCheat {
 				}
 				blockingGauge?.let {
 					it.expectMaximum(1f, "blockingGauge")
-					if (current.animation in setOf(Animation.ShieldM2Charging, Animation.DualWieldM2Charging, Animation.GreatweaponM2Charging, Animation.UnarmedM2Charging)) {
+					val chargables = setOf(
+						Animation.ShieldM2Charging,
+						Animation.DualWieldM2Charging,
+						Animation.GreatweaponM2Charging,
+						Animation.UnarmedM2Charging
+					)
+					if (current.animation in chargables && current.animationTime > 100) {
 						//TODO: quick release and recharge breaks this
-						//it.expectMaximum(previous.blockMeter, "blockMeter")
+						it.expectMaximum(previous.blockMeter, "blockingGauge")
 					}
 				}
 				multipliers?.let {
