@@ -57,7 +57,7 @@ object AntiCheat {
 		Item.Type.Minor.Weapon.Bow to setOf(Item.Material.Wood),
 		Item.Type.Minor.Weapon.Crossbow to setOf(Item.Material.Wood),
 		Item.Type.Minor.Weapon.Boomerang to setOf(Item.Material.Wood),
-		Item.Type.Minor.Weapon.Staff to setOf(Item.Material.Wood),
+		Item.Type.Minor.Weapon.Staff to setOf(Item.Material.Wood, Item.Material.Obsidian),
 		Item.Type.Minor.Weapon.Wand to setOf(Item.Material.Wood),
 		Item.Type.Minor.Weapon.Bracelet to setOf(Item.Material.Gold, Item.Material.Silver),
 		Item.Type.Minor.Weapon.Shield to setOf(Item.Material.Iron, Item.Material.Wood),
