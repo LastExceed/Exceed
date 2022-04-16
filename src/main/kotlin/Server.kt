@@ -82,10 +82,15 @@ object Server {
 			return
 		}
 
+		//seed must be sent BEFORE the player is added to the layer
+		//else the seed change will unload all cratures on their end
+		MapSeed(225).run {
+			packetId.writeTo(writer)
+			writeTo(writer)
+		}
 		val player = Player.create(socket, writer, character, mainLayer)
 		try {
 			player.layer.announce("[+] ${player.character.name}")
-			player.send(MapSeed(225))
 			while (true) {
 				when (val packet = getNextPacket(reader)) {
 					is CreatureUpdate -> CreatureUpdateHandler.handlePacket(packet, player)
