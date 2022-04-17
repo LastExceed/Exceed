@@ -4,9 +4,6 @@ import modules.Ultimates
 import com.github.lastexceed.cubeworldnetworking.packets.*
 import Player
 import com.github.lastexceed.cubeworldnetworking.utils.*
-import kotlinx.coroutines.*
-
-private val dropLists = mutableMapOf<Vector2<Int>, MutableList<Drop>>()
 
 fun onCreatureAction(packet: CreatureAction, source: Player) {
 	when (packet.type) {
@@ -20,65 +17,29 @@ fun onCreatureAction(packet: CreatureAction, source: Player) {
 			source.notify("object interactions are disabled")
 		}
 		CreatureAction.Type.PickUp -> {
-			val dropList = dropLists[packet.chunk]!!
-			val drop = dropList.removeAt(packet.itemIndex)
+			val dropList = source.layer.dropLists[packet.chunk] ?: return //when item was dropped in single player
+			val drop = dropList.getOrNull(packet.itemIndex) ?: return
 
-			if (dropList.isEmpty()) dropLists.remove(packet.chunk)
+			source.layer.removeGroundItem(dropList, drop)
 
-			val worldUpdate = WorldUpdate(
-				chunkLoots = listOf(ChunkLoot(packet.chunk, dropList)),
-				soundEffects = listOf(
-					SoundEffect(
-						Utils.creatureToSoundPosition(source.character.position),
-						SoundEffect.Sound.Pickup
-					)
-				)
-			)
-			source.layer.broadcast(worldUpdate, source)
-			source.send(worldUpdate.copy(pickups = listOf(Pickup(source.character.id, drop.item))))
-		}
-		CreatureAction.Type.Drop -> {
-			val chunk = source.character.zone
-			val drop = Drop(
-				packet.item,
-				source.character.position.copy(z = source.character.position.z - 0x10000),
-				source.character.rotation.z,
-				scale = 0.1f
-			)
-			val dropList = dropLists.getOrPut(chunk) { mutableListOf() }
-			val dropListCopy = dropList.toList()
-			dropList.add(drop)
-
-			source.layer.broadcast(
+			source.send(
 				WorldUpdate(
-					chunkLoots = listOf(
-						ChunkLoot(
-							chunk,
-							dropListCopy + drop.copy(droptime = 500)
-						)
-					),
+					pickups = listOf(Pickup(source.character.id, drop.item)),
 					soundEffects = listOf(
 						SoundEffect(
 							Utils.creatureToSoundPosition(source.character.position),
-							SoundEffect.Sound.Drop
+							SoundEffect.Sound.Pickup
 						)
 					)
 				)
 			)
-			source.scope.launch {
-				val positionSnapshot = source.character.position.copy()
-				delay(500)
-				source.send(
-					WorldUpdate(
-						soundEffects = listOf(
-							SoundEffect(
-								Utils.creatureToSoundPosition(positionSnapshot),
-								SoundEffect.Sound.DropItem
-							)
-						)
-					)
-				)
-			}
+		}
+		CreatureAction.Type.Drop -> {
+			source.layer.addGroundItem(
+				packet.item,
+				source.character.position.copy(z = source.character.position.z - (source.character.appearance.creatureSize.z / 2f * Utils.SIZE_BLOCK).toLong()),
+				source.character.rotation.z
+			)
 		}
 		CreatureAction.Type.CallPet -> {
 			if (!source.character.flags[CreatureFlag.Sprinting]) {
