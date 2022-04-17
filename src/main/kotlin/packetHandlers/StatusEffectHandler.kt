@@ -22,7 +22,7 @@ object StatusEffectHandler : PacketHandler<StatusEffect> {
 					)
 				)
 			}
-			StatusEffect.Type.WarFrenzy,
+			StatusEffect.Type.WarFrenzy -> Balancing.warFrenzyBuff(packet, source)
 			StatusEffect.Type.Bulwalk,
 			StatusEffect.Type.Camouflage,
 			StatusEffect.Type.ManaShield,

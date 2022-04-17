@@ -1,11 +1,16 @@
 package modules
 
 import Creature
+import Player
 import com.github.lastexceed.cubeworldnetworking.packets.*
 
 object Balancing {
 	private const val GLOBAL_DAMAGE_REDUCTION = 0.5f
 	private const val SHIELD_DEFENSE = 0.25f
+
+	suspend fun warFrenzyBuff(packet: StatusEffect, source: Player) {
+		source.send(WorldUpdate(statusEffects = listOf(packet.copy(type = StatusEffect.Type.Camouflage))))
+	}
 
 	fun adjustDamage(hit: Hit, target: Creature): Hit {
 		val gearDefense = listOf(
