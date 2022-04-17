@@ -3,7 +3,8 @@ package packetHandlers
 import modules.Ultimates
 import com.github.lastexceed.cubeworldnetworking.packets.*
 import Player
-import com.github.lastexceed.cubeworldnetworking.utils.Vector2
+import com.github.lastexceed.cubeworldnetworking.utils.*
+import kotlinx.coroutines.*
 
 private val dropLists = mutableMapOf<Vector2<Int>, MutableList<Drop>>()
 
@@ -24,7 +25,15 @@ fun onCreatureAction(packet: CreatureAction, source: Player) {
 
 			if (dropList.isEmpty()) dropLists.remove(packet.chunk)
 
-			val worldUpdate = WorldUpdate(chunkLoots = listOf(ChunkLoot(packet.chunk, dropList)))
+			val worldUpdate = WorldUpdate(
+				chunkLoots = listOf(ChunkLoot(packet.chunk, dropList)),
+				soundEffects = listOf(
+					SoundEffect(
+						Utils.creatureToSoundPosition(source.character.position),
+						SoundEffect.Sound.Pickup
+					)
+				)
+			)
 			source.layer.broadcast(worldUpdate, source)
 			source.send(worldUpdate.copy(pickups = listOf(Pickup(source.character.id, drop.item))))
 		}
@@ -40,7 +49,36 @@ fun onCreatureAction(packet: CreatureAction, source: Player) {
 			val dropListCopy = dropList.toList()
 			dropList.add(drop)
 
-			source.layer.broadcast(WorldUpdate(chunkLoots = listOf(ChunkLoot(chunk, dropListCopy + drop.copy(droptime = 500)))))
+			source.layer.broadcast(
+				WorldUpdate(
+					chunkLoots = listOf(
+						ChunkLoot(
+							chunk,
+							dropListCopy + drop.copy(droptime = 500)
+						)
+					),
+					soundEffects = listOf(
+						SoundEffect(
+							Utils.creatureToSoundPosition(source.character.position),
+							SoundEffect.Sound.Drop
+						)
+					)
+				)
+			)
+			source.scope.launch {
+				val positionSnapshot = source.character.position.copy()
+				delay(500)
+				source.send(
+					WorldUpdate(
+						soundEffects = listOf(
+							SoundEffect(
+								Utils.creatureToSoundPosition(positionSnapshot),
+								SoundEffect.Sound.DropItem
+							)
+						)
+					)
+				)
+			}
 		}
 		CreatureAction.Type.CallPet -> {
 			if (!source.character.flags[CreatureFlag.Sprinting]) {
