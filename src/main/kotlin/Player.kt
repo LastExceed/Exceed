@@ -17,7 +17,7 @@ class Player private constructor(
 		private set
 	private val mutex = Mutex(false)
 
-	suspend fun send(packet: Packet) {
+	fun send(packet: Packet) {
 		scope.launch {
 			mutex.withLock {//TODO: IllegalStateException: Already locked
 				try {
@@ -32,7 +32,7 @@ class Player private constructor(
 		}
 	}
 
-	suspend fun moveTo(destination: Layer) {
+	fun moveTo(destination: Layer) {
 		if (destination == layer) {
 			return
 		}
@@ -42,7 +42,7 @@ class Player private constructor(
 		layer = destination
 	}
 
-	suspend fun clearCreatures() {
+	fun clearCreatures() {
 		send(ServerTick())
 		send(ServerTick())
 	}
@@ -54,13 +54,13 @@ class Player private constructor(
 	}
 
 	companion object {
-		suspend fun create(socket: Socket, writer: Writer, character: Creature, layer: Layer) =
+		fun create(socket: Socket, writer: Writer, character: Creature, layer: Layer) =
 			Player(socket, writer, character, layer).also {
 				layer.addPlayer(it)
 			}
 	}
 
-	suspend fun notify(message: String) {
+	fun notify(message: String) {
 		send(ChatMessage.FromServer(CreatureId(0), message))
 	}
 }

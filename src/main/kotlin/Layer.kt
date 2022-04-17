@@ -5,26 +5,26 @@ data class Layer(
 	val creatures: MutableMap<CreatureId, Creature> = mutableMapOf(),
 	val players: MutableMap<CreatureId, Player> = mutableMapOf()
 ) {
-	suspend fun broadcast(packet: Packet, toSkip: Player? = null) {
+	fun broadcast(packet: Packet, toSkip: Player? = null) {
 		for (player in players.values.toSet()) {
 			if (player == toSkip) continue
 			player.send(packet)
 		}
 	}
 
-	suspend fun addCreature(creature: Creature) {
+	fun addCreature(creature: Creature) {
 		creatures[creature.id] = creature
 		val creatureUpdate = creature.toCreatureUpdate()
 		broadcast(Pvp.makeAttackable(creatureUpdate))
 	}
 
-	suspend fun removeCreature(creature: Creature) {
+	fun removeCreature(creature: Creature) {
 		creatures.remove(creature.id)
 		val creatureUpdate = CreatureUpdate(id = creature.id, health = 0f, affiliation = Affiliation.Neutral)
 		broadcast(creatureUpdate)
 	}
 
-	suspend fun addPlayer(player: Player) {
+	fun addPlayer(player: Player) {
 		creatures.values.toSet().forEach {
 			val creatureUpdate = it.copy().toCreatureUpdate()
 			player.send(Pvp.makeAttackable(creatureUpdate))
@@ -33,12 +33,12 @@ data class Layer(
 		players[player.character.id] = player
 	}
 
-	suspend fun removePlayer(player: Player) {
+	fun removePlayer(player: Player) {
 		players.remove(player.character.id)
 		removeCreature(player.character)
 	}
 
-	suspend fun announce(message: String) {
+	fun announce(message: String) {
 		players.values.toSet().forEach {
 			it.notify(message)
 		}
