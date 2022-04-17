@@ -7,16 +7,20 @@ object Balancing {
 	private const val SHIELD_DEFENSE = 0.25f
 
 	fun adjustDamage(hit: Hit, target: Creature): Hit {
-		var gearDefense = 0f
-
-		if (target.equipment.leftWeapon.isShield()) {
-			gearDefense += SHIELD_DEFENSE
-		}
-		if (target.equipment.rightWeapon.isShield()) {
-			gearDefense += SHIELD_DEFENSE
+		val gearDefense = listOf(
+			target.equipment.leftWeapon,
+			target.equipment.rightWeapon
+		).fold(0f) { accumulator, item ->
+			accumulator + if (item.isShield()) SHIELD_DEFENSE else 0f
 		}
 
-		return hit.copy(damage = hit.damage * (1 - gearDefense))
+		val effectiveDamage = listOf(
+			gearDefense
+		).fold(hit.damage) { accumulator, multiplicativeDefenseModifier ->
+			accumulator * (1f - multiplicativeDefenseModifier)
+		}
+
+		return hit.copy(damage = effectiveDamage)
 	}
 
 	//add bleeding to make daggers viable
