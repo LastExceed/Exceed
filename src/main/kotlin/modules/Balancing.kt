@@ -4,6 +4,7 @@ import Creature
 import com.github.lastexceed.cubeworldnetworking.packets.*
 
 object Balancing {
+	private const val GLOBAL_DAMAGE_REDUCTION = 0.5f
 	private const val SHIELD_DEFENSE = 0.25f
 
 	fun adjustDamage(hit: Hit, target: Creature): Hit {
@@ -15,6 +16,7 @@ object Balancing {
 		}
 
 		val effectiveDamage = listOf(
+			GLOBAL_DAMAGE_REDUCTION,
 			gearDefense
 		).fold(hit.damage) { accumulator, multiplicativeDefenseModifier ->
 			accumulator * (1f - multiplicativeDefenseModifier)
