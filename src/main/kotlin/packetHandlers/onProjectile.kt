@@ -3,13 +3,11 @@ package packetHandlers
 import Player
 import com.github.lastexceed.cubeworldnetworking.packets.*
 
-object ProjectileHandler : PacketHandler<Projectile> {
-	override suspend fun handlePacket(packet: Projectile, source: Player) {
-		source.layer.broadcast(
-			WorldUpdate(projectiles = listOf(packet)),
-			source
-		)
-	}
+fun onProjectile(packet: Projectile, source: Player) {
+	source.layer.broadcast(
+		WorldUpdate(projectiles = listOf(packet)),
+		source
+	)
 }
 //unknownA = 0
 //paddingA = -1

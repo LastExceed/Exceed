@@ -93,14 +93,14 @@ object Server {
 			player.layer.announce("[+] ${player.character.name}")
 			while (true) {
 				when (val packet = getNextPacket(reader)) {
-					is CreatureUpdate -> CreatureUpdateHandler.handlePacket(packet, player)
-					is CreatureAction -> CreatureActionHandler.handlePacket(packet, player)
-					is Hit -> HitHandler.handlePacket(packet, player)
-					is StatusEffect -> StatusEffectHandler.handlePacket(packet, player)
-					is Projectile -> ProjectileHandler.handlePacket(packet, player)
-					is ChatMessage.FromClient -> ChatMessageHandler.handlePacket(packet, player)
-					is ResidenceChunk -> ResidenceChunkHandler.handlePacket(packet, player)
-					is ResidenceBiome -> ResidenceBiomeHandler.handlePacket(packet, player)
+					is CreatureUpdate -> onCreatureUpdate(packet, player)
+					is CreatureAction -> onCreatureAction(packet, player)
+					is Hit -> onHit(packet, player)
+					is StatusEffect -> onStatusEffect(packet, player)
+					is Projectile -> onProjectile(packet, player)
+					is ChatMessage.FromClient -> onChatMessage(packet, player)
+					is ResidenceChunk -> onResidenceChunk(packet, player)
+					is ResidenceBiome -> onResidenceBiome(packet, player)
 					else -> error("unexpected packet type ${packet::class}")
 				}
 			}
