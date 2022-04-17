@@ -8,6 +8,7 @@ import modules.AntiCheat
 import packetHandlers.*
 import java.io.File
 import java.net.SocketException
+import java.time.Duration
 import java.time.LocalTime
 
 object Server {
@@ -16,8 +17,14 @@ object Server {
 
 	suspend fun start() {
 		CreatureIdPool.claim() //claim 0 because its reserved for server messages
-		println("start listening")
 		supervisorScope {
+			launch {//todo: layer scope
+				while (true) {
+					mainLayer.broadcast(GameDateTime(0, Duration.ofHours(12).toMillis().toInt()))
+					delay(5000)
+				}
+			}
+			println("start listening")
 			while (true) {
 				val socket = listener.accept()
 				launch {
