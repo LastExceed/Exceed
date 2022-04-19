@@ -1,92 +1,111 @@
 package modules
 
 import Player
-import com.github.lastexceed.cubeworldnetworking.packets.*
-import kotlinx.coroutines.delay
 import java.io.File
 
 object ChatCommands {
 	private const val prefix: Char = '/'
+	private const val defaultPassword = "change-me"
+
 	private val adminPassword = File("admin_pw").let {
 		if (it.createNewFile()) {
-			it.writeText("change-me")
-		}
-		it.readText()
+			it.writeText(defaultPassword)
+			defaultPassword
+		} else it.readText()
 	}
 
-	suspend fun parse(message: String, source: Player): Boolean {
-		if (!message.startsWith(prefix)) {
-			return false
-		}
-		val params = message.trimStart(prefix).split(' ')
+	val commands = mutableMapOf<String, Command>()
 
-		if (params[0].lowercase() == "login" && params.size == 2) {
-			if (params[1] == adminPassword) {
-				source.isAdmin = true
-				source.notify("logged in")
+	init {
+		commands["help"] = Command { caller, parameters ->
+			{ caller.notify(commands.keys.joinToString { prefix + it }) }
+		}
+		commands["who"] = Command { caller, parameters ->
+			val playerList = caller.layer.players.values.map {
+				"#${it.character.id.value} ${it.character.name}"
+			}.joinToString()
+
+			({ caller.notify(playerList) })
+		}
+		commands["login"] = Command { caller, parameters ->
+			val givenPassword = parameters.nextOrNull() ?: return@Command null
+
+			if (caller.isAdmin) return@Command { caller.notify("already logged in") }
+
+			if (givenPassword == adminPassword) {
+				{
+					caller.isAdmin = true
+					caller.notify("login successful")
+				}
 			} else {
-				source.notify("wrong password")
+				{ caller.notify("wrong password") }
 			}
-			return true
 		}
-		if (!source.isAdmin) {
-			source.notify("only admins can use commands for now")
+
+		commands["tp"] = Command(adminOnly = true) { caller, parameters ->
+			val searchQuery = parameters.nextOrNull() ?: return@Command null
+			val target = caller.layer.findPlayerByNameOrId(searchQuery)
+				?: return@Command { caller.notify("couldn't find player $searchQuery") }
+
+			{ ExperimentalStuff.teleport(caller, target.character.position) }
+		}
+
+		commands["kick"] = Command(adminOnly = true) { caller, parameters ->
+			val searchQuery = parameters.nextOrNull() ?: return@Command null
+			val target = caller.layer.findPlayerByNameOrId(searchQuery)
+			val reason = parameters.concatRemaining()
+
+			if (target == null) {
+				{ caller.notify("couldn't find player $searchQuery") }
+			} else {
+				{ target.kick(reason) }
+			}
+		}
+		registerCommands()
+	}
+
+	//todo: get rid of this suspend. its only here because model import code is garbage
+	suspend fun parse(caller: Player, input: String): Boolean {
+		if (!input.startsWith(prefix)) return false
+
+		val splits = input.lowercase().drop(1).split(' ').listIterator()
+
+		if (!splits.hasNext()) return false
+
+		val command = commands[splits.next()] ?: kotlin.run {
+			caller.notify("unknown command")
 			return true
 		}
 
-		when (params[0].lowercase()) {
-			"time" -> {
-				source.send(GameDateTime(0, params[1].toInt()))
-			}
-			"skillpoint" -> {
-				val pickup = Pickup(
-					interactor = source.character.id,
-					item = Item.void.copy(typeMajor = Item.Type.Major.ManaCube)
-				)
-				val miscellaneous = WorldUpdate(
-					pickups = listOf(pickup, pickup, pickup, pickup)
-				)
-				source.send(miscellaneous)
-			}
-			"tp" -> {
-				val serverEntity = CreatureUpdate(
-					CreatureId(0),
-					source.layer.creatures[CreatureId(params[1].toLong())]!!.position,
-					affiliation = Affiliation.Pet,
-					animation = Animation.Riding
-				)
-				source.send(serverEntity)
-				delay(100)
-				source.clearCreatures() //todo: deduplicate
-				source.layer.creatures.forEach { source.send(it.value.toCreatureUpdate()) }//todo: what happens when you receive other creature updates in between?
-			}
-			"reload" -> {
-				source.clearCreatures()
-				source.layer.creatures.forEach { source.send(it.value.toCreatureUpdate()) }
-			}
-			"day" -> {
-				source.layer.broadcast(GameDateTime(0, 20_000_000))
-			}
-			"speed" -> {
-				val camo = StatusEffect(
-					source.character.id,
-					source.character.id,
-					StatusEffect.Type.Camouflage,
-					modifier = 99999f,
-					duration = 10_000,
-					creatureId3 = source.character.id
-				)
-				val speed = StatusEffect(
-					source.character.id,
-					source.character.id,
-					StatusEffect.Type.Swiftness,
-					modifier = 99999f,
-					duration = 10_000,
-					creatureId3 = source.character.id
-				)
-				source.send(WorldUpdate(statusEffects = listOf(speed, camo)))
-			}
+		if (command.adminOnly && caller.isAdmin.not()) {
+			caller.notify("no permission")
+			return true
 		}
+
+		val action = command.evaluate(caller, splits) ?: kotlin.run {
+			caller.notify("too few arguments")
+			return true
+		}
+
+		if (splits.hasNext()) {
+			caller.notify("too many arguments")
+		} else {
+			action()
+		}
+
 		return true
 	}
 }
+
+data class Command(
+	val adminOnly: Boolean = false,
+	val evaluate: (Player, ListIterator<String>) -> (suspend () -> Unit)?
+)
+
+fun <T> Iterator<T>.nextOrNull() = if (hasNext()) next() else null
+fun <T> Iterator<T>.concatRemaining() =
+	buildList {
+		while (hasNext()) {
+			add(next().toString())
+		}
+	}.joinToString(" ")

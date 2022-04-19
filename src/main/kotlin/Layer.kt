@@ -118,4 +118,10 @@ data class Layer(
 			)
 		)
 	}
+
+	fun findPlayerByNameOrId(input: String) =
+		players.values.find {
+			it.character.name.lowercase().contains(input.lowercase())
+				|| it.character.id.value == input.toLongOrNull()
+		}
 }
