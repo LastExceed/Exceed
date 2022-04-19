@@ -13,4 +13,5 @@ suspend fun onCreatureUpdate(packet: CreatureUpdate, source: Player) {
 	source.character.update(packet)
 	if (filtered == null) return
 	source.layer.broadcast(Pvp.makeAttackable(filtered), source)
+	ModelImport.onCreatureUpdate(source, packet)
 }
