@@ -547,15 +547,13 @@ object AntiCheat {
 //					if (!current.flags[CreatureFlag.Gliding]) {
 //						actualXY.expectIn(0f..accelLimitXY, "acceleration.XY")
 //					}
-					if (current.flagsPhysics[PhysicsFlag.Swimming]) {
-						it.z.expectIn(-80f..80f, "acceleration.Z")
-					} else if (current.flags[CreatureFlag.Climbing]){
-						it.z.expectIn(setOf(0f, -16f, 16f), "acceleration.Z")
-					} else {
-						it.z.expect(0f, "acceleration.Z")
-					}
-
-
+//					if (current.flagsPhysics[PhysicsFlag.Swimming]) {
+//						it.z.expectIn(-80f..80f, "acceleration.Z")
+//					} else if (current.flags[CreatureFlag.Climbing]) {
+//						it.z.expectIn(setOf(0f, -16f, 16f), "acceleration.Z")
+//					} else {
+//						it.z.expect(0f, "acceleration.Z")
+//					}
 				}
 				velocityExtra?.let {
 					var limitXY = 0.1f //game doesnt reset all the way to 0
