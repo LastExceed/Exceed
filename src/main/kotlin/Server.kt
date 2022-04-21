@@ -103,9 +103,7 @@ object Server {
 		ModelImport.onJoin(player)
 		while (true) {
 			try {
-				val packet = try {
-					getNextPacket(reader)
-				} catch (_: SocketException) { break } //regular disconnect
+				val packet = getNextPacket(reader) ?: break
 				handlePacket(packet, player)
 			} catch (exception: Throwable) {
 				val logFile = File("connection_error_${LocalDateTime.now().toString().replace(":", "-")}.log").apply {
@@ -129,17 +127,24 @@ object Server {
 }
 
 private suspend fun getNextPacket(reader: Reader) =
-	when (PacketId.readFrom(reader)) {
-		PacketId.CreatureUpdate -> CreatureUpdate
-		PacketId.CreatureAction -> CreatureAction
-		PacketId.Hit -> Hit
-		PacketId.StatusEffect -> StatusEffect
-		PacketId.Projectile -> Projectile
-		PacketId.ChatMessage -> ChatMessage.FromClient
-		PacketId.ResidenceBiome -> ResidenceChunk
-		PacketId.ResidenceChunk -> ResidenceBiome
-		else -> throw IllegalStateException("unexpected packet id")
-	}.readFrom(reader)
+	try {
+		withTimeoutOrNull(5000) {
+			when (PacketId.readFrom(reader)) {
+				PacketId.CreatureUpdate -> CreatureUpdate
+				PacketId.CreatureAction -> CreatureAction
+				PacketId.Hit -> Hit
+				PacketId.StatusEffect -> StatusEffect
+				PacketId.Projectile -> Projectile
+				PacketId.ChatMessage -> ChatMessage.FromClient
+				PacketId.ResidenceBiome -> ResidenceChunk
+				PacketId.ResidenceChunk -> ResidenceBiome
+				else -> throw IllegalStateException("unexpected packet id")
+			}.readFrom(reader)
+		}
+	} catch (_: SocketException) {
+		//regular disconnect
+		null
+	}
 
 private suspend fun handlePacket(packet: Packet, source: Player) =
 	when (packet) {
