@@ -1,4 +1,6 @@
+import com.andreapivetta.kolor.*
+
 suspend fun main() {
-	println("=====Exceed=====")
+	println(Kolor.foreground("=====Exceed=====", Color.MAGENTA))
 	Server.start()
 }

@@ -14,6 +14,7 @@ repositories {
 dependencies {
 	implementation("io.ktor", "ktor-network", "2.0.+")
 	implementation("com.github.lastexceed", "CubeworldNetworking", "1.4.0")
+	implementation("com.github.ziggy42", "kolor", "1.0.0")
 }
 
 application {

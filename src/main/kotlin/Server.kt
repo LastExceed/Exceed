@@ -1,8 +1,10 @@
+import com.andreapivetta.kolor.*
 import io.ktor.network.selector.ActorSelectorManager
 import io.ktor.network.sockets.*
 import kotlinx.coroutines.*
 import com.github.lastexceed.cubeworldnetworking.packets.*
 import com.github.lastexceed.cubeworldnetworking.utils.*
+import io.ktor.util.network.hostname
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import modules.*
 import packetHandlers.*
@@ -24,7 +26,7 @@ object Server {
 					delay(5000)
 				}
 			}
-			println("start listening")
+			println(Kolor.foreground("start listening", Color.DARK_GRAY))
 			while (true) {
 				val socket = listener.accept()
 				launch {
@@ -41,7 +43,7 @@ object Server {
 	}
 
 	private suspend fun handleNewConnection(socket: Socket) {
-		println("new connection " + socket.remoteAddress)
+		println(Kolor.foreground("new connection from " + socket.remoteAddress.toJavaAddress().hostname, Color.DARK_GRAY))
 		val reader = Reader(socket.openReadChannel())
 		val writer = ByteWriteChannelAdapter(socket.openWriteChannel(true))
 
@@ -117,10 +119,10 @@ object Server {
 			when (exception) {
 				is SocketException,
 				is CancellationException -> {}
-				is IllegalStateException -> player.kick("invalid data received")
+				//is IllegalStateException -> player.kick("invalid data received")
 				else -> {
 					val timestamp = LocalTime.now()
-					println("!!! CRASH !!! $timestamp")
+					println(Kolor.foreground("!!! CRASH !!! $timestamp", Color.RED))
 					File("crash-${timestamp.toString().replace(":", "_")}.log").run {
 						createNewFile()
 						appendText(exception.stackTraceToString())

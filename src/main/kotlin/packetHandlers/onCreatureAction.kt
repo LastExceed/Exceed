@@ -48,6 +48,6 @@ fun onCreatureAction(packet: CreatureAction, source: Player) {
 				//Utils.notify(source, "pets are disabled")
 			}
 		}
-		else -> println("unknown creature action type " + packet.type)
+		else -> error("unknown creature action type " + packet.type)
 	}
 }

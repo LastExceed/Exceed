@@ -1,3 +1,4 @@
+import com.andreapivetta.kolor.*
 import modules.Pvp
 import com.github.lastexceed.cubeworldnetworking.packets.*
 import com.github.lastexceed.cubeworldnetworking.utils.*
@@ -55,7 +56,7 @@ data class Layer(
 		players.values.toSet().forEach {
 			it.notify(message)
 		}
-		println(message)
+		println(Kolor.foreground(message, Color.LIGHT_GRAY))
 	}
 
 	fun addGroundItem(item: Item, position: Vector3<Long>, rotation: Float) {
