@@ -14,25 +14,28 @@ object TrafficReduction {
 		val current = previous.copy().apply { update(packet) }
 		val lastSent = sentDatas[source.character.id] ?: source.character.copy().also { sentDatas[source.character.id] = it }
 
-		val isDrift = packet.position?.let { it.diff(lastSent.position) > Utils.SIZE_BLOCK * 2 } ?: false
-		val isJump = packet.velocity?.let { it.z > 2f } ?: false
-		val isMovementChange = packet.acceleration?.let { it.diff(lastSent.acceleration) > 4f } ?: false
-		val isNewAnimation = packet.animationTime?.let { it < previous.animationTime } ?: false
+		val velocityZisRelevant = packet.velocity?.run { //could be a 1-liner, but that would be unreadable
+			if (current.flags[CreatureFlag.Climbing]) return@run false
 
-		//pos - turn/drift/stop-moving
-		//rota - accTurn/bigRotaTurn/attack
-		//accel - drift
+			val isJump = z == 10f //when jumping, the z value is fixed at 10f for a while
+			val zIncreasedWhileAirbone = !current.flagsPhysics[PhysicsFlag.OnGround] && z > previous.velocity.z
+
+			return@run isJump || zIncreasedWhileAirbone
+		} ?: false
+		val isGliderHover = velocityZisRelevant && current.flags[CreatureFlag.Gliding]
+		val isMovementChange = packet.acceleration?.run { diff(lastSent.acceleration) > 4f } ?: false
+		val isNewAnimation = packet.animationTime?.run { this < previous.animationTime } ?: false
 
 		val filtered = packet.copy(
-			position = if (isMovementChange || isDrift) current.position else null,
+			position = if (isMovementChange || isGliderHover) current.position else null,
 			rotation = null,//doesnt work anyway
-			velocity = if (isJump) current.velocity else null,
+			velocity = if (velocityZisRelevant) packet.velocity else null,
 			acceleration = if (isMovementChange) current.acceleration else null,
-			velocityExtra = packet.velocityExtra?.let { //not sure
-				if (abs(it.x) <= abs(lastSent.velocityExtra.x) &&
-					abs(it.y) <= abs(lastSent.velocityExtra.y) &&
-					abs(it.z) <= abs(lastSent.velocityExtra.z)
-				) null else it
+			velocityExtra = packet.velocityExtra?.run {
+				if (abs(x) <= abs(lastSent.velocityExtra.x) &&
+					abs(y) <= abs(lastSent.velocityExtra.y) &&
+					abs(z) <= abs(lastSent.velocityExtra.z)
+				) null else this
 			},
 			climbAnimationState = null,
 			flagsPhysics = null,
@@ -55,7 +58,7 @@ object TrafficReduction {
 			//manaCharge
 			//unknown24
 			//unknown25
-			aimDisplacement = packet.aimDisplacement?.let {
+			aimDisplacement = packet.aimDisplacement?.run {
 				val charges = setOf(
 					Animation.ShieldM2Charging,
 					Animation.CrossbowM2Charging,
@@ -66,8 +69,8 @@ object TrafficReduction {
 					Animation.DualWieldM2Charging
 				)
 				if ((current.animation in charges || current.animationTime < 1500) &&
-					it.diff(lastSent.aimDisplacement) > 2f
-				) it else null
+					diff(lastSent.aimDisplacement) > 2f
+				) this else null
 			},
 			//health
 			mana = null,
@@ -165,5 +168,5 @@ object TrafficReduction {
 	}
 
 	fun <T : Comparable<T>> T?.nullUnlessBigger(reference: T): T? =
-		this?.let { if (it > reference) it else null }
+		this?.run { if (this > reference) this else null }
 }
