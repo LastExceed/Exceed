@@ -1,17 +1,16 @@
 import com.andreapivetta.kolor.*
-import io.ktor.network.selector.ActorSelectorManager
-import io.ktor.network.sockets.*
-import kotlinx.coroutines.*
 import com.github.lastexceed.cubeworldnetworking.packets.*
 import com.github.lastexceed.cubeworldnetworking.utils.*
+import io.ktor.network.selector.ActorSelectorManager
+import io.ktor.network.sockets.*
 import io.ktor.util.network.hostname
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import modules.*
 import packetHandlers.*
 import java.io.File
 import java.net.SocketException
-import java.time.Duration
-import java.time.LocalTime
+import java.time.*
 
 object Server {
 	private val listener = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(InetSocketAddress("0.0.0.0", 12345))
@@ -32,9 +31,14 @@ object Server {
 				launch {
 					try {
 						handleNewConnection(socket)
-					} catch (ex: Exception) {
-						//usually when cubeworld-servers.com checks the online status
-						//todo: logging
+					} catch (exception: Exception) {
+						if (exception !is ClosedReceiveChannelException) {//when cubeworld-servers.com checks the online status
+							val logFile = File("crashlog_${LocalDateTime.now().toString().replace(":", "-")}.log").apply {
+								createNewFile()
+								appendText(exception.stackTraceToString())
+							}
+							println(Kolor.foreground(logFile.name, Color.RED))
+						}
 					}
 					socket.dispose()
 				}
@@ -58,11 +62,7 @@ object Server {
 		}
 
 		val assignedId = CreatureIdPool.claim()
-		try {
-			handleNewPlayer(socket, reader, writer, assignedId)
-		} catch (ex: Exception) {
-			//todo: logging
-		}
+		handleNewPlayer(socket, reader, writer, assignedId)
 		CreatureIdPool.free(assignedId)
 	}
 
@@ -98,46 +98,37 @@ object Server {
 //			writeTo(writer)
 //		}
 		val player = Player.create(socket, writer, character, mainLayer)
-		try {
-			player.layer.announce("[+] ${player.character.name}")
-			ModelImport.onJoin(player)
-			while (true) {
-				when (val packet = getNextPacket(reader)) {
-					is CreatureUpdate -> onCreatureUpdate(packet, player)
-					is CreatureAction -> onCreatureAction(packet, player)
-					is Hit -> onHit(packet, player)
-					is StatusEffect -> onStatusEffect(packet, player)
-					is Projectile -> onProjectile(packet, player)
-					is ChatMessage.FromClient -> onChatMessage(packet, player)
-					is ResidenceChunk -> onResidenceChunk(packet, player)
-					is ResidenceBiome -> onResidenceBiome(packet, player)
-					else -> error("unexpected packet type ${packet::class}")
+
+		player.layer.announce("[+] ${player.character.name}")
+		ModelImport.onJoin(player)
+		while (true) {
+			try {
+				val packet = try {
+					getNextPacket(reader)
+				} catch (_: SocketException) { break } //regular disconnect
+				handlePacket(packet, player)
+			} catch (exception: Throwable) {
+				val logFile = File("connection_error_${LocalDateTime.now().toString().replace(":", "-")}.log").apply {
+					createNewFile()
+					appendText(exception.stackTraceToString())
+					appendText(player.character.toString())
 				}
+				try {
+					player.kick(logFile.name)
+				} catch (_: Throwable) {}
+				println(Kolor.foreground(logFile.name, Color.RED))
+				break
 			}
-		} catch (exception: Throwable) {
-			//todo: do this properly
-			when (exception) {
-				is SocketException,
-				is CancellationException -> {}
-				//is IllegalStateException -> player.kick("invalid data received")
-				else -> {
-					val timestamp = LocalTime.now()
-					println(Kolor.foreground("!!! CRASH !!! $timestamp", Color.RED))
-					File("crash-${timestamp.toString().replace(":", "_")}.log").run {
-						createNewFile()
-						appendText(exception.stackTraceToString())
-						appendText(player.character.toString())
-					}
-				}
-			}
-			player.layer.removePlayer(player)
-			player.scope.cancel()
-			player.layer.announce("[-] ${player.character.name}")
+		}
+		player.run {
+			layer.removePlayer(player)
+			layer.announce("[-] ${player.character.name}")
+			scope.cancel()
 		}
 	}
 }
 
-suspend fun getNextPacket(reader: Reader) =
+private suspend fun getNextPacket(reader: Reader) =
 	when (PacketId.readFrom(reader)) {
 		PacketId.CreatureUpdate -> CreatureUpdate
 		PacketId.CreatureAction -> CreatureAction
@@ -149,3 +140,16 @@ suspend fun getNextPacket(reader: Reader) =
 		PacketId.ResidenceChunk -> ResidenceBiome
 		else -> throw IllegalStateException("unexpected packet id")
 	}.readFrom(reader)
+
+private suspend fun handlePacket(packet: Packet, source: Player) =
+	when (packet) {
+		is CreatureUpdate -> onCreatureUpdate(packet, source)
+		is CreatureAction -> onCreatureAction(packet, source)
+		is Hit -> onHit(packet, source)
+		is StatusEffect -> onStatusEffect(packet, source)
+		is Projectile -> onProjectile(packet, source)
+		is ChatMessage.FromClient -> onChatMessage(packet, source)
+		is ResidenceChunk -> onResidenceChunk(packet, source)
+		is ResidenceBiome -> onResidenceBiome(packet, source)
+		else -> error("unexpected packet type ${packet::class}")
+	}
