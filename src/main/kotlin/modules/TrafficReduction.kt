@@ -47,7 +47,7 @@ object TrafficReduction {
 			hitTimeOut = null,
 			//appearance
 			//flags
-			effectTimeDodge = packet.effectTimeDodge.nullUnlessBigger(previous.effectTimeDodge),
+			effectTimeDodge = if (isNewAnimation && previous.effectTimeDodge != 0) 0 else packet.effectTimeDodge.nullUnlessBigger(previous.effectTimeDodge),
 			effectTimeStun = packet.effectTimeStun.nullUnlessBigger(previous.effectTimeStun),
 			effectTimeFear = packet.effectTimeFear.nullUnlessBigger(previous.effectTimeFear),
 			effectTimeIce = packet.effectTimeIce.nullUnlessBigger(previous.effectTimeIce),
