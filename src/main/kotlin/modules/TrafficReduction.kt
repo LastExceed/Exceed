@@ -29,7 +29,7 @@ object TrafficReduction {
 		val filtered = packet.copy(
 			position = if (isMovementChange || isGliderHover) current.position else null,
 			rotation = null,//doesnt work anyway
-			velocity = if (velocityZisRelevant) packet.velocity else null,
+			velocity = if (velocityZisRelevant || packet.effectTimeDodge?.let { it > previous.effectTimeDodge } == true) packet.velocity else null,
 			acceleration = if (isMovementChange) current.acceleration else null,
 			velocityExtra = packet.velocityExtra?.run {
 				if (abs(x) <= abs(lastSent.velocityExtra.x) &&
