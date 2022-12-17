@@ -24,10 +24,11 @@ object TrafficReduction {
 		} ?: false
 		val isGliderHover = velocityZisRelevant && current.flags[CreatureFlag.Gliding]
 		val isMovementChange = packet.acceleration?.run { diff(lastSent.acceleration) > 4f } ?: false
+		val isTeleport = packet.position?.run { diff(previous.position) > Utils.SIZE_BLOCK * 4 } ?: false
 		val isNewAnimation = packet.animationTime?.run { this < previous.animationTime } ?: false
 
 		val filtered = packet.copy(
-			position = if (isMovementChange || isGliderHover) current.position else null,
+			position = if (isTeleport || isMovementChange || isGliderHover) current.position else null,
 			rotation = null,//doesnt work anyway
 			velocity = if (velocityZisRelevant || packet.effectTimeDodge?.let { it > previous.effectTimeDodge } == true) packet.velocity else null,
 			acceleration = if (isMovementChange) current.acceleration else null,
