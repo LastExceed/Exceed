@@ -5,7 +5,7 @@ import com.github.lastexceed.cubeworldnetworking.packets.*
 import Player
 import com.github.lastexceed.cubeworldnetworking.utils.*
 
-fun onCreatureAction(packet: CreatureAction, source: Player) {
+suspend fun onCreatureAction(packet: CreatureAction, source: Player) {
 	when (packet.type) {
 		CreatureAction.Type.Bomb -> {
 			source.notify("bombs are disabled")
@@ -35,6 +35,10 @@ fun onCreatureAction(packet: CreatureAction, source: Player) {
 			)
 		}
 		CreatureAction.Type.Drop -> {
+			if (packet.item.typeMajor == Item.Type.Major.None) {
+				source.kick("invalid item dropped") //todo: move to anticheat
+				return
+			}
 			source.layer.addGroundItem(
 				packet.item,
 				source.character.position.copy(z = source.character.position.z - (source.character.appearance.creatureSize.z / 2f * Utils.SIZE_BLOCK).toLong()),
