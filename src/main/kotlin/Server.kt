@@ -99,6 +99,12 @@ object Server {
 		}
 		val player = Player.create(socket, writer, character, mainLayer)
 
+//		if (!Balancing.ensureLowLevelWeapon(creatureUpdate, player)) {
+//			player.layer.removePlayer(player)
+//			return
+//		}
+		player.notify("welcome to exceed")
+
 		player.layer.announce("[+] ${player.character.name}")
 		//ModelImport.onJoin(player)
 		while (true) {

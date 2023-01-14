@@ -9,6 +9,11 @@ suspend fun onCreatureUpdate(packet: CreatureUpdate, source: Player) {
 		source.kick(it)
 	}
 	//Neverland.onCreatureUpdate(source, packet)
+
+//	if (!Balancing.ensureLowLevelWeapon(packet, source)) {
+//		return
+//	}
+
 	val filtered = TrafficReduction.onCreatureUpdate(packet, source)
 	source.character.update(packet)
 	if (filtered == null) return

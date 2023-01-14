@@ -36,4 +36,31 @@ object Balancing {
 
 	private fun Item.isShield() =
 		typeMajor == Item.Type.Major.Weapon && typeMinor == Item.Type.Minor.Weapon.Shield
+
+	private const val weaponLevelCap = 40
+	suspend fun ensureLowLevelWeapon(creatureUpdate: CreatureUpdate, source: Player): Boolean {
+		val equipment = creatureUpdate.equipment ?: return true
+
+		setOf(
+			equipment.leftWeapon,
+			equipment.rightWeapon
+		).filter { it.typeMajor != Item.Type.Major.None && it.level > weaponLevelCap }
+			.let {
+				if (it.isNotEmpty()) {
+					source.send(
+						WorldUpdate(
+							pickups = it.map {
+								Pickup(
+									source.character.id,
+									it.copy(level = weaponLevelCap.toShort())
+								)
+							}
+						)
+					)
+					source.kick("weapons are limited to lvl$weaponLevelCap (for balance). you've been given downleveled copies of your weapons, please equip them and then re-join")
+					return false
+				}
+			}
+		return true
+	}
 }
