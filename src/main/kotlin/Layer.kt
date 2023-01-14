@@ -9,12 +9,9 @@ data class Layer(
 	val players: MutableMap<CreatureId, Player> = mutableMapOf(),
 	val dropLists: MutableMap<Vector2<Int>, MutableList<Drop>> = mutableMapOf()
 ) {
-	fun broadcast(packet: Packet, toSkip: Player? = null) {
-		for (player in players.values.toSet()) {
-			if (player == toSkip) continue
-			player.send(packet)
-		}
-	}
+	fun broadcast(packet: Packet, toSkip: Player? = null) =
+		(players.values - toSkip)
+			.forEach { it!!.send(packet) }
 
 	fun addCreature(creature: Creature) {
 		creatures[creature.id] = creature

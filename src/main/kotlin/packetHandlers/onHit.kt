@@ -10,5 +10,5 @@ fun onHit(packet: Hit, source: Player) {
 		return
 	}
 	val target = source.layer.creatures[packet.target] ?: return //in case target disconnected in this moment
-	source.layer.broadcast(WorldUpdate(hits = listOf(Balancing.adjustDamage(packet, target))))
+	source.layer.broadcast(WorldUpdate(hits = listOf(Balancing.adjustDamage(packet, target)))) //todo: broadcast necessary?
 }

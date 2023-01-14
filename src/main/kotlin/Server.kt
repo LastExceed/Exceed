@@ -26,6 +26,7 @@ object Server {
 				}
 			}
 			println(Kolor.foreground("start listening", Color.DARK_GRAY))
+
 			while (true) {
 				val socket = listener.accept()
 				launch {
@@ -147,8 +148,13 @@ private suspend fun getNextPacket(reader: Reader) =
 				else -> throw IllegalStateException("unexpected packet id")
 			}.readFrom(reader)
 		}
-	} catch (_: SocketException) {
-		//regular disconnect
+	} catch (exception: Exception) {
+		when (exception) {
+			is SocketException,
+			is CancellationException,
+			is ClosedReceiveChannelException -> {} //regular disconnect
+			else -> throw exception
+		}
 		null
 	}
 
