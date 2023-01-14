@@ -65,11 +65,11 @@ object AntiCheat {
 		Item.Type.Minor.Weapon.Greataxe to setOf(Item.Material.Iron, Item.Material.Saurian),
 		Item.Type.Minor.Weapon.Greatmace to setOf(Item.Material.Iron, Item.Material.Wood),
 
-		Item.Type.Minor.Weapon.Arrow to setOf(Item.Material.None),
+		Item.Type.Minor.Weapon.Arrow to setOf(Item.Material.None, Item.Material.Wood),
 		Item.Type.Minor.Weapon.Quiver to setOf(Item.Material.None),
-		Item.Type.Minor.Weapon.Pitchfork to setOf(Item.Material.None),
-		Item.Type.Minor.Weapon.Pickaxe to setOf(Item.Material.None),
-		Item.Type.Minor.Weapon.Torch to setOf(Item.Material.None),
+		Item.Type.Minor.Weapon.Pitchfork to setOf(Item.Material.None, Item.Material.Wood, Item.Material.Iron),
+		Item.Type.Minor.Weapon.Pickaxe to setOf(Item.Material.None, Item.Material.Wood, Item.Material.Iron),
+		Item.Type.Minor.Weapon.Torch to setOf(Item.Material.None, Item.Material.Wood),
 	)
 	private val allowedAppearance = mapOf(
 		Race.ElfMale to AppearanceReference(
@@ -400,7 +400,10 @@ object AntiCheat {
 					Animation.ShieldM1a,
 					Animation.ShieldM1b,
 					Animation.ShieldM2,
-					Animation.ShieldM2Charging
+					Animation.ShieldM2Charging,
+					//todo: workaround for left-shield + right-none
+					Animation.UnarmedM1a,
+					Animation.UnarmedM1b
 				)
 			Item.Type.Minor.Weapon.Greatsword,
 			Item.Type.Minor.Weapon.Greataxe,
@@ -413,8 +416,21 @@ object AntiCheat {
 					Animation.GreatweaponM2Charging,
 				) + if (classMinor == CombatClassMinor.Warrior.Guardian)
 					Animation.GreatweaponM2Guardian
-				else
+				else {
 					Animation.GreatweaponM2Berserker
+				} + when (classMajor) {
+					CombatClassMajor.Rogue -> setOf(Animation.FistsM2) //intercept with pitchfork
+					CombatClassMajor.Mage -> //needed because mage is allowed to wield pitchfork
+						if (classMinor == CombatClassMinor.Mage.Fire) setOf(
+							Animation.BraceletsFireM1a,
+							Animation.BraceletsFireM1b
+						)
+						else setOf(
+							Animation.BraceletsWaterM1a,
+							Animation.BraceletsWaterM1b
+						)
+					else -> setOf()
+				}
 //		Item.Type.Minor.Weapon.Sword,
 //		Item.Type.Minor.Weapon.Axe,
 //		Item.Type.Minor.Weapon.Mace,
@@ -520,7 +536,7 @@ object AntiCheat {
 		}
 
 	private val lastFireSpam = mutableMapOf<CreatureId, Long>()
-	private val lastAnimation = mutableMapOf<CreatureId, Long>()
+	private val lastHitTime = mutableMapOf<CreatureId, Long>()
 
 	fun inspect(creatureUpdate: CreatureUpdate, previous: Creature): String? {
 		val current = previous.copy().apply { update(creatureUpdate) } //TODO: optimize
@@ -583,6 +599,8 @@ object AntiCheat {
 
 						current.equipment.rightWeapon.typeMajor == Item.Type.Major.None -> null
 
+						current.equipment.rightWeapon.typeMinor == Item.Type.Minor.Weapon.Shield -> Item.Type.Minor.Weapon.Sword //todo: workaround for Right-shield + left-none
+
 						else -> current.equipment.rightWeapon.typeMinor
 					}
 					it.expectIn(
@@ -593,6 +611,9 @@ object AntiCheat {
 						),
 						"animation"
 					)
+					if (it in setOf(Animation.Shuriken, Animation.Cyclone, Animation.LongswordM2)) {
+						previous.manaCharge.expect(0f, "manaCharge during unchargable attack")
+					}
 				}
 				animationTime?.let {
 					it.expectMinimum(0, "animationTime")
@@ -615,7 +636,29 @@ object AntiCheat {
 					}
 				}
 				combo?.expectMinimum(0, "combo")
-				hitTimeOut?.expectMinimum(0, "hitTimeOut")
+				hitTimeOut?.run {
+					expectMinimum(0, "hitTimeOut")
+
+//					if (this <= previous.hitTimeOut) {
+//						lastHitTime[id] = System.currentTimeMillis() - this
+//					} else {
+//						val n = System.currentTimeMillis() - this - lastHitTime[id]!!
+//						if (id.value == 1L) println(n)
+//						abs(n).expectMaximum(2000, "hitTimeOut.clockdesync")
+//					}
+
+//					if (this == previous.hitTimeOut) {
+//						//join packet, ignore because lag
+//					} else if (this < previous.hitTimeOut) {
+//						lastHitTime[id] = System.currentTimeMillis() - this
+//					} else if (lastHitTime[id] == null) {
+//						//no reference point generated yet
+//					} else {
+//						val n = System.currentTimeMillis() - this - lastHitTime[id]!!
+//						if (id.value == 1L) println(n)
+//						abs(n).expectMaximum(2000, "hitTimeOut.clockdesync")
+//					}
+				}
 				appearance?.let {
 					//unknownA
 					//unknownB
@@ -678,7 +721,12 @@ object AntiCheat {
 				effectTimeIce?.expectMinimum(0, "effectTimeIce")
 				effectTimeWind?.expectMaximum(5000, "effectTimeWind")
 				showPatchTime?.let {}
-				combatClassMajor?.ordinal?.expectIn(1..4, "combatClassMajor")
+				combatClassMajor?.let {
+					it.ordinal.expectIn(1..4, "combatClassMajor")
+					inspect(CreatureUpdate(id = id, equipment = current.equipment), current)?.let {
+						throw CheaterException(it)
+					}
+				}
 				combatClassMinor?.ordinal?.expectIn(0..1, "combatClassMinor")
 				manaCharge?.expectMaximum(current.mana, "manaCharge") //might go negative with blocking bug
 				unknown24?.let {}
@@ -746,75 +794,75 @@ object AntiCheat {
 				}
 				equipment?.let {
 					mapOf(
-						it::unknown to Item.Type.Major.None,
-						it::neck to Item.Type.Major.Amulet,
-						it::chest to Item.Type.Major.Chest,
-						it::feet to Item.Type.Major.Boots,
-						it::hands to Item.Type.Major.Gloves,
-						it::shoulder to Item.Type.Major.Shoulder,
-						it::leftWeapon to Item.Type.Major.Weapon,
-						it::rightWeapon to Item.Type.Major.Weapon,
-						it::leftRing to Item.Type.Major.Ring,
-						it::rightRing to Item.Type.Major.Ring,
-						it::lamp to Item.Type.Major.Lamp,
-						it::special to Item.Type.Major.Special,
-						it::pet to Item.Type.Major.Pet
-					).filterNot { it.key.get().typeMajor == Item.Type.Major.None }.forEach {
-						val item = it.key.get()
-						val prefix = "equipment." + it.key.name
+						it::unknown     to setOf(Item.Type.Major.None),
+						it::neck        to setOf(Item.Type.Major.Amulet),
+						it::chest       to setOf(Item.Type.Major.Chest),
+						it::feet        to setOf(Item.Type.Major.Boots),
+						it::hands       to setOf(Item.Type.Major.Gloves),
+						it::shoulder    to setOf(Item.Type.Major.Shoulder),
+						it::leftWeapon  to setOf(Item.Type.Major.Weapon),
+						it::rightWeapon to setOf(Item.Type.Major.Weapon),
+						it::leftRing    to setOf(Item.Type.Major.Ring),
+						it::rightRing   to setOf(Item.Type.Major.Ring),
+						it::lamp        to setOf(Item.Type.Major.Lamp),
+						it::special     to setOf(Item.Type.Major.Special),
+						it::pet         to setOf(Item.Type.Major.Pet, Item.Type.Major.PetFood)
+					).filterNot { it.key.get().typeMajor == Item.Type.Major.None }
+						.forEach {
+							val item = it.key.get()
+							val prefix = "equipment." + it.key.name
 
-						item.typeMajor.expect(it.value, "$prefix.typeMajor")
+							item.typeMajor.expectIn(it.value, "$prefix.typeMajor")
 
-						val classMajor = current.combatClassMajor
-						val allowedItemMaterials = when (it.value) {
-							Item.Type.Major.Weapon -> {
-								item.typeMinor.expectIn(getAllowedWeaponTypes(classMajor), "$prefix.typeMinor")
-								allowedWeaponMaterials[item.typeMinor]!!
+							val classMajor = current.combatClassMajor
+							val allowedItemMaterials = when (item.typeMajor) {
+								Item.Type.Major.Weapon -> {
+									item.typeMinor.expectIn(getAllowedWeaponTypes(classMajor), "$prefix.typeMinor")
+									allowedWeaponMaterials[item.typeMinor]!!
+								}
+								Item.Type.Major.Chest,
+								Item.Type.Major.Boots,
+								Item.Type.Major.Gloves,
+								Item.Type.Major.Shoulder -> getAllowedMaterialsArmor(classMajor)
+
+								Item.Type.Major.Amulet,
+								Item.Type.Major.Ring -> allowedMaterialsAccessories
+
+								Item.Type.Major.Special -> {
+									item.typeMinor.expectIn(subTypesSpecial, "$prefix.typeMinor")
+									setOf(Item.Material.Wood)
+								}
+								Item.Type.Major.Lamp -> setOf(Item.Material.Iron)
+								else -> setOf(Item.Material.None)
 							}
-							Item.Type.Major.Chest,
-							Item.Type.Major.Boots,
-							Item.Type.Major.Gloves,
-							Item.Type.Major.Shoulder -> getAllowedMaterialsArmor(classMajor)
+							item.material.expectIn(allowedItemMaterials, "$prefix.material")
+							//item.randomSeed.expectMinimum(0, "$prefix.randomSeed")
+							item.recipe.expect(Item.Type.Major.None, "$prefix.recipe")
+							item.rarity.expectIn(allowedRarities, "$prefix.rarity")
 
-							Item.Type.Major.Amulet,
-							Item.Type.Major.Ring -> allowedMaterialsAccessories
+							val powerAllowed = Utils.computePower(current.level)
+							val powerActual = Utils.computePower(item.level.toInt())
+							powerActual.expectIn(1..powerAllowed, "$prefix.level")
 
-							Item.Type.Major.Special -> {
-								item.typeMinor.expectIn(subTypesSpecial, "$prefix.typeMinor")
-								setOf(Item.Material.Wood)
-							}
-							Item.Type.Major.Lamp -> setOf(Item.Material.Iron)
-							else -> setOf(Item.Material.None)
+							val spiritLimit = 32//if (item.typeMajor == Item.Type.Major.Weapon) getWeaponHandCount(item.typeMinor) * 16 else 0
+							item.spiritCounter.expectIn(0..spiritLimit, "$prefix.spiritCounter")
+
+//							val allowedSpiritMaterials = setOf(
+//								Item.Material.Fire,
+//									Item.Material.Unholy,
+//								Item.Material.IceSpirit,
+//								Item.Material.Wind,
+//								item.material
+//								)
+//							item.spirits.take(item.spiritCounter).forEachIndexed { index, spirit ->
+//								spirit.material.expectIn(allowedSpiritMaterials, "$prefix.spirit#$index.material")
+//								spirit.level.toInt().expectIn(1..item.level, "$prefix.spirit#$index.level")
+//							}
 						}
-						item.material.expectIn(allowedItemMaterials, "$prefix.material")
-						//item.randomSeed.expectMinimum(0, "$prefix.randomSeed")
-						item.recipe.expect(Item.Type.Major.None, "$prefix.recipe")
-						item.rarity.expectIn(allowedRarities, "$prefix.rarity")
-
-						val powerAllowed = Utils.computePower(current.level)
-						val powerActual = Utils.computePower(item.level.toInt())
-						powerActual.expectIn(1..powerAllowed, "$prefix.level")
-
-						val spiritLimit = 32//if (item.typeMajor == Item.Type.Major.Weapon) getWeaponHandCount(item.typeMinor) * 16 else 0
-						item.spiritCounter.expectIn(0..spiritLimit, "$prefix.spiritCounter")
-
-//						val allowedSpiritMaterials = setOf(
-//							Item.Material.Fire,
-//							Item.Material.Unholy,
-//							Item.Material.IceSpirit,
-//							Item.Material.Wind,
-//							item.material
-//						)
-//						item.spirits.take(item.spiritCounter).forEachIndexed { index, spirit ->
-//							spirit.material.expectIn(allowedSpiritMaterials, "$prefix.spirit#$index.material")
-//							spirit.level.toInt().expectIn(1..item.level, "$prefix.spirit#$index.level")
-//						}
-					}
 					val r = if (it.rightWeapon == Item.void) 0 else getWeaponHandCount(it.rightWeapon.typeMinor)
 					val l = if (it.leftWeapon == Item.void) 0 else getWeaponHandCount(it.leftWeapon.typeMinor)
 					(r + l).expectMaximum(2, "equipment.dualwield")
 					//ranger can hold 2h weapon in either hand
-
 				}
 				name?.length?.expectIn(1..15, "name.length")
 				skillPointDistribution?.let {
@@ -835,7 +883,7 @@ object AntiCheat {
 						forEach {
 							it.get().expectMinimum(0, "skillPoints.${it.name}")
 						}
-						map { it.get() }.sum().expectMaximum(available, "skillPoints.total")
+						sumOf { it.get() }.expectMaximum(available, "skillPoints.total")
 					}
 				}
 				manaCubes?.expectMinimum(0, "manaCubes")
