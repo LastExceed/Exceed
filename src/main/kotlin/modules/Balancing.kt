@@ -9,7 +9,14 @@ object Balancing {
 	private const val SHIELD_DEFENSE = 0.25f
 
 	fun warFrenzyBuff(packet: StatusEffect, source: Player) {
-		source.send(WorldUpdate(statusEffects = listOf(packet.copy(type = StatusEffect.Type.Camouflage))))
+		source.layer.broadcast(
+			WorldUpdate(
+				statusEffects = listOf(
+					packet.copy(type = StatusEffect.Type.Camouflage),
+					packet.copy(type = StatusEffect.Type.Swiftness)
+				)
+			)
+		)
 	}
 
 	fun adjustDamage(hit: Hit, target: Creature): Hit {
