@@ -21,7 +21,7 @@ object ExperimentalStuff {
 }
 
 fun registerCommands() {
-	ChatCommands.commands["skillpoint"] = Command { caller, parameters ->
+	ChatCommands.commands["skillpoint"] = Command(true) { caller, parameters ->
 		val pickup = Pickup(
 			interactor = caller.character.id,
 			item = Item.void.copy(typeMajor = Item.Type.Major.ManaCube)
@@ -38,7 +38,7 @@ fun registerCommands() {
 		}
 	}
 
-	ChatCommands.commands["speed"] = Command { caller, parameters ->
+	ChatCommands.commands["speed"] = Command(true) { caller, parameters ->
 		val camo = StatusEffect(
 			caller.character.id,
 			caller.character.id,
@@ -59,7 +59,7 @@ fun registerCommands() {
 		({ caller.send(WorldUpdate(statusEffects = listOf(speed, camo))) })
 	}
 
-	ChatCommands.commands["block"] = Command { caller, parameters ->
+	ChatCommands.commands["block"] = Command(true) { caller, parameters ->
 		val we = WorldEdit(
 			position = Vector3(
 				(caller.character.position.x / Utils.SIZE_BLOCK).toInt(),
@@ -73,7 +73,7 @@ fun registerCommands() {
 		({ caller.send(WorldUpdate(worldEdits = listOf(we))) })
 	}
 
-	ChatCommands.commands["oj"] = Command { caller, parameters ->
+	ChatCommands.commands["oj"] = Command(true) { caller, parameters ->
 		{ ModelImport.onJoin(caller) }
 	}
 
