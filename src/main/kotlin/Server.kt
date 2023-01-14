@@ -93,14 +93,14 @@ object Server {
 
 		//seed must be sent BEFORE the player is added to the layer
 		//else the seed change will unload all cratures on their end
-//		MapSeed(225).run {
-//			packetId.writeTo(writer)
-//			writeTo(writer)
-//		}
+		MapSeed(225).run {
+			packetId.writeTo(writer)
+			writeTo(writer)
+		}
 		val player = Player.create(socket, writer, character, mainLayer)
 
 		player.layer.announce("[+] ${player.character.name}")
-		ModelImport.onJoin(player)
+		//ModelImport.onJoin(player)
 		while (true) {
 			try {
 				val packet = getNextPacket(reader) ?: break

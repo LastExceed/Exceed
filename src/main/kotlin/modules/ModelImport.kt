@@ -36,7 +36,7 @@ object ModelImport {
 
 		if (cache == null) {
 			cache = WorldUpdate(
-				worldEdits = parseVoxModel("FD_A_2B_minifed.vox").map {
+				worldEdits = parseVoxModel("newdii_arena.vox").map {//FD_A_2B_minifed
 					it.copy(
 						position = Vector3(
 							it.position.x + 0x802080 - 63,
