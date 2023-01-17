@@ -469,7 +469,8 @@ object AntiCheat {
 		} + setOf( //these can be worn by any class
 			Item.Material.Bone,
 			Item.Material.Mammoth,
-			Item.Material.Gold
+			//Item.Material.Gold //+100% crit //disabled due to op stats
+			//Item.Material.Silver //+100% tempo //disabled due to op stats
 		)
 
 	private fun getAllowedWeaponTypes(combatClassMajor: CombatClassMajor) =
