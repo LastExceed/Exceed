@@ -1,14 +1,14 @@
 package packetHandlers
 
 import modules.Balancing
-import modules.ClientBugFixes
 import Player
 import com.github.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.utils.Utils
 
 fun onHit(packet: Hit, source: Player) {
-	if (ClientBugFixes.ignoreSelfHeal(source, packet)) {
-		return
-	}
+//	if (ClientBugFixes.ignoreSelfHeal(source, packet)) {
+//		return
+//	}
 
 	val target = source.layer.players[packet.target] ?: return //in case target disconnected in this moment
 
