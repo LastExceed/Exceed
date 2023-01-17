@@ -449,21 +449,21 @@ object AntiCheat {
 	private fun getAllowedMaterialsArmor(combatClassMajor: CombatClassMajor) =
 		when (combatClassMajor) {
 			CombatClassMajor.Warrior -> setOf(
-				Item.Material.Iron,
+				Item.Material.Iron, //+50% hp, -15% resi
 				Item.Material.Obsidian,
-				Item.Material.Saurian,
+				Item.Material.Saurian,//-20% armor
 				Item.Material.Ice
 			)
 			CombatClassMajor.Ranger -> setOf(
-				Item.Material.Parrot,
-				Item.Material.Linen
+				Item.Material.Parrot, //-15% armor, -25% resi
+				Item.Material.Linen //+25% hp, -15% armor, -25% resi, +reg
 			)
 			CombatClassMajor.Mage -> setOf(
-				Item.Material.Licht,
-				Item.Material.Silk
+				Item.Material.Licht, //-25% resi
+				Item.Material.Silk //-25% resi
 			)
 			CombatClassMajor.Rogue -> setOf(
-				Item.Material.Cotton
+				Item.Material.Cotton //-15% armor, -25% resi, +reg, +37,5% hp
 			)
 			else -> setOf()
 		} + setOf( //these can be worn by any class
