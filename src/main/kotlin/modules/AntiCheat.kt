@@ -49,8 +49,8 @@ object AntiCheat {
 	)
 	private val allowedWeaponMaterials = mapOf(
 		Item.Type.Minor.Weapon.Sword to setOf(Item.Material.Iron, Item.Material.Obsidian, Item.Material.Bone),
-		Item.Type.Minor.Weapon.Axe to setOf(Item.Material.Iron),
-		Item.Type.Minor.Weapon.Mace to setOf(Item.Material.Iron),
+		Item.Type.Minor.Weapon.Axe to setOf(Item.Material.Iron, Item.Material.Bone),
+		Item.Type.Minor.Weapon.Mace to setOf(Item.Material.Iron, Item.Material.Bone),
 		Item.Type.Minor.Weapon.Dagger to setOf(Item.Material.Iron),
 		Item.Type.Minor.Weapon.Fist to setOf(Item.Material.Iron),
 		Item.Type.Minor.Weapon.Longsword to setOf(Item.Material.Iron),
@@ -63,7 +63,7 @@ object AntiCheat {
 		Item.Type.Minor.Weapon.Shield to setOf(Item.Material.Iron, Item.Material.Wood),
 		Item.Type.Minor.Weapon.Greatsword to setOf(Item.Material.Iron),
 		Item.Type.Minor.Weapon.Greataxe to setOf(Item.Material.Iron, Item.Material.Saurian),
-		Item.Type.Minor.Weapon.Greatmace to setOf(Item.Material.Iron, Item.Material.Wood),
+		Item.Type.Minor.Weapon.Greatmace to setOf(Item.Material.Iron, Item.Material.Wood, Item.Material.Bone),
 
 		Item.Type.Minor.Weapon.Arrow to setOf(Item.Material.None, Item.Material.Wood),
 		Item.Type.Minor.Weapon.Quiver to setOf(Item.Material.None),
