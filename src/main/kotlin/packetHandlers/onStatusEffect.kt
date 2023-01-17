@@ -30,7 +30,7 @@ fun onStatusEffect(packet: StatusEffect, source: Player) {
 		StatusEffect.Type.Elusiveness,
 		StatusEffect.Type.Swiftness -> {}
 
-		else -> error("unknown status effect type $type")
+		else -> return//error("unknown status effect type $type")
 	}
 	source.layer.broadcast(WorldUpdate(statusEffects = listOf(packet)), source)
 }
