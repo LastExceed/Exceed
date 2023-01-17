@@ -12,7 +12,7 @@ object Balancing {
 		source.layer.broadcast(
 			WorldUpdate(
 				statusEffects = listOf(
-					packet.copy(type = StatusEffect.Type.Camouflage),
+					//packet.copy(type = StatusEffect.Type.Camouflage),
 					packet.copy(type = StatusEffect.Type.Swiftness)
 				)
 			)
