@@ -3,6 +3,7 @@ package modules
 import Creature
 import Player
 import com.github.lastexceed.cubeworldnetworking.packets.*
+import com.github.lastexceed.cubeworldnetworking.utils.*
 
 object Balancing {
 	private const val GLOBAL_STUN_MODIFIER = 0.75
@@ -112,6 +113,77 @@ object Balancing {
 			damage = effectiveDamage,
 			stuntime = effectiveStunDuration
 		)
+	}
+
+	val lastGroundTime = mutableMapOf<CreatureId, Pair<Long, Boolean>>()
+
+	fun onCreatureUpdate(packet: CreatureUpdate, source: Player) {
+		if (source.character.combatClassMajor != CombatClassMajor.Rogue) return
+
+		if (source.character.flagsPhysics[PhysicsFlag.OnGround] ||
+			source.character.flagsPhysics[PhysicsFlag.Swimming] ||
+			source.character.flags[CreatureFlag.Gliding] ||
+			source.character.flags[CreatureFlag.Climbing]
+		) {
+			lastGroundTime[source.character.id] = System.currentTimeMillis() to false
+			return
+		}
+
+		val (lastGroundTime, warned) = lastGroundTime[source.character.id] ?: return
+		val currentFlightDuration = System.currentTimeMillis() - lastGroundTime
+
+		if (currentFlightDuration > 3000 && !warned) {
+			source.send(
+				WorldUpdate(
+					statusEffects = listOf(
+						StatusEffect(
+							source = CreatureId(0),
+							target = source.character.id,
+							type = StatusEffect.Type.Unknown8,
+							modifier = 1f,
+							duration = 2000,
+							creatureId3 = source.character.id
+						)
+					),
+					soundEffects = listOf(
+						SoundEffect(
+							position = Utils.creatureToSoundPosition(source.character.position),
+							SoundEffect.Sound.Magic01
+						)
+					)
+				)
+			)
+			this.lastGroundTime[source.character.id] = lastGroundTime to true
+		}
+
+		if (currentFlightDuration > 5000) {
+			source.send(
+				WorldUpdate(
+					hits = listOf(
+						Hit(
+							attacker = CreatureId(0),
+							target = source.character.id,
+							damage = 0f,
+							critical = false,
+							stuntime = 3000,
+							position = source.character.position,
+							direction = Vector3(0f, 0f, 0f),
+							isYellow = false,
+							type = Hit.Type.Default,
+							flash = true
+						)
+					),
+					soundEffects = listOf(
+						SoundEffect(
+							position = Utils.creatureToSoundPosition(source.character.position),
+							SoundEffect.Sound.SpikeTrap
+						)
+					)
+				)
+			)
+			source.notify("you have been punished for glitching in the air too long")
+			this.lastGroundTime[source.character.id] = System.currentTimeMillis() to false
+		}
 	}
 
 	//add bleeding to make daggers viable
