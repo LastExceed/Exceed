@@ -640,25 +640,12 @@ object AntiCheat {
 				hitTimeOut?.run {
 					expectMinimum(0, "hitTimeOut")
 
-//					if (this <= previous.hitTimeOut) {
-//						lastHitTime[id] = System.currentTimeMillis() - this
-//					} else {
-//						val n = System.currentTimeMillis() - this - lastHitTime[id]!!
-//						if (id.value == 1L) println(n)
-//						abs(n).expectMaximum(2000, "hitTimeOut.clockdesync")
-//					}
-
-//					if (this == previous.hitTimeOut) {
-//						//join packet, ignore because lag
-//					} else if (this < previous.hitTimeOut) {
-//						lastHitTime[id] = System.currentTimeMillis() - this
-//					} else if (lastHitTime[id] == null) {
-//						//no reference point generated yet
-//					} else {
-//						val n = System.currentTimeMillis() - this - lastHitTime[id]!!
-//						if (id.value == 1L) println(n)
-//						abs(n).expectMaximum(2000, "hitTimeOut.clockdesync")
-//					}
+					if (this <= previous.hitTimeOut) { //equal incase of seed change lag
+						lastHitTime[id] = System.currentTimeMillis() - this
+					} else {
+						val delta = (System.currentTimeMillis() - lastHitTime[id]!!) - this
+						abs(delta).expectMaximum(2000, "hitTimeOut.clockdesync")
+					}
 				}
 				appearance?.let {
 					//unknownA
