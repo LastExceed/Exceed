@@ -95,7 +95,7 @@ object Server {
 
 		//seed must be sent BEFORE the player is added to the layer
 		//else the seed change will unload all cratures on their end
-		MapSeed(225).run {
+		MapSeed(56345).run {
 			packetId.writeTo(writer)
 			writeTo(writer)
 		}
