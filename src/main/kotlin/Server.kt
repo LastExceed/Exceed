@@ -104,9 +104,10 @@ object Server {
 //			player.layer.removePlayer(player)
 //			return
 //		}
-		player.notify("welcome to exceed")
+		player.notify("welcome to exceed\nuse /spawn to get to the gathering point")
 
 		player.layer.announce("[+] ${player.character.name}")
+		Warps.onJoin(player)
 		//ModelImport.onJoin(player)
 		while (true) {
 			try {
