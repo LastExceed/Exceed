@@ -46,11 +46,11 @@ suspend fun onCreatureAction(packet: CreatureAction, source: Player) {
 			)
 		}
 		CreatureAction.Type.CallPet -> {
-			if (!source.character.flags[CreatureFlag.Sprinting]) {
-				Ultimates.cast(source)
-			} else {
-				//Utils.notify(source, "pets are disabled")
-			}
+//			if (!source.character.flags[CreatureFlag.Sprinting]) {
+//				Ultimates.cast(source)
+//			} else {
+//				//Utils.notify(source, "pets are disabled")
+//			}
 		}
 		else -> error("unknown creature action type " + packet.type)
 	}
