@@ -14,6 +14,28 @@ suspend fun onCreatureUpdate(packet: CreatureUpdate, source: Player) {
 //		return
 //	}
 
+//	source.layer.broadcast(
+//		packet.copy(
+//			id = CreatureId(packet.id.value + 600),
+//			appearance = source.character.appearance,
+//			affiliation = Affiliation.Player
+//		)
+//	)
+//	source.layer.broadcast(
+//		WorldUpdate(
+//			statusEffects = listOf(
+//				StatusEffect(
+//					source = CreatureId(packet.id.value + 600),
+//					target = CreatureId(packet.id.value + 600),
+//					type = StatusEffect.Type.Camouflage,
+//					modifier = 999999f,
+//					duration = 9999999,
+//					creatureId3 = CreatureId(packet.id.value + 600)
+//				)
+//			)
+//		)
+//	)
+
 	val filtered = TrafficReduction.onCreatureUpdate(packet, source)
 	source.character.update(packet)
 	Balancing.onCreatureUpdate(packet, source)
