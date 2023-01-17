@@ -45,7 +45,7 @@ private fun applyPoisonDamageTicks(source: Player, statusEffect: StatusEffect) {
 			val damageTick = Hit(
 				attacker = source.character.id,
 				target = statusEffect.target,
-				damage = statusEffect.modifier,
+				damage = statusEffect.modifier * (1f - Balancing.GLOBAL_DAMAGE_REDUCTION_PERCENT),
 				critical = false,
 				stuntime = 0,
 				position = targetPlayer.character.position,
