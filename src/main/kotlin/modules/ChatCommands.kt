@@ -311,7 +311,7 @@ object ChatCommands {
 				{ target.kick(reason) }
 			}
 		}
-		registerCommands()
+		//registerCommands()
 	}
 
 	//todo: get rid of this suspend. its only here because model import code is garbage
