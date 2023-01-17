@@ -56,7 +56,7 @@ private fun applyPoisonDamageTicks(source: Player, statusEffect: StatusEffect) {
 			)
 			val sound = SoundEffect(
 				position = Utils.creatureToSoundPosition(targetPlayer.character.position),
-				sound = SoundEffect.Sound.Absorb
+				sound = SoundEffect.Sound.SlimeGroan
 			)
 			val miscellaneous = WorldUpdate(
 				hits = listOf(damageTick),
