@@ -16,6 +16,7 @@ suspend fun onCreatureUpdate(packet: CreatureUpdate, source: Player) {
 
 	val filtered = TrafficReduction.onCreatureUpdate(packet, source)
 	source.character.update(packet)
+	Balancing.onCreatureUpdate(packet, source)
 	if (filtered == null) return
 	source.layer.broadcast(Pvp.makeAttackable(filtered), source)
 	//ModelImport.onCreatureUpdate(source, packet)
