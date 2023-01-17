@@ -34,10 +34,11 @@ object TrafficReduction {
 			velocity = if (velocityZisRelevant || isDodgeStart || previous.animation in listOf(Animation.Intercept, Animation.Smash)) packet.velocity else null,
 			acceleration = if (isMovementChange) current.acceleration else null,
 			velocityExtra = packet.velocityExtra?.run {
-				if (abs(x) <= abs(lastSent.velocityExtra.x) &&
-					abs(y) <= abs(lastSent.velocityExtra.y) &&
-					abs(z) <= abs(lastSent.velocityExtra.z)
-				) null else this
+				if (abs(x) > abs(lastSent.velocityExtra.x) ||
+					abs(y) > abs(lastSent.velocityExtra.y) ||
+					abs(z) > abs(lastSent.velocityExtra.z) ||
+					current.velocity.z > previous.velocity.z
+				) this else null
 			},
 			climbAnimationState = null,
 			flagsPhysics = null,
