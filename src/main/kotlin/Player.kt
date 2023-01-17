@@ -4,6 +4,7 @@ import com.github.lastexceed.cubeworldnetworking.packets.*
 import com.github.lastexceed.cubeworldnetworking.utils.Writer
 import kotlinx.coroutines.*
 import java.io.*
+import java.net.SocketAddress
 
 class Player private constructor(
 	private val socket: Socket,
@@ -12,6 +13,7 @@ class Player private constructor(
 	layer: Layer,
 	var isAdmin: Boolean = false
 ) {
+	val ipAdress: SocketAddress get() = socket.remoteAddress.toJavaAddress()
 	val scope = CoroutineScope(Job() + Dispatchers.IO)
 	var layer = layer
 		private set

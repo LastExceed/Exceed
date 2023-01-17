@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	kotlin("jvm") version "1.6.20"
+	kotlin("jvm") version "1.8.0"
 	application
 }
 group = "com.github.lastexceed"
@@ -17,6 +17,7 @@ dependencies {
 	implementation("io.ktor", "ktor-network", "2.0.+")
 	implementation("com.github.lastexceed", "CubeworldNetworking", "1.4.0")
 	implementation("com.github.ziggy42", "kolor", "1.0.0")
+	implementation("dev.kord:kord-core:0.8.0-M17")
 	implementation(kotlin("stdlib-jdk8"))
 }
 

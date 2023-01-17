@@ -14,11 +14,12 @@ import java.time.*
 
 object Server {
 	private val listener = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(InetSocketAddress("0.0.0.0", 12345))
-	private val mainLayer = Layer()
+	val mainLayer = Layer()
 
 	suspend fun start() {
 		CreatureIdPool.claim() //claim 0 because its reserved for server messages
 		supervisorScope {
+			launch { DiscordBot.run() }
 			launch {//todo: layer scope
 				while (true) {
 					mainLayer.broadcast(GameDateTime(0, Duration.ofHours(12).toMillis().toInt()))
@@ -48,7 +49,7 @@ object Server {
 	}
 
 	private suspend fun handleNewConnection(socket: Socket) {
-		println(Kolor.foreground("new connection from " + socket.remoteAddress.toJavaAddress().hostname, Color.DARK_GRAY))
+		println(Kolor.foreground("new connection from " + socket.remoteAddress.toJavaAddress().toString(), Color.DARK_GRAY))
 		val reader = Reader(socket.openReadChannel())
 		val writer = ByteWriteChannelAdapter(socket.openWriteChannel(true))
 

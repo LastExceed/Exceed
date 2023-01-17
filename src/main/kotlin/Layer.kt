@@ -1,8 +1,8 @@
 import com.andreapivetta.kolor.*
-import modules.Pvp
 import com.github.lastexceed.cubeworldnetworking.packets.*
 import com.github.lastexceed.cubeworldnetworking.utils.*
 import kotlinx.coroutines.*
+import modules.*
 
 data class Layer(
 	val creatures: MutableMap<CreatureId, Creature> = mutableMapOf(),
@@ -49,11 +49,14 @@ data class Layer(
 		removeCreature(player.character)
 	}
 
-	fun announce(message: String) {
+	fun announce(message: String, skipDiscord: Boolean = false) {
 		players.values.toSet().forEach {
 			it.notify(message)
 		}
 		println(Kolor.foreground(message, Color.LIGHT_GRAY))
+		if (!skipDiscord) {
+			GlobalScope.launch { DiscordBot.post(message) }
+		}
 	}
 
 	fun addGroundItem(item: Item, position: Vector3<Long>, rotation: Float) {
