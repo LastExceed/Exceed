@@ -630,7 +630,7 @@ object AntiCheat {
 							val currentTime = System.currentTimeMillis()
 							val lastTime = lastFireSpam[id]
 							if (lastTime != null) {
-								(currentTime - lastTime).expectMinimum(1000, "firespamming")
+								(currentTime - lastTime).expectMinimum(0, "firespamming")
 							}
 							lastFireSpam[id] = currentTime
 						}
