@@ -50,9 +50,9 @@ private fun applyPoisonDamageTicks(source: Player, statusEffect: StatusEffect) {
 				stuntime = 0,
 				position = targetPlayer.character.position,
 				direction = Vector3(0f, 0f, 0f),
-				isYellow = false,
-				type = Hit.Type.Unknown,
-				flash = false
+				isYellow = true,
+				type = Hit.Type.Default,
+				flash = true
 			)
 			val sound = SoundEffect(
 				position = Utils.creatureToSoundPosition(targetPlayer.character.position),
