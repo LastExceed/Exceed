@@ -105,7 +105,7 @@ fun registerCommands() {
 				)
 			}
 
-		({ caller.send(WorldUpdate(statusEffects = listOf(speed, camo))) })
+		({ caller.send(WorldUpdate(statusEffects = statusEffects)) })
 	}
 
 	ChatCommands.commands["block"] = Command(true) { caller, parameters ->
