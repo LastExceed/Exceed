@@ -3,6 +3,7 @@ package modules
 import Player
 import com.github.lastexceed.cubeworldnetworking.packets.*
 import com.github.lastexceed.cubeworldnetworking.utils.*
+import kotlinx.coroutines.*
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -261,6 +262,20 @@ object ChatCommands {
 			)
 
 			({ caller.send(worldUpdate) })
+		}
+
+		commands["countdown"] = Command { caller, parameters ->
+			{
+				caller.scope.launch {
+					caller.layer.announce("3")
+					delay(1000)
+					caller.layer.announce("2")
+					delay(1000)
+					caller.layer.announce("1")
+					delay(1000)
+					caller.layer.announce("go!")
+				}
+			}
 		}
 
 		commands["player"] = Command { caller, parameters ->
