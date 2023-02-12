@@ -109,6 +109,7 @@ object Server {
 
 		player.layer.announce("[+] ${player.character.name}")
 		Warps.onJoin(player)
+		Dummys.onJoin(player)
 		//ModelImport.onJoin(player)
 		while (true) {
 			try {
